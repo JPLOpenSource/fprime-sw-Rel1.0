@@ -1,185 +1,1098 @@
 {
-    "name": "Example Spacecraft",
-    "key": "sc",
+    "key": "isf", 
     "measurements": [
         {
-            "name": "Fuel",
-            "key": "prop.fuel",
+            "key": "261", 
+            "name": "FileUplink_FilesReceived", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "kilograms",
-                    "format": "float",
-                    "min": 0,
-                    "max": 100,
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Thrusters",
-            "key": "prop.thrusters",
+            "key": "262", 
+            "name": "FileUplink_PacketsReceived", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "format": "enum",
-                    "enumerations": [
-                        {
-                            "string": "ON",
-                            "value": 1
-                        },
-                        {
-                            "string": "OFF",
-                            "value": 0
-                        }
-                    ],
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Received",
-            "key": "comms.recd",
+            "key": "263", 
+            "name": "FileUplink_Warnings", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "bytes",
-                    "format": "integer",
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Sent",
-            "key": "comms.sent",
+            "key": "401", 
+            "name": "fileDownlinkBufferManager_BufferManager_NumAllocatedBuffers", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "bytes",
-                    "format": "integer",
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Generator Temperature",
-            "key": "pwr.temp",
+            "key": "402", 
+            "name": "fileDownlinkBufferManager_BufferManager_AllocatedSize", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "℃",
-                    "format": "float",
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Generator Current",
-            "key": "pwr.c",
+            "key": "21", 
+            "name": "rateGroup1Comp_RgMaxTime", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "Amps",
-                    "format": "float",
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
-        },
+        }, 
         {
-            "name": "Generator Voltage",
-            "key": "pwr.v",
+            "key": "22", 
+            "name": "rateGroup1Comp_RgCycleSlips", 
             "values": [
                 {
-                    "key": "value",
-                    "name": "Value",
-                    "units": "Volts",
-                    "format": "float",
+                    "format": "float", 
                     "hints": {
                         "range": 1
-                    }
-                },
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
                 {
-                    "key": "utc",
-                    "source": "timestamp",
-                    "name": "Timestamp",
-                    "format": "utc",
+                    "format": "utc", 
                     "hints": {
                         "domain": 1
-                    }
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "281", 
+            "name": "SG5_SignalGen_Output", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "541", 
+            "name": "CS_LoadCommands", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "542", 
+            "name": "CS_CancelCommands", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "543", 
+            "name": "CS_Errors", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "544", 
+            "name": "CS_CommandsExecuted", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "545", 
+            "name": "CS_SequencesCompleted", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "162", 
+            "name": "rateGroup2Comp_RgCycleSlips", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "41", 
+            "name": "PR_NumPings", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "301", 
+            "name": "fileUplinkBufferManager_BufferManager_NumAllocatedBuffers", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "302", 
+            "name": "fileUplinkBufferManager_BufferManager_AllocatedSize", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "181", 
+            "name": "SG1_SignalGen_Output", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "321", 
+            "name": "SG4_SignalGen_Output", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "161", 
+            "name": "rateGroup2Comp_RgMaxTime", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "201", 
+            "name": "SG3_SignalGen_Output", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "503", 
+            "name": "FileDownlink_Warnings", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "81", 
+            "name": "PacketsSent", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "82", 
+            "name": "NumErrorsInjected", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "83", 
+            "name": "Parameter3", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "84", 
+            "name": "Parameter4", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "85", 
+            "name": "SendState", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "221", 
+            "name": "SG2_SignalGen_Output", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "481", 
+            "name": "BD_Cycles", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "101", 
+            "name": "NumPkts", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "102", 
+            "name": "NumErrPkts", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "103", 
+            "name": "Sensor1", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "104", 
+            "name": "Sensor2", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "361", 
+            "name": "PingLateWarnings", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "106", 
+            "name": "Parameter2", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "241", 
+            "name": "rateGroup3Comp_RgMaxTime", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "242", 
+            "name": "rateGroup3Comp_RgCycleSlips", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "501", 
+            "name": "FileDownlink_FilesSent", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "502", 
+            "name": "FileDownlink_PacketsSent", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "105", 
+            "name": "Parameter1", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "121", 
+            "name": "CommandsDispatched", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
+                }
+            ]
+        }, 
+        {
+            "key": "122", 
+            "name": "CommandErrors", 
+            "values": [
+                {
+                    "format": "float", 
+                    "hints": {
+                        "range": 1
+                    }, 
+                    "key": "value", 
+                    "max": 100, 
+                    "min": 0, 
+                    "name": "Value", 
+                    "units": "units"
+                }, 
+                {
+                    "format": "utc", 
+                    "hints": {
+                        "domain": 1
+                    }, 
+                    "key": "utc", 
+                    "name": "Timestamp", 
+                    "source": "timestamp"
                 }
             ]
         }
-    ]
+    ], 
+    "name": "ISF"
 }

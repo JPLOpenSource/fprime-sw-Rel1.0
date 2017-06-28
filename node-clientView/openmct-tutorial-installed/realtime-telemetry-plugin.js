@@ -3,11 +3,13 @@
  */
 function RealtimeTelemetryPlugin() {
     return function (openmct) {
-        var socket = new WebSocket('ws://localhost:8082');
+        var socket = new WebSocket('ws://localhost:1337');
         var listeners = {};
 
         socket.onmessage = function (event) {
+            console.log(event);
             point = JSON.parse(event.data);
+
             if (listeners[point.id]) {
                 listeners[point.id].forEach(function (l) {
                     l(point);

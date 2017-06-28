@@ -9,15 +9,15 @@ function RealtimeServer(spacecraft, port) {
 
 RealtimeServer.prototype.handleConnection = function (ws) {
     var unlisten = this.spacecraft.listen(notifySubscribers);
-        subscribed = {}, // Active subscriptions for this connection
-        handlers = { // Handlers for specific requests
-            subscribe: function (id) {
-                subscribed[id] = true;
-            },
-            unsubscribe: function (id) {
-                delete subscribed[id];
-            }
-        };
+    subscribed = {}, // Active subscriptions for this connection
+    handlers = { // Handlers for specific requests
+        subscribe: function (id) {
+            subscribed[id] = true;
+        },
+        unsubscribe: function (id) {
+            delete subscribed[id];
+        }
+    };
 
     function notifySubscribers(point) {
         if (subscribed[point.id]) {

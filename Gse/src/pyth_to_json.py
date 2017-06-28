@@ -72,7 +72,7 @@ final_dict = {
 	"measurements": telemetry
 }
 
-with open('data.json', 'w') as fp:
+with open('dictionary-edit.json', 'w') as fp:
 	json.dump(final_dict, fp, sort_keys=True, indent=4)
 
  
