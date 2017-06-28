@@ -1,6 +1,6 @@
 # Open MCT Integration Tutorials
 
-These tutorials will walk you through the simple process of integrating your telemetry systems with Open MCT.  In case you don't have any telemetry systems, we've included a reference implementation of a historical and realtime server.  We'll walk you through the process of integrating those services with Open MCT.
+These tutorials will walk you through the simple process of integrating your telemetry systems with Open MCT.  In case you don't have any telemetry systems, we've included a reference implementation of a historical and realtime server.  We'll take you through the process of integrating those services with Open MCT.
 
 ## Tutorial Prerequisites
 
@@ -24,15 +24,17 @@ Neither git nor node.js are requirements for using Open MCT, however this tutori
 ## Installing the tutorials
 
 ```
-git clone git@github.com:larkin/openmct-tutorial.git
+git clone https://github.com/nasa/openmct-tutorial.git
 cd openmct-tutorial
 npm install
 npm start
 ```
 
-This will clone the tutorials and install Open MCT from NPM.  It will also install the dependencies needed to run the reference implementation of a telemetry server, and then it will start the tutorial server.
+This will clone the tutorials and install Open MCT from NPM.  It will also install the dependencies needed to run the provided telemetry server. The last command will start the server. The telemetry server provided is for demonstration purposes only, and is not intended to be used in a production environment.
 
-At this point, you will be able to browse the tutorials in their completed state.  However, if you would like to follow along, you can skip to specific steps in the tutorial at any point by typing
+At this point, you will be able to browse the tutorials in their completed state.  We have also tagged the repository at each step of the tutorial, so it is possible to skip to a particular step using git checkout.
+
+eg.
 
 ```
 git checkout -f part-X-step-N
@@ -40,12 +42,14 @@ git checkout -f part-X-step-N
 
 Substituting the appropriate part and step numbers as necessary.
 
+The recommended way of following the tutorials is to checkout the first step (the command is shown below), and then follow the tutorial by manually adding the code, but if you do get stuck you can use the tags to skip ahead. If you do get stuck, please let us know by [filing in issue in this repository](https://github.com/nasa/openmct-tutorial/issues/new) so that we can improve the tutorials.
+
 ## Part A: Running Open MCT
-**Shortcut**: `git checkout -f part-A`
+**Shortcut**: `git checkout -f part-a`
 
 We're going to define a single `index.html` page.  We'll include the Open MCT library, configure a number of plugins, and then start the application.
 
-[index.html]()
+[index.html](https://github.com/nasa/openmct-tutorial/tree/part-b-step-1/index.html)
 ```html
 <!DOCTYPE html>
 <html>
@@ -59,15 +63,19 @@ We're going to define a single `index.html` page.  We'll include the Open MCT li
         openmct.setAssetPath('node_modules/openmct/dist');
         openmct.install(openmct.plugins.LocalStorage());
         openmct.install(openmct.plugins.MyItems());
-        openmct.install(openmct.plugins.Espresso());
         openmct.install(openmct.plugins.UTCTimeSystem());
+        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.install(openmct.plugins.Espresso());
+
         openmct.start();
     </script>
 </body>
 </html>
 ```
 
-We have provided a basic server for the purpose of this tutorial, which will act as a web server as well as a telemetry source. If the serer is not already running, run it now -
+We have provided a basic server for the purpose of this tutorial, which will act as a web server as well as a telemetry source. This server is for demonstration purposes only. The Open MCT web client can be hosted on any http server. 
+
+If the server is not already running, run it now -
 
 ```
 npm start
@@ -89,9 +97,10 @@ The object tree is a hierarchical representation of all of the objects available
 
 ## Step 1 - Defining a new plugin
 **Shortcut:** `git checkout -f part-b-step-1`
-Let's start by creating a new plugin to populate the object tree. We will encapsulate the code for this plugin in a new javascript file named `dictionary-plugin.js`. We'll then install that plugin into Open MCT to validate that we are loading the plugin
 
-[dictionary-plugin.js]()
+Let's start by creating a new plugin to populate the object tree. We will include all of the code for this plugin in a new javascript file named `dictionary-plugin.js`. Let's first create a very basic plugin that simply logs a message indicating that it's been installed.
+
+[dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-b-step-2/dictionary-plugin.js)
 ```javascript
 function DictionaryPlugin() {
     return function install() {
@@ -100,9 +109,9 @@ function DictionaryPlugin() {
 };
 ```
 
-Then, we'll update index.html to include the file:
+Next, we'll update index.html to include the file:
 
-[index.html]()
+[index.html](https://github.com/nasa/openmct-tutorial/blob/part-b-step-2/index.html)
 ```html
 <!DOCTYPE html>
 <html>
@@ -114,13 +123,15 @@ Then, we'll update index.html to include the file:
 </head>
 <body>
     <script>
-        openmct.setAssetPath('node_modules/openmct');
+        openmct.setAssetPath('node_modules/openmct/dist');
         openmct.install(openmct.plugins.LocalStorage());
         openmct.install(openmct.plugins.MyItems());
-        openmct.install(openmct.plugins.Espresso());
         openmct.install(openmct.plugins.UTCTimeSystem());
-        
+        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.install(openmct.plugins.Espresso());
+
         openmct.install(DictionaryPlugin());
+
         openmct.start();
     </script>
 </body>
@@ -137,39 +148,39 @@ The process of opening a javascript console differs depending on the browser bei
 
 In summary, an Open MCT plugin is very simple: it's an initialization function which receives the Open MCT API as the single argument.  It then uses the provided API to extend Open MCT.  Generally, we like plugins to return an initialization function so they can receive configuration.
 
-[Learn more about plugins here](api/plugin-overview.md)
+[Learn more about plugins here](https://github.com/nasa/openmct/blob/master/API.md#plugins)
 
 ## Step 2 - Creating a new root node
 **Shortcut:** `git checkout -f part-b-step-2`
 
 To be able to access our spacecraft objects from the tree, we first need to define a root. We will use the Open MCT API to define a new root object representing our spacecraft. 
 
-_[dictionary-plugin.js]()_
+[dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-b-step-3/dictionary-plugin.js)
 ```javascript
 function DictionaryPlugin() {
     return function install(openmct) {
         openmct.objects.addRoot({
-          namespace: 'example.taxonomy',
-          key: 'spacecraft'
+            namespace: 'example.taxonomy',
+            key: 'spacecraft'
         });
     }
 };
 ```
 
-A new root is added to the object tree using the `addRoot` function exposed by the Open MCT API. `addRoot` accepts an object identifier - defined as a javascript object with a `namespace` and a `key` attribute.
+A new root is added to the object tree using the `addRoot` function exposed by the Open MCT API. `addRoot` accepts an object identifier - defined as a javascript object with a `namespace` and a `key` attribute. [More information on objects and identifiers](https://github.com/nasa/openmct/blob/master/API.md#domain-objects-and-identifiers) is available in our API.
 
 If we reload the browser now, we should see a new object in the tree.
  
  ![Open MCT](images/openmct-missing-root.png)
  
- Currently it will appear as a question mark with `Missing: example.taxonomy:spacecraft` next to it. This is because for now all we've done is provide an identifier for the root node. In the next step, we will define an Object Provider, which will provide Open MCT with an object for this identifier.
+Currently it will appear as a question mark with `Missing: example.taxonomy:spacecraft` next to it. This is because for now all we've done is provide an identifier for the root node. In the next step, we will define an __Object Provider__, which will provide Open MCT with an object for this identifier. A [basic overview of object providers](https://github.com/nasa/openmct/blob/master/API.md#object-providers) is available in our API documentation.
 
 ## Step 3 - Providing objects
 **Shortcut:** `git checkout -f part-b-step-3`
 
-Now we will start populating the tree with objects. To do so, we will define an Object Provider. An object provider receives an object identifier, and returns a promise that resolve with an object for the given identifier (if available).  In this step we will produce some objects to represent the parts of the spacecraft that produce telemetry data, such as subsystems and instruments. Let's call these telemetry producing things "telemetry points". Below some code defining and registering an object provider for the new `spacecraft` root object:
+Now we will start populating the tree with objects. To do so, we will define an object provider. An Object Provider receives an object identifier, and returns a promise that resolve with an object for the given identifier (if available).  In this step we will produce some objects to represent the parts of the spacecraft that produce telemetry data, such as subsystems and instruments. Let's call these telemetry producing things __telemetry points__. Below some code defining and registering an object provider for the new "spacecraft" root object:
 
-_[dictionary-plugin.js]()_
+[dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-b-step-4/dictionary-plugin.js)
 ```javascript
 function getDictionary() {
     return http.get('/dictionary.json')
@@ -205,13 +216,13 @@ function DictionaryPlugin() {
 };
 ```
 
-If we reload our browser now, the unknown object in our tree should be replaced with an object named `Example Spacecraft` with a folder icon. 
+If we reload our browser now, the unknown object in our tree should be replaced with an object named "Example Spacecraft" with a folder icon. 
 
 ![Open MCT with new Spacecraft root](images/openmct-root-folder.png)
 
 The root object uses the builtin type `folder`. For the objects representing the telemetry points for our spacecraft, we will now register a new object type.
 
-_Snippet from [dictionary-plugin.js]()_
+Snippet from [dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-c/dictionary-plugin.js#L63-L67)
 ```javascript
 openmct.types.addType('example.telemetry', {
     name: 'Example Telemetry Point',
@@ -220,11 +231,11 @@ openmct.types.addType('example.telemetry', {
 });
 ```
 
-Here we define a new type with a key of `example.telemetry`. For details on the attributes used to specify a new Type, please [see our documentation on object Types]()
+Here we define a new type with a key of `example.telemetry`. For details on the attributes used to specify a new Type, please [see our documentation on object Types](https://github.com/nasa/openmct/blob/master/API.md#domain-object-types)
  
 Finally, let's modify our object provider to return objects of our newly registered type. Our dictionary plugin will now look like this:
 
-_[dictionary-plugin.js]()_
+[dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-b-step-4/dictionary-plugin.js)
 ```javascript
 function getDictionary() {
     return http.get('/dictionary.json')
@@ -251,7 +262,9 @@ var objectProvider = {
                     identifier: identifier,
                     name: measurement.name,
                     type: 'example.telemetry',
-                    telemetry: measurement,
+                    telemetry: {
+                        values: measurement.values
+                    },
                     location: 'example.taxonomy:spacecraft'
                 };
             }
@@ -271,14 +284,14 @@ function DictionaryPlugin() {
 };
 ```
 
-Although we have now defined an object provider for both the Example Spacecraft and its children (the telemetry measurements) if we refresh our browser at this point, we won't see any more objects in the tree. This is because we haven't defined the structure of the tree yet.
+Although we have now defined an Object Provider for both the "Example Spacecraft" and its children (the telemetry measurements), if we refresh our browser at this point we won't see any more objects in the tree. This is because we haven't defined the structure of the tree yet.
 
 ## Step 4 - Populating the tree
 **Shortcut:** `git checkout -f part-b-step-4`
 
-We have defined a root node in [Step 1]() and we have provided some objects that will appear in the tree. Now we will provide structure to the tree and define the relationships between objects in the tree. This is achieved with a [Composition Provider]().
+We have defined a root node in [Step 2](https://github.com/nasa/openmct-tutorial/blob/part-b-step-3/dictionary-plugin.js) and we have provided some objects that will appear in the tree. Now we will provide structure to the tree and define the relationships between objects in the tree. This is achieved with a __[Composition Provider](https://github.com/nasa/openmct/blob/master/API.md#composition-providers)__.
 
-_Snippet from [dictionary-plugin.js]()_
+Snippet from [dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-c/dictionary-plugin.js#L34-L50)
 ```javascript
 var compositionProvider = {
     appliesTo: function (domainObject) {
@@ -300,11 +313,11 @@ var compositionProvider = {
 
 openmct.composition.addProvider(compositionProvider);
 ```
-A composition provider accepts a Domain Object, and provides identifiers for the children of that object. For the purposes of this tutorial we will return identifiers for the telemetry points available from our spacecraft. We build these from our spacecraft telemetry dictionary file.
+A Composition Provider accepts a Domain Object, and provides identifiers for the children of that object. For the purposes of this tutorial we will return identifiers for the telemetry points available from our spacecraft. We build these from our spacecraft telemetry dictionary file.
 
 Our plugin should now look like this -
 
-_[dictionary-plugin.js]()_
+[dictionary-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-c/dictionary-plugin.js)
 ```javascript
 function getDictionary() {
     return http.get('/dictionary.json')
@@ -331,7 +344,9 @@ var objectProvider = {
                     identifier: identifier,
                     name: measurement.name,
                     type: 'example.telemetry',
-                    telemetry: measurement,
+                    telemetry: {
+                        values: measurement.values
+                    },
                     location: 'example.taxonomy:spacecraft'
                 };
             }
@@ -386,9 +401,9 @@ Clicking on our telemetry points will display views of those objects, but for no
 # Part C - Integrate/Provide/Request Telemetry
 **Shortcut:** `git checkout -f part-c`
 
-Open MCT supports receiving telemetry by interrogating a telemetry store, and by subscribing to real-time telemetry updates. In this part of the tutorial we will define and register a telemetry adapter for retrieving historical telemetry from our tutorial telemetry server. Let's define our plugin in a new file named `historical-telemetry-plugin.js`
+Open MCT supports receiving telemetry by requesting data from a telemetry store, and by subscribing to real-time telemetry updates. In this part of the tutorial we will define and register a telemetry adapter for requesting historical telemetry from our tutorial telemetry server. Let's define our plugin in a new file named `historical-telemetry-plugin.js`
 
-_[historical-telemetry-plugin.js]()_
+[historical-telemetry-plugin.js](https://github.com/nasa/openmct-tutorial/blob/part-d/historical-telemetry-plugin.js)
 ```javascript
 /**
  * Basic historical telemetry plugin.
@@ -402,7 +417,7 @@ function HistoricalTelemetryPlugin() {
             },
             request: function (domainObject, options) {
                 var url = 'http://localhost:8081/telemetry/' +
-                    domainObject.telemetry.key +
+                    domainObject.identifier.key +
                     '?start=' + options.start +
                     '&end=' + options.end;
     
@@ -424,7 +439,7 @@ Our request function also accepts some options. Here we support the specificatio
 
 With our adapter defined, we need to update `index.html` to include it.
 
-_[index.html]()_
+[index.html](https://github.com/nasa/openmct-tutorial/blob/part-d/index.html)
 ```html
 <!DOCTYPE html>
 <html>
@@ -440,27 +455,29 @@ _[index.html]()_
         openmct.setAssetPath('node_modules/openmct/dist');
         openmct.install(openmct.plugins.LocalStorage());
         openmct.install(openmct.plugins.MyItems());
-        openmct.install(openmct.plugins.Espresso());
         openmct.install(openmct.plugins.UTCTimeSystem());
-        
+        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.install(openmct.plugins.Espresso());
+
         openmct.install(DictionaryPlugin());
         openmct.install(HistoricalTelemetryPlugin());
+
         openmct.start();
     </script>
 </body>
 </html>
 ```
 
-At this point If we refresh the page we should now see some telemetry for our telemetry points. For example, navigating to the 'Generator Temperature' telemetry point should show us a plot of the telemetry generated since the server started running. It should look something like the screenshot below.
+At this point If we refresh the page we should now see some telemetry for our telemetry points. For example, navigating to the "Generator Temperature" telemetry point should show us a plot of the telemetry generated since the server started running.
 
 # Part D - Subscribing to New Telemetry
 **Shortcut:** `git checkout -f part-d`
 
-We are now going to define a telemetry adapter that allows Open MCT to subscribe to our tutorial server for new telemetry as it becomes available. The process of defining a telemetry adapter for subscribing to real-time telemetry is similar to our previous adapter, except that we define a `supportsSubscribe` function to indicate that this adapter provides telemetry subscriptions, and a `subscribe` function. This adapter uses a simple messaging system for subscribing to telemetry updates over a websocket. 
+We are now going to define a telemetry adapter that allows Open MCT to subscribe to our tutorial server for new telemetry as it becomes available. The process of defining a telemetry adapter for subscribing to real-time telemetry is similar to our previously defined historical telemetry adapter, except that we define a `supportsSubscribe` function to indicate that this adapter provides telemetry subscriptions, and a `subscribe` function for subscribing to updates. This adapter uses a simple messaging system for subscribing to telemetry updates over a websocket. 
 
 Let's define our new plugin in a file named `realtime-telemetry-plugin.js`.
 
-_[realtime-telemetry-plugin.js]()_
+[realtime-telemetry-plugin.js](https://github.com/nasa/openmct-tutorial/blob/master/realtime-telemetry-plugin.js)
 ```javascript
 /**
  * Basic Realtime telemetry plugin using websockets.
@@ -484,21 +501,21 @@ function RealtimeTelemetryPlugin() {
                 return domainObject.type === 'example.telemetry';
             },
             subscribe: function (domainObject, callback, options) {
-                if (!listeners[domainObject.telemetry.key]) {
-                    listeners[domainObject.telemetry.key] = [];
+                if (!listeners[domainObject.identifier.key]) {
+                    listeners[domainObject.identifier.key] = [];
                 }
-                if (!listeners[domainObject.telemetry.key].length) {
-                    socket.send('subscribe ' + domainObject.telemetry.key);
+                if (!listeners[domainObject.identifier.key].length) {
+                    socket.send('subscribe ' + domainObject.identifier.key);
                 }
-                listeners[domainObject.telemetry.key].push(callback);
+                listeners[domainObject.identifier.key].push(callback);
                 return function () {
-                    listeners[domainObject.telemetry.key] = 
-                        listeners[domainObject.telemetry.key].filter(function (c) {
+                    listeners[domainObject.identifier.key] = 
+                        listeners[domainObject.identifier.key].filter(function (c) {
                             return c !== callback;
                         });
     
-                    if (!listeners[domainObject.telemetry.key].length) {
-                        socket.send('unsubscribe ' + domainObject.telemetry.key);
+                    if (!listeners[domainObject.identifier.key].length) {
+                        socket.send('unsubscribe ' + domainObject.identifier.key);
                     }
                 };
             }
@@ -509,11 +526,11 @@ function RealtimeTelemetryPlugin() {
 }
 ```
 
-The subscribe function accepts as arguments the domain object for which we are interested in telemetry, and a callback function. The callback function will be invoked with telemetry data as they become available.
+The subscribe function accepts as arguments the Domain Object for which we are interested in telemetry, and a callback function. The callback function will be invoked with telemetry data as they become available.
 
 With our realtime telemetry plugin defined, let's include it from `index.html`.
 
-_[index.html]()_
+[index.html](https://github.com/nasa/openmct-tutorial/blob/master/index.html)
 ```html
 <!DOCTYPE html>
 <html>
@@ -530,22 +547,18 @@ _[index.html]()_
         openmct.setAssetPath('node_modules/openmct/dist');
         openmct.install(openmct.plugins.LocalStorage());
         openmct.install(openmct.plugins.MyItems());
-        openmct.install(openmct.plugins.Espresso());
         openmct.install(openmct.plugins.UTCTimeSystem());
-        
+        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.install(openmct.plugins.Espresso());
+
         openmct.install(DictionaryPlugin());
         openmct.install(HistoricalTelemetryPlugin());
         openmct.install(RealtimeTelemetryPlugin());
+
         openmct.start();
     </script>
 </body>
 </html>
 ```
 
-If we refresh the page, and navigate to one of our telemetry points, we should now see telemetry flowing. For example, navigating to the 'Generator Temperature' telemetry point should show us a plot of the telemetry point's telemetry that is updated regularly with new telemetry data.
-
-## Glossary
-
-* Domain Object: An object is anything that can be represented in Open MCT. Telemetry sources, telemetry points, and views for visualizing telemetry data are all represented as objects in Open MCT. Objects are displayed in a tree in Open MCT, and allow a user to view telemetry data, and compose layouts from multiple view objects.
-* Telemetry Source: A service that provides telemetry. Telemetry can be provided in response to a request, or as a subscription. 
-* Telemetry Point: A telemetry point is a `thing` about which telemetry values are produced by a telemetry source. For example, a telemetry source might expose telemetry points for various instruments and subsystems on a spacecraft as telemetry points.
+If we refresh the page and navigate to one of our telemetry points we should now see telemetry flowing. For example, navigating to the "Generator Temperature" telemetry point should show us a plot of telemetry data that is now updated regularly.
