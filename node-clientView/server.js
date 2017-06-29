@@ -1,5 +1,8 @@
+/*
+	Server used to translate tcp packet stream into mct format. Only works with one client atm.
+*/
 
-// Buffer
+
 // Get dict
 var dict = require('./openmct-tutorial-installed/dictionary.json');
 
@@ -22,33 +25,18 @@ const wss = new WebSocket.Server({port: 1337});
 
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
-	id_check = {};	// Subscription dictionary
+	subscribed = {};	// Subscription dictionary
 
-	ws.on('message', function incoming(message) {
-		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
-	  	var idReq = message.split(" ")[1];	// Get id query
-	  	console.log("ID: " + idReq);
-
-	  	// Set id subscription
-	  	if (operation == 'subscribe') {
-	  		id_check[idReq] = true;
-	  	} else if (operation == 'unsubscribe') {
-	  		id_check[idReq] = false;
-	  	}
-
-	  	
-	});
-
-  	// Get isf data
+	// Get isf data
   	var num_format = {};	// Save formats of each id
-	client.on('data', function(data) {
+	client.on('data', function (data) {
 
 		// Decode data
 		var ptr = 0;
 		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		if (id_check[id]) {
+		if (subscribed[id]) {
 			// Check if id is in subscription dictionary to continue decoding data
 			var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
 			var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
@@ -69,16 +57,20 @@ wss.on('connection', function connection(ws) {
 					}
 				}
 			}
-			console.log(num_format[id]);
-			// if (num_format.toString().search("F") != -1) {
-			// 	var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);
 
-			// 	var dv = new DataView(new ArrayBuffer(10));
-			// 	dv.setUint32(0, parseInt(hexValue));
-			// 	var value = dv.getFloat32(0);
-			// } else {
+			// Check if floating point conversion is needed
+			console.log(num_format[id]);
+			if (num_format[id].indexOf("F") != -1) {
+				var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);	// Get value
+
+				// Convert to float
+				var dv = new DataView(new ArrayBuffer(8));
+				dv.setUint32(0, parseInt("0x" + hexValue));
+				var value = dv.getFloat32(0);
+			} else {
+				// Get value from packet if no conversion is needed
 				var value = parseInt(data.toString('hex').substring(ptr, (size + 4) * 2), 16);
-			// }
+			}
 
 			// Print data
 			console.log('Received: ' +
@@ -98,11 +90,31 @@ wss.on('connection', function connection(ws) {
 			var toMCT = {'timestamp':timestamp,'value':value,'id':id.toString()};
 
 			// Send to websocket
-			ws.send(JSON.stringify(toMCT));
+			ws.send(JSON.stringify(toMCT), function ack(error) {
+				if (error) {
+					subscribed = {};
+				}
+			});
 		}
 		
-	});	
+	});
 
+	// Subscription
+	ws.on('message', function incoming(message) {
+		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
+	  	var idReq = message.split(" ")[1];	// Get id query
+	  	console.log("ID: " + idReq);
+
+	  	// Set id subscription
+	  	if (operation == 'subscribe') {
+	  		subscribed[idReq] = true;
+	  	} else if (operation == 'unsubscribe') {
+	  		subscribed[idReq] = false;
+	  	}
+	  	
+	});
+
+  	
 });
 
 
