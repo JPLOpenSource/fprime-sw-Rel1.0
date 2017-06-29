@@ -60,7 +60,7 @@ time_format = {
 # Create final dictionary for openMCT format
 values = [value_format, time_format]
 
-
+telem_size = 0
 telemetry = []
 for id in combined_dict:
 	telemetry.append({
@@ -69,10 +69,12 @@ for id in combined_dict:
 		"num_type": combined_dict[id]["num_type"],
 		"values": values
 		})
+	telem_size += 1;
 
 final_dict = {
 	"name": "ISF",
 	"key": "isf",
+	"measurement_size": telem_size,
 	"measurements": telemetry
 }
 

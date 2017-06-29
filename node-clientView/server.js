@@ -1,7 +1,7 @@
 
 // Buffer
 // Get dict
-var dict = require('openmct-tutorial-installed/dictionary.json');
+var dict = require('./openmct-tutorial-installed/dictionary.json');
 
 var net = require('net');
 const WebSocket = require('ws');
@@ -22,7 +22,7 @@ const wss = new WebSocket.Server({port: 1337});
 
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
-	id_check = {};
+	id_check = {};	// Subscription dictionary
 
 	ws.on('message', function incoming(message) {
 		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
@@ -36,19 +36,49 @@ wss.on('connection', function connection(ws) {
 	  		id_check[idReq] = false;
 	  	}
 
-	  	// Get isf data
-		client.on('data', function(data) {
+	  	
+	});
 
-			// Decode data
-			var ptr = 0;
-			var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-			var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-			var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+  	// Get isf data
+  	var num_format = {};	// Save formats of each id
+	client.on('data', function(data) {
+
+		// Decode data
+		var ptr = 0;
+		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		if (id_check[id]) {
+			// Check if id is in subscription dictionary to continue decoding data
 			var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
 			var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
 			var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 			var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-			var value 	     = parseInt(data.toString('hex').substring(ptr, (size + 4) * 2), 16);
+
+			var telem = dict.measurements;	// List of telemetry dictionary data
+			var telemSize = dict.measurement_size;
+			
+			if (!(id in num_format)) {
+				console.log("New id: " + id);
+				// If not saved in num_format dictionary, find format for id
+				var telem = dict.measurements;	// List of telemetry dictionary data
+				var telemSize = dict.measurement_size;
+				for (i = 0; i < telemSize; i++) {
+					if (id.toString() === telem[i].key) {
+						num_format[id] = telem[i].num_type;
+					}
+				}
+			}
+			console.log(num_format[id]);
+			// if (num_format.toString().search("F") != -1) {
+			// 	var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);
+
+			// 	var dv = new DataView(new ArrayBuffer(10));
+			// 	dv.setUint32(0, parseInt(hexValue));
+			// 	var value = dv.getFloat32(0);
+			// } else {
+				var value = parseInt(data.toString('hex').substring(ptr, (size + 4) * 2), 16);
+			// }
 
 			// Print data
 			console.log('Received: ' +
@@ -66,14 +96,12 @@ wss.on('connection', function connection(ws) {
 
 			// Create datum in openMCT format
 			var toMCT = {'timestamp':timestamp,'value':value,'id':id.toString()};
-			console.log(toMCT);
 
-			if (id_check[idReq] == true && idReq == id) {
-				ws.send(JSON.stringify(toMCT));
-			}
-			
-		});
-	});
+			// Send to websocket
+			ws.send(JSON.stringify(toMCT));
+		}
+		
+	});	
 
 });
 
