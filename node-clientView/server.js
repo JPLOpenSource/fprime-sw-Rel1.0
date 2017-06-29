@@ -92,6 +92,7 @@ wss.on('connection', function connection(ws) {
 			// Send to websocket
 			ws.send(JSON.stringify(toMCT), function ack(error) {
 				if (error) {
+					// If unable to send (ie. client disconnection) then subscription is reset
 					subscribed = {};
 				}
 			});
