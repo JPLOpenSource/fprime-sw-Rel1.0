@@ -31,6 +31,9 @@ for id in combined_dict:
 for id in combined_dict:
 	combined_dict[id]["format"] = cl.getFormatStringDict()[id]
 
+for id in combined_dict:
+	combined_dict[id]["num_type"] = (cl.getTypesDict()[id]).__repr__()
+
 # Formatting for telemetry data
 value_format = {
     "format": "float", 
@@ -63,6 +66,7 @@ for id in combined_dict:
 	telemetry.append({
 		"name": combined_dict[id]["name"],
 		"key": str(id),
+		"num_type": combined_dict[id]["num_type"],
 		"values": values
 		})
 
