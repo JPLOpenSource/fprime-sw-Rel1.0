@@ -1,0 +1,5 @@
+Readme/notes
+
+ncu -u to update packages
+
+npm install --global webpack
