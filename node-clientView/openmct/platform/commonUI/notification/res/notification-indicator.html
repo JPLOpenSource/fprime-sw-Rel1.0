@@ -1,0 +1,9 @@
+<!-- DO NOT ADD SPACES BETWEEN THE SPANS - IT ADDS WHITE SPACE!! -->
+<a ng-click="showNotificationsList()" ng-show="notifications.length > 0" class="status block"
+      ng-class="highest.severity"
+      ng-controller="NotificationIndicatorController">
+    <span class="status-indicator icon-bell"></span><span class="label">
+      {{notifications.length}} Notifications
+    </span><span class="count">{{notifications.length}}</span>
+
+</a>

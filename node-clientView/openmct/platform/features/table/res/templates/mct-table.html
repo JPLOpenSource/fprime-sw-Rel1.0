@@ -1,0 +1,75 @@
+<div class="l-control-bar">
+    <a class="s-button t-export icon-download labeled"
+       ng-click="exportAsCSV()"
+       title="Export This View's Data">
+        Export
+    </a>
+</div>
+<div class="l-view-section scrolling" style="overflow: auto;" mct-resize="resize()">
+    <table class="sizing-table">
+        <tbody>
+            <tr>
+                <td ng-repeat="header in displayHeaders">{{header}}</td>
+            </tr>
+            <tr><td ng-repeat="header in displayHeaders" >
+                {{sizingRow[header].text}}
+            </td></tr>
+        </tbody>
+    </table>
+    <table class="filterable mct-table"
+           ng-style="{
+            height: totalHeight + 'px',
+            'max-width': totalWidth
+            }">
+        <thead>
+            <tr>
+                <th ng-repeat="header in displayHeaders"
+                    ng-style="{
+                        width: columnWidths[$index] + 'px',
+                        'max-width': columnWidths[$index] + 'px',
+                    }"
+                    ng-class="[
+                        enableSort ? 'sortable' : '',
+                        sortColumn === header ? 'sort' : '',
+                        sortDirection || ''
+                    ].join(' ')"
+                    ng-click="toggleSort(header)">
+                    {{ header }}
+                </th>
+            </tr>
+            <tr ng-if="enableFilter" class="s-filters">
+                <th ng-repeat="header in displayHeaders"
+                    ng-style="{
+                        width: columnWidths[$index] + 'px',
+                        'max-width': columnWidths[$index] + 'px',
+                    }">
+                    <input type="text"
+                           ng-model="filters[header]"/>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat-start="visibleRow in visibleRows track by $index"
+                ng-if="visibleRow.rowIndex === toiRowIndex"
+                ng-style="{ top: visibleRow.offsetY + 'px' }"
+                class="l-toi-tablerow">
+                <td colspan="999">
+                    <mct-include key="'time-of-interest'"
+                                 class="l-toi-holder pinned"></mct-include>
+                </td>
+            </tr>
+            <tr ng-repeat-end
+                ng-style="{ top: visibleRow.offsetY + 'px' }"
+                ng-click="table.onRowClick($event, visibleRow.rowIndex)">
+                <td ng-repeat="header in displayHeaders"
+                    ng-style="{
+                        width: columnWidths[$index] + 'px',
+                        'max-width': columnWidths[$index] + 'px',
+                    }"
+                    class="{{visibleRow.contents[header].cssClass}}">
+                    {{ visibleRow.contents[header].text }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

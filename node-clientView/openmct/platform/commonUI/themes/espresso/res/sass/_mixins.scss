@@ -1,0 +1,15 @@
+@mixin containerSubtle($bg: $colorBodyBg, $fg: $colorBodyFg, $gradRatio: 5%) {
+	@include containerBase($bg, $fg);
+	@include background-image(linear-gradient(pullForward($bg, $gradRatio), $bg));
+	@include boxShdw($shdwBtns);
+}
+
+@function pullForward($c: $colorBodyBg, $p: 20%) {
+    // For dark interfaces, lighter things come forward - opposite for light interfaces
+    @return lighten($c, $p);
+}
+
+@function pushBack($c: $colorBodyBg, $p: 20%) {
+    // For dark interfaces, darker things move back - opposite for light interfaces
+    @return darken($c, $p);
+}

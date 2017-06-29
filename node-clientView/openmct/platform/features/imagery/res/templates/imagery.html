@@ -1,0 +1,58 @@
+<div class="t-imagery" ng-controller="ImageryController as imagery">
+    <div class="l-image-main-wrapper l-flex-col"
+        ng-mouseenter="showLocalControls = true;"
+        ng-mouseleave="showLocalControls = false;">
+        <div class="l-local-controls s-local-controls s-wrapper-transluc l-flex-row"
+            ng-class="{ 'hide-nice': !showLocalControls }">
+            <span class="holder flex-elem grows">
+                <input class="icon-brightness" type="range"
+                       min="0"
+                       max="500"
+                       ng-model="filters.brightness">
+                </input>
+                <input class="icon-contrast" type="range"
+                       min="0"
+                       max="500"
+                       ng-model="filters.contrast">
+                </input>
+            </span>
+            <span class="holder flex-elem t-reset-btn-holder">
+                <a class="s-icon-button icon-reset t-btn-reset"
+                   ng-click="filters = { brightness: 100, contrast: 100 }"></a>
+            </span>
+        </div>
+
+        <div class="l-image-main s-image-main flex-elem grows"
+             ng-class="{ paused: imagery.paused(), stale:false }">
+            <div class="image-main"
+
+            mct-background-image="imagery.getImageUrl()"
+            filters="filters">
+            </div>
+        </div>
+
+        <div class="l-image-main-controlbar flex-elem l-flex-row">
+            <div class="left flex-elem grows">
+                <a class="s-button show-thumbs sm hidden icon-thumbs-strip"
+                    ng-click="showThumbsBubble = (showThumbsBubble) ? false:true"></a>
+                <span class="l-time">{{imagery.getTime()}}</span>
+            </div>
+            <div class="right flex-elem">
+                <a class="s-button pause-play"
+                    ng-click="imagery.paused(!imagery.paused())"
+                    ng-class="{ paused: imagery.paused() }"></a>
+                <a href="{{imagery.getImageUrl()}}"
+                   ng-if="imagery.getImageUrl()"
+                   target="_blank"
+                   title="Open image in new tab."
+                   class="s-button icon-new-window">
+                   </a>
+                <a href=""
+                    class="s-button l-mag s-mag ui-symbol vsm icon-arrows-out"
+                    ng-click="clipped = false"
+                    ng-show="clipped === true"
+                    title="Not all of image is visible; click to reset."></a>
+            </div>
+        </div>
+    </div>
+</div>

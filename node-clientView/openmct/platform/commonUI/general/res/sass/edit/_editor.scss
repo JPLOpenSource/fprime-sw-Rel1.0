@@ -1,0 +1,112 @@
+/*****************************************************************************
+ * Open MCT, Copyright (c) 2014-2017, United States Government
+ * as represented by the Administrator of the National Aeronautics and Space
+ * Administration. All rights reserved.
+ *
+ * Open MCT is licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * Open MCT includes source code licensed under additional open source
+ * licenses. See the Open Source Licenses file (LICENSES.md) included with
+ * this source code distribution or the Licensing information page available
+ * at runtime from the About dialog for additional information.
+ *****************************************************************************/
+.s-status-editing .l-object-wrapper,
+.edit-main {
+    // .s-status-editing .l-object-wrapper is relevant to New Edit Mode;
+    // .edit-main is legacy for old edit mode.
+    $handleD: 15px;
+    $cr: 5px;
+    .edit-corner,
+    .edit-handle {
+        position: absolute;
+        z-index: 2;
+    }
+
+    .edit-corner {
+        width: $handleD;
+        height: $handleD;
+        &:hover {
+            z-index: 11;
+        }
+        &.edit-resize-nw {
+            border-bottom-right-radius: $cr;
+            cursor: nw-resize;
+            top: 0; left: 0;
+        }
+        &.edit-resize-ne {
+            border-bottom-left-radius: $cr;
+            cursor: ne-resize;
+            top: 0; right: 0;
+        }
+        &.edit-resize-se {
+            border-top-left-radius: $cr;
+            cursor: se-resize;
+            bottom: 0; right: 0;
+        }
+        &.edit-resize-sw {
+            border-top-right-radius: $cr;
+            cursor: sw-resize;
+            bottom: 0; left: 0;
+        }
+
+    }
+
+    .edit-handle {
+        top: $handleD; right: $handleD; bottom: $handleD; left: $handleD;
+        &.edit-move {
+            $m: 0; //$handleD;
+            cursor: move;
+            left: $m;
+            right: $m;
+            top: $m;
+            bottom: $m;
+            z-index: 1;
+
+        }
+        &.edit-resize-n {
+            top: 0px; bottom: auto;
+            height: $handleD;
+            cursor: n-resize;
+        }
+        &.edit-resize-e {
+            right: 0px; left: auto;
+            width: $handleD;
+            cursor: e-resize;
+        }
+        &.edit-resize-s {
+            bottom: 0px; top: auto;
+            height: $handleD;
+            cursor: s-resize;
+        }
+        &.edit-resize-w {
+            left: 0px; right: auto;
+            width: $handleD;
+            cursor: w-resize;
+        }
+    }
+
+    .frame.child-frame.panel {
+        &:hover {
+            @include boxShdwLarge();
+            border-color: $colorSelectableSelectedPrimary;
+            .view-switcher {
+                opacity: 1;
+            }
+            .edit-corner {
+                background-color: rgba($colorKey, 0.8);
+                &:hover {
+                    background-color: rgba($colorKey, 1);
+                }
+            }
+        }
+    }
+}

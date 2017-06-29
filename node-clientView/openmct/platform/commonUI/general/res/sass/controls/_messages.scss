@@ -1,0 +1,390 @@
+/*****************************************************************************
+ * Open MCT, Copyright (c) 2014-2017, United States Government
+ * as represented by the Administrator of the National Aeronautics and Space
+ * Administration. All rights reserved.
+ *
+ * Open MCT is licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * Open MCT includes source code licensed under additional open source
+ * licenses. See the Open Source Licenses file (LICENSES.md) included with
+ * this source code distribution or the Licensing information page available
+ * at runtime from the About dialog for additional information.
+ *****************************************************************************/
+
+@mixin statusBannerColors($bg, $fg: $colorStatusFg) {
+	$bgPb: 30%;
+	$bgPbD: 10%;
+	background-color: darken($bg, $bgPb);
+	color: $fg;
+	&:hover {
+		background-color: darken($bg, $bgPb - $bgPbD);
+	}
+	.s-action {
+		background-color: darken($bg, $bgPb + $bgPbD);
+		&:hover {
+			background-color: darken($bg, $bgPb);
+		}
+	}
+}
+
+// Status coloring
+.ok, .info {
+    .status-indicator {
+        color: $colorStatusInfo;
+    }
+}
+
+.alert, .caution, .warning {
+    .status-indicator, .count {
+        color: $colorStatusAlert;
+    }
+
+}
+
+.error, .err {
+    .status-indicator, .count {
+        color: $colorStatusError;
+    }
+}
+
+.available {
+    .status-indicator, .count {
+        color: $colorStatusAvailable;
+    }
+}
+
+.subdued {
+    .status-indicator {
+        color: pullForward($colorStatusBarBg, 40%);
+    }
+}
+
+.status-block-holder {
+    // Applied to mct-include element
+    // Contains status.block elements
+    $transDelay: 1.5s;
+    $transSpeed: .25s;
+    display: inline-block;
+    &.clickable { cursor: pointer; }
+    &:not(.clickable) { cursor: default; }
+    &.no-icon .status.block {
+        .status-indicator {
+            display: none;
+        }
+    }
+    &.float-right {
+        float: right;
+    }
+    &:not(.no-collapse) .status.block {
+        .label {
+            // Max-width silliness is necessary for width transition
+            @include trans-prop-nice(max-width, $transSpeed, $transDelay);
+            overflow: hidden;
+            max-width: 0px;
+        }
+        &:hover {
+            .label {
+                @include trans-prop-nice(max-width, $transSpeed, 0s);
+                max-width: 600px;
+                width: auto;
+            }
+            .count {
+                @include trans-prop-nice(max-width, $transSpeed, 0s);
+                opacity: 0;
+            }
+        }
+    }
+
+}
+
+.status.block {
+    $transDelay: 1.5s;
+    $transSpeed: .25s;
+	color: $colorStatusDefault;
+	display: inline-block;
+	margin-right: $interiorMargin;
+	.status-indicator,
+	.label,
+	.count {
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	.status-indicator {
+		margin-right: $interiorMarginSm;
+	}
+
+	.count {
+		@include trans-prop-nice(opacity, $transSpeed, $transDelay);
+		font-weight: bold;
+		opacity: 1;
+	}
+    .s-button {
+        background: $colorStatusBtnBg;
+        padding: 0 $interiorMargin;
+        height: auto;
+        line-height: inherit;
+    }
+}
+
+/* Styles for messages and message banners */
+.message {
+	&.block {
+		border-radius: $basicCr;
+		padding: $interiorMarginLg;
+	}
+	&.error {
+		background-color: rgba($colorAlert,0.3);
+		color: lighten($colorAlert, 20%);
+	}
+}
+
+.l-message-banner {
+	$m: $interiorMarginSm;
+	$lh: $ueFooterH - ($m*2) - 1;
+	box-sizing: border-box;
+	@include ellipsize();
+	@include display(flex);
+	@include flex-direction(row);
+	@include align-items(center);
+	position: absolute;
+	top: $m; right: auto; bottom: $m; left: 50%;
+	height: auto; width: auto;
+	line-height: $lh;
+	max-width: 300px;
+	padding: 0 $interiorMargin 0 $interiorMargin;
+	@include transform(translateX(-50%));
+
+	&.minimized {
+        @include transition-property(left, opacity);
+        @include transition-duration(0.3s);
+        @include transition-timing-function(ease-in-out);
+		left: 0;
+        opacity: 0;
+	}
+
+    &.new {
+        left: 50%;
+        opacity: 1;
+        &:not(.info) {
+            @include pulse($dur: 100ms, $iteration: 10);
+        }
+    }
+
+	.banner-elem {
+		@include flex(0 1 auto);
+		margin-left: $interiorMargin;
+	}
+	a {
+		display: inline-block;
+	}
+	.l-action {
+		line-height: $lh - 3;
+		padding: 0 $interiorMargin;
+	}
+    .close {
+		//@include test(red, 0.7);
+		cursor: pointer;
+        font-size: 7px;
+		width: 8px;
+    }
+	.l-progress-bar {
+		$h: $lh - 10;
+		height: $h;
+		line-height: $h;
+		width: 100px;
+	}
+    .progress-info { display: none; }
+	z-index: 10;
+}
+
+.s-message-banner {
+	border-radius: $controlCr;
+	@include statusBannerColors($colorStatusDefault, $colorStatusFg);
+	cursor: pointer;
+	a { color: inherit; }
+	.s-action {
+		border-radius: $basicCr;
+        @include trans-prop-nice(background-color);
+	}
+	.close {
+		opacity: 0.5;
+		&:hover {
+			opacity: 1;
+		}
+	}
+	&.ok,
+    &.info {
+		@include statusBannerColors($colorStatusInfo);
+	}
+	&.caution,
+    &.warning,
+    &.alert {
+		@include statusBannerColors($colorStatusAlert);
+	}
+    &.error {
+        @include statusBannerColors($colorStatusError);
+    }
+}
+
+@mixin messageBlock($iconW: 32px) {
+    .type-icon.message-type {
+        @include txtShdw($shdwStatusIc);
+        @extend .icon-bell;
+        color: $colorStatusDefault;
+        font-size: $iconW;
+        padding: 1px;
+        width: $iconW + 2;
+    }
+
+    .message-severity-info .type-icon.message-type {
+        @extend .icon-info;
+        color: $colorStatusInfo;
+    }
+    .message-severity-alert .type-icon.message-type {
+        @extend .icon-bell;
+        color: $colorStatusAlert;
+    }
+    .message-severity-error .type-icon.message-type {
+        @extend .icon-alert-rect;
+        color: $colorStatusError;
+    }
+}
+/* Paths:
+    t-dialog | t-dialog-sm > t-message-single | t-message-list > overlay > holder > contents > l-message >
+        message-type > (icon)
+        message-contents >
+        top-bar >
+            title
+            hint
+        editor >
+            (if displaying list of messages)
+            ul > li > l-message >
+                ... same as above
+        bottom-bar
+*/
+
+.l-message {
+    @include display(flex);
+    @include flex-direction(row);
+    @include align-items(stretch);
+    .type-icon.message-type {
+        @include flex(0 1 auto);
+        position: relative;
+    }
+    .message-contents {
+        @include flex(1 1 auto);
+        margin-left: $overlayMargin;
+        position: relative;
+
+        .top-bar,
+        .message-body {
+            margin-bottom: $interiorMarginLg * 2;
+        }
+    }
+}
+
+
+// Message as singleton
+.t-message-single {
+    @include messageBlock(80px);
+}
+
+body.desktop .t-message-single {
+    .l-message,
+    .bottom-bar {
+        @include absPosDefault();
+    }
+
+    .bottom-bar {
+        top: auto;
+        height: $ovrFooterH;
+    }
+}
+
+@include phonePortrait {
+    .t-message-single {
+        .l-message {
+            @include flex-direction(column);
+            .message-contents { margin-left: 0; }
+        }
+        .type-icon.message-type {
+            margin-bottom: $interiorMarginLg;
+            width: 100%;
+            text-align: center;
+        }
+
+        .bottom-bar {
+            text-align: center !important;
+        }
+    }
+}
+
+// Messages in list
+.t-message-list {
+    @include messageBlock(32px);
+
+    .message-contents {
+        .l-message {
+            border-radius: $controlCr;
+            background: rgba($colorOvrFg, 0.1);
+            margin-bottom: $interiorMargin;
+            padding: $interiorMarginLg;
+
+            .message-contents,
+            .bottom-bar {
+                position: relative;
+            }
+
+            .message-contents {
+                font-size: 0.9em;
+                margin-left: $interiorMarginLg;
+                .message-action { color: pushBack($colorOvrFg, 20%); }
+                .bottom-bar { text-align: left; }
+            }
+
+            .top-bar,
+            .message-body {
+                margin-bottom: $interiorMarginLg;
+            }
+        }
+    }
+}
+
+body.desktop .t-message-list {
+    .message-contents .l-message { margin-right: $interiorMarginLg; }
+}
+
+// Alert elements in views
+.s-unsynced {
+    $c: $colorPausedBg;
+    border: 1px solid $c;
+}
+
+.s-status-timeconductor-unsynced {
+    // Plot areas
+    .gl-plot .gl-plot-display-area {
+        @extend .s-unsynced;
+    }
+
+    // Object headers
+    .object-header {
+        .t-object-alert {
+            display: inline;
+            &.t-alert-unsynced {
+                @extend .icon-alert-triangle;
+                color: $colorPausedBg;
+            }
+        }
+    }
+}
+
