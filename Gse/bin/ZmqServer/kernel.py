@@ -21,7 +21,9 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 class ZmqKernel(object):
 
-    def __init__(self, command_port, context):
+    def __init__(self, command_port):
+        self.__context = zmq.Context()
+
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path)
@@ -38,21 +40,18 @@ class ZmqKernel(object):
         self.__ground_client_pub_port = None
 
         # Setup flight and ground subcription threads
-        self.__SERVER_RUNNING = threading.Event() # Thread event flag to
-        self.__SERVER_RUNNING.set()               # indicate shutdown
 
         name = "FlightSubscriptionThread"
         self.__flight_sub_thread = GeneralSubscriptionThread(name,\
-                    FlightSubRunnable, context, self.__SetFlightSubThreadPorts,\
-                    self.__SERVER_RUNNING)
+             FlightSubRunnable, self.__context, self.__SetFlightSubThreadPorts)
  
         name = "GroundSubscriptionThread"
         self.__ground_sub_thread = GeneralSubscriptionThread(name,\
-                    GroundSubRunnable, context, self.__SetGroundSubThreadPorts,\
-                    self.__SERVER_RUNNING)
+             GroundSubRunnable, self.__context, self.__SetGroundSubThreadPorts)
+                    
    
         # Setup command/status socket
-        self.__command_socket = context.socket(zmq.ROUTER)
+        self.__command_socket = self.__context.socket(zmq.ROUTER)
         try:
             self.__command_socket.bind("tcp://*:{}".format(command_port))
         except ZMQError as e:
@@ -87,8 +86,12 @@ class ZmqKernel(object):
         """
         Shut down server
         """
-        self.__logger.info("Initiating server shutdown")
-        self.__SERVER_RUNNING.clear() 
+        self.__logger.info("Initiating server shutdown") 
+
+        # Must close all sockets before context terminate
+        self.__command_socket.close()
+
+        self.__context.term()
 
     def __SetGroundSubThreadPorts(self, sub_port, pub_port):
         """
@@ -215,8 +218,7 @@ def MockTarget(context, cmd_port):
     # Register target
     command_socket.send_multipart([b"REG", target_name.encode(), b"flight", b"ZMQ"])
     msg = command_socket.recv_multipart()
-    logger.debug("Command Sended Received:")
-    logger.debug(msg) 
+    logger.debug("Command Reply Received:{}".format(msg))
 
     # Setup pub/sub ports
     pub_port = msg[1]
@@ -225,13 +227,20 @@ def MockTarget(context, cmd_port):
     pub_socket = context.socket(zmq.PUB)
     sub_socket = context.socket(zmq.SUB)
 
+    # Set publisher identity
+    pub_socket.setsockopt(zmq.IDENTITY, target_name.encode())
+
     pub_socket.connect("tcp://localhost:{}".format(pub_port))
     sub_socket.connect("tcp://localhost:{}".format(sub_port))
 
     logger.debug("Publishing to port: {}".format(pub_port))
     logger.debug("Subscribed to port: {}".format(sub_port))
 
+    pub_socket.send(b"Hello!")
 
+    # Quit
+    pub_socket.close()
+    sub_socket.close()
 
 if __name__ == "__main__":
     cmd_port = 5555
@@ -241,7 +250,7 @@ if __name__ == "__main__":
     mock_target = threading.Thread(target=MockTarget,args=(context, cmd_port))
     mock_target.start()
 
-    kernel = ZmqKernel(5555, context)
+    kernel = ZmqKernel(5555)
     kernel.Start()
 
     

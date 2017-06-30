@@ -21,8 +21,7 @@ class  GeneralSubscriptionThread(threading.Thread):
     @params InitializeKernelPorts: Callback function to set the port numbers of
                                    the publish and subscribe ports
     """
-    def __init__(self, name, runnable, context, InitializeKernelPorts,\
-                 SERVER_RUNNING):
+    def __init__(self, name, runnable, context, InitializeKernelPorts):
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger(name, log_path)
@@ -44,21 +43,64 @@ class  GeneralSubscriptionThread(threading.Thread):
             self.__logger.error("Unable to bind pub port.")
             raise e
 
+        # Callback the server of the allocated ports
         InitializeKernelPorts(sub_port, pub_port)
 
+        # Initialze class base
         threading.Thread.__init__(self, target=runnable, args=(sub_socket,\
-                                  pub_socket, self.__logger, SERVER_RUNNING))
+                                  pub_socket, self.__logger))
 
-def FlightSubRunnable(sub_socket, pub_socket, logger, SERVER_RUNNING):
+def FlightSubRunnable(sub_socket, pub_socket, logger):
+    """
+    Flight client subscription thread. Receives all events, telemetry, and files
+    from connected flight clients. After routing, publishes to ground clients. 
+
+    @param sub_socket: Flight client zmq subscription socket 
+    @param pub_socket: Ground client zmq publishing socket
+    @param logger: This thread's logger
+    """
+
     logger.debug("Entering FlightSubRunnable")
 
-    while SERVER_RUNNING.is_set():
-        pass
+    while True:
+        try:
+            msg = sub_socket.recv_multipart() 
+            logger.debug("Packet Received: {}".format(msg))
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                break
+            else:
+                raise
+
+
+
 
     logger.info("Exiting FlightSubRunnable")
+    sub_socket.close()
+    pub_socket.close()
 
-def GroundSubRunnable(sub_socket, pub_socket, logger, SERVER_RUNNING):
-    while SERVER_RUNNING.is_set():
-        pass
+def GroundSubRunnable(sub_socket, pub_socket, logger):
+    """
+    Ground client subscription thread. Receives all commands and files
+    from connected ground clients.
+
+    @param sub_socket: Ground client zmq subscription socket 
+    @param pub_socket: Flight client zmq publishing socket
+    @param logger: This thread's logger
+    """
+    logger.debug("Entering GroundSubRunnable")
+
+    while True:
+        try:
+            msg = sub_socket.recv_multipart() 
+            logger.debug("Packet Received: {}".format(msg))
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                break
+            else:
+                raise
 
     logger.info("Exiting GroundSubRunnable")
+    sub_socket.close()
+    pub_socket.close()
+
