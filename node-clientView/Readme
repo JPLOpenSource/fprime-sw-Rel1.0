@@ -2,4 +2,10 @@ Readme/notes
 
 ncu -u to update packages
 
-npm install --global webpack
+To run:
+npm install
+npm start
+
+
+Notes:
+Using lib/http from tutorial in order to get dictionary file.

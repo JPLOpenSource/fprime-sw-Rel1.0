@@ -1,5 +1,5 @@
 function getDictionary() {
-    return http.get('../res/dictionary.json')
+    return http.get('/client/isf-omct/res/dictionary.json')
         .then(function (result) {
             return result.data;
         });

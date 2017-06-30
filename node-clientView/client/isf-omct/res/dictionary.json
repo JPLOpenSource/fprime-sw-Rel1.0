@@ -1,4 +1,5 @@
 {
+    "name": "ISF",
     "key": "isf", 
     "measurement_size": 42, 
     "measurements": [
