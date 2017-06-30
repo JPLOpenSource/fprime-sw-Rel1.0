@@ -7,18 +7,23 @@ import threading
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
 
+
 from utils.logging_util import GetLogger
+from server_utils.ServerConfig import ServerConfig
 from kernel_threads import GeneralSubscriptionThread,\
                            FlightSubRunnable, GroundSubRunnable
 
 
-#TODO: Create server config file
+
+# Global server config class
+SERVER_CONFIG = ServerConfig.getInstance()
+
+
 class ZmqKernel(object):
 
     def __init__(self, command_port, context):
         # Setup Logger
-        cwd = os.getcwd() 
-        log_path = os.path.join(cwd, "logs")
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path)
         self.__logger.debug("Logger Active")
 
@@ -41,7 +46,7 @@ class ZmqKernel(object):
                     FlightSubRunnable, context, self.__SetFlightSubThreadPorts,\
                     self.__SERVER_RUNNING)
  
-        name = "GroundSubcriptionThread"
+        name = "GroundSubscriptionThread"
         self.__ground_sub_thread = GeneralSubscriptionThread(name,\
                     GroundSubRunnable, context, self.__SetGroundSubThreadPorts,\
                     self.__SERVER_RUNNING)
@@ -198,9 +203,8 @@ def MockTarget(context, cmd_port):
     
     target_name = "FP1" 
 
-    # Setup Logger 
-    cwd = os.getcwd() 
-    log_path = os.path.join(cwd, "logs") 
+    # Setup Logger   
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
     logger = GetLogger("mock_target",log_path) 
     logger.debug("Logger Active") 
     

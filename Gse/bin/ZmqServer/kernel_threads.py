@@ -4,6 +4,10 @@ import threading
 import logging
 
 from utils.logging_util import GetLogger
+from server_utils.ServerConfig import ServerConfig
+
+# Global server config class
+SERVER_CONFIG = ServerConfig.getInstance() 
 
 class  GeneralSubscriptionThread(threading.Thread):
     """
@@ -20,8 +24,7 @@ class  GeneralSubscriptionThread(threading.Thread):
     def __init__(self, name, runnable, context, InitializeKernelPorts,\
                  SERVER_RUNNING):
         # Setup Logger
-        cwd = os.getcwd() 
-        log_path = os.path.join(cwd, "logs")
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger(name, log_path)
         self.__logger.debug("Logger Active") 
 
