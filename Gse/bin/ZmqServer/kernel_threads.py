@@ -34,6 +34,7 @@ class  GeneralSubscriptionThread(threading.Thread):
         except zmq.ZMQError as e: 
             self.__logger.error("Unable to bind sub port.")  
             raise e
+        self.__logger.debug("Subcription port: {}".format(sub_port))
 
         # Setup socket to publish to clients
         pub_socket = context.socket(zmq.DEALER)
@@ -42,6 +43,7 @@ class  GeneralSubscriptionThread(threading.Thread):
         except zmq.ZMQBindError as e:
             self.__logger.error("Unable to bind pub port.")
             raise e
+        self.__logger.debug("Publish port: {}".format(pub_port))
 
         # Callback the server of the allocated ports
         InitializeKernelPorts(sub_port, pub_port)
@@ -66,6 +68,8 @@ def FlightSubRunnable(sub_socket, pub_socket, logger):
         try:
             msg = sub_socket.recv_multipart() 
             logger.debug("Packet Received: {}".format(msg))
+
+            pub_socket.send_multipart(msg)
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break
@@ -94,6 +98,8 @@ def GroundSubRunnable(sub_socket, pub_socket, logger):
         try:
             msg = sub_socket.recv_multipart() 
             logger.debug("Packet Received: {}".format(msg))
+
+            pub_socket.send_multipart(msg)
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break

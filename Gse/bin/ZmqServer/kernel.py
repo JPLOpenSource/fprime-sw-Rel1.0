@@ -1,7 +1,9 @@
 import os
 import sys
+import time
 import zmq
 import logging
+import datetime
 import threading
 
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
@@ -13,7 +15,10 @@ from server_utils.ServerConfig import ServerConfig
 from kernel_threads import GeneralSubscriptionThread,\
                            FlightSubRunnable, GroundSubRunnable
 
-
+# Modules required for test
+from controllers.channel_loader import ChannelLoader
+from models.serialize import *
+import struct
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -69,6 +74,9 @@ class ZmqKernel(object):
         # Register handlers
         self.__command_socket.on_recv(self.__HandleCommand)
 
+    def GetContext(self):
+        return self.__context
+    
     def Start(self):
         """
         Start main event loop of the zmq kernel
@@ -92,26 +100,6 @@ class ZmqKernel(object):
         self.__command_socket.close()
 
         self.__context.term()
-
-    def __SetGroundSubThreadPorts(self, sub_port, pub_port):
-        """
-        Sets the pub/sub ports for the ground subscription thread.
-        I.e:
-            Subscribe to ground clients and
-            Publish   to flight clients
-        """
-        self.__ground_client_sub_port = sub_port
-        self.__flight_client_pub_port = pub_port
-
-    def __SetFlightSubThreadPorts(self, sub_port, pub_port):
-        """
-        Sets the pub/sub ports for the flight subscription thread.
-        I.e:
-            Subscribe to flight clients and
-            Publish   to ground clients
-        """
-        self.__flight_client_sub_port = sub_port
-        self.__ground_client_pub_port = pub_port
 
     def __HandleCommand(self, msg):
         """
@@ -149,7 +137,8 @@ class ZmqKernel(object):
         return (status, client_pub_port, client_sub_port)
 
 
-    def __RegistrationResponse(self, return_id, status, xp_port, xs_port):
+    def __RegistrationResponse(self, return_id, status, client_pub_port,\
+                                                        client_sub_port):
         """
         Send response to the registering client
         """
@@ -158,8 +147,8 @@ class ZmqKernel(object):
                bytes(return_id),\
                b'',\
                bytes(status),\
-               bytes(xp_port),\
-               bytes(xs_port)
+               bytes(client_pub_port),\
+               bytes(client_sub_port)
               ]
 
         self.__command_socket.send_multipart(msg)
@@ -179,7 +168,7 @@ class ZmqKernel(object):
 
     def __GetClientSubPort(self, client_type):
         """
-        Return the subscription port based on client_type 
+        Based on client_type return the subscription port.
         """
         if   client_type.lower() == "flight":
             return self.__flight_client_sub_port
@@ -189,6 +178,27 @@ class ZmqKernel(object):
             self.__logger.error("Client type: {} not recognized.".format(client_type))
             self.__logger.error("Exiting.")
             self.Quit()
+
+    def __SetGroundSubThreadPorts(self, sub_port, pub_port):
+        """
+        Sets the pub/sub ports for the ground subscription thread.
+        I.e:
+            Subscribe to ground clients and
+            Publish   to flight clients
+        """
+        self.__ground_client_sub_port = sub_port
+        self.__flight_client_pub_port = pub_port
+
+    def __SetFlightSubThreadPorts(self, sub_port, pub_port):
+        """
+        Sets the pub/sub ports for the flight subscription thread.
+        I.e:
+            Subscribe to flight clients and
+            Publish   to ground clients
+        """
+        self.__flight_client_sub_port = sub_port
+        self.__ground_client_pub_port = pub_port
+
 
 
     def __AddToRoutingTable(self, name, client_type):
@@ -221,36 +231,148 @@ def MockTarget(context, cmd_port):
     logger.debug("Command Reply Received:{}".format(msg))
 
     # Setup pub/sub ports
-    pub_port = msg[1]
-    sub_port = msg[2]
+    server_pub_port = msg[1]
+    server_sub_port = msg[2]
 
-    pub_socket = context.socket(zmq.PUB)
-    sub_socket = context.socket(zmq.SUB)
+    pub_socket = context.socket(zmq.DEALER)
+    sub_socket = context.socket(zmq.ROUTER)
 
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, target_name.encode())
 
-    pub_socket.connect("tcp://localhost:{}".format(pub_port))
-    sub_socket.connect("tcp://localhost:{}".format(sub_port))
+    pub_socket.connect("tcp://localhost:{}".format(server_sub_port))
+    sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
 
-    logger.debug("Publishing to port: {}".format(pub_port))
-    logger.debug("Subscribed to port: {}".format(sub_port))
+    logger.debug("Publishing to port: {}".format(server_sub_port))
+    logger.debug("Subscribed to port: {}".format(server_pub_port))
 
-    pub_socket.send(b"Hello!")
+
+    # Get Sensor1 dictionary
+    channel_loader = ChannelLoader()
+    channel_loader.create("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref/"
+                          "channels")
+    ch_dict  = channel_loader.getChDict() 
+    sensor1  = ch_dict[103]
+    
+    
+
+
+    name = sensor1.getName()
+    compName = sensor1.getCompName()
+    ch_id = sensor1.getId()
+    ch_desc = sensor1.getChDesc()
+    ch_type = sensor1.getType()
+    timeBase = sensor1.getTimeBase()
+    timeContext = sensor1.getTimeContext()
+    formatString = sensor1.getFormatString()
+
+    value    = sensor1.getType()
+
+
+    count = 0
+    while True:
+        try:
+           
+            # Create channel packet
+            ch_time = datetime.datetime.now()
+            sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
+
+            timeSec = sensor1.getTimeSec()
+            timeUsec = 5 
+
+            value.val  = float(count)
+            count += 1
+            
+
+            timeContext = 0
+            
+
+            desc_type = u32_type.U32Type(1)
+            data_len  = u32_type.U32Type(0)
+            packet = data_len.serialize() + desc_type.serialize() +\
+                     struct.pack(">I", ch_id) + struct.pack(">I", 0) +\
+                     struct.pack(">I", 0) + struct.pack(">I",timeSec)+\
+                     struct.pack(">I", 5) + value.serialize()
+
+            pub_socket.send(packet)
+
+            if count == 20:
+                count = 0
+
+            time.sleep(1)           
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                break
+            else:
+                raise
 
     # Quit
+    logger.debug("Closing")
     pub_socket.close()
     sub_socket.close()
+
+def MockClient(context, cmd_port):
+
+    target_name = "CL1"
+    # Setup Logger   
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+    logger = GetLogger("mock_client",log_path) 
+    logger.debug("Logger Active") 
+
+    command_socket = context.socket(zmq.REQ)
+    command_socket.connect("tcp://localhost:{}".format(cmd_port))
+
+    # Register target
+    command_socket.send_multipart([b"REG", target_name.encode(), b"ground", b"ZMQ"])
+    msg = command_socket.recv_multipart()
+    logger.debug("Command Reply Received:{}".format(msg))
+
+    # Setup pub/sub ports
+    server_pub_port = msg[1]
+    server_sub_port = msg[2]
+
+    pub_socket = context.socket(zmq.DEALER)
+    sub_socket = context.socket(zmq.ROUTER)
+
+    # Set publisher identity
+    pub_socket.setsockopt(zmq.IDENTITY, target_name.encode())
+
+    pub_socket.connect("tcp://localhost:{}".format(server_sub_port))
+    sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
+
+    logger.debug("Publishing to port: {}".format(server_sub_port))
+    logger.debug("Subscribed to port: {}".format(server_pub_port))
+
+    while True:
+        try:
+            msg = sub_socket.recv_multipart()
+            logger.debug("Received: {}".format(msg))
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                break
+            else:
+                raise
+
+
+    logger.debug("Closing")
+    pub_socket.close()
+    sub_socket.close()
+
 
 if __name__ == "__main__":
     cmd_port = 5555
        
-    context = zmq.Context()
+    kernel = ZmqKernel(5555) 
+    context = kernel.GetContext()
     
     mock_target = threading.Thread(target=MockTarget,args=(context, cmd_port))
     mock_target.start()
 
-    kernel = ZmqKernel(5555)
+    mock_client = threading.Thread(target=MockClient, args=(context, cmd_port))
+    mock_client.start()
+
+  
     kernel.Start()
 
     
