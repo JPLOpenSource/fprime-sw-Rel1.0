@@ -1,0 +1,14 @@
+{
+  "name": "ISF-Client",
+  "version": "0.0.1",
+  "description": "Client for ISF server",
+  "main": "client/app.js",
+  "scripts": {
+    "start": "node client/app.js",
+    "postinstall": "cd node_modules/openmct && npm install"
+  },
+  "dependencies": {
+    "express": "^4.15.3",
+    "openmct": "github:nasa/openmct"
+  }
+}
