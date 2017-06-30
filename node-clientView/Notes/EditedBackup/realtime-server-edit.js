@@ -1,5 +1,4 @@
-var WebSocketServer = require('ws').Server;
-var net = require('net');
+var WebSocketServer = require('ws').Server;    // Websocket used to recieve data
 
 function RealtimeServer(spacecraft, port) { // Delete spacecraft
 

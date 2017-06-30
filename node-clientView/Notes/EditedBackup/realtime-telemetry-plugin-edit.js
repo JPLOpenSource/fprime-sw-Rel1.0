@@ -1,14 +1,16 @@
 /**
  * Basic Realtime telemetry plugin using websockets.
  */
+
 function RealtimeTelemetryPlugin() {
     return function (openmct) {
         var socket = new WebSocket('ws://localhost:1337');
         var listeners = {};
 
+        // Get data
         socket.onmessage = function (event) {
             console.log(event);
-            point = JSON.parse(event.data);
+            point = JSON.parse(event.data); // Parse json data
 
             if (listeners[point.id]) {
                 listeners[point.id].forEach(function (l) {
@@ -18,6 +20,7 @@ function RealtimeTelemetryPlugin() {
         };
 
         var provider = {
+            // Must add 'supportsSubscribe' for realtime
             supportsSubscribe: function (domainObject) {
                 return domainObject.type === 'example.telemetry';
             },

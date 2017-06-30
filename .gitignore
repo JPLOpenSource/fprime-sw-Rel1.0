@@ -57,3 +57,7 @@ core
 node-clientView/node_modules
 node-clientView/package-lock.json
 
+# Python base folder
+lib
+bin
+
