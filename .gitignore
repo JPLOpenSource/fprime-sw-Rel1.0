@@ -53,3 +53,7 @@ core
 
 .swp
 
+# Ignoring files for node client view:
+node-clientView/node_modules
+node-clientView/package-lock.json
+
