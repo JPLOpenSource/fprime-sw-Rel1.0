@@ -4,13 +4,13 @@
 
 
 // Get dict
-var dict = require('./openmct-tutorial-installed/dictionary.json');
+var dict = require('../client/isf-omct/src/dictionary-plugin.js');
 
 var net = require('net');
 const WebSocket = require('ws');
 
 const mct_port = 1337;
-const isf_port = 50006;
+const isf_port = 50000;
 
 // isf client
 var client = new net.Socket();
@@ -23,9 +23,10 @@ client.connect(isf_port, '127.0.0.1', function() {
 
 const wss = new WebSocket.Server({port: 1337});
 
+subscribed = {};	// Subscription dictionary
+// For every client connection:
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
-	subscribed = {};	// Subscription dictionary
 
 	// Get isf data
   	var num_format = {};	// Save formats of each id
@@ -36,7 +37,7 @@ wss.on('connection', function connection(ws) {
 		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		if (subscribed[id]) {
+		if (subscribed[ws][id]) {
 			// Check if id is in subscription dictionary to continue decoding data
 			var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
 			var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
@@ -93,6 +94,7 @@ wss.on('connection', function connection(ws) {
 			ws.send(JSON.stringify(toMCT), function ack(error) {
 				if (error) {
 					// If unable to send (ie. client disconnection) then subscription is reset
+					console.log("Unable to connect to client");
 					subscribed = {};
 				}
 			});
@@ -108,14 +110,11 @@ wss.on('connection', function connection(ws) {
 
 	  	// Set id subscription
 	  	if (operation == 'subscribe') {
-	  		subscribed[idReq] = true;
+	  		subscribed[ws][idReq] = true;
 	  	} else if (operation == 'unsubscribe') {
-	  		subscribed[idReq] = false;
-	  	}
-	  	
-	});
-
-  	
+	  		subscribed[ws][idReq] = false;
+	  	}	
+	});  	
 });
 
 

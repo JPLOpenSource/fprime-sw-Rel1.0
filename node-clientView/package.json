@@ -4,11 +4,14 @@
   "description": "Client for ISF server",
   "main": "client/app.js",
   "scripts": {
-    "start": "node client/app.js",
+    "start": "node client/app.js && node server/isfToWebSock.js",
+    "start_client": "node client/app.js",
+    "start_server": "node server/isfToWebSock.js",
     "postinstall": "cd node_modules/openmct && npm install"
   },
   "dependencies": {
     "express": "^4.15.3",
-    "openmct": "github:nasa/openmct"
+    "openmct": "github:nasa/openmct",
+    "ws": "^3.0.0"
   }
 }
