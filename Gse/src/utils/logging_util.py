@@ -17,8 +17,8 @@ def GetLogger(name, logPath, logLevel=DEBUG, fileLevel=DEBUG, chLevel=DEBUG):
 
     logger = logging.getLogger(name)
     logger.setLevel(logLevel)
+    logger.propagate = False
     
-
     # Create formatter
     formatter = logging.Formatter(
             '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
