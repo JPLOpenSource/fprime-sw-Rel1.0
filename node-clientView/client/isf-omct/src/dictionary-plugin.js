@@ -91,9 +91,9 @@ var DictionaryPlugin = function (openmct) {
         openmct.composition.addProvider(compositionProvider);
 
         openmct.types.addType('isf.telemetry', {
-            name: 'Example Telemetry Point',
-            description: 'Example telemetry point from our happy tutorial.',
-            cssClass: 'icon-telemetry'
+            name: 'ISF Telemetry point',
+            description: 'Telemetry point from ISF.',
+            cssClass: 'icon-telemetry'  // Specify icon for type
         });
     };
 };
