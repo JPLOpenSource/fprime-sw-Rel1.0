@@ -6,6 +6,8 @@
 // Get dict
 var dict = require('../client/isf-omct/res/dictionary.json');
 
+var desIsf = require('deserializeIsf.js');
+
 var net = require('net');
 const WebSocket = require('ws');
 
@@ -24,7 +26,7 @@ client.connect(isf_port, '127.0.0.1', function() {
 const wss = new WebSocket.Server({port: 1337});
 
 subscribed = {};	// Subscription dictionary
-var num_format = {};	// Save formats of each id
+var numFormat = {};	// Save formats of each id
 // For every client connection:
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
@@ -47,20 +49,20 @@ wss.on('connection', function connection(ws) {
 			var telem = dict.measurements;	// List of telemetry dictionary data
 			var telemSize = dict.measurement_size;
 			
-			if (!(id in num_format)) {
+			if (!(id in numFormat)) {
 				console.log("New id: " + id);
-				// If not saved in num_format dictionary, find format for id
+				// If not saved in numFormat dictionary, find format for id
 				var telem = dict.measurements;	// List of telemetry dictionary data
 				var telemSize = dict.measurement_size;
 				for (i = 0; i < telemSize; i++) {
 					if (id.toString() === telem[i].key) {
-						num_format[id] = telem[i].num_type;
+						numFormat[id] = telem[i].num_type;
 					}
 				}
 			}
 
 			// Check if floating point conversion is needed
-			if (num_format[id].indexOf("F") != -1) {
+			if (numFormat[id].indexOf("F") != -1) {
 				var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);	// Get value
 
 				// Convert to float
