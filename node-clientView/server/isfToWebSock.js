@@ -4,7 +4,7 @@
 
 
 // Get dict
-var dict = require('../client/isf-omct/src/dictionary-plugin.js');
+var dict = require('../client/isf-omct/res/dictionary.json');
 
 var net = require('net');
 const WebSocket = require('ws');
@@ -24,12 +24,12 @@ client.connect(isf_port, '127.0.0.1', function() {
 const wss = new WebSocket.Server({port: 1337});
 
 subscribed = {};	// Subscription dictionary
+var num_format = {};	// Save formats of each id
 // For every client connection:
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
 
 	// Get isf data
-  	var num_format = {};	// Save formats of each id
 	client.on('data', function (data) {
 
 		// Decode data
@@ -37,7 +37,7 @@ wss.on('connection', function connection(ws) {
 		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		if (subscribed[ws][id]) {
+		if (subscribed[id]) {
 			// Check if id is in subscription dictionary to continue decoding data
 			var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
 			var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
@@ -60,7 +60,6 @@ wss.on('connection', function connection(ws) {
 			}
 
 			// Check if floating point conversion is needed
-			console.log(num_format[id]);
 			if (num_format[id].indexOf("F") != -1) {
 				var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);	// Get value
 
@@ -73,28 +72,19 @@ wss.on('connection', function connection(ws) {
 				var value = parseInt(data.toString('hex').substring(ptr, (size + 4) * 2), 16);
 			}
 
-			// Print data
-			console.log('Received: ' +
-				size + ',' +
-				descriptor + ',' +
-				id + ',' +
-				timeBase + ',' +
-				timeContext + ',' +
-				timeSeconds + ',' +
-				timeUSeconds + ',' +
-				value
-			);
-			// timestamp = parseInt((timeSeconds.toString()).concat((timeUSeconds.toString()).substring(0,3)), 10);
 			timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
 
 			// Create datum in openMCT format
 			var toMCT = {'timestamp':timestamp,'value':value,'id':id.toString()};
 
+			// Print/debug
+			console.log(toMCT);
+
 			// Send to websocket
 			ws.send(JSON.stringify(toMCT), function ack(error) {
 				if (error) {
 					// If unable to send (ie. client disconnection) then subscription is reset
-					console.log("Unable to connect to client");
+					console.log("Client disconnected");
 					subscribed = {};
 				}
 			});
@@ -110,9 +100,9 @@ wss.on('connection', function connection(ws) {
 
 	  	// Set id subscription
 	  	if (operation == 'subscribe') {
-	  		subscribed[ws][idReq] = true;
+	  		subscribed[idReq] = true;
 	  	} else if (operation == 'unsubscribe') {
-	  		subscribed[ws][idReq] = false;
+	  		subscribed[idReq] = false;
 	  	}	
 	});  	
 });
