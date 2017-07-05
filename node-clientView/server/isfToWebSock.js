@@ -2,11 +2,8 @@
 	Server used to translate tcp packet stream into mct format. Only works with one client atm.
 */
 
-
-// Get dict
-var dict = require('../client/isf-omct/res/dictionary.json');
-
-var desIsf = require('deserializeIsf.js');
+// Used to decode packets
+var deserialize = require('./deserializeIsf.js');
 
 var net = require('net');
 const WebSocket = require('ws');
@@ -34,76 +31,34 @@ wss.on('connection', function connection(ws) {
 	// Get isf data
 	client.on('data', function (data) {
 
-		// Decode data
-		var ptr = 0;
-		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		if (subscribed[id]) {
-			// Check if id is in subscription dictionary to continue decoding data
-			var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
-			var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
-			var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-			var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		var toMCTList = deserialize(data, subscribed, numFormat);
 
-			var telem = dict.measurements;	// List of telemetry dictionary data
-			var telemSize = dict.measurement_size;
-			
-			if (!(id in numFormat)) {
-				console.log("New id: " + id);
-				// If not saved in numFormat dictionary, find format for id
-				var telem = dict.measurements;	// List of telemetry dictionary data
-				var telemSize = dict.measurement_size;
-				for (i = 0; i < telemSize; i++) {
-					if (id.toString() === telem[i].key) {
-						numFormat[id] = telem[i].num_type;
-					}
-				}
-			}
-
-			// Check if floating point conversion is needed
-			if (numFormat[id].indexOf("F") != -1) {
-				var hexValue = data.toString('hex').substring(ptr, (size + 4) * 2);	// Get value
-
-				// Convert to float
-				var dv = new DataView(new ArrayBuffer(8));
-				dv.setUint32(0, parseInt("0x" + hexValue));
-				var value = dv.getFloat32(0);
-			} else {
-				// Get value from packet if no conversion is needed
-				var value = parseInt(data.toString('hex').substring(ptr, (size + 4) * 2), 16);
-			}
-
-			timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
-
-			// Create datum in openMCT format
-			var toMCT = {'timestamp':timestamp,'value':value,'id':id.toString()};
-
-			// Print/debug
-			console.log(toMCT);
-
-			// Send to websocket
-			ws.send(JSON.stringify(toMCT), function ack(error) {
+		// Send to websocket
+		if (toMCTList.length) {
+			console.log(toMCTList);
+		}
+		toMCTList.forEach(function(packet) {
+			ws.send(JSON.stringify(packet), function ack(error) {
 				if (error) {
 					// If unable to send (ie. client disconnection) then subscription is reset
 					console.log("Client disconnected");
-					subscribed = {};
+					subscribed = {};	// Reset subscription dictionary
 				}
 			});
-		}
+		})
 		
 	});
 
 	// Subscription
 	ws.on('message', function incoming(message) {
-		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
-	  	var idReq = message.split(" ")[1];	// Get id query
-	  	console.log("ID: " + idReq);
 
+		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
 	  	// Set id subscription
-	  	if (operation == 'subscribe') {
+	  	if (operation === 'subscribe') {
+	  		var idReq = message.split(" ")[1];	// Get id query
 	  		subscribed[idReq] = true;
-	  	} else if (operation == 'unsubscribe') {
+	  	} else if (operation === 'unsubscribe') {
+	  		var idReq = message.split(" ")[1];	// Get id query
 	  		subscribed[idReq] = false;
 	  	}	
 	});  	
