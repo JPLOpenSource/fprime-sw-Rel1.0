@@ -11,8 +11,4 @@
 #   or an ITAR exemption prior to the export or transfer.
 #
 
-SRC = ZmqRouterComponentAi.xml ZmqRouterComponentImpl.cpp 
-
-HDR = ZmqRouterComponentImpl.hpp 
-
-SUBDIRS = test
+SUBDIRS = ut

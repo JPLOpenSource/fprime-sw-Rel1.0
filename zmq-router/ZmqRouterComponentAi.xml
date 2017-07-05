@@ -10,6 +10,16 @@
             Input port to get called periodically for telemetry
             </comment>
         </port>
+        <port name="PortsIn" data_type="Serial" kind="async_input" max_number="10">
+            <comment>
+            Input ports from other components
+            </comment>
+        </port>
+        <port name="PortsOut" data_type="Serial" kind="output" max_number="10">
+            <comment>
+            Output ports to other components
+            </comment>
+        </port>
     </ports>
     <events>
         <event id="0" name="ZR_ServerConnectionOpened" severity="ACTIVITY_HI" format_string = "ZeroMQ server connection opened">
