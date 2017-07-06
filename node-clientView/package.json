@@ -5,8 +5,6 @@
   "main": "client/app.js",
   "scripts": {
     "start": "node server/isfToWebSock.js & node client/app.js",
-    "start_client": "node client/app.js",
-    "start_server": "node server/isfToWebSock.js",
     "postinstall": "cd node_modules/openmct && npm install"
   },
   "dependencies": {
