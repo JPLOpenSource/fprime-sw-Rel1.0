@@ -9,7 +9,7 @@ var net = require('net');
 const WebSocket = require('ws');
 
 const mct_port = 1337;
-const isf_port = 50001;
+const isf_port = 50000;
 
 // isf client
 var client = new net.Socket();
