@@ -8,7 +8,7 @@
 // (1) Time context
 // (4) Time in seconds
 // (4) Microseconds
-// (?) Value
+// (Size of packet - 19) Value
 */
 
 // Get dict
@@ -48,9 +48,8 @@ function deserialize(data, numFormat) {
 		var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
 		// Check if floating point conversion is needed
 		if (numFormat[id].indexOf("F") != -1) {
-
-			var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);	// Get value
-
+			// Get value
+			var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
 			// Convert to float
 			var dv = new DataView(new ArrayBuffer(8));
 			dv.setUint32(0, parseInt("0x" + hexValue));
@@ -60,9 +59,8 @@ function deserialize(data, numFormat) {
 			var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
 		}
 
-
+		// Create timestamp by concatenating the microseconds value onto the seconds value.
 		var timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
-
 
 		// Create datum in openMCT format
 		var toMCT = {
@@ -73,10 +71,7 @@ function deserialize(data, numFormat) {
 
 		// console.log(toMCT, ptr, packetLength);
 		res.push(toMCT);
-		
 	}
-
-	console.log(res);
 	return res;
 }
 
