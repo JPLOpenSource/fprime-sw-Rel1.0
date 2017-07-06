@@ -30,9 +30,11 @@ wss.on('connection', function connection(ws) {
 
 	// Get isf data
 	client.on('data', function (data) {
+		// Deserialize data into list of packets
+		var toMCT = deserialize(data, numFormat);
 
 		// Send to websocket
-		deserialize(data, numFormat).forEach(function (packet) {
+		toMCT.forEach(function (packet) {
 			if (subscribed[packet.id]) {
 				ws.send(JSON.stringify(packet), function ack(error) {
 					if (error) {
@@ -49,12 +51,12 @@ wss.on('connection', function connection(ws) {
 	// Subscription
 	ws.on('message', function incoming(message) {
 		var operation = message.split(" ")[0];	// Get subscribe or unsubscribe operation
-		var idReq = message.split(" ")[1];	// Get id query
-
 	  	// Set id subscription
 	  	if (operation === 'subscribe') {
+	  		var idReq = message.split(" ")[1];	// Get id query
 	  		subscribed[idReq] = true;
 	  	} else if (operation === 'unsubscribe') {
+	  		var idReq = message.split(" ")[1];	// Get id query
 	  		subscribed[idReq] = false;
 	  	}	
 	});  	

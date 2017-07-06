@@ -11,14 +11,12 @@
 // (Size of packet - 19) Value
 */
 
-// Get dict
-var dict = require('../client/isf-omct/res/dictionary.json');
+// Get telem list for format lookup
+var telem = require('../client/isf-omct/res/dictionary.json').measurements;
 const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USex) in nibbles
 
 function deserialize(data, numFormat) {
 	var res = [];
-	var telem = dict.measurements;	// List of telemetry dictionary data
-	var telemSize = dict.measurement_size;
 
 	var packetLength = data.toString('hex').length;
 	var ptr = 0;
@@ -34,43 +32,47 @@ function deserialize(data, numFormat) {
 		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
 		if (!(id in numFormat)) {
-			console.log("New id: " + id);
 			// If not saved in numFormat dictionary, find format for id
-			var telem = dict.measurements;	// List of telemetry dictionary data
-			var telemSize = dict.measurement_size;
-			for (i = 0; i < telemSize; i++) {
-				if (id.toString() === telem[i].key) {
-					numFormat[id] = telem[i].num_type;
-				}
+			var tel = telem.find(function (telElem) {
+					return telElem["key"] == id;
+				});
+			if (tel) {
+				// Add to numberformat dict if id is found in dictionary
+				numFormat[id] = tel["num_type"];
 			}
 		}
 
-		var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
-		// Check if floating point conversion is needed
-		if (numFormat[id].indexOf("F") != -1) {
-			// Get value
-			var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
-			// Convert to float
-			var dv = new DataView(new ArrayBuffer(8));
-			dv.setUint32(0, parseInt("0x" + hexValue));
-			var value = dv.getFloat32(0);
-		} else {
-			// Get value from packet if no conversion is needed
-			var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
+		if (id in numFormat) {
+			// Continue decoding if packet id has matching in dictionary
+
+			var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
+			// Check if floating point conversion is needed
+			
+			if (numFormat[id].indexOf("F") != -1) {
+				// Get value
+				var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+				// Convert to float
+				var dv = new DataView(new ArrayBuffer(8));
+				dv.setUint32(0, parseInt("0x" + hexValue));
+				var value = dv.getFloat32(0);
+			} else {
+				// Get value from packet if no conversion is needed
+				var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
+			}
+
+			// Create timestamp by concatenating the microseconds value onto the seconds value.
+			var timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
+
+			// Create datum in openMCT format
+			var toMCT = {
+				'timestamp':timestamp,
+				'value':value,
+				'id':id.toString()
+			};
+
+			// console.log(toMCT, ptr, packetLength);
+			res.push(toMCT);
 		}
-
-		// Create timestamp by concatenating the microseconds value onto the seconds value.
-		var timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
-
-		// Create datum in openMCT format
-		var toMCT = {
-			'timestamp':timestamp,
-			'value':value,
-			'id':id.toString()
-		};
-
-		// console.log(toMCT, ptr, packetLength);
-		res.push(toMCT);
 	}
 	return res;
 }

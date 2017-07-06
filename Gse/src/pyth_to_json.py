@@ -35,17 +35,6 @@ for id in combined_dict:
 	combined_dict[id]["num_type"] = (cl.getTypesDict()[id]).__repr__()
 
 # Formatting for telemetry data
-value_format = {
-    "format": "float", 
-    "hints": {
-        "range": 1
-    }, 
-    "key": "value", 
-    "max": 100, 
-    "min": 0, 
-    "name": "Value", 
-    "units": "units"
-}
 
 time_format = {
 	"key": "utc",
@@ -57,30 +46,39 @@ time_format = {
     }
 }
 
-# Create final dictionary for openMCT format
-values = [value_format, time_format]
 
-telem_size = 0
 telemetry = []
 for id in combined_dict:
+	value_format = {
+	    "hints": {
+	        "range": 1
+	    }, 
+	    "key": "value", 
+	    "max": 100, 
+	    "min": 0, 
+	    "name": "Value", 
+	    "units": "units"
+	}
+
+	# determine format
+	num_type = combined_dict[id]["num_type"]
+	if num_type.find('F') != -1:
+		value_format["format"] = "float"
 	telemetry.append({
 		"name": combined_dict[id]["name"],
 		"key": str(id),
 		"num_type": combined_dict[id]["num_type"],
-		"values": values
-		})
-	telem_size += 1;
+		"values": [value_format, time_format]
+	})
 
 final_dict = {
 	"name": "ISF",
 	"key": "isf",
-	"measurement_size": telem_size,
 	"measurements": telemetry
 }
 
-with open('dictionary-edit.json', 'w') as fp:
+with open('node-clientView/client/isf-omct/res/dictionary.json', 'w') as fp:
 	json.dump(final_dict, fp, sort_keys=True, indent=4)
-
  
-if __name__ == "__main__":
-	print final_dict
+# if __name__ == "__main__":
+# 	# print final_dict

@@ -1,7 +1,5 @@
 {
-    "name": "ISF",
     "key": "isf", 
-    "measurement_size": 42, 
     "measurements": [
         {
             "key": "261", 
@@ -9,7 +7,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -36,7 +34,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -63,7 +61,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -90,7 +88,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -117,7 +115,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -144,7 +142,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -171,7 +169,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -225,7 +223,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -252,7 +250,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -279,7 +277,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -306,7 +304,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -333,7 +331,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -360,7 +358,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -387,7 +385,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -414,7 +412,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -441,7 +439,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -522,7 +520,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -576,7 +574,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -603,7 +601,7 @@
             "num_type": "U64", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -630,7 +628,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -657,7 +655,7 @@
             "num_type": "U8", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -711,7 +709,7 @@
             "num_type": "Enum", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -765,7 +763,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -792,7 +790,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -819,7 +817,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -900,7 +898,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -927,7 +925,7 @@
             "num_type": "I16", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -954,7 +952,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -981,7 +979,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -1008,7 +1006,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -1035,7 +1033,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -1062,7 +1060,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -1089,7 +1087,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
@@ -1116,7 +1114,7 @@
             "num_type": "U32", 
             "values": [
                 {
-                    "format": "float", 
+                    "format": "integer", 
                     "hints": {
                         "range": 1
                     }, 
