@@ -6,6 +6,7 @@ To run:
 npm install
 npm start
 
+Works with simple channels. No strings or enum types. No historical data.
 
 Notes:
 Using lib/http from tutorial in order to get dictionary file.
