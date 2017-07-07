@@ -54,7 +54,11 @@ function deserialize(data, numFormat) {
 			var value = dv.getFloat32(0);
 		} else {
 			// Get value from packet if no conversion is needed
-			var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
+			if (id === 122) {
+				var value = data.toString('hex');
+			} else {
+				var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
+			}
 		}
 
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
