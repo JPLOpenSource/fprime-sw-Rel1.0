@@ -83,9 +83,9 @@ namespace Zmq {
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
       // so we create it in the preamble
       this->m_ipcSocket = zmq_socket (this->m_context, ZMQ_PAIR);
-      char qname[ENDPOINT_NAME_SIZE];
-      (void)snprintf(qname,ENDPOINT_NAME_SIZE,"inproc://zmq_rtr_q%d",this->getInstance());
-      qname[ENDPOINT_NAME_SIZE-1] = 0;
+      char qname[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE];
+      (void)snprintf(qname,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE,"inproc://zmq_rtr_q%d",this->getInstance());
+      qname[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
       zmq_bind (this->m_ipcSocket, qname);
   }
 
@@ -143,10 +143,10 @@ namespace Zmq {
 
       // store values for worker thread
       this->m_server = server;
-      strncpy(this->m_addr,addr,ENDPOINT_NAME_SIZE);
-      this->m_addr[ENDPOINT_NAME_SIZE-1] = 0;
-      strncpy(this->m_port,port,ENDPOINT_NAME_SIZE);
-      this->m_port[ENDPOINT_NAME_SIZE-1] = 0;
+      strncpy(this->m_addr,addr,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE);
+      this->m_addr[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
+      strncpy(this->m_port,port,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE);
+      this->m_port[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
 
       // create zmq context
       this->m_context = zmq_ctx_new ();
@@ -170,29 +170,29 @@ namespace Zmq {
 
       int stat;
       void* networkSocket = 0;
-      char endpoint[ENDPOINT_NAME_SIZE];
+      char endpoint[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE];
       if (compPtr->m_server) {
           networkSocket = zmq_socket (compPtr->m_context, ZMQ_REP);
           FW_ASSERT(networkSocket);
-          (void)snprintf(endpoint,ENDPOINT_NAME_SIZE,"tcp://*:%s",compPtr->m_port);
+          (void)snprintf(endpoint,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE,"tcp://*:%s",compPtr->m_port);
           // null terminate
-          endpoint[ENDPOINT_NAME_SIZE-1] = 0;
+          endpoint[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
           stat = zmq_bind(networkSocket, endpoint);
       } else {
           networkSocket = zmq_socket (compPtr->m_context, ZMQ_REQ);
           FW_ASSERT(networkSocket);
-          (void)snprintf(endpoint,ENDPOINT_NAME_SIZE,"tcp://%s:%s",compPtr->m_addr,compPtr->m_port);
+          (void)snprintf(endpoint,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE,"tcp://%s:%s",compPtr->m_addr,compPtr->m_port);
           // null terminate
-          endpoint[ENDPOINT_NAME_SIZE-1] = 0;
+          endpoint[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
           stat = zmq_connect(networkSocket, endpoint);
       }
       FW_ASSERT (0 == stat,stat);
 
       // create message queue listener
       void *ipcSocket = zmq_socket (compPtr->m_context, ZMQ_PAIR);
-      char qname[ENDPOINT_NAME_SIZE];
-      (void)snprintf(qname,ENDPOINT_NAME_SIZE,"inproc://zmq_rtr_q%d",compPtr->getInstance());
-      qname[ENDPOINT_NAME_SIZE-1] = 0;
+      char qname[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE];
+      (void)snprintf(qname,ZMQ_ADAPTER_ENDPOINT_NAME_SIZE,"inproc://zmq_rtr_q%d",compPtr->getInstance());
+      qname[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE-1] = 0;
       stat = zmq_connect (ipcSocket, qname);
       FW_ASSERT (0 == stat,stat);
 
@@ -203,7 +203,7 @@ namespace Zmq {
       };
 
       // wait on network or local requests
-      char msg[ZMQ_ROUTER_MSG_SIZE];
+      char msg[ZMQ_ADAPTER_MSG_SIZE];
       while (true) {
           DEBUG_PRINT("poll\n");
           if (zmq_poll (items, 2, -1) == -1) {
@@ -219,7 +219,7 @@ namespace Zmq {
           if (items [0].revents & ZMQ_POLLIN) {
               DEBUG_PRINT("Received ipc packet\n");
               while (true) {
-                  int size = zmq_recv (ipcSocket, msg, ZMQ_ROUTER_MSG_SIZE, 0);
+                  int size = zmq_recv (ipcSocket, msg, ZMQ_ADAPTER_MSG_SIZE, 0);
                   if (size != -1) {
                       // send packet on socket to recipient
                       while (true) {
@@ -247,7 +247,7 @@ namespace Zmq {
           if (items [1].revents & ZMQ_POLLIN) {
               DEBUG_PRINT("Received network packet\n");
               while (true) {
-                  int size = zmq_recv (networkSocket, msg, ZMQ_ROUTER_MSG_SIZE, 0);
+                  int size = zmq_recv (networkSocket, msg, ZMQ_ADAPTER_MSG_SIZE, 0);
                   if (size != -1) {
                       // decode packet into port call
                       compPtr->decodePacket((U8*)msg,size);
@@ -271,7 +271,7 @@ namespace Zmq {
   void ZmqAdapterComponentImpl::decodePacket(U8* packet, NATIVE_UINT_TYPE size) {
 
       FW_ASSERT(packet);
-      FW_ASSERT(size < ZMQ_ROUTER_MSG_SIZE,size);
+      FW_ASSERT(size < ZMQ_ADAPTER_MSG_SIZE,size);
       Fw::SerializeStatus stat;
       Fw::ExternalSerializeBuffer buff(packet,size);
       buff.resetDeser();

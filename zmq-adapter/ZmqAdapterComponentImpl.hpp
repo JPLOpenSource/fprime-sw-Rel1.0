@@ -134,7 +134,7 @@ namespace Zmq {
 
         private:
           // Should be the max of all the input ports serialized sizes...
-          U8 m_buff[ZMQ_ROUTER_MSG_SIZE];
+          U8 m_buff[ZMQ_ADAPTER_MSG_SIZE];
 
       };
 
@@ -150,8 +150,8 @@ namespace Zmq {
       // Initialization variables
 
       bool m_server;  /*!< if this node is the server */
-      char m_addr[ENDPOINT_NAME_SIZE];  /*!< if client, the server address, not used for server */
-      char m_port[ENDPOINT_NAME_SIZE]; /*!< port for connection, client or server */
+      char m_addr[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE];  /*!< if client, the server address, not used for server */
+      char m_port[ZMQ_ADAPTER_ENDPOINT_NAME_SIZE]; /*!< port for connection, client or server */
 
       // zmq variables
 
