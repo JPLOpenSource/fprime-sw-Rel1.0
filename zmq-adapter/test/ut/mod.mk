@@ -3,7 +3,7 @@ TEST_SRC = 	main.cpp \
 			TesterBase.cpp \
 			GTestBase.cpp
 
-TEST_MODS = fprime-zmq/zmq-router \
+TEST_MODS = fprime-zmq/zmq-adapter \
 			fprime-zmq/zmq \
 			Fw/Tlm \
 			Fw/Comp \

@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqRouter/test/ut/GTestBase.cpp
+// \title  ZmqAdapter/test/ut/GTestBase.cpp
 // \author Auto-generated
-// \brief  cpp file for ZmqRouter component Google Test harness base class
+// \brief  cpp file for ZmqAdapter component Google Test harness base class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -25,8 +25,8 @@ namespace Zmq {
   // Construction and destruction
   // ----------------------------------------------------------------------
 
-  ZmqRouterGTestBase ::
-    ZmqRouterGTestBase(
+  ZmqAdapterGTestBase ::
+    ZmqAdapterGTestBase(
 #if FW_OBJECT_NAMES == 1
         const char *const compName,
         const U32 maxHistorySize
@@ -34,7 +34,7 @@ namespace Zmq {
         const U32 maxHistorySize
 #endif
     ) : 
-        ZmqRouterTesterBase (
+        ZmqAdapterTesterBase (
 #if FW_OBJECT_NAMES == 1
             compName,
 #endif
@@ -44,8 +44,8 @@ namespace Zmq {
 
   }
 
-  ZmqRouterGTestBase ::
-    ~ZmqRouterGTestBase(void)
+  ZmqAdapterGTestBase ::
+    ~ZmqAdapterGTestBase(void)
   {
 
   }
@@ -54,7 +54,7 @@ namespace Zmq {
   // Telemetry
   // ----------------------------------------------------------------------
 
-  void ZmqRouterGTestBase ::
+  void ZmqAdapterGTestBase ::
     assertTlm_size(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
@@ -71,27 +71,27 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Channel: ZR_BytesSent
+  // Channel: ZA_BytesSent
   // ----------------------------------------------------------------------
 
-  void ZmqRouterGTestBase ::
-    assertTlm_ZR_BytesSent_size(
+  void ZmqAdapterGTestBase ::
+    assertTlm_ZA_BytesSent_size(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
         const U32 size
     ) const
   {
-    ASSERT_EQ(this->tlmHistory_ZR_BytesSent->size(), size)
+    ASSERT_EQ(this->tlmHistory_ZA_BytesSent->size(), size)
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
-      << "  Value:    Size of history for telemetry channel ZR_BytesSent\n"
+      << "  Value:    Size of history for telemetry channel ZA_BytesSent\n"
       << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->tlmHistory_ZR_BytesSent->size() << "\n";
+      << "  Actual:   " << this->tlmHistory_ZA_BytesSent->size() << "\n";
   }
 
-  void ZmqRouterGTestBase ::
-    assertTlm_ZR_BytesSent(
+  void ZmqAdapterGTestBase ::
+    assertTlm_ZA_BytesSent(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
         const U32 index,
@@ -99,49 +99,49 @@ namespace Zmq {
     )
     const
   {
-    ASSERT_LT(index, this->tlmHistory_ZR_BytesSent->size())
+    ASSERT_LT(index, this->tlmHistory_ZA_BytesSent->size())
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
-      << "  Value:    Index into history of telemetry channel ZR_BytesSent\n"
+      << "  Value:    Index into history of telemetry channel ZA_BytesSent\n"
       << "  Expected: Less than size of history (" 
-      << this->tlmHistory_ZR_BytesSent->size() << ")\n"
+      << this->tlmHistory_ZA_BytesSent->size() << ")\n"
       << "  Actual:   " << index << "\n";
-    const TlmEntry_ZR_BytesSent& e =
-      this->tlmHistory_ZR_BytesSent->at(index);
+    const TlmEntry_ZA_BytesSent& e =
+      this->tlmHistory_ZA_BytesSent->at(index);
     ASSERT_EQ(val, e.arg)
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
       << "  Value:    Value at index "
       << index
-      << " on telmetry channel ZR_BytesSent\n"
+      << " on telmetry channel ZA_BytesSent\n"
       << "  Expected: " << val << "\n"
       << "  Actual:   " << e.arg << "\n";
   }
 
   // ----------------------------------------------------------------------
-  // Channel: ZR_BytesReceived
+  // Channel: ZA_BytesReceived
   // ----------------------------------------------------------------------
 
-  void ZmqRouterGTestBase ::
-    assertTlm_ZR_BytesReceived_size(
+  void ZmqAdapterGTestBase ::
+    assertTlm_ZA_BytesReceived_size(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
         const U32 size
     ) const
   {
-    ASSERT_EQ(this->tlmHistory_ZR_BytesReceived->size(), size)
+    ASSERT_EQ(this->tlmHistory_ZA_BytesReceived->size(), size)
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
-      << "  Value:    Size of history for telemetry channel ZR_BytesReceived\n"
+      << "  Value:    Size of history for telemetry channel ZA_BytesReceived\n"
       << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->tlmHistory_ZR_BytesReceived->size() << "\n";
+      << "  Actual:   " << this->tlmHistory_ZA_BytesReceived->size() << "\n";
   }
 
-  void ZmqRouterGTestBase ::
-    assertTlm_ZR_BytesReceived(
+  void ZmqAdapterGTestBase ::
+    assertTlm_ZA_BytesReceived(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
         const U32 index,
@@ -149,23 +149,23 @@ namespace Zmq {
     )
     const
   {
-    ASSERT_LT(index, this->tlmHistory_ZR_BytesReceived->size())
+    ASSERT_LT(index, this->tlmHistory_ZA_BytesReceived->size())
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
-      << "  Value:    Index into history of telemetry channel ZR_BytesReceived\n"
+      << "  Value:    Index into history of telemetry channel ZA_BytesReceived\n"
       << "  Expected: Less than size of history (" 
-      << this->tlmHistory_ZR_BytesReceived->size() << ")\n"
+      << this->tlmHistory_ZA_BytesReceived->size() << ")\n"
       << "  Actual:   " << index << "\n";
-    const TlmEntry_ZR_BytesReceived& e =
-      this->tlmHistory_ZR_BytesReceived->at(index);
+    const TlmEntry_ZA_BytesReceived& e =
+      this->tlmHistory_ZA_BytesReceived->at(index);
     ASSERT_EQ(val, e.arg)
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
       << "  Value:    Value at index "
       << index
-      << " on telmetry channel ZR_BytesReceived\n"
+      << " on telmetry channel ZA_BytesReceived\n"
       << "  Expected: " << val << "\n"
       << "  Actual:   " << e.arg << "\n";
   }
@@ -174,7 +174,7 @@ namespace Zmq {
   // Events
   // ----------------------------------------------------------------------
 
-  void ZmqRouterGTestBase ::
+  void ZmqAdapterGTestBase ::
     assertEvents_size(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
@@ -191,23 +191,23 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Event: ZR_ServerConnectionOpened
+  // Event: ZA_ServerConnectionOpened
   // ----------------------------------------------------------------------
 
-  void ZmqRouterGTestBase ::
-    assertEvents_ZR_ServerConnectionOpened_size(
+  void ZmqAdapterGTestBase ::
+    assertEvents_ZA_ServerConnectionOpened_size(
         const char *const __ISF_callSiteFileName,
         const U32 __ISF_callSiteLineNumber,
         const U32 size
     ) const
   {
-    ASSERT_EQ(size, this->eventsSize_ZR_ServerConnectionOpened)
+    ASSERT_EQ(size, this->eventsSize_ZA_ServerConnectionOpened)
       << "\n"
       << "  File:     " << __ISF_callSiteFileName << "\n"
       << "  Line:     " << __ISF_callSiteLineNumber << "\n"
-      << "  Value:    Size of history for event ZR_ServerConnectionOpened\n"
+      << "  Value:    Size of history for event ZA_ServerConnectionOpened\n"
       << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->eventsSize_ZR_ServerConnectionOpened << "\n";
+      << "  Actual:   " << this->eventsSize_ZA_ServerConnectionOpened << "\n";
   }
 
 } // end namespace Zmq

@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqRouter/test/ut/GTestBase.hpp
+// \title  ZmqAdapter/test/ut/GTestBase.hpp
 // \author Auto-generated
-// \brief  hpp file for ZmqRouter component Google Test harness base class
+// \brief  hpp file for ZmqAdapter component Google Test harness base class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -17,8 +17,8 @@
 // countries or providing access to foreign persons.
 // ======================================================================
 
-#ifndef ZmqRouter_GTEST_BASE_HPP
-#define ZmqRouter_GTEST_BASE_HPP
+#ifndef ZmqAdapter_GTEST_BASE_HPP
+#define ZmqAdapter_GTEST_BASE_HPP
 
 #include "TesterBase.hpp"
 #include "gtest/gtest.h"
@@ -30,17 +30,17 @@
 #define ASSERT_TLM_SIZE(size) \
   this->assertTlm_size(__FILE__, __LINE__, size)
 
-#define ASSERT_TLM_ZR_BytesSent_SIZE(size) \
-  this->assertTlm_ZR_BytesSent_size(__FILE__, __LINE__, size)
+#define ASSERT_TLM_ZA_BytesSent_SIZE(size) \
+  this->assertTlm_ZA_BytesSent_size(__FILE__, __LINE__, size)
 
-#define ASSERT_TLM_ZR_BytesSent(index, value) \
-  this->assertTlm_ZR_BytesSent(__FILE__, __LINE__, index, value)
+#define ASSERT_TLM_ZA_BytesSent(index, value) \
+  this->assertTlm_ZA_BytesSent(__FILE__, __LINE__, index, value)
 
-#define ASSERT_TLM_ZR_BytesReceived_SIZE(size) \
-  this->assertTlm_ZR_BytesReceived_size(__FILE__, __LINE__, size)
+#define ASSERT_TLM_ZA_BytesReceived_SIZE(size) \
+  this->assertTlm_ZA_BytesReceived_size(__FILE__, __LINE__, size)
 
-#define ASSERT_TLM_ZR_BytesReceived(index, value) \
-  this->assertTlm_ZR_BytesReceived(__FILE__, __LINE__, index, value)
+#define ASSERT_TLM_ZA_BytesReceived(index, value) \
+  this->assertTlm_ZA_BytesReceived(__FILE__, __LINE__, index, value)
 
 // ----------------------------------------------------------------------
 // Macros for event history assertions 
@@ -49,16 +49,16 @@
 #define ASSERT_EVENTS_SIZE(size) \
   this->assertEvents_size(__FILE__, __LINE__, size)
 
-#define ASSERT_EVENTS_ZR_ServerConnectionOpened_SIZE(size) \
-  this->assertEvents_ZR_ServerConnectionOpened_size(__FILE__, __LINE__, size)
+#define ASSERT_EVENTS_ZA_ServerConnectionOpened_SIZE(size) \
+  this->assertEvents_ZA_ServerConnectionOpened_size(__FILE__, __LINE__, size)
 
 namespace Zmq {
 
-  //! \class ZmqRouterGTestBase
-  //! \brief Auto-generated base class for ZmqRouter component Google Test harness
+  //! \class ZmqAdapterGTestBase
+  //! \brief Auto-generated base class for ZmqAdapter component Google Test harness
   //!
-  class ZmqRouterGTestBase :
-    public ZmqRouterTesterBase
+  class ZmqAdapterGTestBase :
+    public ZmqAdapterTesterBase
   {
 
     protected:
@@ -67,9 +67,9 @@ namespace Zmq {
       // Construction and destruction
       // ----------------------------------------------------------------------
 
-      //! Construct object ZmqRouterGTestBase
+      //! Construct object ZmqAdapterGTestBase
       //!
-      ZmqRouterGTestBase(
+      ZmqAdapterGTestBase(
 #if FW_OBJECT_NAMES == 1
           const char *const compName, /*!< The component name*/
           const U32 maxHistorySize /*!< The maximum size of each history*/
@@ -78,9 +78,9 @@ namespace Zmq {
 #endif
       );
 
-      //! Destroy object ZmqRouterGTestBase
+      //! Destroy object ZmqAdapterGTestBase
       //!
-      virtual ~ZmqRouterGTestBase(void);
+      virtual ~ZmqAdapterGTestBase(void);
 
     protected:
 
@@ -99,18 +99,18 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_BytesSent
+      // Channel: ZA_BytesSent
       // ----------------------------------------------------------------------
 
       //! Assert telemetry value in history at index
       //!
-      void assertTlm_ZR_BytesSent_size(
+      void assertTlm_ZA_BytesSent_size(
           const char *const __ISF_callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __ISF_callSiteLineNumber, /*!< The line number of the call site*/
           const U32 size /*!< The asserted size*/
       ) const;
 
-      void assertTlm_ZR_BytesSent(
+      void assertTlm_ZA_BytesSent(
           const char *const __ISF_callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __ISF_callSiteLineNumber, /*!< The line number of the call site*/
           const U32 index, /*!< The index*/
@@ -120,18 +120,18 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_BytesReceived
+      // Channel: ZA_BytesReceived
       // ----------------------------------------------------------------------
 
       //! Assert telemetry value in history at index
       //!
-      void assertTlm_ZR_BytesReceived_size(
+      void assertTlm_ZA_BytesReceived_size(
           const char *const __ISF_callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __ISF_callSiteLineNumber, /*!< The line number of the call site*/
           const U32 size /*!< The asserted size*/
       ) const;
 
-      void assertTlm_ZR_BytesReceived(
+      void assertTlm_ZA_BytesReceived(
           const char *const __ISF_callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __ISF_callSiteLineNumber, /*!< The line number of the call site*/
           const U32 index, /*!< The index*/
@@ -153,10 +153,10 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Event: ZR_ServerConnectionOpened
+      // Event: ZA_ServerConnectionOpened
       // ----------------------------------------------------------------------
 
-      void assertEvents_ZR_ServerConnectionOpened_size(
+      void assertEvents_ZA_ServerConnectionOpened_size(
           const char *const __ISF_callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __ISF_callSiteLineNumber, /*!< The line number of the call site*/
           const U32 size /*!< The asserted size*/

@@ -4,7 +4,7 @@
 
 # derive module name from directory
 
-MODULE_DIR = fprime-zmq/zmq-router
+MODULE_DIR = fprime-zmq/zmq-adapter
 MODULE = $(subst /,,$(MODULE_DIR))
 
 BUILD_ROOT ?= $(subst /$(MODULE_DIR),,$(CURDIR))

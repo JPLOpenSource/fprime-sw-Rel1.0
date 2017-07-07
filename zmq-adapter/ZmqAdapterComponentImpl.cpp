@@ -1,7 +1,7 @@
 // ====================================================================== 
-// \title  ZmqRouterImpl.cpp
+// \title  ZmqAdapterImpl.cpp
 // \author tcanham
-// \brief  cpp file for ZmqRouter component implementation class
+// \brief  cpp file for ZmqAdapter component implementation class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -18,7 +18,7 @@
 // ====================================================================== 
 
 
-#include <fprime-zmq/zmq-router/ZmqRouterComponentImpl.hpp>
+#include <fprime-zmq/zmq-adapter/ZmqAdapterComponentImpl.hpp>
 #include <Fw/Types/BasicTypes.hpp>
 #include <Fw/Types/EightyCharString.hpp>
 #include <Os/Task.hpp>
@@ -34,31 +34,31 @@ namespace Zmq {
   // Construction, initialization, and destruction 
   // ----------------------------------------------------------------------
 
-  ZmqRouterComponentImpl ::
+  ZmqAdapterComponentImpl ::
 #if FW_OBJECT_NAMES == 1
-    ZmqRouterComponentImpl(
+    ZmqAdapterComponentImpl(
         const char *const compName
     ) :
-      ZmqRouterComponentBase(compName)
+      ZmqAdapterComponentBase(compName)
 #else
-    ZmqRouterImpl(void)
+    ZmqAdapterImpl(void)
 #endif
     ,m_context(0)
   {
 
   }
 
-  void ZmqRouterComponentImpl ::
+  void ZmqAdapterComponentImpl ::
     init(
       NATIVE_INT_TYPE queueDepth, /*!< The queue depth*/
       NATIVE_INT_TYPE msgSize, /*!< The message size*/
       NATIVE_INT_TYPE instance /*!< The instance number*/
    ) {
-    ZmqRouterComponentBase::init(queueDepth, msgSize, instance);
+    ZmqAdapterComponentBase::init(queueDepth, msgSize, instance);
   }
 
-  ZmqRouterComponentImpl ::
-    ~ZmqRouterComponentImpl(void)
+  ZmqAdapterComponentImpl ::
+    ~ZmqAdapterComponentImpl(void)
   {
 
       // clean up zmq state
@@ -69,7 +69,7 @@ namespace Zmq {
   // Handler implementations for user-defined typed input ports
   // ----------------------------------------------------------------------
 
-  void ZmqRouterComponentImpl ::
+  void ZmqAdapterComponentImpl ::
     Sched_handler(
         const NATIVE_INT_TYPE portNum,
         NATIVE_UINT_TYPE context
@@ -78,7 +78,7 @@ namespace Zmq {
     // TODO
   }
 
-  void ZmqRouterComponentImpl::preamble(void) {
+  void ZmqAdapterComponentImpl::preamble(void) {
 
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
       // so we create it in the preamble
@@ -89,7 +89,7 @@ namespace Zmq {
       zmq_bind (this->m_ipcSocket, qname);
   }
 
-  void ZmqRouterComponentImpl::finalizer(void) {
+  void ZmqAdapterComponentImpl::finalizer(void) {
 
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
       // so we close it in the finalizer
@@ -101,7 +101,7 @@ namespace Zmq {
   // Handler implementations for user-defined serial input ports
   // ----------------------------------------------------------------------
 
-  void ZmqRouterComponentImpl ::
+  void ZmqAdapterComponentImpl ::
     PortsIn_handler(
         NATIVE_INT_TYPE portNum, /*!< The port number*/
         Fw::SerializeBufferBase &Buffer /*!< The serialization buffer*/
@@ -132,7 +132,7 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterComponentImpl::open(
+  void ZmqAdapterComponentImpl::open(
           bool server,  /*!< if this node is the server */
           char* addr,  /*!< if client, the server address, not used for server */
           char* port, /*!< port for connection, client or server */
@@ -160,11 +160,11 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterComponentImpl::workerTask(void* ptr) {
+  void ZmqAdapterComponentImpl::workerTask(void* ptr) {
 
       DEBUG_PRINT("Worker task started\n");
       FW_ASSERT(ptr);
-      ZmqRouterComponentImpl* compPtr = static_cast<ZmqRouterComponentImpl*>(ptr);
+      ZmqAdapterComponentImpl* compPtr = static_cast<ZmqAdapterComponentImpl*>(ptr);
 
       // create network socket depending on whether we are client or server
 
@@ -268,7 +268,7 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterComponentImpl::decodePacket(U8* packet, NATIVE_UINT_TYPE size) {
+  void ZmqAdapterComponentImpl::decodePacket(U8* packet, NATIVE_UINT_TYPE size) {
 
       FW_ASSERT(packet);
       FW_ASSERT(size < ZMQ_ROUTER_MSG_SIZE,size);
@@ -332,7 +332,7 @@ namespace Zmq {
 
   }
 
-  bool ZmqRouterComponentImpl::zmqError(const char* from) {
+  bool ZmqAdapterComponentImpl::zmqError(const char* from) {
       switch (zmq_errno()) {
           case ETERM:
               DEBUG_PRINT("%s: ZMQ terminate\n",from);
@@ -347,26 +347,26 @@ namespace Zmq {
   }
 
 #ifdef BUILD_UT
-  void ZmqRouterComponentImpl::ZmqSerialBuffer::operator=(const ZmqSerialBuffer& other) {
+  void ZmqAdapterComponentImpl::ZmqSerialBuffer::operator=(const ZmqSerialBuffer& other) {
       this->resetSer();
       this->serialize(other.getBuffAddr(),other.getBuffLength(),true);
   }
 
-  ZmqRouterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(
+  ZmqAdapterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(
           const Fw::SerializeBufferBase& other) : Fw::SerializeBufferBase() {
       FW_ASSERT(sizeof(this->m_buff)>= other.getBuffLength(),sizeof(this->m_buff),other.getBuffLength());
       memcpy(this->m_buff,other.getBuffAddr(),other.getBuffLength());
       this->setBuffLen(other.getBuffLength());
   }
 
-  ZmqRouterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(
-          const ZmqRouterComponentImpl::ZmqSerialBuffer& other) : Fw::SerializeBufferBase() {
+  ZmqAdapterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(
+          const ZmqAdapterComponentImpl::ZmqSerialBuffer& other) : Fw::SerializeBufferBase() {
       FW_ASSERT(sizeof(this->m_buff)>= other.getBuffLength(),sizeof(this->m_buff),other.getBuffLength());
       memcpy(this->m_buff,other.m_buff,other.getBuffLength());
       this->setBuffLen(other.getBuffLength());
   }
 
-  ZmqRouterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(): Fw::SerializeBufferBase() {
+  ZmqAdapterComponentImpl::ZmqSerialBuffer::ZmqSerialBuffer(): Fw::SerializeBufferBase() {
 
   }
 

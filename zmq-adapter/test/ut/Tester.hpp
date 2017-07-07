@@ -21,12 +21,12 @@
 #define TESTER_HPP
 
 #include "GTestBase.hpp"
-#include "fprime-zmq/zmq-router/ZmqRouterComponentImpl.hpp"
+#include "fprime-zmq/zmq-adapter/ZmqAdapterComponentImpl.hpp"
 
 namespace Zmq {
 
   class Tester :
-    public ZmqRouterGTestBase
+    public ZmqAdapterGTestBase
   {
 
       // ----------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace Zmq {
 
       //! The component under test
       //!
-      ZmqRouterComponentImpl component;
+      ZmqAdapterComponentImpl component;
 
   };
 

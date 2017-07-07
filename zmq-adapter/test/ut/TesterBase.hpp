@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqRouter/test/ut/TesterBase.hpp
+// \title  ZmqAdapter/test/ut/TesterBase.hpp
 // \author Auto-generated
-// \brief  hpp file for ZmqRouter component test harness base class
+// \brief  hpp file for ZmqAdapter component test harness base class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -17,10 +17,10 @@
 // countries or providing access to foreign persons.
 // ======================================================================
 
-#ifndef ZmqRouter_TESTER_BASE_HPP
-#define ZmqRouter_TESTER_BASE_HPP
+#ifndef ZmqAdapter_TESTER_BASE_HPP
+#define ZmqAdapter_TESTER_BASE_HPP
 
-#include <fprime-zmq/zmq-router/ZmqRouterComponentAc.hpp>
+#include <fprime-zmq/zmq-adapter/ZmqAdapterComponentAc.hpp>
 #include <Fw/Types/Assert.hpp>
 #include <Fw/Comp/PassiveComponentBase.hpp>
 #include <stdio.h>
@@ -28,10 +28,10 @@
 
 namespace Zmq {
 
-  //! \class ZmqRouterTesterBase
-  //! \brief Auto-generated base class for ZmqRouter component test harness
+  //! \class ZmqAdapterTesterBase
+  //! \brief Auto-generated base class for ZmqAdapter component test harness
   //!
-  class ZmqRouterTesterBase :
+  class ZmqAdapterTesterBase :
     public Fw::PassiveComponentBase
   {
 
@@ -41,7 +41,7 @@ namespace Zmq {
       // Initialization
       // ----------------------------------------------------------------------
 
-      //! Initialize object ZmqRouterTesterBase
+      //! Initialize object ZmqAdapterTesterBase
       //!
       virtual void init(
           const NATIVE_INT_TYPE instance = 0 /*!< The instance number*/
@@ -123,9 +123,9 @@ namespace Zmq {
       // Construction and destruction
       // ----------------------------------------------------------------------
 
-      //! Construct object ZmqRouterTesterBase
+      //! Construct object ZmqAdapterTesterBase
       //!
-      ZmqRouterTesterBase(
+      ZmqAdapterTesterBase(
 #if FW_OBJECT_NAMES == 1
           const char *const compName, /*!< The component name*/
           const U32 maxHistorySize /*!< The maximum size of each history*/
@@ -134,9 +134,9 @@ namespace Zmq {
 #endif
       );
 
-      //! Destroy object ZmqRouterTesterBase
+      //! Destroy object ZmqAdapterTesterBase
       //!
-      virtual ~ZmqRouterTesterBase(void);
+      virtual ~ZmqAdapterTesterBase(void);
 
       // ----------------------------------------------------------------------
       // Test history
@@ -400,18 +400,18 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Event: ZR_ServerConnectionOpened
+      // Event: ZA_ServerConnectionOpened
       // ----------------------------------------------------------------------
 
-      //! Handle event ZR_ServerConnectionOpened
+      //! Handle event ZA_ServerConnectionOpened
       //!
-      virtual void logIn_ACTIVITY_HI_ZR_ServerConnectionOpened(
+      virtual void logIn_ACTIVITY_HI_ZA_ServerConnectionOpened(
           void
       );
 
-      //! Size of history for event ZR_ServerConnectionOpened
+      //! Size of history for event ZA_ServerConnectionOpened
       //!
-      U32 eventsSize_ZR_ServerConnectionOpened;
+      U32 eventsSize_ZA_ServerConnectionOpened;
 
     protected:
 
@@ -438,52 +438,52 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_BytesSent
+      // Channel: ZA_BytesSent
       // ----------------------------------------------------------------------
 
-      //! Handle channel ZR_BytesSent
+      //! Handle channel ZA_BytesSent
       //!
-      virtual void tlmInput_ZR_BytesSent(
+      virtual void tlmInput_ZA_BytesSent(
           const Fw::Time& timeTag, /*!< The time*/
           const U32& val /*!< The channel value*/
       );
 
-      //! A telemetry entry for channel ZR_BytesSent
+      //! A telemetry entry for channel ZA_BytesSent
       //!
       typedef struct {
         Fw::Time timeTag;
         U32 arg;
-      } TlmEntry_ZR_BytesSent;
+      } TlmEntry_ZA_BytesSent;
 
-      //! The history of ZR_BytesSent values
+      //! The history of ZA_BytesSent values
       //!
-      History<TlmEntry_ZR_BytesSent> 
-        *tlmHistory_ZR_BytesSent;
+      History<TlmEntry_ZA_BytesSent> 
+        *tlmHistory_ZA_BytesSent;
 
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_BytesReceived
+      // Channel: ZA_BytesReceived
       // ----------------------------------------------------------------------
 
-      //! Handle channel ZR_BytesReceived
+      //! Handle channel ZA_BytesReceived
       //!
-      virtual void tlmInput_ZR_BytesReceived(
+      virtual void tlmInput_ZA_BytesReceived(
           const Fw::Time& timeTag, /*!< The time*/
           const U32& val /*!< The channel value*/
       );
 
-      //! A telemetry entry for channel ZR_BytesReceived
+      //! A telemetry entry for channel ZA_BytesReceived
       //!
       typedef struct {
         Fw::Time timeTag;
         U32 arg;
-      } TlmEntry_ZR_BytesReceived;
+      } TlmEntry_ZA_BytesReceived;
 
-      //! The history of ZR_BytesReceived values
+      //! The history of ZA_BytesReceived values
       //!
-      History<TlmEntry_ZR_BytesReceived> 
-        *tlmHistory_ZR_BytesReceived;
+      History<TlmEntry_ZA_BytesReceived> 
+        *tlmHistory_ZA_BytesReceived;
 
     protected:
 

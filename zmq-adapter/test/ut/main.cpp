@@ -5,7 +5,7 @@
  *      Author: tim
  */
 
-#include <fprime-zmq/zmq-router/test/ut/Tester.hpp>
+#include <fprime-zmq/zmq-adapter/test/ut/Tester.hpp>
 #include <Os/Task.hpp>
 #include <string.h>
 
@@ -42,15 +42,15 @@ int main(int argc, char* argv[]) {
     signal(SIGINT,sighandler);
     signal(SIGTERM,sighandler);
 
-    Zmq::ZmqRouterComponentImpl router("router");
+    Zmq::ZmqAdapterComponentImpl adapter("adapter");
 
-    router.init(10,1024,0);
-    router.open(server,"127.0.0.1","50000",100,20*1024,0);
-    router.start(0, 100, 20*1024);
+    adapter.init(10,1024,0);
+    adapter.open(server,"127.0.0.1","50000",100,20*1024,0);
+    adapter.start(0, 100, 20*1024);
 
     if (server) {
         // make server a loopback
-        router.set_PortsOut_OutputPort(0,router.get_PortsIn_InputPort(0));
+        adapter.set_PortsOut_OutputPort(0,adapter.get_PortsIn_InputPort(0));
         while (not quit) {
             Os::Task::delay(1000);
         }
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
         // client will feed packets to server
         while (not quit) {
             Os::Task::delay(1000);
-            Fw::InputSerializePort* port = router.get_PortsIn_InputPort(0);
-            Zmq::ZmqRouterComponentImpl::ZmqSerialBuffer buff;
+            Fw::InputSerializePort* port = adapter.get_PortsIn_InputPort(0);
+            Zmq::ZmqAdapterComponentImpl::ZmqSerialBuffer buff;
             buff.serialize((U32)10);
             port->invokeSerial(buff);
         }
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     printf("Quitting\n");
 
-    router.exit();
+    adapter.exit();
 
     return 0;
 }

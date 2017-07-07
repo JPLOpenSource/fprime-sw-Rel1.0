@@ -32,10 +32,10 @@ namespace Zmq {
   Tester ::
     Tester(void) : 
 #if FW_OBJECT_NAMES == 1
-      ZmqRouterGTestBase("Tester", MAX_HISTORY_SIZE),
+      ZmqAdapterGTestBase("Tester", MAX_HISTORY_SIZE),
       component("ZmqRouter")
 #else
-      ZmqRouterGTestBase(MAX_HISTORY_SIZE),
+      ZmqAdapterGTestBase(MAX_HISTORY_SIZE),
       component()
 #endif
   {

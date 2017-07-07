@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqRouter/test/ut/TesterBase.cpp
+// \title  ZmqAdapter/test/ut/TesterBase.cpp
 // \author Auto-generated
-// \brief  cpp file for ZmqRouter component test harness base class
+// \brief  cpp file for ZmqAdapter component test harness base class
 //
 // \copyright
 // Copyright 2009-2016, by the California Institute of Technology.
@@ -27,8 +27,8 @@ namespace Zmq {
   // Construction, initialization, and destruction
   // ----------------------------------------------------------------------
 
-  ZmqRouterTesterBase ::
-    ZmqRouterTesterBase(
+  ZmqAdapterTesterBase ::
+    ZmqAdapterTesterBase(
 #if FW_OBJECT_NAMES == 1
         const char *const compName,
         const U32 maxHistorySize
@@ -43,10 +43,10 @@ namespace Zmq {
 #endif
   {
     // Initialize telemetry histories
-    this->tlmHistory_ZR_BytesSent = 
-      new History<TlmEntry_ZR_BytesSent>(maxHistorySize);
-    this->tlmHistory_ZR_BytesReceived = 
-      new History<TlmEntry_ZR_BytesReceived>(maxHistorySize);
+    this->tlmHistory_ZA_BytesSent = 
+      new History<TlmEntry_ZA_BytesSent>(maxHistorySize);
+    this->tlmHistory_ZA_BytesReceived = 
+      new History<TlmEntry_ZA_BytesReceived>(maxHistorySize);
     // Initialize event histories
 #if FW_ENABLE_TEXT_LOGGING
     this->textLogHistory = new History<TextLogEntry>(maxHistorySize);
@@ -55,19 +55,19 @@ namespace Zmq {
     this->clearHistory();
   }
 
-  ZmqRouterTesterBase ::
-    ~ZmqRouterTesterBase(void) 
+  ZmqAdapterTesterBase ::
+    ~ZmqAdapterTesterBase(void) 
   {
     // Destroy telemetry histories
-    delete this->tlmHistory_ZR_BytesSent;
-    delete this->tlmHistory_ZR_BytesReceived;
+    delete this->tlmHistory_ZA_BytesSent;
+    delete this->tlmHistory_ZA_BytesReceived;
     // Destroy event histories
 #if FW_ENABLE_TEXT_LOGGING
     delete this->textLogHistory;
 #endif
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     init(
         const NATIVE_INT_TYPE instance
     )
@@ -276,44 +276,44 @@ namespace Zmq {
   // Getters for port counts
   // ----------------------------------------------------------------------
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_to_Sched(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_to_Sched);
   }
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_to_PortsIn(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_to_PortsIn);
   }
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_from_PortsOut(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_from_PortsOut);
   }
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_from_Tlm(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_from_Tlm);
   }
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_from_Time(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_from_Time);
   }
 
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_from_Log(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_from_Log);
   }
 
 #if FW_ENABLE_TEXT_LOGGING == 1
-  NATIVE_INT_TYPE ZmqRouterTesterBase ::
+  NATIVE_INT_TYPE ZmqAdapterTesterBase ::
     getNum_from_LogText(void) const
   {
     return (NATIVE_INT_TYPE) FW_NUM_ARRAY_ELEMENTS(this->m_from_LogText);
@@ -324,7 +324,7 @@ namespace Zmq {
   // Connectors for to ports 
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     connect_to_Sched(
         const NATIVE_INT_TYPE portNum,
         Svc::InputSchedPort *const Sched
@@ -334,7 +334,7 @@ namespace Zmq {
     this->m_to_Sched[portNum].addCallPort(Sched);
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     connect_to_PortsIn(
         const NATIVE_INT_TYPE portNum,
         Fw::InputSerializePort *const PortsIn
@@ -349,7 +349,7 @@ namespace Zmq {
   // Invocation functions for to ports
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     invoke_to_Sched(
         const NATIVE_INT_TYPE portNum,
         NATIVE_UINT_TYPE context
@@ -362,7 +362,7 @@ namespace Zmq {
     );
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     invoke_to_PortsIn(
       NATIVE_INT_TYPE portNum, //!< The port number
       Fw::SerializeBufferBase& Buffer
@@ -376,14 +376,14 @@ namespace Zmq {
   // Connection status for to ports
   // ----------------------------------------------------------------------
 
-  bool ZmqRouterTesterBase ::
+  bool ZmqAdapterTesterBase ::
     isConnected_to_Sched(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_to_Sched(), static_cast<AssertArg>(portNum));
     return this->m_to_Sched[portNum].isConnected();
   }
 
-  bool ZmqRouterTesterBase ::
+  bool ZmqAdapterTesterBase ::
     isConnected_to_PortsIn(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_to_PortsIn(), static_cast<AssertArg>(portNum));
@@ -394,28 +394,28 @@ namespace Zmq {
   // Getters for from ports
   // ----------------------------------------------------------------------
  
-  Fw::InputSerializePort *ZmqRouterTesterBase ::
+  Fw::InputSerializePort *ZmqAdapterTesterBase ::
     get_from_PortsOut(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_from_PortsOut(),static_cast<AssertArg>(portNum));
     return &this->m_from_PortsOut[portNum];
   }
 
-  Fw::InputTlmPort *ZmqRouterTesterBase ::
+  Fw::InputTlmPort *ZmqAdapterTesterBase ::
     get_from_Tlm(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_from_Tlm(),static_cast<AssertArg>(portNum));
     return &this->m_from_Tlm[portNum];
   }
 
-  Fw::InputTimePort *ZmqRouterTesterBase ::
+  Fw::InputTimePort *ZmqAdapterTesterBase ::
     get_from_Time(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_from_Time(),static_cast<AssertArg>(portNum));
     return &this->m_from_Time[portNum];
   }
 
-  Fw::InputLogPort *ZmqRouterTesterBase ::
+  Fw::InputLogPort *ZmqAdapterTesterBase ::
     get_from_Log(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_from_Log(),static_cast<AssertArg>(portNum));
@@ -423,7 +423,7 @@ namespace Zmq {
   }
 
 #if FW_ENABLE_TEXT_LOGGING == 1
-  Fw::InputLogTextPort *ZmqRouterTesterBase ::
+  Fw::InputLogTextPort *ZmqAdapterTesterBase ::
     get_from_LogText(const NATIVE_INT_TYPE portNum)
   {
     FW_ASSERT(portNum < this->getNum_from_LogText(),static_cast<AssertArg>(portNum));
@@ -435,7 +435,7 @@ namespace Zmq {
   // Static functions for from ports
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_PortsOut_static(
       Fw::PassiveComponentBase *const callComp, //!< The component instance
       const NATIVE_INT_TYPE portNum, //!< The port number
@@ -443,8 +443,8 @@ namespace Zmq {
     )
   {
     FW_ASSERT(callComp);
-    ZmqRouterTesterBase* _testerBase = 
-      static_cast<ZmqRouterTesterBase*>(callComp);
+    ZmqAdapterTesterBase* _testerBase = 
+      static_cast<ZmqAdapterTesterBase*>(callComp);
 
     _testerBase->from_PortsOut_handlerBase(
         portNum,
@@ -452,7 +452,7 @@ namespace Zmq {
     );
   }  
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_PortsOut_handlerBase(
         NATIVE_INT_TYPE portNum, /*!< The port number*/
         Fw::SerializeBufferBase &Buffer /*!< The serialization buffer*/
@@ -465,7 +465,7 @@ namespace Zmq {
     );
   } 
    
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_Tlm_static(
         Fw::PassiveComponentBase *const component,
         NATIVE_INT_TYPE portNum,
@@ -474,12 +474,12 @@ namespace Zmq {
         Fw::TlmBuffer &val
     )
   {
-    ZmqRouterTesterBase* _testerBase =
-      static_cast<ZmqRouterTesterBase*>(component);
+    ZmqAdapterTesterBase* _testerBase =
+      static_cast<ZmqAdapterTesterBase*>(component);
     _testerBase->dispatchTlm(id, timeTag, val);
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_Log_static(
         Fw::PassiveComponentBase *const component,
         const NATIVE_INT_TYPE portNum,
@@ -489,13 +489,13 @@ namespace Zmq {
         Fw::LogBuffer &args
     )
   {
-    ZmqRouterTesterBase* _testerBase =
-      static_cast<ZmqRouterTesterBase*>(component);
+    ZmqAdapterTesterBase* _testerBase =
+      static_cast<ZmqAdapterTesterBase*>(component);
     _testerBase->dispatchEvents(id, timeTag, severity, args);
   }
 
 #if FW_ENABLE_TEXT_LOGGING == 1
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_LogText_static(
         Fw::PassiveComponentBase *const component,
         const NATIVE_INT_TYPE portNum,
@@ -505,21 +505,21 @@ namespace Zmq {
         Fw::TextLogString &text
     )
   {
-    ZmqRouterTesterBase* _testerBase =
-      static_cast<ZmqRouterTesterBase*>(component);
+    ZmqAdapterTesterBase* _testerBase =
+      static_cast<ZmqAdapterTesterBase*>(component);
     _testerBase->textLogIn(id,timeTag,severity,text);
   }
 #endif
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     from_Time_static(
         Fw::PassiveComponentBase *const component,
         const NATIVE_INT_TYPE portNum,
         Fw::Time& time
     )
   {
-    ZmqRouterTesterBase* _testerBase =
-      static_cast<ZmqRouterTesterBase*>(component);
+    ZmqAdapterTesterBase* _testerBase =
+      static_cast<ZmqAdapterTesterBase*>(component);
     time = _testerBase->m_testTime;
   }
 
@@ -527,7 +527,7 @@ namespace Zmq {
   // History 
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     clearHistory()
   {
     this->clearTlm();
@@ -539,7 +539,7 @@ namespace Zmq {
   // Time
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     setTestTime(const Fw::Time& time)
   {
     this->m_testTime = time;
@@ -549,7 +549,7 @@ namespace Zmq {
   // Telemetry dispatch
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     dispatchTlm(
         const FwChanIdType id,
         const Fw::Time &timeTag,
@@ -564,27 +564,27 @@ namespace Zmq {
 
     switch (id - idBase) {
 
-      case ZmqRouterComponentBase::CHANNELID_ZR_BYTESSENT:
+      case ZmqAdapterComponentBase::CHANNELID_ZA_BYTESSENT:
       {
         U32 arg;
         const Fw::SerializeStatus _status = val.deserialize(arg);
         if (_status != Fw::FW_SERIALIZE_OK) {
-          printf("Error deserializing ZR_BytesSent: %d\n", _status);
+          printf("Error deserializing ZA_BytesSent: %d\n", _status);
           return;
         }
-        this->tlmInput_ZR_BytesSent(timeTag, arg);
+        this->tlmInput_ZA_BytesSent(timeTag, arg);
         break;
       }
 
-      case ZmqRouterComponentBase::CHANNELID_ZR_BYTESRECEIVED:
+      case ZmqAdapterComponentBase::CHANNELID_ZA_BYTESRECEIVED:
       {
         U32 arg;
         const Fw::SerializeStatus _status = val.deserialize(arg);
         if (_status != Fw::FW_SERIALIZE_OK) {
-          printf("Error deserializing ZR_BytesReceived: %d\n", _status);
+          printf("Error deserializing ZA_BytesReceived: %d\n", _status);
           return;
         }
-        this->tlmInput_ZR_BytesReceived(timeTag, arg);
+        this->tlmInput_ZA_BytesReceived(timeTag, arg);
         break;
       }
 
@@ -597,41 +597,41 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     clearTlm(void)
   {
     this->tlmSize = 0;
-    this->tlmHistory_ZR_BytesSent->clear();
-    this->tlmHistory_ZR_BytesReceived->clear();
+    this->tlmHistory_ZA_BytesSent->clear();
+    this->tlmHistory_ZA_BytesReceived->clear();
   }
 
   // ---------------------------------------------------------------------- 
-  // Channel: ZR_BytesSent
+  // Channel: ZA_BytesSent
   // ---------------------------------------------------------------------- 
 
-  void ZmqRouterTesterBase ::
-    tlmInput_ZR_BytesSent(
+  void ZmqAdapterTesterBase ::
+    tlmInput_ZA_BytesSent(
         const Fw::Time& timeTag,
         const U32& val
     )
   {
-    TlmEntry_ZR_BytesSent e = { timeTag, val };
-    this->tlmHistory_ZR_BytesSent->push_back(e);
+    TlmEntry_ZA_BytesSent e = { timeTag, val };
+    this->tlmHistory_ZA_BytesSent->push_back(e);
     ++this->tlmSize;
   }
 
   // ---------------------------------------------------------------------- 
-  // Channel: ZR_BytesReceived
+  // Channel: ZA_BytesReceived
   // ---------------------------------------------------------------------- 
 
-  void ZmqRouterTesterBase ::
-    tlmInput_ZR_BytesReceived(
+  void ZmqAdapterTesterBase ::
+    tlmInput_ZA_BytesReceived(
         const Fw::Time& timeTag,
         const U32& val
     )
   {
-    TlmEntry_ZR_BytesReceived e = { timeTag, val };
-    this->tlmHistory_ZR_BytesReceived->push_back(e);
+    TlmEntry_ZA_BytesReceived e = { timeTag, val };
+    this->tlmHistory_ZA_BytesReceived->push_back(e);
     ++this->tlmSize;
   }
 
@@ -639,7 +639,7 @@ namespace Zmq {
   // Event dispatch
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     dispatchEvents(
         const FwEventIdType id,
         Fw::Time &timeTag,
@@ -654,7 +654,7 @@ namespace Zmq {
     FW_ASSERT(id >= idBase, id, idBase);
     switch (id - idBase) {
 
-      case ZmqRouterComponentBase::EVENTID_ZR_SERVERCONNECTIONOPENED: 
+      case ZmqAdapterComponentBase::EVENTID_ZA_SERVERCONNECTIONOPENED: 
       {
 
 #if FW_AMPCS_COMPATIBLE
@@ -667,7 +667,7 @@ namespace Zmq {
             static_cast<AssertArg>(_zero_status)
         );
 #endif    
-        this->logIn_ACTIVITY_HI_ZR_ServerConnectionOpened();
+        this->logIn_ACTIVITY_HI_ZA_ServerConnectionOpened();
 
         break;
 
@@ -682,11 +682,11 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     clearEvents(void)
   {
     this->eventsSize = 0;
-    this->eventsSize_ZR_ServerConnectionOpened = 0;
+    this->eventsSize_ZA_ServerConnectionOpened = 0;
   }
 
 #if FW_ENABLE_TEXT_LOGGING
@@ -695,7 +695,7 @@ namespace Zmq {
   // Text events 
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     textLogIn(
         const U32 id,
         Fw::Time &timeTag,
@@ -707,7 +707,7 @@ namespace Zmq {
     textLogHistory->push_back(e);
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     printTextLogHistoryEntry(
         const TextLogEntry& e,
         FILE* file
@@ -754,7 +754,7 @@ namespace Zmq {
 
   }
 
-  void ZmqRouterTesterBase ::
+  void ZmqAdapterTesterBase ::
     printTextLogHistory(FILE *file) 
   {
     for (U32 i = 0; i < this->textLogHistory->size(); ++i) {
@@ -768,15 +768,15 @@ namespace Zmq {
 #endif
 
   // ----------------------------------------------------------------------
-  // Event: ZR_ServerConnectionOpened 
+  // Event: ZA_ServerConnectionOpened 
   // ----------------------------------------------------------------------
 
-  void ZmqRouterTesterBase ::
-    logIn_ACTIVITY_HI_ZR_ServerConnectionOpened(
+  void ZmqAdapterTesterBase ::
+    logIn_ACTIVITY_HI_ZA_ServerConnectionOpened(
         void
     )
   {
-    ++this->eventsSize_ZR_ServerConnectionOpened;
+    ++this->eventsSize_ZA_ServerConnectionOpened;
     ++this->eventsSize;
   }
 

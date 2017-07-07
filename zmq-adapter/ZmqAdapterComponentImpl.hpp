@@ -1,7 +1,7 @@
 // ====================================================================== 
-// \title  ZmqRouterImpl.hpp
+// \title  ZmqAdapterImpl.hpp
 // \author tcanham
-// \brief  hpp file for ZmqRouter component implementation class
+// \brief  hpp file for ZmqAdapter component implementation class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -17,17 +17,17 @@
 // countries or providing access to foreign persons.
 // ====================================================================== 
 
-#ifndef ZmqRouter_HPP
-#define ZmqRouter_HPP
+#ifndef ZmqAdapter_HPP
+#define ZmqAdapter_HPP
 
-#include "fprime-zmq/zmq-router/ZmqRouterComponentAc.hpp"
-#include <fprime-zmq/zmq-router/ZmqRouterComponentImplCfg.hpp>
+#include "fprime-zmq/zmq-adapter/ZmqAdapterComponentAc.hpp"
+#include <fprime-zmq/zmq-adapter/ZmqAdapterComponentImplCfg.hpp>
 #include <fprime-zmq/zmq/include/zmq.h>
 
 namespace Zmq {
 
-  class ZmqRouterComponentImpl :
-    public ZmqRouterComponentBase
+  class ZmqAdapterComponentImpl :
+    public ZmqAdapterComponentBase
   {
 
     public:
@@ -36,9 +36,9 @@ namespace Zmq {
       // Construction, initialization, and destruction
       // ----------------------------------------------------------------------
 
-      //! Construct object ZmqRouter
+      //! Construct object ZmqAdapter
       //!
-      ZmqRouterComponentImpl(
+      ZmqAdapterComponentImpl(
 #if FW_OBJECT_NAMES == 1
           const char *const compName /*!< The component name*/
 #else
@@ -46,7 +46,7 @@ namespace Zmq {
 #endif
       );
 
-      //! Initialize object ZmqRouter
+      //! Initialize object ZmqAdapter
       //!
       void init(
           NATIVE_INT_TYPE queueDepth, /*!< The queue depth*/
@@ -64,9 +64,9 @@ namespace Zmq {
               NATIVE_UINT_TYPE affinity /*!< cpu affinity */
               );
 
-      //! Destroy object ZmqRouter
+      //! Destroy object ZmqAdapter
       //!
-      ~ZmqRouterComponentImpl(void);
+      ~ZmqAdapterComponentImpl(void);
 
     PRIVATE:
 
