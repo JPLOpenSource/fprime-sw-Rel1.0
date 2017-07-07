@@ -22,11 +22,14 @@ client.connect(isf_port, '127.0.0.1', function() {
 
 const wss = new WebSocket.Server({port: 1337});
 
-var subscribed = {}; // Subscription dictionary
+var clients = [];
 var numFormat = {};	 // Save formats of each id
 // For every client connection:
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
+
+	var subscribed = {}; // Subscription dictionary
+	clients = subscribed;
 
 	// Get isf data
 	client.on('data', function (data) {
@@ -39,8 +42,8 @@ wss.on('connection', function connection(ws) {
 				ws.send(JSON.stringify(packet), function ack(error) {
 					if (error) {
 						// If unable to send (ie. client disconnection) then subscription is reset
-						console.log("Client disconnected");
-						subscribed = {};	// Reset subscription dictionary
+						console.log("Client disconnected", error);
+						// subscribed = {};	// Reset subscription dictionary
 					}
 				});
 			}

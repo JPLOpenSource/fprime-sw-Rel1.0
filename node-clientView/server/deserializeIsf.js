@@ -42,37 +42,34 @@ function deserialize(data, numFormat) {
 			}
 		}
 
-		if (id in numFormat) {
-			// Continue decoding if packet id has matching in dictionary
-
-			var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
-			// Check if floating point conversion is needed
-			
-			if (numFormat[id].indexOf("F") != -1) {
-				// Get value
-				var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
-				// Convert to float
-				var dv = new DataView(new ArrayBuffer(8));
-				dv.setUint32(0, parseInt("0x" + hexValue));
-				var value = dv.getFloat32(0);
-			} else {
-				// Get value from packet if no conversion is needed
-				var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
-			}
-
-			// Create timestamp by concatenating the microseconds value onto the seconds value.
-			var timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
-
-			// Create datum in openMCT format
-			var toMCT = {
-				'timestamp':timestamp,
-				'value':value,
-				'id':id.toString()
-			};
-
-			// console.log(toMCT, ptr, packetLength);
-			res.push(toMCT);
+		var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
+		// Check if floating point conversion is needed
+		
+		if (id in numFormat && numFormat[id].indexOf("F") != -1) {
+			// Get value
+			var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+			// Convert to float
+			var dv = new DataView(new ArrayBuffer(8));
+			dv.setUint32(0, parseInt("0x" + hexValue));
+			var value = dv.getFloat32(0);
+		} else {
+			// Get value from packet if no conversion is needed
+			var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
 		}
+
+		// Create timestamp by concatenating the microseconds value onto the seconds value.
+		var timestamp = parseInt((timeSeconds.toString()).concat(timeUSeconds.toString()), 10);
+
+		// Create datum in openMCT format
+		var toMCT = {
+			'timestamp':timestamp,
+			'value':value,
+			'id':id.toString()
+		};
+
+		// console.log(toMCT, ptr, packetLength);
+		res.push(toMCT);
+
 	}
 	return res;
 }
