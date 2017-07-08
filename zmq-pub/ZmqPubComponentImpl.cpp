@@ -129,7 +129,7 @@ namespace Zmq {
   }
 
   void ZmqPubComponentImpl::open(
-          char* port /*!< port for connection, client or server */
+          const char* port /*!< port for connection, client or server */
           ) {
 
       // store values for worker thread

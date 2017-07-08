@@ -11,8 +11,4 @@
 #   or an ITAR exemption prior to the export or transfer.
 #
 
-SRC = ZmqPubComponentAi.xml ZmqPubComponentImpl.cpp 
-
-HDR = ZmqPubComponentImpl.hpp 
-
-SUBDIRS = test
+SUBDIRS = ut

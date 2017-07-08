@@ -56,7 +56,7 @@ namespace Zmq {
       //! Open the connection
       //!
       void open(
-              char* port /*!< port for connection, client or server */
+              const char* port /*!< port for connection, client or server */
               );
 
       //! Destroy object ZmqPub
