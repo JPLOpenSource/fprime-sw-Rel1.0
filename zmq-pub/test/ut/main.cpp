@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
     adapter.init(10,100,0);
     adapter.open(argv[1]);
-    adapter.start(0, 100, 20*1024);
+    adapter.start(0, 90, 20*1024);
 
     // feed packets to publisher
     NATIVE_UINT_TYPE portNum = 0;
