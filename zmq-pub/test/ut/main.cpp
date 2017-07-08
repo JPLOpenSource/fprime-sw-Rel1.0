@@ -15,6 +15,9 @@ static void sighandler(int signum) {
     quit = true;
 }
 
+void usage(const char* prog) {
+    printf("Usage %s <port>\n",prog);
+}
 
 int main(int argc, char* argv[]) {
 
@@ -23,8 +26,13 @@ int main(int argc, char* argv[]) {
 
     Zmq::ZmqPubComponentImpl adapter("pub");
 
+    if (argc != 2) {
+        usage(argv[0]);
+        return -1;
+    }
+
     adapter.init(10,100,0);
-    adapter.open("50000");
+    adapter.open(argv[1]);
     adapter.start(0, 100, 20*1024);
 
     // feed packets to publisher
