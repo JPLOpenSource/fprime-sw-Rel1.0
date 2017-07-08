@@ -81,8 +81,8 @@ namespace Zmq {
   // ----------------------------------------------------------------------
 
   void ZmqSubComponentImpl::open(
-          char* addr,  /*!< if client, the server address, not used for server */
-          char* port, /*!< port for connection, client or server */
+          const char* addr,  /*!< if client, the server address, not used for server */
+          const char* port, /*!< port for connection, client or server */
           NATIVE_UINT_TYPE priority, /*!< read task priority */
           NATIVE_UINT_TYPE stackSize, /*!< stack size */
           NATIVE_UINT_TYPE affinity /*!< cpu affinity */
@@ -114,33 +114,41 @@ namespace Zmq {
 
       // create network socket depending on whether we are client or server
 
+      DEBUG_PRINT("Creating ZMQ SUB socket\n");
       int stat;
       void* networkSocket = 0;
-      char endpoint[ZMQ_SUB_ENDPOINT_NAME_SIZE];
-      networkSocket = zmq_socket (compPtr->m_context, ZMQ_PUB);
+      networkSocket = zmq_socket (compPtr->m_context, ZMQ_SUB);
       FW_ASSERT(networkSocket);
-      (void)snprintf(endpoint,ZMQ_SUB_ENDPOINT_NAME_SIZE,"tcp://*:%s",compPtr->m_port);
+
+      char endpoint[ZMQ_SUB_ENDPOINT_NAME_SIZE];
+      (void)snprintf(endpoint,ZMQ_SUB_ENDPOINT_NAME_SIZE,"tcp://%s:%s",compPtr->m_addr,compPtr->m_port);
       // null terminate
       endpoint[ZMQ_SUB_ENDPOINT_NAME_SIZE-1] = 0;
-      stat = zmq_bind(networkSocket, endpoint);
+
+      DEBUG_PRINT("Connecting to server %s port %s\n",compPtr->m_addr,compPtr->m_port);
+      stat = zmq_connect(networkSocket, endpoint);
+      FW_ASSERT (0 == stat,stat);
+
+      // subscribe to "ZeroMQ Port" packets
+      const char *filter = "ZP";
+      stat = zmq_setsockopt (networkSocket, ZMQ_SUBSCRIBE,
+                           filter, strlen (filter));
       FW_ASSERT (0 == stat,stat);
 
       // wait on network or local requests
       char msg[ZMQ_SUB_MSG_SIZE];
       while (true) {
-          DEBUG_PRINT("Received network packet\n");
-          while (true) {
-              int size = zmq_recv (networkSocket, msg, ZMQ_SUB_MSG_SIZE, 0);
-              if (size != -1) {
-                  // decode packet into port call
-                  compPtr->decodePacket((U8*)msg,size);
-                  break;
+          int size = zmq_recv (networkSocket, msg, ZMQ_SUB_MSG_SIZE, 0);
+          if (size != -1) {
+              // decode packet into port call
+              DEBUG_PRINT("Received network packet\n");
+              compPtr->decodePacket((U8*)msg,size);
+              continue;
+          } else {
+              if (compPtr->zmqError("network zmq_recv")) {
+                  break; // we have to exit two while() loops
               } else {
-                  if (compPtr->zmqError("network zmq_recv")) {
-                      break;
-                  } else {
-                      continue;
-                  }
+                  continue;
               }
           }
       }
@@ -158,6 +166,17 @@ namespace Zmq {
       buff.resetDeser();
 
       DEBUG_PRINT("Decoding packet of size %d\n",size);
+
+      // deserialize subscription header
+      const char subHdr[] = "ZP";
+      U8 subHdrRd[sizeof(subHdr)];
+      NATIVE_UINT_TYPE len = sizeof(subHdr);
+      stat = buff.deserialize(subHdrRd,len,true);
+      if (stat != Fw::FW_SERIALIZE_OK) {
+          DEBUG_PRINT("Decode sub header error\n");
+          //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
+          return;
+      }
 
       // get port number
       U8 portNum;

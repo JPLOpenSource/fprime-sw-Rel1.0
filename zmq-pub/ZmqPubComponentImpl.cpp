@@ -107,6 +107,11 @@ namespace Zmq {
       Fw::SerializeStatus stat;
       m_sendBuff.resetSer();
 
+      // for ZMQ publish, need a subscription
+      const U8 sub[] = "ZP"; // for "ZeroMQ Ports"
+      stat = m_sendBuff.serialize(sub,sizeof(sub),true);
+      FW_ASSERT(Fw::FW_SERIALIZE_OK == stat,stat);
+
       // serialize port call
       stat = m_sendBuff.serialize(portNum);
       FW_ASSERT(Fw::FW_SERIALIZE_OK == stat,stat);

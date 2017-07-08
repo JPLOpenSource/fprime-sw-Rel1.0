@@ -134,8 +134,8 @@ namespace Zmq {
 
   void ZmqAdapterComponentImpl::open(
           bool server,  /*!< if this node is the server */
-          char* addr,  /*!< if client, the server address, not used for server */
-          char* port, /*!< port for connection, client or server */
+          const char* addr,  /*!< if client, the server address, not used for server */
+          const char* port, /*!< port for connection, client or server */
           NATIVE_UINT_TYPE priority, /*!< read task priority */
           NATIVE_UINT_TYPE stackSize, /*!< stack size */
           NATIVE_UINT_TYPE affinity /*!< cpu affinity */
