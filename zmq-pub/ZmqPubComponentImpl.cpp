@@ -25,8 +25,8 @@
 #include <errno.h>
 #include <string.h>
 
-#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
-//#define DEBUG_PRINT(x,...)
+//#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
+#define DEBUG_PRINT(x,...)
 
 namespace Zmq {
 
@@ -83,6 +83,19 @@ namespace Zmq {
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
       // so we create it in the preamble
       this->m_pubSocket = zmq_socket (this->m_context, ZMQ_PUB);
+      FW_ASSERT(this->m_pubSocket);
+
+      // bind the server to the port
+      char endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE];
+      (void)snprintf(endpoint,ZMQ_PUB_ENDPOINT_NAME_SIZE,"tcp://*:%s",this->m_port);
+      // null terminate
+      endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE-1] = 0;
+
+      NATIVE_INT_TYPE stat = zmq_bind(this->m_pubSocket,endpoint);
+      if (-1 == stat) {
+          this->zmqError("zmq_bind");
+      }
+      FW_ASSERT (0 == stat,stat);
   }
 
   void ZmqPubComponentImpl::finalizer(void) {
@@ -109,25 +122,25 @@ namespace Zmq {
 
       // for ZMQ publish, need a subscription
       const U8 sub[] = "ZP"; // for "ZeroMQ Ports"
-      stat = m_sendBuff.serialize(sub,sizeof(sub),true);
+      stat = m_sendBuff.serialize(sub,strlen((const char*)sub),true);
       FW_ASSERT(Fw::FW_SERIALIZE_OK == stat,stat);
 
       // serialize port call
-      stat = m_sendBuff.serialize(portNum);
+      stat = m_sendBuff.serialize(static_cast<U8>(portNum));
       FW_ASSERT(Fw::FW_SERIALIZE_OK == stat,stat);
       stat = m_sendBuff.serialize(Buffer);
       FW_ASSERT(Fw::FW_SERIALIZE_OK == stat,stat);
       // send on zmq socket
-      bool done = false;
-      while (not done) {
+      while (true) {
+          DEBUG_PRINT("Sending %d bytes\n",m_sendBuff.getBuffLength());
           int zstat = zmq_send(this->m_pubSocket,m_sendBuff.getBuffAddr(),m_sendBuff.getBuffLength(),0);
           if (-1 == zstat) {
               if (this->zmqError("port zmq_send")) {
-                  done = true;
+                  break;
               }
           } else {
               FW_ASSERT((int)m_sendBuff.getBuffLength() == zstat,zstat);
-              done = true;
+              break;
           }
       }
 

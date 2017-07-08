@@ -28,12 +28,14 @@ int main(int argc, char* argv[]) {
     adapter.start(0, 100, 20*1024);
 
     // feed packets to publisher
+    NATIVE_UINT_TYPE portNum = 0;
     while (not quit) {
         Os::Task::delay(1000);
-        Fw::InputSerializePort* port = adapter.get_PortsIn_InputPort(0);
+        Fw::InputSerializePort* port = adapter.get_PortsIn_InputPort(portNum);
         Zmq::ZmqPubComponentImpl::ZmqSerialBuffer buff;
-        buff.serialize((U32)10);
+        buff.serialize((U32)portNum);
         port->invokeSerial(buff);
+        portNum = (portNum+1)%adapter.getNum_PortsIn_InputPorts();
     }
 
     printf("Quitting\n");

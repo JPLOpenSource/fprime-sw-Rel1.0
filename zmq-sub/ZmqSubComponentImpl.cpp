@@ -25,8 +25,8 @@
 #include <errno.h>
 #include <string.h>
 
-#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
-//#define DEBUG_PRINT(x,...)
+//#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
+#define DEBUG_PRINT(x,...)
 
 namespace Zmq {
 
@@ -125,14 +125,17 @@ namespace Zmq {
       // null terminate
       endpoint[ZMQ_SUB_ENDPOINT_NAME_SIZE-1] = 0;
 
-      DEBUG_PRINT("Connecting to server %s port %s\n",compPtr->m_addr,compPtr->m_port);
+      DEBUG_PRINT("Connecting to server %s port %s (%s)\n",compPtr->m_addr,compPtr->m_port,endpoint);
       stat = zmq_connect(networkSocket, endpoint);
+      if (-1 == stat) {
+          compPtr->zmqError("zmq_connect");
+      }
       FW_ASSERT (0 == stat,stat);
 
       // subscribe to "ZeroMQ Port" packets
-      const char *filter = "ZP";
+      const char filter[] = "ZP";
       stat = zmq_setsockopt (networkSocket, ZMQ_SUBSCRIBE,
-                           filter, strlen (filter));
+                           filter, strlen(filter));
       FW_ASSERT (0 == stat,stat);
 
       // wait on network or local requests
@@ -163,6 +166,7 @@ namespace Zmq {
       FW_ASSERT(size < ZMQ_SUB_MSG_SIZE,size);
       Fw::SerializeStatus stat;
       Fw::ExternalSerializeBuffer buff(packet,size);
+      buff.setBuffLen(size);
       buff.resetDeser();
 
       DEBUG_PRINT("Decoding packet of size %d\n",size);
@@ -170,10 +174,10 @@ namespace Zmq {
       // deserialize subscription header
       const char subHdr[] = "ZP";
       U8 subHdrRd[sizeof(subHdr)];
-      NATIVE_UINT_TYPE len = sizeof(subHdr);
+      NATIVE_UINT_TYPE len = strlen(subHdr);
       stat = buff.deserialize(subHdrRd,len,true);
       if (stat != Fw::FW_SERIALIZE_OK) {
-          DEBUG_PRINT("Decode sub header error\n");
+          DEBUG_PRINT("Decode sub header error %d %d %d\n",stat,buff.getBuffLength(),buff.getBuffLeft());
           //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
           return;
       }
@@ -187,32 +191,16 @@ namespace Zmq {
           //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
           return;
       }
-      // get size
-      U8 entrySize;
-      stat = buff.deserialize(entrySize);
-      if (stat != Fw::FW_SERIALIZE_OK) {
-          DEBUG_PRINT("Decode size error\n");
-          //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
-          return;
-      }
       // get buffer for port
 
-      NATIVE_UINT_TYPE decodeSize = entrySize;
-      stat = buff.deserialize(this->m_netBuffer.getBuffAddr(),decodeSize,true);
+      stat = buff.deserialize(this->m_netBuffer);
       if (stat != Fw::FW_SERIALIZE_OK) {
           DEBUG_PRINT("Decode data error\n");
           //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
           return;
       }
-      // set buffer to size of data
-      stat = this->m_netBuffer.setBuffLen(entrySize);
-      if (stat != Fw::FW_SERIALIZE_OK) {
-          DEBUG_PRINT("Set setBuffLen error\n");
-          //this->tlmWrite_FR_NumDecodeErrors(++this->m_numDecodeErrors);
-          return;
-      }
       // call output port
-      DEBUG_PRINT("Calling port %d with %d bytes.\n",portNum,entrySize);
+      DEBUG_PRINT("Calling port %d with %d bytes.\n",portNum,this->m_netBuffer.getBuffLength());
       if (this->isConnected_PortsOut_OutputPort(portNum)) {
 
           Fw::SerializeStatus stat = this->PortsOut_out(portNum,this->m_netBuffer);

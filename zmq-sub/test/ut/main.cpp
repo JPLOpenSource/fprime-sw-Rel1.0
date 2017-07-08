@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     Zmq::ZmqSubComponentImpl adapter("sub");
 
     adapter.init(0);
-    adapter.open("127.0.0.1","50000",100,20*1024,0);
+    adapter.open("localhost","50000",100,20*1024,0);
 
     // spin waiting for termination
     while (not quit) {
