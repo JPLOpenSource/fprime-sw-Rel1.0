@@ -75,12 +75,13 @@ if __name__ == "__main__":
                                      args=(context, cmd_port, client_name))
     mock_client.start()
 
-    while True:
-        try:
+
+    try:
+        while True:
             pass
-        except KeyboardInterrupt:
-            context.term()
-            break
+    except KeyboardInterrupt:
+        context.term()
+        
 
     print("Closing MockGroundClient")
     

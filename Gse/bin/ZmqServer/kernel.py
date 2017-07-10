@@ -121,7 +121,8 @@ class ZmqKernel(object):
         proto       = msg[5]
         self.__logger.debug("Registering {name} as {client_type} client "
                             "using {proto} protocol."\
-                       .format(name=name, client_type=client_type, proto=proto))
+                       .format(name=name, client_type=client_type.lower(),\
+                               proto=proto))
      
         #TODO: Generate meaningful registration status
         status = 1

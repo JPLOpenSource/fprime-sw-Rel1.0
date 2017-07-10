@@ -13,6 +13,7 @@ from utils.logging_util import GetLogger
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
 from models.serialize import *
+from server_utils import test_utils
 import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -81,43 +82,40 @@ def MockFlightClient(context, cmd_port, client_name):
     time_base = u16_type.U16Type(0)
     time_cxt  = u8_type.U8Type(0)    
 
-    count = 0
-    while True:
+    sine_wave = test_utils.GetSineWave() 
+
+    while True: 
         try:
-           
-            # Set variable values
-            ch_time = datetime.datetime.now()
-            sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
-            
-            # Time Values
-            time_s  = sensor1.getTimeSec()
-            time_us = sensor1.getTimeUsec()  
-    
-            # Time as fprime type
-            time_s  = u32_type.U32Type(time_s)
-            time_us = u32_type.U32Type(time_us) 
+            for val in sine_wave: 
+                # Set variable values
+                ch_time = datetime.datetime.now()
+                sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
+                
+                # Time Values
+                time_s  = sensor1.getTimeSec()
+                time_us = sensor1.getTimeUsec()  
+        
+                # Time as fprime type
+                time_s  = u32_type.U32Type(time_s)
+                time_us = u32_type.U32Type(time_us) 
 
-            value.val  = float(count)
-            count += 1
-            
-           
-            # Create channel packet          
-            packet = data_len.serialize() + pk_desc.serialize() +\
-                     ch_id.serialize() + time_base.serialize() +\
-                     time_cxt.serialize() + time_s.serialize() +\
-                     time_us.serialize() + value.serialize()
+                value.val  = float(val)
+                
+                
+               
+                # Create channel packet          
+                packet = data_len.serialize() + pk_desc.serialize() +\
+                         ch_id.serialize() + time_base.serialize() +\
+                         time_cxt.serialize() + time_s.serialize() +\
+                         time_us.serialize() + value.serialize()
 
-            pub_socket.send_multipart([packet])
-            logger.debug("Sent packet")
-
-            if count == 20:
-                count = 0
-
-            time.sleep(1)           
+                pub_socket.send_multipart([packet])
+               
+                time.sleep(0.1)           
 
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
-                logger.debug("ETERM received")
+                logger.debug("ETERM received") 
                 break
             else:
                 raise
@@ -142,11 +140,12 @@ if __name__ == "__main__":
                                           args=(context, cmd_port, client_name))
     mock_flight_client.start() 
     
-    while True:
-        try:
-            pass 
-        except KeyboardInterrupt: 
-            break
+    try:
+        while True:
+            pass   
+    except KeyboardInterrupt: 
+        print("Closing MockFlightClient")
+        context.term() 
 
-    print("Closing MockFlightClient")
-    context.term() 
+
+
