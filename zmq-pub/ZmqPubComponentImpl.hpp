@@ -152,6 +152,8 @@ namespace Zmq {
       void *m_context; //!< zmq context
       void *m_pubSocket; //!< zmp socket for outbound buffers to poll task
 
+      U32 m_packetsSent; //!< number of packets sent
+
       // buffer used to send port data
       ZmqSerialBuffer m_sendBuff;
 

@@ -154,6 +154,8 @@ namespace Zmq {
 
       void *m_context; //!< zmq context
 
+      U32 m_packetsReceived; //!< number of packets received
+
       static void workerTask(void* ptr); //!< worker task entry point
       Os::Task m_socketTask;
 

@@ -60,7 +60,9 @@ namespace Zmq {
   {
 
       // clean up zmq state
-      zmq_ctx_destroy (this->m_context);
+      if (this->m_context) {
+          zmq_ctx_destroy (this->m_context);
+      }
   }
 
   // ----------------------------------------------------------------------
@@ -73,7 +75,7 @@ namespace Zmq {
         NATIVE_UINT_TYPE context
     )
   {
-    // TODO
+    this->tlmWrite_ZS_PacketsReceived(this->m_packetsReceived);
   }
 
   // ----------------------------------------------------------------------
@@ -96,7 +98,10 @@ namespace Zmq {
 
       // create zmq context
       this->m_context = zmq_ctx_new ();
-      FW_ASSERT(this->m_context);
+      if (not this->m_context) {
+          Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+          this->log_WARNING_HI_ZS_ContextError(errArg);
+      }
 
       // start task
       Fw::EightyCharString taskName;
@@ -108,17 +113,26 @@ namespace Zmq {
 
   void ZmqSubComponentImpl::workerTask(void* ptr) {
 
+      // quit if the context wasn't created
+
       DEBUG_PRINT("Worker task started\n");
       FW_ASSERT(ptr);
       ZmqSubComponentImpl* compPtr = static_cast<ZmqSubComponentImpl*>(ptr);
 
+      if (not compPtr->m_context) {
+          return;
+      }
       // create network socket depending on whether we are client or server
 
       DEBUG_PRINT("Creating ZMQ SUB socket\n");
       int stat;
       void* networkSocket = 0;
       networkSocket = zmq_socket (compPtr->m_context, ZMQ_SUB);
-      FW_ASSERT(networkSocket);
+      if (not networkSocket) {
+          Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+          compPtr->log_WARNING_HI_ZS_SocketError(errArg);
+          return;
+      }
 
       char endpoint[ZMQ_SUB_ENDPOINT_NAME_SIZE];
       (void)snprintf(endpoint,ZMQ_SUB_ENDPOINT_NAME_SIZE,"tcp://%s:%s",compPtr->m_addr,compPtr->m_port);
@@ -128,15 +142,22 @@ namespace Zmq {
       DEBUG_PRINT("Connecting to server %s port %s (%s)\n",compPtr->m_addr,compPtr->m_port,endpoint);
       stat = zmq_connect(networkSocket, endpoint);
       if (-1 == stat) {
-          compPtr->zmqError("zmq_connect");
+          Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+          compPtr->log_WARNING_HI_ZS_ConnectError(errArg);
+          return;
       }
-      FW_ASSERT (0 == stat,stat);
 
       // subscribe to "ZeroMQ Port" packets
       const char filter[] = "ZP";
       stat = zmq_setsockopt (networkSocket, ZMQ_SUBSCRIBE,
                            filter, strlen(filter));
-      FW_ASSERT (0 == stat,stat);
+      if (-1 == stat) {
+          Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+          compPtr->log_WARNING_HI_ZS_SockOptsError(errArg);
+          return;
+      } else {
+          compPtr->log_ACTIVITY_HI_ZS_SubscribeConnectionOpened();
+      }
 
       // wait on network or local requests
       char msg[ZMQ_SUB_MSG_SIZE];
@@ -146,10 +167,13 @@ namespace Zmq {
               // decode packet into port call
               DEBUG_PRINT("Received network packet\n");
               compPtr->decodePacket((U8*)msg,size);
+              compPtr->m_packetsReceived++;
               continue;
           } else {
               if (compPtr->zmqError("network zmq_recv")) {
-                  break; // we have to exit two while() loops
+                  Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+                  compPtr->log_WARNING_HI_ZS_ReceiveError(errArg);
+                  break;
               } else {
                   continue;
               }

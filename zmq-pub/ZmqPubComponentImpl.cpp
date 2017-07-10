@@ -44,6 +44,8 @@ namespace Zmq {
     ZmqPubImpl(void)
 #endif
     ,m_context(0)
+    ,m_pubSocket(0)
+    ,m_packetsSent(0)
   {
 
   }
@@ -62,7 +64,9 @@ namespace Zmq {
   {
 
       // clean up zmq state
-      zmq_ctx_destroy (this->m_context);
+      if (this->m_context) {
+          zmq_ctx_destroy (this->m_context);
+      }
   }
 
   // ----------------------------------------------------------------------
@@ -75,27 +79,37 @@ namespace Zmq {
         NATIVE_UINT_TYPE context
     )
   {
-    // TODO
+      // update channel
+      this->tlmWrite_ZP_PacketsSent(this->m_packetsSent);
   }
 
   void ZmqPubComponentImpl::preamble(void) {
 
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
-      // so we create it in the preamble
-      this->m_pubSocket = zmq_socket (this->m_context, ZMQ_PUB);
-      FW_ASSERT(this->m_pubSocket);
+      // so we create it in the preamble. Only do it if the context was successfully created.
+      if (this->m_context) {
+          this->m_pubSocket = zmq_socket (this->m_context, ZMQ_PUB);
+          if (not this->m_pubSocket) {
+              Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+              this->log_WARNING_HI_ZP_SocketError(errArg);
+              return;
+          }
 
-      // bind the server to the port
-      char endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE];
-      (void)snprintf(endpoint,ZMQ_PUB_ENDPOINT_NAME_SIZE,"tcp://*:%s",this->m_port);
-      // null terminate
-      endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE-1] = 0;
+          // bind the server to the port
+          char endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE];
+          (void)snprintf(endpoint,ZMQ_PUB_ENDPOINT_NAME_SIZE,"tcp://*:%s",this->m_port);
+          // null terminate
+          endpoint[ZMQ_PUB_ENDPOINT_NAME_SIZE-1] = 0;
 
-      NATIVE_INT_TYPE stat = zmq_bind(this->m_pubSocket,endpoint);
-      if (-1 == stat) {
-          this->zmqError("zmq_bind");
+          NATIVE_INT_TYPE stat = zmq_bind(this->m_pubSocket,endpoint);
+          if (-1 == stat) {
+              Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+              this->log_WARNING_HI_ZP_BindError(errArg);
+              return;
+          } else {
+              this->log_ACTIVITY_HI_ZP_PublishConnectionOpened();
+          }
       }
-      FW_ASSERT (0 == stat,stat);
   }
 
   void ZmqPubComponentImpl::finalizer(void) {
@@ -103,7 +117,9 @@ namespace Zmq {
       // ZMQ requires that a socket be created, used, and destroyed on the same thread,
       // so we close it in the finalizer
       DEBUG_PRINT("Finalizing\n");
-      zmq_close(this->m_pubSocket);
+      if (this->m_pubSocket) {
+          zmq_close(this->m_pubSocket);
+      }
   }
 
   // ----------------------------------------------------------------------
@@ -116,6 +132,11 @@ namespace Zmq {
         Fw::SerializeBufferBase &Buffer /*!< The serialization buffer*/
     )
   {
+      // return if we never successfully created the socket
+      if (not this->m_pubSocket) {
+          return;
+      }
+
       DEBUG_PRINT("PortsIn_handler: %d\n",portNum);
       Fw::SerializeStatus stat;
       m_sendBuff.resetSer();
@@ -136,10 +157,13 @@ namespace Zmq {
           int zstat = zmq_send(this->m_pubSocket,m_sendBuff.getBuffAddr(),m_sendBuff.getBuffLength(),0);
           if (-1 == zstat) {
               if (this->zmqError("port zmq_send")) {
+                  Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+                  this->log_WARNING_HI_ZP_SendError(errArg);
                   break;
               }
           } else {
               FW_ASSERT((int)m_sendBuff.getBuffLength() == zstat,zstat);
+              this->m_packetsSent++;
               break;
           }
       }
@@ -156,7 +180,10 @@ namespace Zmq {
 
       // create zmq context
       this->m_context = zmq_ctx_new ();
-      FW_ASSERT(this->m_context);
+      if (not this->m_context) {
+          Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+          this->log_WARNING_HI_ZP_ContextError(errArg);
+      }
 
   }
 
