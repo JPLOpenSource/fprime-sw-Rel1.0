@@ -47,6 +47,9 @@ from models.serialize import u8_type
 
 #from views import main_panel
 from utils import Logger
+from utils import ConfigManager
+
+import zmq
 
 
 class EventListener(observer.Observed):
@@ -114,6 +117,7 @@ class EventListener(observer.Observed):
         # store options
         self.__opt = None
 
+        self.__config = ConfigManager.ConfigManager.getInstance()
 
     def getInstance():
         """
@@ -231,34 +235,44 @@ class EventListener(observer.Observed):
         return pkt_len + pkt_desc + data
 
 
-    def enqueue_output(self, sock, queue):
+    def enqueue_output(self, context, server_pub_port, queue):
         """
         Queue up socket telemetry for TK processing
         """
-        while 1:
+        #server_pub_port = self.__config.get("server", "pub_port")
+        #server_address  = self.__config.get("server", "address")
+
+        sub_socket = context.socket(zmq.ROUTER)
+        print("tcp://localhost:{}".format(server_pub_port))
+        sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
+
+
+        while True:
             try:
-                x = self.receive_telemetry(sock)
-                if x:
-                    queue.put(x)
-            except:
-                print "Socket connection terminated"
-                break
-        return
+                msg = sub_socket.recv_multipart()
+                
+                queue.put(msg[2])
+
+            except zmq.ZMQError as e:
+                if e.errno == zmq.ETERM:
+                    break
+                else:
+                    raise
+       
 
 
-    def connect(self, sock):
+    def connect(self, context, server_pub_port):
         """
         Start thread that is connected to sock talking to TCPThreadServer.py
-        THis is called from the TCP Server menu Connect... item.
+        This is called from the TCP Server menu Connect... item.
         """
-        self.__sock = sock
 
         if self.__thread.isAlive() == True:
             print "LISTENER THREAD IS ALIVE!"
             return
 
         # create background listener thread
-        self.__thread = threading.Thread(target=self.enqueue_output, args=(self.__sock, self.__queue))
+        self.__thread = threading.Thread(target=self.enqueue_output, args=(context, server_pub_port, self.__queue))
         # thread dies with the program
         self.__thread.daemon = True
         # state listener thread here

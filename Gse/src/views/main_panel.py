@@ -26,6 +26,7 @@ import Pmw
 import exceptions
 import subprocess
 import signal
+import zmq
 
 import log_event_panel
 import command_panel
@@ -432,18 +433,36 @@ class TopPanel(object):
         try:
             port = self.__opts.port
             server = self.__opts.addr
+
+            context = zmq.Context()
+            command_sock = context.socket(zmq.REQ)
+            command_sock.connect("tcp://{}:{}".format(server, port))
+
             s = "Connected to server (host addr %s, port %d)" % (server, port)
-            self.__sock=client_sock.ClientSocket(server,port)
             self.__status_update.update(s, 'red')
+            
             #
             # Register the GUI with the server
             #self.lock.acquire()
-            self.__sock.send("Register GUI\n")
+            command_sock.send_multipart([b"REG", b"GUI", b"GROUND", b"ZMQ"])
+            response = command_sock.recv_multipart()
+            server_pub_port = response[1]
+            server_sub_port = response[2]
+
+            print("PORTS {}|{}".format(server_pub_port, server_sub_port))
+
+            # Save references in a global place
+            #self.__config.set("server", "command_socket", command_sock)
+            #self.__config.set("server", "zmq_context", context)
+            #self.__config.set("server", "address", server)
+            self.__config.set("server", "pub_port", server_pub_port)
+            self.__config.set("server", "sub_port", server_sub_port)
+
             #self.lock.release()
             #
             # Register the socket with the event_listener and
             # Spawn the listener thread here....
-            self.__event_listen.connect(self.__sock)
+            self.__event_listen.connect(context, server_pub_port)
         except IOError:
             del(self.__sock)
             self.__sock = None
