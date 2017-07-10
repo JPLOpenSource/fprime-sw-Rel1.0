@@ -85,6 +85,16 @@ class TopPanel(object):
         parent.minsize(min_x, min_y)
 
         self.__sock = None
+
+        #
+        # Zmq Pub/Sub Sockets 
+        #
+        self.__zmq_context       = None
+        self.__server_cmd_socket = None # Server command socket
+        self.__server_pub_socket = None # The socket the server pushes out telemetry, events, files 
+        self.__server_sub_socket = None # The socket to send commands
+
+
         #
         # List of sub-panels for destruction
         self.__panels = []
@@ -427,42 +437,39 @@ class TopPanel(object):
 
     def connectTCP(self):
         """
-        Connect to a running ThreadedTCPServer here...
+        Connect to a running ZmqServer.
+        Registers with the ZmqServer and receives the server's ground-client pub/sub ports.
+        Zmq sockets are created and saved as main_panel instance variables. 
         """
-        # connect to server
+        
         try:
             port = self.__opts.port
             server = self.__opts.addr
 
-            context = zmq.Context()
-            command_sock = context.socket(zmq.REQ)
-            command_sock.connect("tcp://{}:{}".format(server, port))
+            self.__zmq_context = zmq.Context()
+            self.__server_cmd_socket = self.__zmq_context.socket(zmq.REQ)
+            self.__server_cmd_socket.connect("tcp://{}:{}".format(server, port))
 
             s = "Connected to server (host addr %s, port %d)" % (server, port)
             self.__status_update.update(s, 'red')
             
-            #
+            
             # Register the GUI with the server
-            #self.lock.acquire()
-            command_sock.send_multipart([b"REG", b"GUI", b"GROUND", b"ZMQ"])
-            response = command_sock.recv_multipart()
-            server_pub_port = response[1]
-            server_sub_port = response[2]
+            # TODO: Create unique ground-client name
+            self.__server_cmd_socket.send_multipart([b"REG", b"GUI", b"GROUND",\
+                                                     b"ZMQ"])
+            
+            response = self.__server_cmd_socket.recv_multipart()
+            self.__server_pub_port = response[1]
+            self.__server_sub_port = response[2]
 
-            print("PORTS {}|{}".format(server_pub_port, server_sub_port))
+            print("Publishing to port: {} | Subscribed to port: {}".\
+            format(self.__server_sub_port, self.__server_pub_port))
 
-            # Save references in a global place
-            #self.__config.set("server", "command_socket", command_sock)
-            #self.__config.set("server", "zmq_context", context)
-            #self.__config.set("server", "address", server)
-            self.__config.set("server", "pub_port", server_pub_port)
-            self.__config.set("server", "sub_port", server_sub_port)
-
-            #self.lock.release()
-            #
+           
             # Register the socket with the event_listener and
             # Spawn the listener thread here....
-            self.__event_listen.connect(context, server_pub_port)
+            self.__event_listen.connect()
         except IOError:
             del(self.__sock)
             self.__sock = None
@@ -477,6 +484,23 @@ class TopPanel(object):
         """
         return self.__sock
 
+    def getZmqContext(self):
+        """
+        Return the zmq context
+        """
+        return self.__zmq_context
+
+    def getServerPublishPort(self):
+        """
+        Return the socket on which to publish commands and files.
+        """
+        return self.__server_pub_port
+
+    def getSubscribePort(self):
+        """
+        Return the socket on which to receive telemetry and events.
+        """
+        return self.__server_sub_port
 
     def killTCP(self):
         """

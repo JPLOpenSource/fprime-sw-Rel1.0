@@ -72,6 +72,7 @@ class EventListener(observer.Observed):
         # Socket when connection established
         #
         self.__sock = sock
+
         #
         # Store thread here
         #
@@ -199,7 +200,7 @@ class EventListener(observer.Observed):
         if one is set.  This is an indication of connection.
         """
         self.__the_main_panel = the_main_panel
-        self.__sock = self.__the_main_panel.getSock()
+        self.__sub_sock = self.__the_main_panel.getSock()
 
     def register_status_bar(self, status_bar):
         self.__status_bar = status_bar
@@ -243,7 +244,6 @@ class EventListener(observer.Observed):
         #server_address  = self.__config.get("server", "address")
 
         sub_socket = context.socket(zmq.ROUTER)
-        print("tcp://localhost:{}".format(server_pub_port))
         sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
 
 
@@ -258,10 +258,11 @@ class EventListener(observer.Observed):
                     break
                 else:
                     raise
-       
+        
+        sub_socket.close()
 
 
-    def connect(self, context, server_pub_port):
+    def connect(self):
         """
         Start thread that is connected to sock talking to TCPThreadServer.py
         This is called from the TCP Server menu Connect... item.
@@ -270,6 +271,9 @@ class EventListener(observer.Observed):
         if self.__thread.isAlive() == True:
             print "LISTENER THREAD IS ALIVE!"
             return
+
+        context         = self.__the_main_panel.getZmqContext()
+        server_pub_port = self.__the_main_panel.getServerPublishPort()
 
         # create background listener thread
         self.__thread = threading.Thread(target=self.enqueue_output, args=(context, server_pub_port, self.__queue))
