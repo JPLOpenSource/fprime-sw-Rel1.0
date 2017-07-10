@@ -70,6 +70,7 @@ def FlightSubRunnable(sub_socket, pub_socket, logger):
             logger.debug("Packet Received: {}".format(msg))
 
             pub_socket.send_multipart(msg)
+            logger.debug("Sent packet to sub")
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break
