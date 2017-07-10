@@ -356,10 +356,10 @@ class EventListener(observer.Observed):
 
         # Decode time...
         # Base
-        u32_obj = u16_type.U16Type()
-        u32_obj.deserialize(msg, ptr)
-        ptr += u32_obj.getSize()
-        time_base = u32_obj.val
+        u16_obj = u16_type.U16Type()
+        u16_obj.deserialize(msg, ptr)
+        ptr += u16_obj.getSize()
+        time_base = u16_obj.val
         #print "Time Base: %d" % time_base
 
         # Time context
