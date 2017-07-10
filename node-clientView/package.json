@@ -10,6 +10,7 @@
   "dependencies": {
     "express": "^4.15.3",
     "openmct": "github:nasa/openmct",
+    "sprintf-js": "^1.1.1",
     "ws": "^3.0.0"
   }
 }

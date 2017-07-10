@@ -22,22 +22,14 @@ el.create(dir_path + '/events')
 ch_cd = {}
 for id in cl.getNameDict():
 	ch_cd[id] = {}
-	ch_cd[id]["name"] = cl.getNameDict()[id]
 
 for id in ch_cd:
-	ch_cd[id]["component"] = cl.getCompDict()[id]
-
-for id in ch_cd:
+	ch_cd[id]["name"]        = cl.getNameDict()[id]
+	ch_cd[id]["component"]   = cl.getCompDict()[id]
 	ch_cd[id]["description"] = cl.getChDescDict()[id]
-
-for id in ch_cd:
-	ch_cd[id]["type"] = cl.getTypesDict()[id]
-
-for id in ch_cd:
-	ch_cd[id]["format"] = cl.getFormatStringDict()[id]
-
-for id in ch_cd:
-	ch_cd[id]["num_type"] = (cl.getTypesDict()[id]).__repr__()
+	ch_cd[id]["type"]        = cl.getTypesDict()[id]
+	ch_cd[id]["format"]      = cl.getFormatStringDict()[id]
+	ch_cd[id]["num_type"]    = (cl.getTypesDict()[id]).__repr__()
 
 # Formatting for telemetry data
 time_format = {
@@ -79,15 +71,11 @@ for id in ch_cd:
 ev_cd = {}
 for id in el.getNameDict():
 	ev_cd[id] = {}
-	ev_cd[id]["name"] = el.getNameDict()[id]
 
 for id in ev_cd:
-	ev_cd[id]["severity"] = el.getSeverity()[id]
-
-for id in ev_cd:
-	ev_cd[id]["format"] = el.getFormatString()[id]
-
-for id in ev_cd:
+	ev_cd[id]["name"]      = el.getNameDict()[id]
+	ev_cd[id]["severity"]  = el.getSeverity()[id]
+	ev_cd[id]["format"]    = el.getFormatString()[id]
 	ev_cd[id]["arguments"] = el.getEventDesc()[id]
 
 for id in ev_cd:
@@ -107,9 +95,10 @@ for id in ev_cd:
 	for arg in ev_cd[id]["arguments"]:
 		# Arg in format of tuple: (Title, Description, TypeClass)
 		arg_type = arg[2].__repr__()
-		arg_format.append(arg[2].__repr__())
 		if arg_type == "Enum":
 			arg_format.append(arg[2].keys())
+		else:
+			arg_format.append(arg_type)
 
 	to_append = {
 		"name": ev_cd[id]["name"],
@@ -126,7 +115,7 @@ for id in ev_cd:
 final_dict = {
 	"name": "ISF",
 	"key": "isf",
-	"measurements": telemetry
+	"measurements": telemetry,
 }
 
 save = 'node-clientView/client/isf-omct/res/dictionary.json'

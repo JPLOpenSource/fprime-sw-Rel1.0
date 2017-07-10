@@ -23,7 +23,6 @@ client.connect(isf_port, '127.0.0.1', function() {
 const wss = new WebSocket.Server({port: 1337});
 
 var clients = [];
-var numFormat = {};	 // Save formats of each id
 // For every client connection:
 wss.on('connection', function connection(ws) {
 	console.log("Client connected");
@@ -34,7 +33,7 @@ wss.on('connection', function connection(ws) {
 	// Get isf data
 	client.on('data', function (data) {
 		// Deserialize data into list of packets
-		var toMCT = deserialize(data, numFormat);
+		var toMCT = deserialize(data);
 
 		// Send to websocket
 		toMCT.forEach(function (packet) {
@@ -48,7 +47,6 @@ wss.on('connection', function connection(ws) {
 				});
 			}
 		})
-		
 	});
 
 	// Subscription

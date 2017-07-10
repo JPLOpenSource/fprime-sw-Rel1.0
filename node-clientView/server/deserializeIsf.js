@@ -11,8 +11,60 @@
 // (Size of packet - 19) Value
 */
 
+// Dependencies
+var sprintf = require("sprintf-js").sprintf,
+    vsprintf = require("sprintf-js").vsprintf
+
+function floatConverter(hexValue) {
+	var dv = new DataView(new ArrayBuffer(8));
+	dv.setUint32(0, parseInt("0x" + hexValue));
+
+	return dv.getFloat32(0);
+}
+
+function convertToString(hexValue, strBase, argTypes) {
+	hexValue = hexValue.toString();	// Reinforce string type
+	var args = [];	// Arg array
+
+	// Pointer to keep track of values
+	var ptr = 0;
+	argTypes.forEach(function (type) {
+		var argToPush;
+		if (Array.isArray(type) === false) {
+			if (type === "String") {
+				// If string type
+				var charLimit = parseInt(hexValue.substring(ptr, ptr += 4), 16) + ptr;
+
+				// Create string through conversion of hex to char
+				argToPush = "";
+				while (ptr < charLimit) {
+					argToPush += String.fromCharCode(parseInt(hexValue.substring(ptr, ptr += 2), 16));
+				}
+			} else {
+				// Number type
+				var numType = type.substring(0,1);
+				var bits = parseInt(type.substring(1), 10);
+				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 2));
+				if (numType === 'F') {
+					argToPush = floatConverter(rawNumStr);
+				} else {
+					argToPush = parseInt(rawNumStr);
+				}
+			}
+		} else {
+			// Enum type
+			var index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
+			argToPush = type[index];
+		}
+		args.push(argToPush.toString);
+	});
+
+	return vsprintf(strBase, args);
+}
+
 // Get telem list for format lookup
-var telem = require('../client/isf-omct/res/dictionary.json').measurements;
+var dict = require('../client/isf-omct/res/dictionary.json');
+var telem = dict.measurements;
 const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USex) in nibbles
 
 function deserialize(data, numFormat) {
@@ -31,33 +83,39 @@ function deserialize(data, numFormat) {
 		var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
-		if (!(id in numFormat)) {
-			// If not saved in numFormat dictionary, find format for id
-			var tel = telem.find(function (telElem) {
-					return telElem["key"] == id;
-				});
-			if (tel) {
-				// Add to numberformat dict if id is found in dictionary
-				numFormat[id] = tel["num_type"];
-			}
+		// Get size of value in nibbles
+		var valueSize = (size * 2) - packDescrSize;
+		// Get hexvalue
+		var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+
+		var telemData;
+		if (descriptor === 1) {
+			// If channel
+			telemData = telem.find(function (data) {
+				return data["key"] === id && !("arg_format" in data);
+			});
+		} else if (descriptor === 2) {
+			// If event
+			telemData = telem.find(function (data) {
+				return data["key"] === id && ("arg_format" in data);
+			});
 		}
 
-		var valueSize = (size * 2) - packDescrSize;	// Get size of value in nibbles
-		// Check if floating point conversion is needed
-		
-		if (id in numFormat && numFormat[id].indexOf("F") != -1) {
-			// Get value
-			var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
-			// Convert to float
-			var dv = new DataView(new ArrayBuffer(8));
-			dv.setUint32(0, parseInt("0x" + hexValue));
-			var value = dv.getFloat32(0);
-		} else {
-			// Get value from packet if no conversion is needed
-			if (id === 122) {
-				var value = data.toString('hex');
+		if (telemData) {
+			console.log(telemData["key"]);
+			var numFormat = telemData["num_type"];
+			if (numFormat.indexOf("F") != -1) {
+				// Convert to float
+				var value = floatConverter(hexValue);
+			} else if (numFormat === "string") {
+				// Convert to string
+				var strBase = telemData["str_format"];
+				var argTypes = telemData["arg_format"];
+				var value = convertToString(hexValue, strBase, argTypes);
+				console.log(value);
 			} else {
-				var value = parseInt(data.toString('hex').substring(ptr, ptr += valueSize), 16);
+				// Get value from packet if no conversion is needed
+				var value = parseInt(hexValue, 16);
 			}
 		}
 
