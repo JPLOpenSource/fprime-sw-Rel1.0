@@ -9,7 +9,6 @@ from controllers import channel_loader, event_loader
 # Set path
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/../generated/Ref'
 sys.path.append(dir_path)
-print dir_path
 
 # Create channel loader object
 cl = channel_loader.ChannelLoader.getInstance()
@@ -39,21 +38,6 @@ for id in ch_cd:
 
 for id in ch_cd:
 	ch_cd[id]["num_type"] = (cl.getTypesDict()[id]).__repr__()
-
-# Create event combined dictionary
-ev_cd = {}
-for id in el.getNameDict():
-	ev_cd[id] = {}
-	ev_cd[id]["name"] = el.getNameDict()[id]
-
-for id in ev_cd:
-	ev_cd[id]["severity"] = el.getSeverity()[id]
-
-for id in ev_cd:
-	ev_cd[id]["format"] = el.getFormatString()[id]
-
-for id in ev_cd:
-	ev_cd[id]["description"] = el.getEventDesc()[id]
 
 # Formatting for telemetry data
 time_format = {
@@ -91,14 +75,63 @@ for id in ch_cd:
 		"values": [value_format, time_format]
 	})
 
+# Create event combined dictionary
+ev_cd = {}
+for id in el.getNameDict():
+	ev_cd[id] = {}
+	ev_cd[id]["name"] = el.getNameDict()[id]
+
+for id in ev_cd:
+	ev_cd[id]["severity"] = el.getSeverity()[id]
+
+for id in ev_cd:
+	ev_cd[id]["format"] = el.getFormatString()[id]
+
+for id in ev_cd:
+	ev_cd[id]["arguments"] = el.getEventDesc()[id]
+
+for id in ev_cd:
+	value_format = {
+	    "hints": {
+	        "range": 1
+	    }, 
+	    "key": "value", 
+	    "max": 100, 
+	    "min": 0, 
+	    "name": "Value", 
+	    "units": "units"
+	}
+
+	# determine format
+	arg_format = []
+	for arg in ev_cd[id]["arguments"]:
+		# Arg in format of tuple: (Title, Description, TypeClass)
+		arg_type = arg[2].__repr__()
+		arg_format.append(arg[2].__repr__())
+		if arg_type == "Enum":
+			arg_format.append(arg[2].keys())
+
+	to_append = {
+		"name": ev_cd[id]["name"],
+		"key": str(id),
+		"num_type": "string",
+		"str_format": ev_cd[id]["format"],
+		"arg_format": arg_format,
+		"values": [value_format, time_format]
+	}
+
+	telemetry.append(to_append)
+
+
 final_dict = {
 	"name": "ISF",
 	"key": "isf",
 	"measurements": telemetry
 }
 
-with open('node-clientView/client/isf-omct/res/dictionary.json', 'w') as fp:
+save = 'node-clientView/client/isf-omct/res/dictionary.json'
+with open(save, 'w') as fp:
 	json.dump(final_dict, fp, sort_keys=True, indent=4)
  
-# if __name__ == "__main__":
-# 	print final_dict
+if __name__ == "__main__":
+	print save
