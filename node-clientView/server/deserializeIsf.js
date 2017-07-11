@@ -24,6 +24,7 @@ function floatConverter(hexValue) {
 
 function convertToString(hexValue, strBase, argTypes) {
 	hexValue = hexValue.toString();	// Reinforce string type
+	console.log(hexValue);
 	var args = [];	// Arg array
 
 	// Pointer to keep track of values
@@ -33,7 +34,9 @@ function convertToString(hexValue, strBase, argTypes) {
 		if (Array.isArray(type) === false) {
 			if (type === "String") {
 				// If string type
-				var charLimit = parseInt(hexValue.substring(ptr, ptr += 4), 16) + ptr;
+
+				// Get limit for pointer
+				var charLimit = (2 * parseInt(hexValue.substring(ptr, ptr += 4), 16)) + ptr;
 
 				// Create string through conversion of hex to char
 				argToPush = "";
@@ -44,11 +47,12 @@ function convertToString(hexValue, strBase, argTypes) {
 				// Number type
 				var numType = type.substring(0,1);
 				var bits = parseInt(type.substring(1), 10);
-				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 2));
+				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
+				console.log(numType, bits);
 				if (numType === 'F') {
 					argToPush = floatConverter(rawNumStr);
 				} else {
-					argToPush = parseInt(rawNumStr);
+					argToPush = parseInt(rawNumStr, 16);
 				}
 			}
 		} else {
@@ -56,9 +60,9 @@ function convertToString(hexValue, strBase, argTypes) {
 			var index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
 			argToPush = type[index];
 		}
-		args.push(argToPush.toString);
+		args.push(argToPush);
 	});
-
+	console.log(args);
 	return vsprintf(strBase, args);
 }
 
@@ -83,39 +87,41 @@ function deserialize(data, numFormat) {
 		var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
-		// Get size of value in nibbles
-		var valueSize = (size * 2) - packDescrSize;
-		// Get hexvalue
-		var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+		
 
 		var telemData;
 		if (descriptor === 1) {
 			// If channel
 			telemData = telem.find(function (data) {
-				return data["key"] === id && !("arg_format" in data);
+				return data["key"] == id && !("arg_format" in data);
 			});
 		} else if (descriptor === 2) {
 			// If event
 			telemData = telem.find(function (data) {
-				return data["key"] === id && ("arg_format" in data);
+				return data["key"] == id && ("arg_format" in data);
 			});
 		}
 
+		// Get size of value in nibbles
+		var valueSize = (size * 2) - packDescrSize;
+		// Get hexvalue
+		var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+
+		var value;
 		if (telemData) {
-			console.log(telemData["key"]);
 			var numFormat = telemData["num_type"];
 			if (numFormat.indexOf("F") != -1) {
 				// Convert to float
-				var value = floatConverter(hexValue);
+				value = floatConverter(hexValue);
 			} else if (numFormat === "string") {
 				// Convert to string
 				var strBase = telemData["str_format"];
 				var argTypes = telemData["arg_format"];
-				var value = convertToString(hexValue, strBase, argTypes);
+				value = convertToString(hexValue, strBase, argTypes);
 				console.log(value);
 			} else {
 				// Get value from packet if no conversion is needed
-				var value = parseInt(hexValue, 16);
+				value = parseInt(hexValue, 16);
 			}
 		}
 
