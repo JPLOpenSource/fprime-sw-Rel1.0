@@ -12,7 +12,7 @@
 */
 
 // Dependencies
-var vsprintf = require("sprintf-js").vsprintf
+var vsprintf = require("sprintf-js").vsprintf;
 
 function floatConverter(hexValue) {
 	var dv = new DataView(new ArrayBuffer(8));
@@ -67,7 +67,7 @@ function convertToString(hexValue, strBase, argTypes) {
 }
 
 // Get telem list for format lookup
-var telem = require('../client/isf-omct/res/dictionary.json').measurements;
+var telem = require('./dictionary.json').measurements;
 const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
 
 function deserialize(data) {
@@ -138,7 +138,5 @@ function deserialize(data) {
 }
 
 // Export
-module.exports = {
-	deserialize: deserialize
-};
+module.exports = deserialize;
 
