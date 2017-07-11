@@ -42,7 +42,6 @@ wss.on('connection', function connection(ws) {
 					if (error) {
 						// If unable to send (ie. client disconnection) then subscription is reset
 						console.log("Client disconnected", error);
-						// subscribed = {};	// Reset subscription dictionary
 					}
 				});
 			}

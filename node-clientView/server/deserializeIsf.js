@@ -12,13 +12,11 @@
 */
 
 // Dependencies
-var sprintf = require("sprintf-js").sprintf,
-    vsprintf = require("sprintf-js").vsprintf
+var vsprintf = require("sprintf-js").vsprintf
 
 function floatConverter(hexValue) {
 	var dv = new DataView(new ArrayBuffer(8));
 	dv.setUint32(0, parseInt("0x" + hexValue));
-
 	return dv.getFloat32(0);
 }
 
@@ -133,7 +131,6 @@ function deserialize(data, numFormat) {
 			'id':id.toString()
 		};
 
-		// console.log(toMCT, ptr, packetLength);
 		res.push(toMCT);
 
 	}
