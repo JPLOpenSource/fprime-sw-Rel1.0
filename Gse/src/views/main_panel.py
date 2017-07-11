@@ -91,8 +91,8 @@ class TopPanel(object):
         #
         self.__zmq_context       = None
         self.__server_cmd_socket = None # Server command socket
-        self.__server_pub_socket = None # The socket the server pushes out telemetry, events, files 
-        self.__server_sub_socket = None # The socket to send commands
+        self.__server_pub_port = None # The socket the server pushes out telemetry, events, files 
+        self.__server_sub_port = None # The socket to send commands
 
 
         #
@@ -448,17 +448,16 @@ class TopPanel(object):
 
             self.__zmq_context = zmq.Context()
             self.__server_cmd_socket = self.__zmq_context.socket(zmq.REQ)
+            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000)
+           
             self.__server_cmd_socket.connect("tcp://{}:{}".format(server, port))
-
-            s = "Connected to server (host addr %s, port %d)" % (server, port)
-            self.__status_update.update(s, 'red')
             
             
             # Register the GUI with the server
             # TODO: Create unique ground-client name
             self.__server_cmd_socket.send_multipart([b"REG", b"GUI", b"GROUND",\
                                                      b"ZMQ"])
-            
+
             response = self.__server_cmd_socket.recv_multipart()
             self.__server_pub_port = response[1]
             self.__server_sub_port = response[2]
@@ -466,16 +465,23 @@ class TopPanel(object):
             print("Publishing to port: {} | Subscribed to port: {}".\
             format(self.__server_sub_port, self.__server_pub_port))
 
+            s = "Connected to server (host addr %s, port %d)" % (server, port)
+            self.__status_update.update(s, 'red')
+
            
             # Register the socket with the event_listener and
             # Spawn the listener thread here....
             self.__event_listen.connect()
-        except IOError:
-            del(self.__sock)
-            self.__sock = None
-            s = "EXCEPTION: Could not connect to socket at host addr %s, port %s" % (server, port)
-            print s
-            self.__status_update.update(s,color='red')
+
+        except zmq.ZMQError as e:
+                if e.errno == zmq.EAGAIN:
+                    string = "Unable to connect to {}:{}".format(server, port)
+                    self.statusUpdate(string, "red")
+                    print(string)
+                    return
+                else:
+                    raise
+
     
     
     def getSock(self):
@@ -492,13 +498,13 @@ class TopPanel(object):
 
     def getServerPublishPort(self):
         """
-        Return the socket on which to publish commands and files.
+        Return the port the server uses to publish telemetry, events, and files
         """
         return self.__server_pub_port
 
-    def getSubscribePort(self):
+    def getServerSubscribePort(self):
         """
-        Return the socket on which to receive telemetry and events.
+        Return the port the server uses to receive commands and files
         """
         return self.__server_sub_port
 
@@ -512,6 +518,12 @@ class TopPanel(object):
         if self.__sock != None:
             del(self.__sock)
             self.__sock = None
+
+    def statusUpdate(self, string, color):
+        """
+        Update the status bar.
+        """
+        self.__status_update.update(string,color)
 
 
     def build_notebook(self,parent):
