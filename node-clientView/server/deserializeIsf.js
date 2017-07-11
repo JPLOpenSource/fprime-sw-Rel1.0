@@ -23,13 +23,15 @@ function floatConverter(hexValue) {
 }
 
 function convertToString(hexValue, strBase, argTypes) {
+	// In case of non number value:
+
 	hexValue = hexValue.toString();	// Reinforce string type
-	console.log(hexValue);
 	var args = [];	// Arg array
 
 	// Pointer to keep track of values
 	var ptr = 0;
 	argTypes.forEach(function (type) {
+		// Arg type decodes each value
 		var argToPush;
 		if (Array.isArray(type) === false) {
 			if (type === "String") {
@@ -48,7 +50,6 @@ function convertToString(hexValue, strBase, argTypes) {
 				var numType = type.substring(0,1);
 				var bits = parseInt(type.substring(1), 10);
 				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
-				console.log(numType, bits);
 				if (numType === 'F') {
 					argToPush = floatConverter(rawNumStr);
 				} else {
@@ -62,14 +63,14 @@ function convertToString(hexValue, strBase, argTypes) {
 		}
 		args.push(argToPush);
 	});
-	console.log(args);
+
+	// Sprintf with arg array as arguments
 	return vsprintf(strBase, args);
 }
 
 // Get telem list for format lookup
-var dict = require('../client/isf-omct/res/dictionary.json');
-var telem = dict.measurements;
-const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USex) in nibbles
+var telem = require('../client/isf-omct/res/dictionary.json').measurements;
+const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
 
 function deserialize(data, numFormat) {
 	var res = [];
@@ -87,18 +88,16 @@ function deserialize(data, numFormat) {
 		var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
-		
-
 		var telemData;
 		if (descriptor === 1) {
 			// If channel
 			telemData = telem.find(function (data) {
-				return data["key"] == id && !("arg_format" in data);
+				return data["key"] == id && data["type"] === "channel";
 			});
 		} else if (descriptor === 2) {
 			// If event
 			telemData = telem.find(function (data) {
-				return data["key"] == id && ("arg_format" in data);
+				return data["key"] == id && data["type"] === "event";
 			});
 		}
 
@@ -118,7 +117,6 @@ function deserialize(data, numFormat) {
 				var strBase = telemData["str_format"];
 				var argTypes = telemData["arg_format"];
 				value = convertToString(hexValue, strBase, argTypes);
-				console.log(value);
 			} else {
 				// Get value from packet if no conversion is needed
 				value = parseInt(hexValue, 16);

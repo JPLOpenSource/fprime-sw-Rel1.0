@@ -56,16 +56,31 @@ for id in ch_cd:
 	    "units": "units"
 	}
 
-	# determine format
-	num_type = ch_cd[id]["num_type"]
-	if num_type.find('F') != -1:
-		value_format["format"] = "float"
-	telemetry.append({
+	to_append = {
 		"name": ch_cd[id]["name"],
+		"type": "channel",
 		"key": str(id),
 		"num_type": ch_cd[id]["num_type"],
 		"values": [value_format, time_format]
-	})
+	}
+
+	# determine format
+	num_type = ch_cd[id]["num_type"]
+	if num_type.find('F') != -1:
+			value_format["format"] = "float"
+
+	format_str = ch_cd[id]["format"]
+	if format_str:
+		arg_format = []
+		to_append["num_type"] = "string"
+		to_append["str_format"] = format_str
+		if num_type == 'Enum':
+			arg_format.append(ch_cd[id]["type"].keys())
+		else:
+			arg_format.append(num_type)
+		to_append["arg_format"] = arg_format
+
+	telemetry.append(to_append)
 
 # Create event combined dictionary
 ev_cd = {}
@@ -102,6 +117,7 @@ for id in ev_cd:
 
 	to_append = {
 		"name": ev_cd[id]["name"],
+		"type": "event",
 		"key": str(id),
 		"num_type": "string",
 		"str_format": ev_cd[id]["format"],
