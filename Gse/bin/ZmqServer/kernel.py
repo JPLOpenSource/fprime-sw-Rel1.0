@@ -9,7 +9,6 @@ import threading
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
 
-
 from utils.logging_util import GetLogger
 from server_utils.ServerConfig import ServerConfig
 from kernel_threads import GeneralSubscriptionThread,\
@@ -158,7 +157,8 @@ class ZmqKernel(object):
         elif client_type.lower() == "ground":
             return self.__ground_client_pub_port
         else:
-            self.__logger.error("Client type: {} not recognized.".format(client_type))
+            self.__logger.error("Client type: {} not recognized.".\
+                                                format(client_type))
             self.__logger.error("Exiting.")
             self.Quit()
 
@@ -200,7 +200,7 @@ class ZmqKernel(object):
 
     def __AddToRoutingTable(self, name, client_type):
         """
-        Based on it's type, the client is added to the routing table. 
+        Based on it's type, add client to the routing table. 
         """
         pass
         
