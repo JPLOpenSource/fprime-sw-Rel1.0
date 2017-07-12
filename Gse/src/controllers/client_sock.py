@@ -24,27 +24,34 @@ class ClientSocket:
         Initialize zmq components and register to server
         """
         try:
-            self.__zmq_initialized = False
 
-
+            self.__zmq_initialized = False # Let the destructor know if all zmq components were initialzed
             self.__mainPanel = main_panel
 
-            # Zmq Components
+            ####################
+            ## Zmq Components ##
+            ####################
             self.__zmq_context       = None
             self.__server_cmd_socket = None # Server command socket
             
-            self.__server_pub_port   = None
-            self.__server_sub_port   = None
+            self.__server_pub_port   = None # The port the server sends telemetry, events, files
+            self.__server_sub_port   = None # The port the server receives commands, files
 
-            self.__gui_sub_socket   = None # The socket the server pushes out telemetry, events, files 
-            self.__gui_pub_socket   = None # The socket to send commands
+            self.__gui_sub_socket   = None # The socket the gui receives telemetry, events, files 
+            self.__gui_pub_socket   = None # The socket the gui sends commands, files
 
-     
             self.__zmq_context = zmq.Context()
-            self.__server_cmd_socket = self.__zmq_context.socket(zmq.DEALER)
-            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
-            self.__server_cmd_socket.connect("tcp://{}:{}".format(host_addr, port))
 
+            #########################################################
+            ## Setup server command socket and handle registration ##
+            #########################################################
+            self.__server_cmd_socket = self.__zmq_context.socket(zmq.DEALER)
+
+            # Set socket options
+            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
+            self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
+            
+            self.__server_cmd_socket.connect("tcp://{}:{}".format(host_addr, port))
 
             # Register the GUI with the server
             # TODO: Create unique ground-client name
@@ -55,16 +62,23 @@ class ClientSocket:
             self.__server_pub_port = response[1]
             self.__server_sub_port = response[2]
 
-            # Create pub/sub sockets
+            ###########################
+            ## Setup pub/sub sockets ##
+            ###########################
             self.__gui_pub_socket = self.__zmq_context.socket(zmq.DEALER)
             self.__gui_sub_socket = self.__zmq_context.socket(zmq.ROUTER)
 
+            # Set socket options
             self.__gui_pub_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
+            self.__gui_pub_socket.setsockopt(zmq.LINGER, 0) # Immidiately close socket
+            self.__gui_sub_socket.setsockopt(zmq.LINGER, 0)
 
             self.__gui_pub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_sub_port))
             self.__gui_sub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_pub_port))
 
-
+            ############
+            ## Finish ##
+            ############
             print("Publishing to port: {} | Subscribed to port: {}".\
             format(self.__server_sub_port, self.__server_pub_port))
 
@@ -75,6 +89,9 @@ class ClientSocket:
 
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
+                # EAGAIN occurs if a zmq recv call times out.
+                # In this case we only await the registration response,
+                # So close command socket and terminate context.
                 self.__server_cmd_socket.close()
                 self.__zmq_context.term()
             raise
@@ -88,7 +105,6 @@ class ClientSocket:
         """
         Tell server to close, close all sockets, and terminate the zmq context.
         """
-        print("CLIENT SOCK DISC")
         if(self.__zmq_initialized):
             self.__server_cmd_socket.close()
             self.__gui_sub_socket.close()
@@ -137,8 +153,9 @@ def GetClientSocket(main_panel, host_addr, port, gui_name):
     """
     try:
 
-        self.__clientSocket = ClientSocket(main_panel, host_addr, port, gui_name)
-    
+        clientSocket = ClientSocket(main_panel, host_addr, port, gui_name)
+        return clientSocket
+
     except zmq.ZMQError as e:
         if e.errno == zmq.EAGAIN:
             string = "Unable to connect to {}:{}".format(host_addr, port)

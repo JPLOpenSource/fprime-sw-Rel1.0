@@ -436,10 +436,8 @@ class TopPanel(object):
         port = self.__opts.port
         addr = self.__opts.addr
 
-
         self.__clientSocket = client_sock.GetClientSocket(self, addr, port, self.__gui_name)
         
-
         # Register the socket with the event_listener and
         # Spawn the listener thread here....
         if(self.__clientSocket is not None):
