@@ -12,15 +12,22 @@
 */
 
 // Dependencies
+var telem = require('./../plugins/dictionary.json').isf;	// Get format dictionary
+
+// Utils
 var vsprintf = require("sprintf-js").vsprintf;
 
-function floatConverter(hexValue) {
-	var dv = new DataView(new ArrayBuffer(8));
-	dv.setUint32(0, parseInt("0x" + hexValue));
-	return dv.getFloat32(0);
+function numConverter(hexValue, type) {
+	if (type.substring(0,1) === 'F') {
+		var dv = new DataView(new ArrayBuffer(8));
+		dv.setUint32(0, parseInt("0x" + hexValue));
+		return dv.getFloat32(0);
+	} else {
+		return parseInt(hexValue, 16);
+	}
 }
 
-function convertToString(hexValue, strBase, argTypes) {
+function stringFormatter(hexValue, strBase, argTypes) {
 	// In case of non number value:
 
 	hexValue = hexValue.toString();	// Reinforce string type
@@ -29,9 +36,10 @@ function convertToString(hexValue, strBase, argTypes) {
 	// Pointer to keep track of values
 	var ptr = 0;
 	argTypes.forEach(function (type) {
-		// Arg type decodes each value
+		// Arg type used to decode each value
 		var argToPush;
-		if (Array.isArray(type) === false) {
+		if (typeof type === "string") {
+			// Non Enum type
 			if (type === "String") {
 				// If string type
 
@@ -49,7 +57,7 @@ function convertToString(hexValue, strBase, argTypes) {
 				var bits = parseInt(type.substring(1), 10);
 				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
 				if (numType === 'F') {
-					argToPush = floatConverter(rawNumStr);
+					argToPush = numConverter(rawNumStr);
 				} else {
 					argToPush = parseInt(rawNumStr, 16);
 				}
@@ -57,7 +65,7 @@ function convertToString(hexValue, strBase, argTypes) {
 		} else {
 			// Enum type
 			var index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
-			argToPush = type[index];
+			argToPush = type[index.toString()];
 		}
 		args.push(argToPush);
 	});
@@ -67,8 +75,9 @@ function convertToString(hexValue, strBase, argTypes) {
 }
 
 // Get telem list for format lookup
-var telem = require('./dictionary.json').measurements;
-const packDescrSize = 38;	// Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
+
+// Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
+const packDescrSize = 38;
 
 function deserialize(data) {
 	var res = [];
@@ -86,17 +95,14 @@ function deserialize(data) {
 		var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
+		// Find telemetry format specifiers
 		var telemData;
 		if (descriptor === 1) {
 			// If channel
-			telemData = telem.find(function (data) {
-				return data["key"] == id && data["type"] === "channel";
-			});
+			telemData = telem["channels"][id.toString()];
 		} else if (descriptor === 2) {
 			// If event
-			telemData = telem.find(function (data) {
-				return data["key"] == id && data["type"] === "event";
-			});
+			telemData = telem["events"][id.toString()];
 		}
 
 		// Get size of value in nibbles
@@ -106,19 +112,25 @@ function deserialize(data) {
 
 		var value;
 		if (telemData) {
-			var numFormat = telemData["num_type"];
-			if (numFormat.substring(0,1) === "F") {
-				// Convert to float
-				value = floatConverter(hexValue);
-			} else if (numFormat === "string") {
-				// Convert to string
-				var strBase = telemData["str_format"];
-				var argTypes = telemData["arg_format"];
-				value = convertToString(hexValue, strBase, argTypes);
-			} else {
-				// Get value from packet if no conversion is needed
-				value = parseInt(hexValue, 16);
+			// If found in dictionary
+			switch(telemData["telem_type"]) {
+				case "channel":
+					// If channel type
+					if (telemData["format_string"]) {
+						value = vsprintf(telemData["format_string"], [numConverter(hexValue, telemData["type"])]);
+					} else {
+						value = numConverter(hexValue, telemData["type"]);
+					}
+					break;
+
+				case "event":
+					// If event type
+					var strBase = telemData["format_string"];
+					var argTypes = telemData["arguments"];
+					value = stringFormatter(hexValue, strBase, argTypes);
 			}
+		} else {
+			console.log("[ERROR] No matching found in dictionary formatter")
 		}
 
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
@@ -128,7 +140,8 @@ function deserialize(data) {
 		var toMCT = {
 			'timestamp':timestamp,
 			'value':value,
-			'id':id.toString()
+			'id':id.toString() + telemData["telem_type"],
+			'type': telemData["telem_type"]
 		};
 
 		res.push(toMCT);

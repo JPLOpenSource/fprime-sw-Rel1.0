@@ -5,310 +5,1484 @@
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
+                "id": 21, 
                 "name": "rateGroup1Comp_RgMaxTime", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "22": {
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
+                "id": 22, 
                 "name": "rateGroup1Comp_RgCycleSlips", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "41": {
                 "component": "Ref::PingReceiver", 
                 "description": "Number of pings received", 
                 "format_string": null, 
+                "id": 41, 
                 "name": "PR_NumPings", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "81": {
                 "component": "Ref::SendBuff", 
                 "description": "Number of packets sent", 
                 "format_string": null, 
+                "id": 81, 
                 "name": "PacketsSent", 
-                "types": "U64"
+                "telem_type": "channel", 
+                "type": "U64"
             }, 
             "82": {
                 "component": "Ref::SendBuff", 
                 "description": "Number of errors injected", 
                 "format_string": null, 
+                "id": 82, 
                 "name": "NumErrorsInjected", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "83": {
                 "component": "Ref::SendBuff", 
                 "description": "Readback of Parameter3", 
                 "format_string": null, 
+                "id": 83, 
                 "name": "Parameter3", 
-                "types": "U8"
+                "telem_type": "channel", 
+                "type": "U8"
             }, 
             "84": {
                 "component": "Ref::SendBuff", 
                 "description": "Readback of Parameter4", 
                 "format_string": null, 
+                "id": 84, 
                 "name": "Parameter4", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "85": {
                 "component": "Ref::SendBuff", 
                 "description": "Readback of Parameter4", 
                 "format_string": "%s", 
+                "id": 85, 
                 "name": "SendState", 
-                "types": "Enum"
+                "telem_type": "channel", 
+                "type": "Enum"
             }, 
             "101": {
                 "component": "Ref::RecvBuff", 
                 "description": "Number of packets received", 
                 "format_string": "%d", 
+                "id": 101, 
                 "name": "NumPkts", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "102": {
                 "component": "Ref::RecvBuff", 
                 "description": "Number of packets received with errors", 
                 "format_string": null, 
+                "id": 102, 
                 "name": "NumErrPkts", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "103": {
                 "component": "Ref::RecvBuff", 
                 "description": "Value of Sensor1", 
                 "format_string": null, 
+                "id": 103, 
                 "name": "Sensor1", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "104": {
                 "component": "Ref::RecvBuff", 
                 "description": "Value of Sensor3", 
                 "format_string": null, 
+                "id": 104, 
                 "name": "Sensor2", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "105": {
                 "component": "Ref::RecvBuff", 
                 "description": "Readback of Parameter1", 
                 "format_string": null, 
+                "id": 105, 
                 "name": "Parameter1", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "106": {
                 "component": "Ref::RecvBuff", 
                 "description": "Readback of Parameter2", 
                 "format_string": null, 
+                "id": 106, 
                 "name": "Parameter2", 
-                "types": "I16"
+                "telem_type": "channel", 
+                "type": "I16"
             }, 
             "121": {
                 "component": "Svc::CommandDispatcher", 
                 "description": "Number of commands dispatched", 
                 "format_string": null, 
+                "id": 121, 
                 "name": "CommandsDispatched", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "122": {
                 "component": "Svc::CommandDispatcher", 
                 "description": "Number of command errors", 
                 "format_string": null, 
+                "id": 122, 
                 "name": "CommandErrors", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "161": {
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
+                "id": 161, 
                 "name": "rateGroup2Comp_RgMaxTime", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "162": {
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
+                "id": 162, 
                 "name": "rateGroup2Comp_RgCycleSlips", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "181": {
                 "component": "Ref::SignalGen", 
                 "description": "SignalGen Output", 
                 "format_string": null, 
+                "id": 181, 
                 "name": "SG1_SignalGen_Output", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "201": {
                 "component": "Ref::SignalGen", 
                 "description": "SignalGen Output", 
                 "format_string": null, 
+                "id": 201, 
                 "name": "SG3_SignalGen_Output", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "221": {
                 "component": "Ref::SignalGen", 
                 "description": "SignalGen Output", 
                 "format_string": null, 
+                "id": 221, 
                 "name": "SG2_SignalGen_Output", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "241": {
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
+                "id": 241, 
                 "name": "rateGroup3Comp_RgMaxTime", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "242": {
                 "component": "Svc::ActiveRateGroup", 
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
+                "id": 242, 
                 "name": "rateGroup3Comp_RgCycleSlips", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "261": {
                 "component": "Svc::FileUplink", 
                 "description": "The total number of complete files received", 
                 "format_string": null, 
+                "id": 261, 
                 "name": "FileUplink_FilesReceived", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "262": {
                 "component": "Svc::FileUplink", 
                 "description": "The total number of packets received", 
                 "format_string": null, 
+                "id": 262, 
                 "name": "FileUplink_PacketsReceived", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "263": {
                 "component": "Svc::FileUplink", 
                 "description": "The total number of warnings issued", 
                 "format_string": null, 
+                "id": 263, 
                 "name": "FileUplink_Warnings", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "281": {
                 "component": "Ref::SignalGen", 
                 "description": "SignalGen Output", 
                 "format_string": null, 
+                "id": 281, 
                 "name": "SG5_SignalGen_Output", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "301": {
                 "component": "Svc::BufferManager", 
                 "description": "The number of buffers currently allocated", 
                 "format_string": null, 
+                "id": 301, 
                 "name": "fileUplinkBufferManager_BufferManager_NumAllocatedBuffers", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "302": {
                 "component": "Svc::BufferManager", 
                 "description": "The total size of all allocated buffers", 
                 "format_string": null, 
+                "id": 302, 
                 "name": "fileUplinkBufferManager_BufferManager_AllocatedSize", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "321": {
                 "component": "Ref::SignalGen", 
                 "description": "SignalGen Output", 
                 "format_string": null, 
+                "id": 321, 
                 "name": "SG4_SignalGen_Output", 
-                "types": "F32"
+                "telem_type": "channel", 
+                "type": "F32"
             }, 
             "361": {
                 "component": "Svc::Health", 
                 "description": "Number of overrun warnings", 
                 "format_string": null, 
+                "id": 361, 
                 "name": "PingLateWarnings", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "401": {
                 "component": "Svc::BufferManager", 
                 "description": "The number of buffers currently allocated", 
                 "format_string": null, 
+                "id": 401, 
                 "name": "fileDownlinkBufferManager_BufferManager_NumAllocatedBuffers", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "402": {
                 "component": "Svc::BufferManager", 
                 "description": "The total size of all allocated buffers", 
                 "format_string": null, 
+                "id": 402, 
                 "name": "fileDownlinkBufferManager_BufferManager_AllocatedSize", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "481": {
                 "component": "Drv::BlockDriver", 
                 "description": "Driver cycle count", 
                 "format_string": null, 
+                "id": 481, 
                 "name": "BD_Cycles", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "501": {
                 "component": "Svc::FileDownlink", 
                 "description": "The total number of files sent", 
                 "format_string": null, 
+                "id": 501, 
                 "name": "FileDownlink_FilesSent", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "502": {
                 "component": "Svc::FileDownlink", 
                 "description": "The total number of packets sent", 
                 "format_string": null, 
+                "id": 502, 
                 "name": "FileDownlink_PacketsSent", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "503": {
                 "component": "Svc::FileDownlink", 
                 "description": "The total number of warnings", 
                 "format_string": null, 
+                "id": 503, 
                 "name": "FileDownlink_Warnings", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "541": {
                 "component": "Svc::CmdSequencer", 
                 "description": "The number of Load commands executed", 
                 "format_string": null, 
+                "id": 541, 
                 "name": "CS_LoadCommands", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "542": {
                 "component": "Svc::CmdSequencer", 
                 "description": "The number of Cancel commands executed", 
                 "format_string": null, 
+                "id": 542, 
                 "name": "CS_CancelCommands", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "543": {
                 "component": "Svc::CmdSequencer", 
                 "description": "The number of errors that have occurred", 
                 "format_string": null, 
+                "id": 543, 
                 "name": "CS_Errors", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "544": {
                 "component": "Svc::CmdSequencer", 
                 "description": "The number of commands executed across all sequences.", 
                 "format_string": null, 
+                "id": 544, 
                 "name": "CS_CommandsExecuted", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }, 
             "545": {
                 "component": "Svc::CmdSequencer", 
                 "description": "The number of sequences completed.", 
                 "format_string": null, 
+                "id": 545, 
                 "name": "CS_SequencesCompleted", 
-                "types": "U32"
+                "telem_type": "channel", 
+                "type": "U32"
             }
         }, 
         "events": {
             "21": {
                 "arguments": [], 
-                "arguments_db": [], 
                 "format_string": "Rate group started.", 
-                "name": "rateGroup1Comp_RateGroupStarted"
+                "id": 21, 
+                "name": "rateGroup1Comp_RateGroupStarted", 
+                "telem_type": "event"
             }, 
             "22": {
                 "arguments": [
                     "U32"
                 ], 
-                "arguments_db": [
-                    [
-                        "cycle", 
-                        "The cycle where the cycle occurred", 
-                        
+                "format_string": "Rate group cycle slipped on cycle %d", 
+                "id": 22, 
+                "name": "rateGroup1Comp_RateGroupCycleSlip", 
+                "telem_type": "event"
+            }, 
+            "41": {
+                "arguments": [], 
+                "format_string": "PingReceiver ping responsed disabled", 
+                "id": 41, 
+                "name": "PR_PingsDisabled", 
+                "telem_type": "event"
+            }, 
+            "42": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "PingReceiver pinged with code %d", 
+                "id": 42, 
+                "name": "PR_PingReceived", 
+                "telem_type": "event"
+            }, 
+            "81": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "First packet ID %d received", 
+                "id": 81, 
+                "name": "FirstPacketSent", 
+                "telem_type": "event"
+            }, 
+            "82": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Inserted error in packet ID %d", 
+                "id": 82, 
+                "name": "PacketErrorInserted", 
+                "telem_type": "event"
+            }, 
+            "83": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "BuffSend Parameter %d was updated", 
+                "id": 83, 
+                "name": "BuffSendParameterUpdated", 
+                "telem_type": "event"
+            }, 
+            "84": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Test Fatal: %d %d %d", 
+                "id": 84, 
+                "name": "SendBuffFatal", 
+                "telem_type": "event"
+            }, 
+            "101": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "First packet ID %d received", 
+                "id": 101, 
+                "name": "FirstPacketReceived", 
+                "telem_type": "event"
+            }, 
+            "102": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Packet ID %d had checksum error", 
+                "id": 102, 
+                "name": "PacketChecksumError", 
+                "telem_type": "event"
+            }, 
+            "103": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "BuffRecv Parameter %d was updated", 
+                "id": 103, 
+                "name": "BuffRecvParameterUpdated", 
+                "telem_type": "event"
+            }, 
+            "121": {
+                "arguments": [
+                    "U32", 
+                    "I32", 
+                    "I32"
+                ], 
+                "format_string": "Opcode 0x%04X registered to port %d slot %d", 
+                "id": 121, 
+                "name": "OpCodeRegistered", 
+                "telem_type": "event"
+            }, 
+            "122": {
+                "arguments": [
+                    "U32", 
+                    "I32"
+                ], 
+                "format_string": "Opcode 0x%04X dispatched to port %d", 
+                "id": 122, 
+                "name": "OpCodeDispatched", 
+                "telem_type": "event"
+            }, 
+            "123": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Opcode 0x%04X completed", 
+                "id": 123, 
+                "name": "OpCodeCompleted", 
+                "telem_type": "event"
+            }, 
+            "124": {
+                "arguments": [
+                    "U32", 
+                    {
+                        "0": "ERR_INVALID_OPCODE", 
+                        "1": "ERR_VALIDATION_ERROR", 
+                        "2": "ERR_FORMAT_ERROR", 
+                        "3": "ERR_EXECUTION_ERROR", 
+                        "4": "ERR_BUSY", 
+                        "5": "ERR_UNEXP"
+                    }
+                ], 
+                "format_string": "Opcode 0x%04X completed with error %s ", 
+                "id": 124, 
+                "name": "OpCodeError", 
+                "telem_type": "event"
+            }, 
+            "125": {
+                "arguments": [
+                    {
+                        "0": "ERR_BUFFER_TOO_SMALL", 
+                        "1": "ERR_BUFFER_FORMAT", 
+                        "2": "ERR_SIZE_MISMATCH", 
+                        "3": "ERR_TYPE_MISMATCH", 
+                        "4": "ERR_UNEXP_STAT"
+                    }
+                ], 
+                "format_string": "Received malformed command packet. Status: %s", 
+                "id": 125, 
+                "name": "MalformedCommand", 
+                "telem_type": "event"
+            }, 
+            "126": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Invalid opcode 0x%04X received.", 
+                "id": 126, 
+                "name": "InvalidCommand", 
+                "telem_type": "event"
+            }, 
+            "127": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Too many outstanding commands. opcode=0x%04X", 
+                "id": 127, 
+                "name": "TooManyCommands", 
+                "telem_type": "event"
+            }, 
+            "128": {
+                "arguments": [], 
+                "format_string": "ISF received a NO-OP command", 
+                "id": 128, 
+                "name": "NoOpReceived", 
+                "telem_type": "event"
+            }, 
+            "129": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "ISF generated a NO-OP string, No_op_string=%s", 
+                "id": 129, 
+                "name": "NoOpStringReceived", 
+                "telem_type": "event"
+            }, 
+            "130": {
+                "arguments": [
+                    "I32", 
+                    "F32", 
+                    "U8"
+                ], 
+                "format_string": "ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d", 
+                "id": 130, 
+                "name": "TestCmd1Args", 
+                "telem_type": "event"
+            }, 
+            "141": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter ID 0x%08X not found", 
+                "id": 141, 
+                "name": "PrmIdNotFound", 
+                "telem_type": "event"
+            }, 
+            "142": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter ID 0x%08X updated", 
+                "id": 142, 
+                "name": "PrmIdUpdated", 
+                "telem_type": "event"
+            }, 
+            "143": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter DB full when adding ID 0x%08X", 
+                "id": 143, 
+                "name": "PrmDbFull", 
+                "telem_type": "event"
+            }, 
+            "144": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter ID 0x%08X added", 
+                "id": 144, 
+                "name": "PrmIdAdded", 
+                "telem_type": "event"
+            }, 
+            "145": {
+                "arguments": [
+                    {
+                        "0": "PRM_WRITE_OPEN", 
+                        "1": "PRM_WRITE_DELIMETER", 
+                        "2": "PRM_WRITE_DELIMETER_SIZE", 
+                        "3": "PRM_WRITE_RECORD_SIZE", 
+                        "4": "PRM_WRITE_RECORD_SIZE_SIZE", 
+                        "5": "PRM_WRITE_PARAMETER_ID", 
+                        "6": "PRM_WRITE_PARAMETER_ID_SIZE", 
+                        "7": "PRM_WRITE_PARAMETER_VALUE", 
+                        "8": "PRM_WRITE_PARAMETER_VALUE_SIZE"
+                    }, 
+                    "I32", 
+                    "I32"
+                ], 
+                "format_string": "Parameter write failed in stage %s with record %d and error %d", 
+                "id": 145, 
+                "name": "PrmFileWriteError", 
+                "telem_type": "event"
+            }, 
+            "146": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter file save completed. Wrote %d records.", 
+                "id": 146, 
+                "name": "PrmFileSaveComplete", 
+                "telem_type": "event"
+            }, 
+            "147": {
+                "arguments": [
+                    {
+                        "0": "PRM_READ_OPEN", 
+                        "1": "PRM_READ_DELIMETER", 
+                        "2": "PRM_READ_DELIMETER_SIZE", 
+                        "3": "PRM_READ_DELIMETER_VALUE", 
+                        "4": "PRM_READ_RECORD_SIZE", 
+                        "5": "PRM_READ_RECORD_SIZE_SIZE", 
+                        "6": "PRM_READ_RECORD_SIZE_VALUE", 
+                        "7": "PRM_READ_PARAMETER_ID", 
+                        "8": "PRM_READ_PARAMETER_ID_SIZE", 
+                        "9": "PRM_READ_PARAMETER_VALUE", 
+                        "10": "PRM_READ_PARAMETER_VALUE_SIZE"
+                    }, 
+                    "I32", 
+                    "I32"
+                ], 
+                "format_string": "Parameter file read failed in stage %s with record %d and error %d", 
+                "id": 147, 
+                "name": "PrmFileReadError", 
+                "telem_type": "event"
+            }, 
+            "148": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Parameter file load completed. Read %d records.", 
+                "id": 148, 
+                "name": "PrmFileLoadComplete", 
+                "telem_type": "event"
+            }, 
+            "161": {
+                "arguments": [], 
+                "format_string": "Rate group started.", 
+                "id": 161, 
+                "name": "rateGroup2Comp_RateGroupStarted", 
+                "telem_type": "event"
+            }, 
+            "162": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Rate group cycle slipped on cycle %d", 
+                "id": 162, 
+                "name": "rateGroup2Comp_RateGroupCycleSlip", 
+                "telem_type": "event"
+            }, 
+            "181": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Set Frequency(Hz) %s, Amplitude %s, Phase %s", 
+                "id": 181, 
+                "name": "SG1_SignalGen_SettingsChanged", 
+                "telem_type": "event"
+            }, 
+            "201": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Set Frequency(Hz) %s, Amplitude %s, Phase %s", 
+                "id": 201, 
+                "name": "SG3_SignalGen_SettingsChanged", 
+                "telem_type": "event"
+            }, 
+            "221": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Set Frequency(Hz) %s, Amplitude %s, Phase %s", 
+                "id": 221, 
+                "name": "SG2_SignalGen_SettingsChanged", 
+                "telem_type": "event"
+            }, 
+            "241": {
+                "arguments": [], 
+                "format_string": "Rate group started.", 
+                "id": 241, 
+                "name": "rateGroup3Comp_RateGroupStarted", 
+                "telem_type": "event"
+            }, 
+            "242": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Rate group cycle slipped on cycle %d", 
+                "id": 242, 
+                "name": "rateGroup3Comp_RateGroupCycleSlip", 
+                "telem_type": "event"
+            }, 
+            "261": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Bad checksum value during receipt of file %s: computed 0x%08X, read 0x%08X", 
+                "id": 261, 
+                "name": "FileUplink_BadChecksum", 
+                "telem_type": "event"
+            }, 
+            "262": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Could not open file %s", 
+                "id": 262, 
+                "name": "FileUplink_FileOpenError", 
+                "telem_type": "event"
+            }, 
+            "263": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Received file %s", 
+                "id": 263, 
+                "name": "FileUplink_FileReceived", 
+                "telem_type": "event"
+            }, 
+            "264": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Could not write to file %s", 
+                "id": 264, 
+                "name": "FileUplink_FileWriteError", 
+                "telem_type": "event"
+            }, 
+            "265": {
+                "arguments": [
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Packet type %u received in mode %u", 
+                "id": 265, 
+                "name": "FileUplink_InvalidReceiveMode", 
+                "telem_type": "event"
+            }, 
+            "266": {
+                "arguments": [
+                    "U32", 
+                    "String"
+                ], 
+                "format_string": "Packet %u out of bounds for file %s", 
+                "id": 266, 
+                "name": "FileUplink_PacketOutOfBounds", 
+                "telem_type": "event"
+            }, 
+            "267": {
+                "arguments": [
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Received packet %u after packet %u", 
+                "id": 267, 
+                "name": "FileUplink_PacketOutOfOrder", 
+                "telem_type": "event"
+            }, 
+            "268": {
+                "arguments": [], 
+                "format_string": "Received CANCEL packet", 
+                "id": 268, 
+                "name": "FileUplink_UplinkCanceled", 
+                "telem_type": "event"
+            }, 
+            "281": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Set Frequency(Hz) %s, Amplitude %s, Phase %s", 
+                "id": 281, 
+                "name": "SG5_SignalGen_SettingsChanged", 
+                "telem_type": "event"
+            }, 
+            "301": {
+                "arguments": [], 
+                "format_string": "Allocation queue empty", 
+                "id": 301, 
+                "name": "fileUplinkBufferManager_BufferManager_AllocationQueueEmpty", 
+                "telem_type": "event"
+            }, 
+            "302": {
+                "arguments": [], 
+                "format_string": "Allocation queue full", 
+                "id": 302, 
+                "name": "fileUplinkBufferManager_BufferManager_AllocationQueueFull", 
+                "telem_type": "event"
+            }, 
+            "303": {
+                "arguments": [
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Mismatched deallocation ID: expected %d, saw %d", 
+                "id": 303, 
+                "name": "fileUplinkBufferManager_BufferManager_IDMismatch", 
+                "telem_type": "event"
+            }, 
+            "304": {
+                "arguments": [], 
+                "format_string": "Store size exceeded", 
+                "id": 304, 
+                "name": "fileUplinkBufferManager_BufferManager_StoreSizeExceeded", 
+                "telem_type": "event"
+            }, 
+            "321": {
+                "arguments": [
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Set Frequency(Hz) %s, Amplitude %s, Phase %s", 
+                "id": 321, 
+                "name": "SG4_SignalGen_SettingsChanged", 
+                "telem_type": "event"
+            }, 
+            "341": {
+                "arguments": [
+                    "String", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d", 
+                "id": 341, 
+                "name": "AF_ASSERT_0", 
+                "telem_type": "event"
+            }, 
+            "342": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d", 
+                "id": 342, 
+                "name": "AF_ASSERT_1", 
+                "telem_type": "event"
+            }, 
+            "343": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d %d", 
+                "id": 343, 
+                "name": "AF_ASSERT_2", 
+                "telem_type": "event"
+            }, 
+            "344": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d %d %d", 
+                "id": 344, 
+                "name": "AF_ASSERT_3", 
+                "telem_type": "event"
+            }, 
+            "345": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d %d %d %d", 
+                "id": 345, 
+                "name": "AF_ASSERT_4", 
+                "telem_type": "event"
+            }, 
+            "346": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d %d %d %d %d", 
+                "id": 346, 
+                "name": "AF_ASSERT_5", 
+                "telem_type": "event"
+            }, 
+            "347": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Assert in file %s, line %d: %d %d %d %d %d %d", 
+                "id": 347, 
+                "name": "AF_ASSERT_6", 
+                "telem_type": "event"
+            }, 
+            "348": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Unexpected assert in file %s, line %d, args %d", 
+                "id": 348, 
+                "name": "AF_UNEXPECTED_ASSERT", 
+                "telem_type": "event"
+            }, 
+            "361": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Ping entry %s late warning", 
+                "id": 361, 
+                "name": "HLTH_PING_WARN", 
+                "telem_type": "event"
+            }, 
+            "362": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Ping entry %s did not respond", 
+                "id": 362, 
+                "name": "HLTH_PING_LATE", 
+                "telem_type": "event"
+            }, 
+            "363": {
+                "arguments": [
+                    "String", 
+                    "U32"
+                ], 
+                "format_string": "Ping entry %s responded with wrong key 0x%08X", 
+                "id": 363, 
+                "name": "HLTH_PING_WRONG_KEY", 
+                "telem_type": "event"
+            }, 
+            "364": {
+                "arguments": [
+                    {
+                        "0": "HEALTH_CHECK_DISABLED", 
+                        "1": "HEALTH_CHECK_ENABLED"
+                    }
+                ], 
+                "format_string": "Health checking set to %s", 
+                "id": 364, 
+                "name": "HLTH_CHECK_ENABLE", 
+                "telem_type": "event"
+            }, 
+            "365": {
+                "arguments": [
+                    {
+                        "0": "HEALTH_PING_DISABLED", 
+                        "1": "HEALTH_PING_ENABLED"
+                    }, 
+                    "String"
+                ], 
+                "format_string": "Health checking set to %s for %s", 
+                "id": 365, 
+                "name": "HLTH_CHECK_PING", 
+                "telem_type": "event"
+            }, 
+            "366": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Couldn't find entry %s", 
+                "id": 366, 
+                "name": "HLTH_CHECK_LOOKUP_ERROR", 
+                "telem_type": "event"
+            }, 
+            "367": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Health ping for %s changed to WARN %d FATAL %d", 
+                "id": 367, 
+                "name": "HLTH_PING_UPDATED", 
+                "telem_type": "event"
+            }, 
+            "368": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Health ping for %s invalid values: WARN %d FATAL %d", 
+                "id": 368, 
+                "name": "HLTH_PING_INVALID_VALUES", 
+                "telem_type": "event"
+            }, 
+            "381": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Unable to connect to the socket server on port %d", 
+                "id": 381, 
+                "name": "NoConnectionToServer", 
+                "telem_type": "event"
+            }, 
+            "382": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Connection made to the socket server on port %d", 
+                "id": 382, 
+                "name": "ConnectedToServer", 
+                "telem_type": "event"
+            }, 
+            "383": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Connection lost with socket server on port %d", 
+                "id": 383, 
+                "name": "LostConnectionToServer", 
+                "telem_type": "event"
+            }, 
+            "401": {
+                "arguments": [], 
+                "format_string": "Allocation queue empty", 
+                "id": 401, 
+                "name": "fileDownlinkBufferManager_BufferManager_AllocationQueueEmpty", 
+                "telem_type": "event"
+            }, 
+            "402": {
+                "arguments": [], 
+                "format_string": "Allocation queue full", 
+                "id": 402, 
+                "name": "fileDownlinkBufferManager_BufferManager_AllocationQueueFull", 
+                "telem_type": "event"
+            }, 
+            "403": {
+                "arguments": [
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Mismatched deallocation ID: expected %d, saw %d", 
+                "id": 403, 
+                "name": "fileDownlinkBufferManager_BufferManager_IDMismatch", 
+                "telem_type": "event"
+            }, 
+            "404": {
+                "arguments": [], 
+                "format_string": "Store size exceeded", 
+                "id": 404, 
+                "name": "fileDownlinkBufferManager_BufferManager_StoreSizeExceeded", 
+                "telem_type": "event"
+            }, 
+            "421": {
+                "arguments": [
+                    {
+                        "0": "LOG_WRITE_OPEN", 
+                        "1": "LOG_WRITE_FATAL_DELIMETER", 
+                        "2": "LOG_WRITE_FATAL_RECORD", 
+                        "3": "LOG_WRITE_WARNING_HI_DELIMETER", 
+                        "4": "LOG_WRITE_WARNING_HI_RECORD", 
+                        "5": "LOG_WRITE_WARNING_LO_DELIMETER", 
+                        "6": "LOG_WRITE_WARNING_LO_RECORD", 
+                        "7": "LOG_WRITE_COMMAND_DELIMETER", 
+                        "8": "LOG_WRITE_COMMAND_RECORD", 
+                        "9": "LOG_WRITE_ACTIVITY_HI_DELIMETER", 
+                        "10": "LOG_WRITE_ACTIVITY_HI_RECORD", 
+                        "11": "LOG_WRITE_ACTIVITY_LO_DELIMETER", 
+                        "12": "LOG_WRITE_ACTIVITY_LO_RECORD", 
+                        "13": "LOG_WRITE_DIAGNOSTIC_DELIMETER", 
+                        "14": "LOG_WRITE_DIAGNOSTIC_RECORD"
+                    }, 
+                    "I32"
+                ], 
+                "format_string": "Event buffer write failed in stage %s with error %d", 
+                "id": 421, 
+                "name": "ALOG_FILE_WRITE_ERR", 
+                "telem_type": "event"
+            }, 
+            "422": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Event buffer write complete. Wrote %d records.", 
+                "id": 422, 
+                "name": "ALOG_FILE_WRITE_COMPLETE", 
+                "telem_type": "event"
+            }, 
+            "423": {
+                "arguments": [
+                    {
+                        "0": "EVENT_FILTER_WARNING_HI", 
+                        "1": "EVENT_FILTER_WARNING_LO", 
+                        "2": "EVENT_FILTER_COMMAND", 
+                        "3": "EVENT_FILTER_ACTIVITY_HI", 
+                        "4": "EVENT_FILTER_ACTIVITY_LO", 
+                        "5": "EVENT_FILTER_DIAGNOSTIC"
+                    }, 
+                    "Bool", 
+                    "Bool"
+                ], 
+                "format_string": "%s filter state. Recv: %d Send: %d", 
+                "id": 423, 
+                "name": "ALOG_SEVERITY_FILTER_STATE", 
+                "telem_type": "event"
+            }, 
+            "424": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "ID %d is filtered.", 
+                "id": 424, 
+                "name": "ALOG_ID_FILTER_ENABLED", 
+                "telem_type": "event"
+            }, 
+            "425": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "ID filter list is full. Cannot filter %d .", 
+                "id": 425, 
+                "name": "ALOG_ID_FILTER_LIST_FULL", 
+                "telem_type": "event"
+            }, 
+            "426": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "ID filter ID %d removed.", 
+                "id": 426, 
+                "name": "ALOG_ID_FILTER_REMOVED", 
+                "telem_type": "event"
+            }, 
+            "427": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "ID filter ID %d not found.", 
+                "id": 427, 
+                "name": "ALOG_ID_FILTER_NOT_FOUND", 
+                "telem_type": "event"
+            }, 
+            "501": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Could not open file %s", 
+                "id": 501, 
+                "name": "FileDownlink_FileOpenError", 
+                "telem_type": "event"
+            }, 
+            "502": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Could not read file %s", 
+                "id": 502, 
+                "name": "FileDownlink_FileReadError", 
+                "telem_type": "event"
+            }, 
+            "503": {
+                "arguments": [
+                    "String", 
+                    "String"
+                ], 
+                "format_string": "Sent file %s to file %s", 
+                "id": 503, 
+                "name": "FileDownlink_FileSent", 
+                "telem_type": "event"
+            }, 
+            "504": {
+                "arguments": [
+                    "String", 
+                    "String"
+                ], 
+                "format_string": "Canceled downlink of file %s to file %s", 
+                "id": 504, 
+                "name": "FileDownlink_DownlinkCanceled", 
+                "telem_type": "event"
+            }, 
+            "541": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Loaded sequence %s", 
+                "id": 541, 
+                "name": "CS_SequenceLoaded", 
+                "telem_type": "event"
+            }, 
+            "542": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Sequence file %s canceled", 
+                "id": 542, 
+                "name": "CS_SequenceCanceled", 
+                "telem_type": "event"
+            }, 
+            "543": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Error reading sequence file %s", 
+                "id": 543, 
+                "name": "CS_FileReadError", 
+                "telem_type": "event"
+            }, 
+            "544": {
+                "arguments": [
+                    "String", 
+                    {
+                        "0": "SEQ_READ_HEADER", 
+                        "1": "SEQ_READ_HEADER_SIZE", 
+                        "2": "SEQ_DESER_SIZE", 
+                        "3": "SEQ_DESER_NUM_RECORDS", 
+                        "4": "SEQ_DESER_TIME_BASE", 
+                        "5": "SEQ_DESER_TIME_CONTEXT", 
+                        "6": "SEQ_READ_SEQ_CRC", 
+                        "7": "SEQ_READ_SEQ_DATA", 
+                        "8": "SEQ_READ_SEQ_DATA_SIZE"
+                    }, 
+                    "I32"
+                ], 
+                "format_string": "Sequence file %s invalid. Stage: %s Error: %d", 
+                "id": 544, 
+                "name": "CS_FileInvalid", 
+                "telem_type": "event"
+            }, 
+            "545": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "I32"
+                ], 
+                "format_string": "Sequence file %s: Record %d invalid. Err: %d", 
+                "id": 545, 
+                "name": "CS_RecordInvalid", 
+                "telem_type": "event"
+            }, 
+            "546": {
+                "arguments": [
+                    "String", 
+                    "U32"
+                ], 
+                "format_string": "Sequence file %s too large. Size: %d", 
+                "id": 546, 
+                "name": "CS_FileSizeError", 
+                "telem_type": "event"
+            }, 
+            "547": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Sequence file %s not found.", 
+                "id": 547, 
+                "name": "CS_FileNotFound", 
+                "telem_type": "event"
+            }, 
+            "548": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Sequence file %s had invalid CRC. Stored 0x%08X, Computed 0x%08X.", 
+                "id": 548, 
+                "name": "CS_FileCrcFailure", 
+                "telem_type": "event"
+            }, 
+            "549": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Sequence file %s: Command %d (opcode %d) complete", 
+                "id": 549, 
+                "name": "CS_CommandComplete", 
+                "telem_type": "event"
+            }, 
+            "550": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Sequence file %s complete", 
+                "id": 550, 
+                "name": "CS_SequenceComplete", 
+                "telem_type": "event"
+            }, 
+            "551": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Sequence file %s: Command %d (opcode %d) completed with error %d", 
+                "id": 551, 
+                "name": "CS_CommandError", 
+                "telem_type": "event"
+            }, 
+            "552": {
+                "arguments": [], 
+                "format_string": "Invalid mode", 
+                "id": 552, 
+                "name": "CS_InvalidMode", 
+                "telem_type": "event"
+            }, 
+            "553": {
+                "arguments": [
+                    "String", 
+                    "U32", 
+                    "U32"
+                ], 
+                "format_string": "Sequence file %s header records mismatch: %d in header, found %d extra bytes.", 
+                "id": 553, 
+                "name": "CS_RecordMismatch", 
+                "telem_type": "event"
+            }, 
+            "554": {
+                "arguments": [
+                    "String", 
+                    "U16", 
+                    "U16"
+                ], 
+                "format_string": "Sequence file %s: Current time base doesn't match sequence time: base: %d seq: %d", 
+                "id": 554, 
+                "name": "CS_TimeBaseMismatch", 
+                "telem_type": "event"
+            }, 
+            "555": {
+                "arguments": [
+                    "String", 
+                    "U8", 
+                    "U8"
+                ], 
+                "format_string": "Sequence file %s: Current time context doesn't match sequence context: base: %d seq: %d", 
+                "id": 555, 
+                "name": "CS_TimeContextMismatch", 
+                "telem_type": "event"
+            }, 
+            "556": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Local request for sequence %s started.", 
+                "id": 556, 
+                "name": "CS_PortSequenceStarted", 
+                "telem_type": "event"
+            }, 
+            "557": {
+                "arguments": [
+                    "U32"
+                ], 
+                "format_string": "Command complete status received while no sequences active. Opcode: %d", 
+                "id": 557, 
+                "name": "CS_UnexpectedCompletion", 
+                "telem_type": "event"
+            }, 
+            "558": {
+                "arguments": [
+                    {
+                        "0": "SEQ_STEP_MODE", 
+                        "1": "SEQ_AUTO_MODE"
+                    }
+                ], 
+                "format_string": "Sequencer switched to %s step mode", 
+                "id": 558, 
+                "name": "CS_ModeSwitched", 
+                "telem_type": "event"
+            }, 
+            "559": {
+                "arguments": [], 
+                "format_string": "No sequence active.", 
+                "id": 559, 
+                "name": "CS_NoSequenceActive", 
+                "telem_type": "event"
+            }, 
+            "560": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Sequence %s is valid.", 
+                "id": 560, 
+                "name": "CS_SequenceValid", 
+                "telem_type": "event"
+            }, 
+            "561": {
+                "arguments": [
+                    "String", 
+                    "U32"
+                ], 
+                "format_string": "Sequence %s timed out on command %d", 
+                "id": 561, 
+                "name": "CS_SequenceTimeout", 
+                "telem_type": "event"
+            }, 
+            "562": {
+                "arguments": [
+                    "String", 
+                    "U32"
+                ], 
+                "format_string": "Sequence %s command %d stepped", 
+                "id": 562, 
+                "name": "CS_CmdStepped", 
+                "telem_type": "event"
+            }, 
+            "563": {
+                "arguments": [
+                    "String"
+                ], 
+                "format_string": "Sequence %s started", 
+                "id": 563, 
+                "name": "CS_CmdStarted", 
+                "telem_type": "event"
+            }
+        }
+    }
+}

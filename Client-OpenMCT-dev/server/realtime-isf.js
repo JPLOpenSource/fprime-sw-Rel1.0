@@ -13,7 +13,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 	// isf client
 	var client = new net.Socket();
 	client.connect(gsePort, site, function() {
-		console.log('Connected!');
+		console.log('Connected! Realtime server on port: ' + realMctPort);
 
 		// Register client
 		client.write('Register GUI\n');
@@ -49,7 +49,8 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 					ws.send(JSON.stringify(packet), function ack(error) {
 						if (error) {
 							// If unable to send (ie. client disconnection) then subscription is reset
-							console.log("Realtime Client disconnected", error);
+							console.log("Realtime Client disconnected");
+							subscribed = {};
 						}
 					});
 				}

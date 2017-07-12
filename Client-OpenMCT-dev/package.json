@@ -4,7 +4,7 @@
   "description": "Client for ISF server",
   "main": "client/app.js",
   "scripts": {
-    "start": "node server/app.js",
+    "start": "node app.js",
     "postinstall": "cd node_modules/openmct && npm install"
   },
   "dependencies": {

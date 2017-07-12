@@ -1,9 +1,32 @@
 // Plugin for OpenMCT's dictionary
+function getDictionary() {
+    return http.get('./dictionary.json').then(function (result) {
+        return result.data;
+    });
+}
 
-// Create websocket
-var site = 'localhost';
-var port = 1337;
-
+var value = [
+    {
+        "key": "value",
+        "name": "Value",
+        "units": "kilograms",
+        "format": "float",
+        "min": 0,
+        "max": 100,
+        "hints": {
+            "range": 1
+        }
+    },
+    {
+        "key": "utc",
+        "source": "timestamp",
+        "name": "Timestamp",
+        "format": "utc",
+        "hints": {
+            "domain": 1
+        }
+    }
+]
 
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
@@ -34,6 +57,7 @@ var DictionaryPlugin = function (openmct) {
             }
         });
 
+        // Create channels folder
         openmct.objects.addProvider('isf.channels', {
             get: function (identifier) {
                 return Promise.resolve({
@@ -45,6 +69,7 @@ var DictionaryPlugin = function (openmct) {
             }
         });
 
+        // Create events folder
         openmct.objects.addProvider('isf.events', {
             get: function (identifier) {
                 return Promise.resolve({
@@ -56,6 +81,7 @@ var DictionaryPlugin = function (openmct) {
             }
         });
 
+        // Add folders to isf namespace
         var folders = [
             {
                 namespace: 'isf.channels',
@@ -66,7 +92,6 @@ var DictionaryPlugin = function (openmct) {
                 key: 'events'
             }
         ];
-
         openmct.composition.addProvider({
             appliesTo: function (domainObject) {
                 return domainObject.identifier.namespace === 'isf.taxonomy';
@@ -76,6 +101,7 @@ var DictionaryPlugin = function (openmct) {
             }
         });
 
+        // Add type to telemetry
         openmct.types.addType('isf.telemetry', {
             name: 'ISF Telemetry point',
             description: 'Telemetry point from ISF.',
