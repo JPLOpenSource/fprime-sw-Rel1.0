@@ -84,16 +84,9 @@ class TopPanel(object):
         min_y = self.__config.get("gui", "window_min_y")
         parent.minsize(min_x, min_y)
 
-        self.__sock = None
 
-        #
-        # Zmq Pub/Sub Sockets 
-        #
-        self.__zmq_context       = None
-        self.__server_cmd_socket = None # Server command socket
-        self.__server_pub_port = None # The socket the server pushes out telemetry, events, files 
-        self.__server_sub_port = None # The socket to send commands
-
+        self.__gui_name = "GUI_1"
+        self.__clientSocket = None
 
         #
         # List of sub-panels for destruction
@@ -345,8 +338,8 @@ class TopPanel(object):
             self.__event_listen.update_task_cancel()
 
             if self.__opts.connect == True or self.__opts.exec_app != None:
-                if self.__sock != None:
-                    self.__sock.send("Quit\n")
+                if self.__clientSocket != None:
+                    self.__clientSocket.disconnect()
 
             self.__file_listener.exit()
 
@@ -437,87 +430,33 @@ class TopPanel(object):
 
     def connectTCP(self):
         """
-        Connect to a running ZmqServer.
-        Registers with the ZmqServer and receives the server's ground-client pub/sub ports.
-        Zmq sockets are created and saved as main_panel instance variables. 
+        Creates a ClientSocket class. 
         """
         
-        try:
-            port = self.__opts.port
-            server = self.__opts.addr
+        port = self.__opts.port
+        addr = self.__opts.addr
 
-            self.__zmq_context = zmq.Context()
-            self.__server_cmd_socket = self.__zmq_context.socket(zmq.REQ)
-            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000)
-           
-            self.__server_cmd_socket.connect("tcp://{}:{}".format(server, port))
-            
-            
-            # Register the GUI with the server
-            # TODO: Create unique ground-client name
-            self.__server_cmd_socket.send_multipart([b"REG", b"GUI", b"GROUND",\
-                                                     b"ZMQ"])
 
-            response = self.__server_cmd_socket.recv_multipart()
-            self.__server_pub_port = response[1]
-            self.__server_sub_port = response[2]
+        self.__clientSocket = client_sock.GetClientSocket(self, addr, port, self.__gui_name)
+        
 
-            print("Publishing to port: {} | Subscribed to port: {}".\
-            format(self.__server_sub_port, self.__server_pub_port))
+        # Register the socket with the event_listener and
+        # Spawn the listener thread here....
+        if(self.__clientSocket is not None):
+            self.__event_listen.connect(self.__clientSocket)
 
-            s = "Connected to server (host addr %s, port %d)" % (server, port)
-            self.__status_update.update(s, 'red')
-
-           
-            # Register the socket with the event_listener and
-            # Spawn the listener thread here....
-            self.__event_listen.connect()
-
-        except zmq.ZMQError as e:
-                if e.errno == zmq.EAGAIN:
-                    string = "Unable to connect to {}:{}".format(server, port)
-                    self.statusUpdate(string, "red")
-                    print(string)
-                    return
-                else:
-                    raise
-
-    
-    
-    def getSock(self):
-        """
-        Return socket client object handle.
-        """
-        return self.__sock
-
-    def getZmqContext(self):
-        """
-        Return the zmq context
-        """
-        return self.__zmq_context
-
-    def getServerPublishPort(self):
-        """
-        Return the port the server uses to publish telemetry, events, and files
-        """
-        return self.__server_pub_port
-
-    def getServerSubscribePort(self):
-        """
-        Return the port the server uses to receive commands and files
-        """
-        return self.__server_sub_port
+    def getClientSocket(self):
+        return self.__clientSocket
 
     def killTCP(self):
         """
         Kill the TCP Socket Server.
         """
         #@todo: This does not quite work yet.  Make it shutdown and stop listener thread.
-        self.__sock.send("Quit\n")
-        #
-        if self.__sock != None:
-            del(self.__sock)
-            self.__sock = None
+
+        if self.__clientSocket != None:
+            del(self.__clientSocket)
+            self.__clientSocket = None
 
     def statusUpdate(self, string, color):
         """

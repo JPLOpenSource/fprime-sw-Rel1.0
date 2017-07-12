@@ -69,15 +69,15 @@ def FlightSubRunnable(sub_socket, pub_socket, logger):
             msg = sub_socket.recv_multipart() 
             logger.debug("Packet Received: {}".format(msg))
 
-            pub_socket.send_multipart(msg)
+            pub_socket.send_multipart(msg, zmq.NOBLOCK)
             logger.debug("Sent packet to sub")
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break
+            if e.errno == zmq.EAGAIN:
+                continue
             else:
                 raise
-
-
 
 
     logger.info("Exiting FlightSubRunnable")
@@ -100,10 +100,12 @@ def GroundSubRunnable(sub_socket, pub_socket, logger):
             msg = sub_socket.recv_multipart() 
             logger.debug("Packet Received: {}".format(msg))
 
-            pub_socket.send_multipart(msg)
+            pub_socket.send_multipart(msg, zmq.NOBLOCK)
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break
+            if e.errno == zmq.EAGAIN:
+                continue
             else:
                 raise
 

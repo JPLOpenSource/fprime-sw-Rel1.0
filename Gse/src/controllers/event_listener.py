@@ -71,7 +71,7 @@ class EventListener(observer.Observed):
         #
         # Socket when connection established
         #
-        self.__sock = sock
+        self.__clientSocket = sock
 
         #
         # Store thread here
@@ -200,57 +200,21 @@ class EventListener(observer.Observed):
         if one is set.  This is an indication of connection.
         """
         self.__the_main_panel = the_main_panel
-        self.__sub_sock = self.__the_main_panel.getSock()
+        self.__clientSocket   = the_main_panel.getClientSocket()
 
     def register_status_bar(self, status_bar):
         self.__status_bar = status_bar
 
-    def receive_telemetry(self, sock):
-        """
-        Receive telemetry by first reading 4 byte size,
-        then 4 byte desc. Then recieve the rest of message.
-        Send size, desc, id, and optional args for decoding.
-        """
-        pkt_len = sock.recv(4)
-        if self.__binfile != None:
-            self.__binfile.write(pkt_len)
 
-        pkt_desc    = sock.recv(4)
-        if self.__binfile != None:
-            self.__binfile.write(pkt_desc)
-
-        desc = int(struct.unpack(">I",pkt_desc)[0])
-        size = int(struct.unpack(">I",pkt_len)[0])
-
-        #
-        #print "size = %d" % size
-        #print  "desc = %d" % desc
-        data = sock.recv(size - u32_type.U32Type().getSize())
-
-        if self.__binfile != None:
-            self.__binfile.write(data)
-
-
-        #print "data: "
-        #type_base.showBytes(data)
-        return pkt_len + pkt_desc + data
-
-
-    def enqueue_output(self, context, server_pub_port, queue):
+    def enqueue_output(self, clientSocket, queue):
         """
         Queue up socket telemetry for TK processing
         """
-        #server_pub_port = self.__config.get("server", "pub_port")
-        #server_address  = self.__config.get("server", "address")
-
-        sub_socket = context.socket(zmq.ROUTER)
-        sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
-
 
         while True:
             try:
-                msg = sub_socket.recv_multipart()
-                
+                msg = clientSocket.receiveFromServer()
+
                 queue.put(msg[2])
 
             except zmq.ZMQError as e:
@@ -262,7 +226,7 @@ class EventListener(observer.Observed):
         sub_socket.close()
 
 
-    def connect(self):
+    def connect(self, clientSocket):
         """
         Start thread that is connected to sock talking to TCPThreadServer.py
         This is called from the TCP Server menu Connect... item.
@@ -272,11 +236,10 @@ class EventListener(observer.Observed):
             print "LISTENER THREAD IS ALIVE!"
             return
 
-        context         = self.__the_main_panel.getZmqContext()
-        server_pub_port = self.__the_main_panel.getServerPublishPort()
+        self.__clientSocket = clientSocket
 
         # create background listener thread
-        self.__thread = threading.Thread(target=self.enqueue_output, args=(context, server_pub_port, self.__queue))
+        self.__thread = threading.Thread(target=self.enqueue_output, args=(clientSocket, self.__queue))
         # thread dies with the program
         self.__thread.daemon = True
         # state listener thread here

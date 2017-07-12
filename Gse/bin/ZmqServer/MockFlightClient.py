@@ -26,7 +26,7 @@ def MockFlightClient(context, cmd_port, client_name):
     logger.debug("Logger Active") 
 
     logger.debug("Context: {}".format(context))
-    command_socket = context.socket(zmq.REQ) 
+    command_socket = context.socket(zmq.DEALER) 
     logger.debug("Created cmd socket")
     command_socket.connect("tcp://localhost:{}".format(cmd_port))
     logger.debug("Connected cmd socket")
@@ -109,7 +109,7 @@ def MockFlightClient(context, cmd_port, client_name):
                          time_cxt.serialize() + time_s.serialize() +\
                          time_us.serialize() + value.serialize()
 
-                pub_socket.send_multipart([packet])
+                pub_socket.send(packet)
                
                 time.sleep(0.1)           
 

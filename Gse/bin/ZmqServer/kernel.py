@@ -103,7 +103,7 @@ class ZmqKernel(object):
         self.__logger.debug("Command Received: {}".format(msg))
         
         return_id = msg[0]
-        cmd       = msg[2] # Zmq inserts a delimiting frame at msg index 1
+        cmd       = msg[1] 
 
         if cmd == 'REG':
             status, pub_port, sub_port = self.__HandleRegistration(msg)
@@ -115,9 +115,9 @@ class ZmqKernel(object):
         Receives a client registration message.
         Returns a tuple containing the registration status, pub, and sub ports 
         """
-        name        = msg[3]
-        client_type = msg[4]
-        proto       = msg[5]
+        name        = msg[2]
+        client_type = msg[3]
+        proto       = msg[4]
         self.__logger.debug("Registering {name} as {client_type} client "
                             "using {proto} protocol."\
                        .format(name=name, client_type=client_type.lower(),\
@@ -137,10 +137,9 @@ class ZmqKernel(object):
         """
         Send response to the registering client
         """
-        # ZMQ requires the return id followed by an empty byte
+
         msg = [
                bytes(return_id),\
-               b'',\
                bytes(status),\
                bytes(client_pub_port),\
                bytes(client_sub_port)
