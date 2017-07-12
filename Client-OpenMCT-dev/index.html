@@ -3,11 +3,11 @@
 <head>
     <title>Open MCT</title>
     <script src="node_modules/openmct/dist/openmct.js"></script>
-    <script src="client/isf-omct/src/lib/http.js"></script>
+    <!-- <script src="client/isf-omct/src/lib/http.js"></script> -->
 
     <!-- Get dictionary plugin-->
-    <script src="client/isf-omct/src/dictionary-plugin.js"></script>
-    <script src="client/isf-omct/src/realtime-telemetry-plugin-edit.js"></script>
+    <script src="plugins/dynamic-dictionary-plugin.js"></script>
+    <!-- <script src="client/isf-omct/src/realtime-telem-plugin.js"></script> -->
     <!-- <script src="client/isf-omct/src/historical-telemetry-plugin.js"></script> -->
 </head>
 <body>
@@ -20,7 +20,7 @@
 
         // User plugin installs
         openmct.install(DictionaryPlugin());
-        openmct.install(RealtimeTelemetryPlugin());
+        // openmct.install(RealtimeTelemetryPlugin());
         // openmct.install(HistoricalTelemetryPlugin());
 
         openmct.start();

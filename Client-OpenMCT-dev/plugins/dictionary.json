@@ -1,0 +1,314 @@
+{
+    "isf": {
+        "channels": {
+            "21": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Max execution time rate group", 
+                "format_string": "%u us", 
+                "name": "rateGroup1Comp_RgMaxTime", 
+                "types": "U32"
+            }, 
+            "22": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Cycle slips for rate group", 
+                "format_string": null, 
+                "name": "rateGroup1Comp_RgCycleSlips", 
+                "types": "U32"
+            }, 
+            "41": {
+                "component": "Ref::PingReceiver", 
+                "description": "Number of pings received", 
+                "format_string": null, 
+                "name": "PR_NumPings", 
+                "types": "U32"
+            }, 
+            "81": {
+                "component": "Ref::SendBuff", 
+                "description": "Number of packets sent", 
+                "format_string": null, 
+                "name": "PacketsSent", 
+                "types": "U64"
+            }, 
+            "82": {
+                "component": "Ref::SendBuff", 
+                "description": "Number of errors injected", 
+                "format_string": null, 
+                "name": "NumErrorsInjected", 
+                "types": "U32"
+            }, 
+            "83": {
+                "component": "Ref::SendBuff", 
+                "description": "Readback of Parameter3", 
+                "format_string": null, 
+                "name": "Parameter3", 
+                "types": "U8"
+            }, 
+            "84": {
+                "component": "Ref::SendBuff", 
+                "description": "Readback of Parameter4", 
+                "format_string": null, 
+                "name": "Parameter4", 
+                "types": "F32"
+            }, 
+            "85": {
+                "component": "Ref::SendBuff", 
+                "description": "Readback of Parameter4", 
+                "format_string": "%s", 
+                "name": "SendState", 
+                "types": "Enum"
+            }, 
+            "101": {
+                "component": "Ref::RecvBuff", 
+                "description": "Number of packets received", 
+                "format_string": "%d", 
+                "name": "NumPkts", 
+                "types": "U32"
+            }, 
+            "102": {
+                "component": "Ref::RecvBuff", 
+                "description": "Number of packets received with errors", 
+                "format_string": null, 
+                "name": "NumErrPkts", 
+                "types": "U32"
+            }, 
+            "103": {
+                "component": "Ref::RecvBuff", 
+                "description": "Value of Sensor1", 
+                "format_string": null, 
+                "name": "Sensor1", 
+                "types": "F32"
+            }, 
+            "104": {
+                "component": "Ref::RecvBuff", 
+                "description": "Value of Sensor3", 
+                "format_string": null, 
+                "name": "Sensor2", 
+                "types": "F32"
+            }, 
+            "105": {
+                "component": "Ref::RecvBuff", 
+                "description": "Readback of Parameter1", 
+                "format_string": null, 
+                "name": "Parameter1", 
+                "types": "U32"
+            }, 
+            "106": {
+                "component": "Ref::RecvBuff", 
+                "description": "Readback of Parameter2", 
+                "format_string": null, 
+                "name": "Parameter2", 
+                "types": "I16"
+            }, 
+            "121": {
+                "component": "Svc::CommandDispatcher", 
+                "description": "Number of commands dispatched", 
+                "format_string": null, 
+                "name": "CommandsDispatched", 
+                "types": "U32"
+            }, 
+            "122": {
+                "component": "Svc::CommandDispatcher", 
+                "description": "Number of command errors", 
+                "format_string": null, 
+                "name": "CommandErrors", 
+                "types": "U32"
+            }, 
+            "161": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Max execution time rate group", 
+                "format_string": "%u us", 
+                "name": "rateGroup2Comp_RgMaxTime", 
+                "types": "U32"
+            }, 
+            "162": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Cycle slips for rate group", 
+                "format_string": null, 
+                "name": "rateGroup2Comp_RgCycleSlips", 
+                "types": "U32"
+            }, 
+            "181": {
+                "component": "Ref::SignalGen", 
+                "description": "SignalGen Output", 
+                "format_string": null, 
+                "name": "SG1_SignalGen_Output", 
+                "types": "F32"
+            }, 
+            "201": {
+                "component": "Ref::SignalGen", 
+                "description": "SignalGen Output", 
+                "format_string": null, 
+                "name": "SG3_SignalGen_Output", 
+                "types": "F32"
+            }, 
+            "221": {
+                "component": "Ref::SignalGen", 
+                "description": "SignalGen Output", 
+                "format_string": null, 
+                "name": "SG2_SignalGen_Output", 
+                "types": "F32"
+            }, 
+            "241": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Max execution time rate group", 
+                "format_string": "%u us", 
+                "name": "rateGroup3Comp_RgMaxTime", 
+                "types": "U32"
+            }, 
+            "242": {
+                "component": "Svc::ActiveRateGroup", 
+                "description": "Cycle slips for rate group", 
+                "format_string": null, 
+                "name": "rateGroup3Comp_RgCycleSlips", 
+                "types": "U32"
+            }, 
+            "261": {
+                "component": "Svc::FileUplink", 
+                "description": "The total number of complete files received", 
+                "format_string": null, 
+                "name": "FileUplink_FilesReceived", 
+                "types": "U32"
+            }, 
+            "262": {
+                "component": "Svc::FileUplink", 
+                "description": "The total number of packets received", 
+                "format_string": null, 
+                "name": "FileUplink_PacketsReceived", 
+                "types": "U32"
+            }, 
+            "263": {
+                "component": "Svc::FileUplink", 
+                "description": "The total number of warnings issued", 
+                "format_string": null, 
+                "name": "FileUplink_Warnings", 
+                "types": "U32"
+            }, 
+            "281": {
+                "component": "Ref::SignalGen", 
+                "description": "SignalGen Output", 
+                "format_string": null, 
+                "name": "SG5_SignalGen_Output", 
+                "types": "F32"
+            }, 
+            "301": {
+                "component": "Svc::BufferManager", 
+                "description": "The number of buffers currently allocated", 
+                "format_string": null, 
+                "name": "fileUplinkBufferManager_BufferManager_NumAllocatedBuffers", 
+                "types": "U32"
+            }, 
+            "302": {
+                "component": "Svc::BufferManager", 
+                "description": "The total size of all allocated buffers", 
+                "format_string": null, 
+                "name": "fileUplinkBufferManager_BufferManager_AllocatedSize", 
+                "types": "U32"
+            }, 
+            "321": {
+                "component": "Ref::SignalGen", 
+                "description": "SignalGen Output", 
+                "format_string": null, 
+                "name": "SG4_SignalGen_Output", 
+                "types": "F32"
+            }, 
+            "361": {
+                "component": "Svc::Health", 
+                "description": "Number of overrun warnings", 
+                "format_string": null, 
+                "name": "PingLateWarnings", 
+                "types": "U32"
+            }, 
+            "401": {
+                "component": "Svc::BufferManager", 
+                "description": "The number of buffers currently allocated", 
+                "format_string": null, 
+                "name": "fileDownlinkBufferManager_BufferManager_NumAllocatedBuffers", 
+                "types": "U32"
+            }, 
+            "402": {
+                "component": "Svc::BufferManager", 
+                "description": "The total size of all allocated buffers", 
+                "format_string": null, 
+                "name": "fileDownlinkBufferManager_BufferManager_AllocatedSize", 
+                "types": "U32"
+            }, 
+            "481": {
+                "component": "Drv::BlockDriver", 
+                "description": "Driver cycle count", 
+                "format_string": null, 
+                "name": "BD_Cycles", 
+                "types": "U32"
+            }, 
+            "501": {
+                "component": "Svc::FileDownlink", 
+                "description": "The total number of files sent", 
+                "format_string": null, 
+                "name": "FileDownlink_FilesSent", 
+                "types": "U32"
+            }, 
+            "502": {
+                "component": "Svc::FileDownlink", 
+                "description": "The total number of packets sent", 
+                "format_string": null, 
+                "name": "FileDownlink_PacketsSent", 
+                "types": "U32"
+            }, 
+            "503": {
+                "component": "Svc::FileDownlink", 
+                "description": "The total number of warnings", 
+                "format_string": null, 
+                "name": "FileDownlink_Warnings", 
+                "types": "U32"
+            }, 
+            "541": {
+                "component": "Svc::CmdSequencer", 
+                "description": "The number of Load commands executed", 
+                "format_string": null, 
+                "name": "CS_LoadCommands", 
+                "types": "U32"
+            }, 
+            "542": {
+                "component": "Svc::CmdSequencer", 
+                "description": "The number of Cancel commands executed", 
+                "format_string": null, 
+                "name": "CS_CancelCommands", 
+                "types": "U32"
+            }, 
+            "543": {
+                "component": "Svc::CmdSequencer", 
+                "description": "The number of errors that have occurred", 
+                "format_string": null, 
+                "name": "CS_Errors", 
+                "types": "U32"
+            }, 
+            "544": {
+                "component": "Svc::CmdSequencer", 
+                "description": "The number of commands executed across all sequences.", 
+                "format_string": null, 
+                "name": "CS_CommandsExecuted", 
+                "types": "U32"
+            }, 
+            "545": {
+                "component": "Svc::CmdSequencer", 
+                "description": "The number of sequences completed.", 
+                "format_string": null, 
+                "name": "CS_SequencesCompleted", 
+                "types": "U32"
+            }
+        }, 
+        "events": {
+            "21": {
+                "arguments": [], 
+                "arguments_db": [], 
+                "format_string": "Rate group started.", 
+                "name": "rateGroup1Comp_RateGroupStarted"
+            }, 
+            "22": {
+                "arguments": [
+                    "U32"
+                ], 
+                "arguments_db": [
+                    [
+                        "cycle", 
+                        "The cycle where the cycle occurred", 
+                        
