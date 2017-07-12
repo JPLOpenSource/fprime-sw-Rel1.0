@@ -26,7 +26,7 @@ class  GeneralSubscriptionThread(threading.Thread):
     def __init__(self, name, runnable, context, InitializeKernelPorts):
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger(name, log_path, logLevel=INFO, fileLevel=INFO)
+        self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
 
         # Setup socket to receive all target messages

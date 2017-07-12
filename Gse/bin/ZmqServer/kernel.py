@@ -27,8 +27,8 @@ class ZmqKernel(object):
 
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger("zmq_kernel",log_path, logLevel=INFO,\
-                                               fileLevel=INFO)
+        self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
+                                               fileLevel=DEBUG)
         self.__logger.debug("Logger Active")
 
         # Setup routing table
