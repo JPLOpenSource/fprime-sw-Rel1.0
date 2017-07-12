@@ -3,6 +3,8 @@ import zmq
 import threading
 import logging
 
+from logging import DEBUG, INFO
+
 from utils.logging_util import GetLogger
 from server_utils.ServerConfig import ServerConfig
 
@@ -24,7 +26,7 @@ class  GeneralSubscriptionThread(threading.Thread):
     def __init__(self, name, runnable, context, InitializeKernelPorts):
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger(name, log_path)
+        self.__logger = GetLogger(name, log_path, logLevel=INFO, fileLevel=INFO)
         self.__logger.debug("Logger Active") 
 
         # Setup socket to receive all target messages

@@ -6,6 +6,8 @@ import logging
 import datetime
 import threading
 
+from logging import DEBUG, INFO
+
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
 
@@ -25,7 +27,8 @@ class ZmqKernel(object):
 
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger("zmq_kernel",log_path)
+        self.__logger = GetLogger("zmq_kernel",log_path, logLevel=INFO,\
+                                               fileLevel=INFO)
         self.__logger.debug("Logger Active")
 
         # Setup routing table
@@ -118,7 +121,7 @@ class ZmqKernel(object):
         name        = msg[2]
         client_type = msg[3]
         proto       = msg[4]
-        self.__logger.debug("Registering {name} as {client_type} client "
+        self.__logger.info("Registering {name} as {client_type} client "
                             "using {proto} protocol."\
                        .format(name=name, client_type=client_type.lower(),\
                                proto=proto))
@@ -203,9 +206,6 @@ class ZmqKernel(object):
         """
         pass
         
-
-
-
 
 
 if __name__ == "__main__":
