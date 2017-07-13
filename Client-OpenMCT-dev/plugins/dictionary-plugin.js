@@ -6,7 +6,7 @@ function getDictionary() {
 }
 
 // Value formatters
-value_format = {
+var value_format = {
     "hints": {
         "range": 1
     }, 
@@ -16,8 +16,7 @@ value_format = {
     "name": "Value", 
     "units": "units"
 };
-
-time_format = {
+var time_format = {
     "key": "utc",
     "source": "timestamp",
     "name": "Timestamp",
@@ -25,6 +24,20 @@ time_format = {
     "hints": {
         "domain": 1
     }
+};
+var name_format = {
+    "hints": {
+        "range": 2
+    },
+    "key": "name",
+    "name": "Name",
+};
+var id_format = {
+    "hints": {
+        "range": 3
+    },
+    "key": "event_id",
+    "name": "ID",
 };
 
 var objectProvider = {
@@ -50,15 +63,28 @@ var objectProvider = {
 
                 // Object provider for each object in measurments. 
                 // Does not populate tree
-                return {
-                    identifier: identifier,
-                    name: measurement.name,
-                    type: 'isf.telemetry',
-                    telemetry: {
-                        values: [value_format, time_format]  // Values already in default format
-                    },
-                    location: 'isf.taxonomy:isf'
-                };
+
+                if (measurement.name === "Events") {
+                    return {
+                        identifier: identifier,
+                        name: measurement.name,
+                        type: 'isf.telemetry',
+                        telemetry: {
+                            values: [time_format, name_format, id_format, value_format]  // Values already in default format
+                        },
+                        location: 'isf.taxonomy:isf'
+                    };
+                } else {
+                    return {
+                        identifier: identifier,
+                        name: measurement.name,
+                        type: 'isf.telemetry',
+                        telemetry: {
+                            values: [time_format, value_format]  // Values already in default format
+                        },
+                        location: 'isf.taxonomy:isf'
+                    };
+                }
             }
         });
     }
@@ -83,7 +109,7 @@ var compositionProvider = {
                     key: id
                 });
             }
-            
+
             return channels;
         });
     }

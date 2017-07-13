@@ -136,16 +136,26 @@ function deserialize(data) {
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
 		var timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
 
+		var toMCT;
 		// Create datum in openMCT format
 		if (telemData["telem_type"] === 'event') {
-			id = '-1';
+			toMCT = {
+				'timestamp':timestamp,
+				'value':value,
+				'name': telemData["name"],
+				'event_id': id.toString(),
+				'id': '-1',
+				'type': telemData["telem_type"]
+			};
+		} else {
+
+			toMCT = {
+				'timestamp':timestamp,
+				'value':value,
+				'id':id.toString(),
+				'type': telemData["telem_type"]
+			};
 		}
-		var toMCT = {
-			'timestamp':timestamp,
-			'value':value,
-			'id':id.toString(),
-			'type': telemData["telem_type"]
-		};
 
 		res.push(toMCT);
 
