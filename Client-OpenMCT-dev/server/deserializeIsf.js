@@ -137,10 +137,13 @@ function deserialize(data) {
 		var timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
 
 		// Create datum in openMCT format
+		if (telemData["telem_type"] === 'event') {
+			id = '-1';
+		}
 		var toMCT = {
 			'timestamp':timestamp,
 			'value':value,
-			'id':id.toString() + telemData["telem_type"],
+			'id':id.toString(),
 			'type': telemData["telem_type"]
 		};
 

@@ -1,30 +1,9 @@
 function getDictionary() {
-    return http.get('/plugins/dictionary.json').then(function (result) {
-        return result.data;
-    });
+    return http.get('./dictionary.json')
+        .then(function (result) {
+            return result.data;
+        });
 }
-
-// Value formatters
-value_format = {
-    "hints": {
-        "range": 1
-    }, 
-    "key": "value", 
-    "max": 100, 
-    "min": 0, 
-    "name": "Value", 
-    "units": "units"
-};
-
-time_format = {
-    "key": "utc",
-    "source": "timestamp",
-    "name": "Timestamp",
-    "format": "utc",
-    "hints": {
-        "domain": 1
-    }
-};
 
 var objectProvider = {
     get: function (identifier) {
@@ -45,7 +24,9 @@ var objectProvider = {
                 // Provider if not isf root
 
                 // Measurement = measurement object with same key as 'identifier.key'
-                var measurement = dictionary.isf.channels[identifier.key];
+                var measurement = dictionary.measurements.filter(function (m) {
+                    return m.key === identifier.key;
+                })[0];
 
                 // Object provider for each object in measurments. 
                 // Does not populate tree
@@ -54,7 +35,7 @@ var objectProvider = {
                     name: measurement.name,
                     type: 'isf.telemetry',
                     telemetry: {
-                        values: [value_format, time_format]  // Values already in default format
+                        values: measurement.values  // Values already in default format
                     },
                     location: 'isf.taxonomy:isf'
                 };
@@ -74,21 +55,14 @@ var compositionProvider = {
         // Returns promise of an array of domain objects, in this case list of measurements.
         return getDictionary().then(function (dictionary) {
             // 'dictionary.measurements' is a list of telemetry objects
-            var channels = [];
-            var chanDict = dictionary["isf"]["channels"];
-            for (id in chanDict) {
-                channels.push({
+            return dictionary.measurements.map(function (m) {
+                return {
+                    // Return a list of dictionary objects with following values
+                    // from each measurement
                     namespace: 'isf.taxonomy',
-                    key: id
-                });
-            }
-
-            // Add events composition
-            channels.push({
-                id: '-1',
-                namespace: 'isf.events'
+                    key: m.key
+                };
             });
-            return channels;
         });
     }
 };
@@ -113,29 +87,8 @@ var DictionaryPlugin = function (openmct) {
         // Create domain object ('isf' folder) under the root namespace 'isf.taxonomy'
         openmct.objects.addProvider('isf.taxonomy', objectProvider);
 
-        openmct.objects.addProvider('isf.events', {
-            get: function (identifier) {
-                return Promise.resolve({
-                    identifier: identifier,
-                    name: 'Events',
-                    type: 'isf.event',
-                    telemetry: {
-                        values: [value_format, time_format]  // Values already in default format
-                    },
-                    location: 'isf.taxonomy:isf'
-                });
-            }
-        });
-
         // Composition provider will define structure of the tree and populate it.
         openmct.composition.addProvider(compositionProvider);
-
-        // Add types to events
-        openmct.types.addType('isf.event', {
-            name: 'ISF Event',
-            description: 'Event from ISF',
-            cssClass: 'icon-info'
-        });
 
         openmct.types.addType('isf.telemetry', {
             name: 'ISF Telemetry point',
