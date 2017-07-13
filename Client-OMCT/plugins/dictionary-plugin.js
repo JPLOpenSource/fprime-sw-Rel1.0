@@ -74,6 +74,7 @@ var objectProvider = {
                 // Does not populate tree
 
                 if (measurement.name === "Events") {
+                    // Object provider for events
                     return {
                         identifier: identifier,
                         name: measurement.name,
@@ -91,6 +92,7 @@ var objectProvider = {
                     };
                 } else {
                     var typeStr = 'isf.' + measurement['id'].toString();
+                    // Object provider for all channels
                     return {
                         identifier: identifier,
                         name: measurement.name,
