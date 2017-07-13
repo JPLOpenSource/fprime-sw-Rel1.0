@@ -79,8 +79,7 @@ class ZmqKernel(object):
         Start main event loop of the zmq kernel
         """
         try:
-            self.__logger.debug("Kernel reactor started.")
-            
+            self.__logger.debug("Kernel reactor starting.")
             self.__flight_sub_thread.start()
             self.__ground_sub_thread.start()
             self.__loop.start()
