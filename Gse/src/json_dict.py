@@ -32,6 +32,17 @@ for id in ch_cd:
 	ch_cd[id]["type"]         = cl.getTypesDict()[id].__repr__()
 	ch_cd[id]["format_string"] = cl.getFormatStringDict()[id]
 
+# Add events channel
+ch_cd[-1] = {
+	"id": -1,          
+	"name": "Events", 
+	"telem_type": "channel",
+	"component": None,
+	"description": "Events are shown here",
+	"type": "string",
+	"format_string": None
+}
+
 # Create event combined dictionary
 ev_cd = {}
 for id in el.getNameDict():

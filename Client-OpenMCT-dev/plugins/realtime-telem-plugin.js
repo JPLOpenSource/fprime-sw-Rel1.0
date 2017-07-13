@@ -28,7 +28,7 @@ function RealtimeTelemetryPlugin() {
             // Must add 'supportsSubscribe' for realtime
             supportsSubscribe: function (domainObject) {
                 // Subscribe to telemetry with given type
-                return domainObject.type === 'isf.telemetry';
+                return domainObject.type === 'isf.telemetry' || domainObject.type === 'isf.event';
             },
             subscribe: function (domainObject, callback, options) {
                 if (!listeners[domainObject.identifier.key]) {

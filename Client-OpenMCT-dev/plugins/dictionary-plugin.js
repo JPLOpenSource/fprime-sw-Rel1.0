@@ -1,4 +1,5 @@
 function getDictionary() {
+    // Needs directory from root of application
     return http.get('/plugins/dictionary.json').then(function (result) {
         return result.data;
     });
@@ -82,12 +83,7 @@ var compositionProvider = {
                     key: id
                 });
             }
-
-            // Add events composition
-            channels.push({
-                id: '-1',
-                namespace: 'isf.events'
-            });
+            
             return channels;
         });
     }
@@ -112,20 +108,6 @@ var DictionaryPlugin = function (openmct) {
 
         // Create domain object ('isf' folder) under the root namespace 'isf.taxonomy'
         openmct.objects.addProvider('isf.taxonomy', objectProvider);
-
-        openmct.objects.addProvider('isf.events', {
-            get: function (identifier) {
-                return Promise.resolve({
-                    identifier: identifier,
-                    name: 'Events',
-                    type: 'isf.event',
-                    telemetry: {
-                        values: [value_format, time_format]  // Values already in default format
-                    },
-                    location: 'isf.taxonomy:isf'
-                });
-            }
-        });
 
         // Composition provider will define structure of the tree and populate it.
         openmct.composition.addProvider(compositionProvider);
