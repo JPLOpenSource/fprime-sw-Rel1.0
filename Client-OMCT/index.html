@@ -7,8 +7,12 @@
 
     <!-- Get dictionary plugin-->
     <script src="plugins/dictionary-plugin.js"></script>
+    <!-- Realtime telemetry plugin -->
     <script src="plugins/realtime-telem-plugin.js"></script>
+    <!-- Historical telemetry plugin -->
     <script src="plugins/historical-telem-plugin.js"></script>
+    <!-- Time system plugin -->
+    <script src="plugins/set-time-plugin.js"></script>
 </head>
 <body>
     <script>
@@ -16,8 +20,8 @@
         openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
         // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
         openmct.install(openmct.plugins.MyItems());
-        openmct.install(openmct.plugins.UTCTimeSystem());
-        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.install(openmct.plugins.UTCTimeSystem());   // Add UTC timesystem
+        openmct.install(SetTimeSystem());   // Configure time system
         openmct.install(openmct.plugins.Snow());
 
         // User plugin installs

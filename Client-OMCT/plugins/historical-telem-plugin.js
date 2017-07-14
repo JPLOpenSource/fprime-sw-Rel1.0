@@ -13,13 +13,11 @@ function HistoricalTelemetryPlugin() {
     return function install (openmct) {
         var provider = {
             supportsRequest: function (domainObject) {
-                return domainObject.type === 'isf.telemetry';
+                return domainObject.identifier.namespace === 'isf.taxonomy';
             },
             request: function (domainObject, options) {
                 var points;
-                console.log(domainObject, options);
                 return http.get('/server/log.json').then(function (result) {
-                    console.log(domainObject.identifier.key);
                     return result.data[domainObject.identifier.key].filter(function (d) {
                         return d["timestamp"] > options.start && d["timestamp"] < options.end;
                     });
