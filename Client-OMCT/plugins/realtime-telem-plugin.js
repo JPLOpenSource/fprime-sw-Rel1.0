@@ -2,10 +2,7 @@
  * Basic Realtime telemetry plugin using websockets.
  */
 
-var site = 'localhost'
-var port = 1337;
-
-function RealtimeTelemetryPlugin() {
+function RealtimeTelemetryPlugin(site, port) {
     return function (openmct) {
         // Define what to do in this plugin:
 

@@ -5,8 +5,9 @@
 var StaticServer = require('./server/static-server');
 var RealtimeIsfServer = require('./server/telemetry-isf');
 
+const OMCTPort = 8080;
 // Create static server for client
-var staticServer = new StaticServer(8080);
+var staticServer = new StaticServer(OMCTPort);
 
 // Initialize socket servers
 const realMctPort = 1337;

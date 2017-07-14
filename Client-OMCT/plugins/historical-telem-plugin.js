@@ -16,7 +16,6 @@ function HistoricalTelemetryPlugin() {
                 return domainObject.identifier.namespace === 'isf.taxonomy';
             },
             request: function (domainObject, options) {
-                var points;
                 return http.get('/server/log.json').then(function (result) {
                     return result.data[domainObject.identifier.key].filter(function (d) {
                         return d["timestamp"] > options.start && d["timestamp"] < options.end;

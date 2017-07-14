@@ -38,7 +38,9 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 			// Send to websocket
 			toMCT.forEach(function (packet) {
 				// Add to history dictionary
-				
+				if (!history[(packet.id).toString()]) {
+					history[(packet.id).toString()] = [];
+				}
 				history[(packet.id).toString()].push(packet);
 				fs.writeFile('server/log.json', JSON.stringify(history), function (err) {
 					if (err) {
