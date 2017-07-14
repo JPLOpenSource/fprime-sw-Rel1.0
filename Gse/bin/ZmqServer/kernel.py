@@ -13,7 +13,8 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import GetLogger
 from server_utils.ServerConfig import ServerConfig
-from kernel_threads import GeneralSubscriptionThread
+from kernel_threads import GeneralServerIOThread 
+from kernel_interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -33,24 +34,53 @@ class ZmqKernel(object):
         # Setup routing table
         self.__routing_table = {}
 
-        # Flight and ground client pub/sub port sets
-        self.__flight_client_sub_port = None
-        self.__flight_client_pub_port = None
+        # Set endpoints for Flight subscriber and publisher threads
+        self.__flight_sub_thread_endpoints = SubscriberThreadEndpoints()
+        self.__flight_pub_thread_endpoints = PublisherThreadEndpoints()
 
-        self.__ground_client_sub_port = None
-        self.__ground_client_pub_port = None
+        # Set endpoints for Ground subscriber and publisher threads
+        self.__ground_sub_thread_endpoints = SubscriberThreadEndpoints()
+        self.__ground_pub_thread_endpoints = PublisherThreadEndpoints()
 
-        # Setup flight and ground subcription threads
+        # Setup flight subcriber and publisher threads
+        client_type   = "Flight"
+        pubsub_type   = "Subscribe"
+        SetEndpoints  = self.__flight_sub_thread_endpoints.GetEndpointSetter()
+        BindInput     = self.__flight_sub_thread_endpoints.GetInputBinder()
+        BindOutput    = self.__flight_sub_thread_endpoints.GetOutputBinder()
 
-        client_type = "Flight"
-        self.__flight_sub_thread = GeneralSubscriptionThread(client_type,\
-                     self.__context, self.__SetFlightSubThreadPorts)
- 
-        client_type = "Ground"
-        self.__ground_sub_thread = GeneralSubscriptionThread(client_type,\
-                     self.__context, self.__SetGroundSubThreadPorts)
-                    
-   
+        self.__flight_sub_thread = GeneralServerIOThread(client_type, pubsub_type,\
+                     self.__context, BindInput, BindOutput, SetEndpoints) 
+
+        client_type   = "Flight"
+        pubsub_type   = "Publish"
+        SetEndpoints  = self.__flight_pub_thread_endpoints.GetEndpointSetter()
+        BindInput     = self.__flight_pub_thread_endpoints.GetInputBinder()
+        BindOutput     = self.__flight_pub_thread_endpoints.GetOutputBinder()
+
+          
+        self.__flight_pub_thread = GeneralServerIOThread(client_type, pubsub_type,\
+                     self.__context, BindInput, BindOutput, SetEndpoints)
+
+        # Setup ground subscriber and publisher threads
+        client_type   = "Ground"
+        pubsub_type   = "Subscribe"
+        SetEndpoints  = self.__ground_sub_thread_endpoints.GetEndpointSetter()
+        BindInput     = self.__ground_sub_thread_endpoints.GetInputBinder()
+        BindOutput    = self.__ground_sub_thread_endpoints.GetOutputBinder()
+
+        self.__ground_sub_thread = GeneralServerIOThread(client_type, pubsub_type,\
+                     self.__context, BindInput, BindOutput, SetEndpoints)
+
+        client_type   = "Ground"
+        pubsub_type   = "Publish"
+        SetEndpoints  = self.__ground_pub_thread_endpoints.GetEndpointSetter()
+        BindInput     = self.__ground_pub_thread_endpoints.GetInputBinder()
+        BindOutput    = self.__ground_pub_thread_endpoints.GetOutputBinder()
+
+        self.__ground_pub_thread = GeneralServerIOThread(client_type, pubsub_type,\
+                     self.__context, BindInput, BindOutput, SetEndpoints)
+                                 
         # Setup command/status socket
         self.__command_socket = self.__context.socket(zmq.ROUTER)
         try:
@@ -82,8 +112,13 @@ class ZmqKernel(object):
         """
         try:
             self.__logger.debug("Kernel reactor starting.")
+            
             self.__flight_sub_thread.start()
+            self.__flight_pub_thread.start()
+
             self.__ground_sub_thread.start()
+            self.__ground_pub_thread.start()
+
             self.__loop.start()
         except KeyboardInterrupt:
             self.Quit()  
@@ -110,8 +145,8 @@ class ZmqKernel(object):
         cmd       = msg[1] 
 
         if cmd == 'REG':
-            status, pub_port, sub_port = self.__HandleRegistration(msg)
-            self.__RegistrationResponse(return_id, status, pub_port, sub_port)
+            status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
+            self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
 
 
     def __HandleRegistration(self, msg):
@@ -129,77 +164,61 @@ class ZmqKernel(object):
      
         #TODO: Generate meaningful registration status
         status = 1
-        self.__AddToRoutingTable(name, client_type)
 
-        client_pub_port          = self.__GetClientPubPort(client_type) 
-        client_sub_port          = self.__GetClientSubPort(client_type) 
-        return (status, client_pub_port, client_sub_port)
+        try:
+            self.__AddToRoutingTable(name, client_type)
+         
+            server_pub_port          = self.__GetServerPubPort(client_type) 
+            server_sub_port          = self.__GetServerSubPort(client_type) 
+        except TypeError:
+            status = -1
+            server_pub_port = -1
+            server_sub_port = -1
+
+        return (status, server_pub_port, server_sub_port)
 
 
-    def __RegistrationResponse(self, return_id, status, client_pub_port,\
-                                                        client_sub_port):
+    def __RegistrationResponse(self, return_id, status, server_pub_port,\
+                                                        server_sub_port):
         """
-        Send response to the registering client
+        Send response to the registering client 
         """
 
         msg = [
                bytes(return_id),\
                bytes(status),\
-               bytes(client_pub_port),\
-               bytes(client_sub_port)
+               bytes(server_pub_port),\
+               bytes(server_sub_port)
               ]
 
         self.__command_socket.send_multipart(msg)
 
-    def __GetClientPubPort(self, client_type):
+    def __GetServerPubPort(self, client_type):
         """
-        Return the publish based on client_type 
+        Return the publish port based on client_type 
         """
         if   client_type.lower() == "flight":
-            return self.__flight_client_pub_port
+            return self.__flight_pub_thread_endpoints.GetOutputPort()
         elif client_type.lower() == "ground":
-            return self.__ground_client_pub_port
+            return self.__ground_pub_thread_endpoints.GetOutputPort()
         else:
-            self.__logger.error("Client type: {} not recognized.".\
-                                                format(client_type))
-            self.__logger.error("Exiting.")
-            self.Quit()
+            self.__logger.error("Client type: {} not recognized.".format(client_type))
 
-    def __GetClientSubPort(self, client_type):
+            raise TypeError
+            
+    def __GetServerSubPort(self, client_type):
         """
         Based on client_type return the subscription port.
         """
         if   client_type.lower() == "flight":
-            return self.__flight_client_sub_port
+            return self.__flight_sub_thread_endpoints.GetInputPort()
         elif client_type.lower() == "ground":
-            return self.__ground_client_sub_port
+            return self.__ground_sub_thread_endpoints.GetInputPort()
         else:
             self.__logger.error("Client type: {} not recognized.".format(client_type))
-            self.__logger.error("Exiting.")
-            self.Quit()
 
-    def __SetGroundSubThreadPorts(self, sub_port, pub_port):
-        """
-        Sets the pub/sub ports for the ground subscription thread.
-        I.e:
-            Subscribe to ground clients and
-            Publish   to flight clients
-        """
-        self.__ground_client_sub_port = sub_port
-        self.__flight_client_pub_port = pub_port
-
-    def __SetFlightSubThreadPorts(self, sub_port, pub_port):
-        """
-        Sets the pub/sub ports for the flight subscription thread.
-        I.e:
-            Subscribe to flight clients and
-            Publish   to ground clients
-        """
-        self.__logger.debug("sub {} pub {}".format(sub_port, pub_port))
-        self.__flight_client_sub_port = sub_port
-        self.__ground_client_pub_port = pub_port
-
-
+            raise TypeError 
+            
 
     def __AddToRoutingTable(self, name, client_type):
         """
@@ -208,8 +227,7 @@ class ZmqKernel(object):
         pass
         
 
-
-if __name__ == "__main__":
+def main():
     cmd_port = sys.argv[1] 
        
     kernel = ZmqKernel(cmd_port) 
@@ -217,4 +235,6 @@ if __name__ == "__main__":
      
     kernel.Start()
 
-    
+
+if __name__ == "__main__":
+    main()    
