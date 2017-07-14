@@ -58,6 +58,7 @@ node-clientView/node_modules
 node-clientView/package-lock.json
 Client-OpenMCT-dev/node_modules
 Client-OpenMCT-dev/package-lock.json
+Client-OpenMCT-dev/server/log.json
 
 # Python base folder
 lib
