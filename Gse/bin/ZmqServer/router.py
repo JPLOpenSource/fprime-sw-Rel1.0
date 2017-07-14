@@ -5,19 +5,24 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import GetLogger
 from server_utils.ServerConfig import ServerConfig
+from server_utils.zhelpers import zpipe
 
+SERVER_CONFIG = ServerConfig.getInstance()
 
 class RoutingTable(object):
     """
     Maintains the zmq server's routing table.
     Mediates resource access by multiple threads through a zmq ROUTER socket.
     """
-    def __init__(self):
-        self.NAME = "ROUTINGTABLE"
+    
+    __instance = None
 
+    def __init__(self): 
+
+        name = "RoutingTable"
         # Setup logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger(self.NAME, log_path, logLevel=DEBUG,\
+        self.__logger = GetLogger(name, log_path, logLevel=DEBUG,\
                                                              fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
 
@@ -25,13 +30,16 @@ class RoutingTable(object):
         self.__flight_publishers = {}
         self.__ground_publishers = {}
 
-        # Setup zmq components
-        self.__zmq_context = zmq.Context()
-        self.__flight_router = self.__zmq_context.socket(zmq.ROUTER)  
-        self.__ground_router = self.__zmq_context.socket(zmq.ROUTER)
-        self.__flight_router.setsockopt(zmq.LINGER, 0) # Shut down immediately
-        self.__ground_router.setsockopt(zmq.LINGER, 0)
 
+    def GetPublisherTable(self, client_type):
+        """
+        Return the desired publisher table based on 
+        client_type.
+        """
+        if client_type.lower() == "flight":
+            return self.__flight_publishers
+        elif client_type.lower() == "ground":
+            return self.__ground_publishers
 
     def AddFlightClient(self, client_id):
         """
@@ -74,5 +82,16 @@ class RoutingTable(object):
                                       "is not registered".\
                                       format(g=ground_client_id, f=flight_client_id))
                 continue
+
+    def getInstance():
+        """
+        Return instance of singleton.
+        """ 
+        if(RoutingTable.__instance is None):
+            RoutingTable.__instance = RoutingTable()
+        return RoutingTable.__instance
+
+    getInstance = staticmethod(getInstance)
+
 
 

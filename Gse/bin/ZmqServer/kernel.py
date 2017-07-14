@@ -13,8 +13,7 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import GetLogger
 from server_utils.ServerConfig import ServerConfig
-from kernel_threads import GeneralSubscriptionThread,\
-                           FlightSubRunnable, GroundSubRunnable
+from kernel_threads import GeneralSubscriptionThread
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -43,13 +42,13 @@ class ZmqKernel(object):
 
         # Setup flight and ground subcription threads
 
-        name = "FlightSubscriptionThread"
-        self.__flight_sub_thread = GeneralSubscriptionThread(name,\
-             FlightSubRunnable, self.__context, self.__SetFlightSubThreadPorts)
+        client_type = "Flight"
+        self.__flight_sub_thread = GeneralSubscriptionThread(client_type,\
+                     self.__context, self.__SetFlightSubThreadPorts)
  
-        name = "GroundSubscriptionThread"
-        self.__ground_sub_thread = GeneralSubscriptionThread(name,\
-             GroundSubRunnable, self.__context, self.__SetGroundSubThreadPorts)
+        client_type = "Ground"
+        self.__ground_sub_thread = GeneralSubscriptionThread(client_type,\
+                     self.__context, self.__SetGroundSubThreadPorts)
                     
    
         # Setup command/status socket
@@ -72,6 +71,9 @@ class ZmqKernel(object):
         self.__command_socket.on_recv(self.__HandleCommand)
 
     def GetContext(self):
+        """
+        Return zmq context.
+        """
         return self.__context
     
     def Start(self):
