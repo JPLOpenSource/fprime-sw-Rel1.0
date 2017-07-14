@@ -23,8 +23,9 @@
         openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
         // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
         openmct.install(openmct.plugins.MyItems());
+        openmct.install(openmct.plugins.UTCTimeSystem());
         openmct.install(SetTimeSystem());   // Configure time system
-        // openmct.install(openmct.plugins.UTCTimeSystem());
+        
         // openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
         openmct.install(openmct.plugins.Snow());
 

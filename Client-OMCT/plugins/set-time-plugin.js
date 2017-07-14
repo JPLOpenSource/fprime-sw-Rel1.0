@@ -4,8 +4,6 @@ const ONE_MINUTE = 60 * 1000;
 
 function SetTimeSystem() {
 	return function (openmct) {
-		// openmct.plugins.UTCTimeSystem();	// Add UTC timesystem]
-
 		// openmct.plugins.Conductor({
 	 //    	menuOptions: [
 		//         {
