@@ -30,14 +30,14 @@ var name_format = {
         "range": 2
     },
     "key": "name",
-    "name": "Name",
+    "name": "Name"
 };
 var id_format = {
     "hints": {
         "range": 3
     },
     "key": "event_id",
-    "name": "ID",
+    "name": "ID"
 };
 
 var objectProvider = {
@@ -68,17 +68,19 @@ var objectProvider = {
                     return {
                         identifier: identifier,
                         name: measurement.name,
-                        type: 'isf.telemetry',
+                        type: 'isf.event',
                         telemetry: {
                             values: [time_format, name_format, id_format, value_format]  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };
                 } else {
+                    var typeStr = 'isf.' + measurement['id'].toString();
                     return {
                         identifier: identifier,
                         name: measurement.name,
                         type: 'isf.telemetry',
+                        // type: typeStr,
                         telemetry: {
                             values: [time_format, value_format]  // Values already in default format
                         },
@@ -118,8 +120,13 @@ var compositionProvider = {
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
 var DictionaryPlugin = function (openmct) {
+    
     // Return function of plugin
     return function install(openmct) {
+        // var chanDict;
+        // getDictionary().then(function (dictionary) {
+        //     chanDict = dictionary["isf"]["channels"];
+        // });
         // Define what this plugin will do
 
         // Create root of dictionary
@@ -145,10 +152,21 @@ var DictionaryPlugin = function (openmct) {
             cssClass: 'icon-info'
         });
 
+        // for (var id in chanDict) {
+            // openmct.types.addType('isf.85', {
+            //     name: chanDict["85"]["name"],
+            //     description: chanDict["85"]["description"],
+            //     cssClass: 'icon-telemetry'
+            // });
+        // }
+
+        console.log(openmct.types.listKeys());
+
         openmct.types.addType('isf.telemetry', {
-            name: 'ISF Telemetry point',
-            description: 'Telemetry point from ISF.',
-            cssClass: 'icon-telemetry'  // Specify icon for type
+            name: 'Isf Telemetry Point',
+            description: 'Isf telemetry point from our happy tutorial.',
+            cssClass: 'icon-telemetry'
         });
+        
     };
 };

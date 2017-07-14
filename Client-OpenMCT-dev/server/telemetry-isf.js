@@ -3,11 +3,12 @@
 */
 
 // Used to decode packets
+var fs = require('fs');
 var deserialize = require('./deserializeIsf');
 
 var net = require('net');
 const WebSocket = require('ws');
-
+var history = {};
 function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 	// isf client
@@ -24,7 +25,6 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 	// const wssh = new WebSocket.Server({port: 1338});
 
-	var history = {};
 	// For every client connection:
 	wssr.on('connection', function connection(ws) {
 		console.log("Realtime Client connected");
@@ -39,10 +39,15 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 			// Send to websocket
 			toMCT.forEach(function (packet) {
 				// Add to history dictionary
-				if (!history[packet.id]) {
-					history[packet.id] = [];
+				if (!history[(packet.id).toString()]) {
+					history[(packet.id).toString()] = [];
 				}
-				history[packet.id].push(packet);
+				history[(packet.id).toString()].push(packet);
+				fs.writeFile('server/log.json', JSON.stringify(history), function (err) {
+					if (err) {
+						console.log(err);
+					}
+				});
 
 				// Send to realtime server
 				if (subscribed[packet.id]) {
@@ -54,7 +59,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 						}
 					});
 				}
-			})
+			});
 		});
 
 		// Subscription

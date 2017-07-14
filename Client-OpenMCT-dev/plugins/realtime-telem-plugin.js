@@ -14,7 +14,7 @@ function RealtimeTelemetryPlugin() {
 
         // Get data
         socket.onmessage = function (event) {
-            point = JSON.parse(event.data); // Parse json data
+            var point = JSON.parse(event.data); // Parse json data
 
             if (listeners[point.id]) {
                 // If subscribed to telemetry based on 'id':
