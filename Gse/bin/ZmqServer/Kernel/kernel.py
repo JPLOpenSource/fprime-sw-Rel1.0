@@ -12,9 +12,10 @@ from zmq.eventloop.ioloop import IOLoop, PeriodicCallback
 from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import GetLogger
-from server_utils.ServerConfig import ServerConfig
-from kernel_threads import GeneralServerIOThread 
-from kernel_interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
+from ServerUtils.server_config import ServerConfig
+
+from threads import GeneralServerIOThread 
+from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -227,14 +228,3 @@ class ZmqKernel(object):
         pass
         
 
-def main():
-    cmd_port = sys.argv[1] 
-       
-    kernel = ZmqKernel(cmd_port) 
-    context = kernel.GetContext()
-     
-    kernel.Start()
-
-
-if __name__ == "__main__":
-    main()    

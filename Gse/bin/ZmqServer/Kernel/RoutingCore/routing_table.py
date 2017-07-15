@@ -4,8 +4,8 @@ from zmq.eventloop.ioloop import IOLoop, PeriodicCallback
 from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import GetLogger
-from server_utils.ServerConfig import ServerConfig
-from server_utils.zhelpers import zpipe
+from ServerUtils.server_config import ServerConfig
+from ServerUtils.zhelpers import zpipe
 
 SERVER_CONFIG = ServerConfig.getInstance()
 
