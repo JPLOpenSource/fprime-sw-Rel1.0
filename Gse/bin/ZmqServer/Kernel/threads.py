@@ -26,8 +26,10 @@ class  GeneralServerIOThread(threading.Thread):
     @params SetEndpoints: Callback function to set the port numbers of
                                    the publish and subscribe ports
     """
-    def __init__(self, client_type, pubsub_type, context, BindInputEndpoint,\
-                       BindOutputEndpoint, SetEndpoints):
+    def __init__(self, client_type, pubsub_type, context,\
+                                       BindInputEndpoint,\
+                                       BindOutputEndpoint,\
+                                       SetEndpoints):
 
         name = "{}_{}_IOThread".format(client_type, pubsub_type)
         # Setup Logger
@@ -96,7 +98,7 @@ class PubSubPair(object):
 
     def __PubThread(self):
         """
-        Publisher threads consume packets output from a SubscriberServerIOThread.
+
         The packets are published to a packet broker.
         """
         pass

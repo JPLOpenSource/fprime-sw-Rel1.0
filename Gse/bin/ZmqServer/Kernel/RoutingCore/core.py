@@ -1,0 +1,71 @@
+import zmq
+import threading
+from logging import DEBUG, INFO
+
+from utils.logging_util import GetLogger
+
+from ServerUtils.server_config import ServerConfig
+from Kernel.interconnect import BindToRandomInprocEndpoint
+from pubsub_pair import PubSubPair
+from packet_broker import PacketBroker
+from routing_table import RoutingTable
+
+
+# Global server config class
+SERVER_CONFIG = ServerConfig.getInstance()
+
+class RoutingCore(object):
+    """
+    """
+
+    def __init__(self, context):
+        # Setup Logger
+        name = "RoutingCore"
+        self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        self.__logger.debug("Logger Active") 
+ 
+       
+        self.__context = context
+        self.__pubsub_pair_list = [] 
+
+        self.__FlightPacketBroker = PacketBroker("flight", self.__context)
+        self.__GroundPacketBroker = PacketBroker("ground", self.__context)
+
+        self.routing_table = RoutingTable(context)
+
+        self.__FlightPacketBroker.Start()
+        self.__GroundPacketBroker.Start()
+
+    def Quit(self):
+        self.routing_table.Quit()
+
+
+    def CreatePubSubPair(self, client_name, client_type, serverIO_subscriber_output_address,\
+                                                    serverIO_publisher_input_address):
+
+        if client_type.lower() == "flight":
+            broker_subscriber_input_address = self.__FlightPacketBroker.GetInputAddress() 
+            broker_publisher_output_address = self.__GroundPacketBroker.GetOutputAddress() 
+        elif client_type.lower() == "ground":
+            broker_subscriber_input_address = self.__GroundPacketBroker.GetInputAddress() 
+            broker_publisher_output_address = self.__FlightPacketBroker.GetOutputAddress() 
+        else:
+            raise TypeError  
+           
+
+
+        routing_table_command_address = self.routing_table.GetCommandSocketAddress()
+
+        psp = PubSubPair(client_name, self.__context,
+                                    routing_table_command_address,\
+                                    serverIO_subscriber_output_address,\
+                                    serverIO_publisher_input_address,\
+                                    broker_subscriber_input_address,\
+                                    broker_publisher_output_address)
+
+        psp.Start()
+        self.__pubsub_pair_list.append(psp)
+                                    
+
+

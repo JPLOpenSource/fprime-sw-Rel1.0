@@ -16,6 +16,7 @@ from ServerUtils.server_config import ServerConfig
 
 from threads import GeneralServerIOThread 
 from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
+from RoutingCore.core import RoutingCore
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -32,8 +33,9 @@ class ZmqKernel(object):
                                                fileLevel=DEBUG)
         self.__logger.debug("Logger Active")
 
-        # Setup routing table
-        self.__routing_table = {}
+        # Create RoutingCore
+        self.__RoutingCore = RoutingCore(self.__context)
+
 
         # Set endpoints for Flight subscriber and publisher threads
         self.__flight_sub_thread_endpoints = SubscriberThreadEndpoints()
@@ -130,6 +132,8 @@ class ZmqKernel(object):
         """
         self.__logger.info("Initiating server shutdown") 
 
+        self.__RoutingCore.Quit()
+
         # Must close all sockets before context terminate
         self.__command_socket.close()
 
@@ -145,9 +149,49 @@ class ZmqKernel(object):
         return_id = msg[0]
         cmd       = msg[1] 
 
-        if cmd == 'REG':
+        if   cmd == 'REG':
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
             self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
+
+        elif cmd == 'SUB':
+            status = self.__HandleSubscription(msg)
+            self.__RoutingCoreConfigurationResponse(return_id, status)
+
+        elif cmd == 'USUB':
+            pass
+
+    def __RoutingCoreConfigurationResponse(self, return_id, status):
+        pass#self.__command_socket.send_multipart([return_id, status])
+
+    def __HandleSubscription(self, msg):
+        client_name         = msg[2]
+        client_type         = msg[3]
+        subscriptions       = msg[4:]
+        
+        option = "subscribe"
+        if(client_type.lower() == "flight"):
+
+            if(subscriptions == ['']): # Empty message in zmq means subscribe to all
+                self.__RoutingCore.routing_table.ConfigureAllFlightToGround(option,\
+                                                                    client_name)
+            else:
+                self.__RoutingCore.routing_table.ConfigureFlightToGround(option,\
+                                                                   client_name,\
+                                                                  subscriptions)
+        elif(client_type.lower() == "ground"):
+            if(subscriptions == ['']):
+                self.__RoutingCore.routing_table.ConfigureAllGroundToFlight(option,\
+                                                                    client_name)
+            else:
+                self.__RoutingCore.routing_table.ConfigureGroundToFlight(option,\
+                                                                client_name,\
+                                                                subscriptions)
+        else:
+            self.__logger.error("Client type: {} not recognized.".format(client_type))
+            return -1
+
+
+        return 1
 
 
     def __HandleRegistration(self, msg):
@@ -155,23 +199,25 @@ class ZmqKernel(object):
         Receives a client registration message.
         Returns a tuple containing the registration status, pub, and sub ports 
         """
-        name        = msg[2]
+        client_name        = msg[2]
         client_type = msg[3]
         proto       = msg[4]
-        self.__logger.info("Registering {name} as {client_type} client "
+        self.__logger.info("Registering {client_name} as {client_type} client "
                             "using {proto} protocol."\
-                       .format(name=name, client_type=client_type.lower(),\
+                       .format(client_name=client_name, client_type=client_type.lower(),\
                                proto=proto))
      
         #TODO: Generate meaningful registration status
         status = 1
 
         try:
-            self.__AddToRoutingTable(name, client_type)
+            self.__AddClientToRoutingCore(client_name, client_type)
          
             server_pub_port          = self.__GetServerPubPort(client_type) 
             server_sub_port          = self.__GetServerSubPort(client_type) 
         except TypeError:
+            self.__logger.error("Client type: {} not recognized.".format(client_type))
+
             status = -1
             server_pub_port = -1
             server_sub_port = -1
@@ -203,8 +249,6 @@ class ZmqKernel(object):
         elif client_type.lower() == "ground":
             return self.__ground_pub_thread_endpoints.GetOutputPort()
         else:
-            self.__logger.error("Client type: {} not recognized.".format(client_type))
-
             raise TypeError
             
     def __GetServerSubPort(self, client_type):
@@ -216,15 +260,34 @@ class ZmqKernel(object):
         elif client_type.lower() == "ground":
             return self.__ground_sub_thread_endpoints.GetInputPort()
         else:
-            self.__logger.error("Client type: {} not recognized.".format(client_type))
-
             raise TypeError 
             
 
-    def __AddToRoutingTable(self, name, client_type):
+    def __AddClientToRoutingCore(self, client_name, client_type):
         """
-        Based on it's type, add client to the routing table. 
+        Based on it's type, add client to the routing core. 
         """
-        pass
+
+        if client_type.lower() == "flight":
+            serverIO_subscriber_output_address = self.__flight_sub_thread_endpoints.GetOutputAddress() 
+            serverIO_publisher_input_address = self.__ground_pub_thread_endpoints.GetInputAddress()
+
+            # Add to routing table
+            self.__RoutingCore.routing_table.AddFlightClient(client_name)
+
+        elif client_type.lower() == "ground":
+            serverIO_subscriber_output_address = self.__ground_sub_thread_endpoints.GetOutputAddress() 
+            serverIO_publisher_input_address = self.__flight_pub_thread_endpoints.GetInputAddress() 
+
+            # Add to routing table
+            self.__RoutingCore.routing_table.AddGroundClient(client_name)
+
+        else:
+            raise TypeError
+
+        # Create PubSub pair for client
+        self.__RoutingCore.CreatePubSubPair(client_name, client_type,\
+                                            serverIO_subscriber_output_address,\
+                                            serverIO_publisher_input_address)
         
 

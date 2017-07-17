@@ -7,13 +7,13 @@ import datetime
 
 sys.path.append("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref") 
 
-from server_utils.ServerConfig import ServerConfig
+from ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
 
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
 from models.serialize import *
-from server_utils import test_utils
+from ServerUtils import test_utils
 import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -21,7 +21,7 @@ SERVER_CONFIG = ServerConfig.getInstance()
 def MockFlightClient(context, cmd_port, client_name): 
    
     # Setup Logger   
-    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
     logger = GetLogger("mock_target",log_path) 
     logger.debug("Logger Active") 
 
@@ -37,12 +37,17 @@ def MockFlightClient(context, cmd_port, client_name):
     msg = command_socket.recv_multipart()
     logger.debug("Command Reply Received:{}".format(msg))
 
+    # Subscribe to all commands
+    command_socket.send_multipart([b"SUB", client_name.encode(), b"flight",\
+                                b''])
+
     # Setup pub/sub ports
     server_pub_port = msg[1]
     server_sub_port = msg[2]
 
     pub_socket = context.socket(zmq.DEALER)
     sub_socket = context.socket(zmq.ROUTER)
+    sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to send
 
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
@@ -86,6 +91,16 @@ def MockFlightClient(context, cmd_port, client_name):
 
     while True: 
         try:
+
+            try: 
+                msg = sub_socket.recv()
+                logger.debug("Received Command: {}".format(msg))
+            except zmq.ZMQError as e:
+                if e.errno == zmq.EAGAIN:
+                    pass
+                else:
+                    raise
+
             for val in sine_wave: 
                 # Set variable values
                 ch_time = datetime.datetime.now()
@@ -119,6 +134,7 @@ def MockFlightClient(context, cmd_port, client_name):
                 break
             else:
                 raise
+
 
 
     # Quit
