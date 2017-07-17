@@ -56,7 +56,7 @@ core
 # Ignoring files for node client view:
 Client-OMCT/node_modules
 Client-OMCT/package-lock.json
-Client-OMCT/server/log.json
+Client-OMCT/server/temp/*
 
 # Python base folder
 lib
