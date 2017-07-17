@@ -4,6 +4,7 @@ To run:
 npm start
 
 Shows telemetry information for fprime using OpenMCT
+Must have fprime netserver running
 
 Known Bugs:
 Client memory leak when browser disconnects and reconnects multiple times

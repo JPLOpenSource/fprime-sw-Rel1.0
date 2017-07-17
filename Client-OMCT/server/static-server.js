@@ -1,5 +1,4 @@
 var express = require('express');
-
 function StaticServer(port) {
     var server = express();
     

@@ -2,25 +2,24 @@
  * Basic historical telemetry plugin.
  */
 
-function getDictionary() {
-    // Needs directory from root of application
-    return http.get('/plugins/dictionary.json').then(function (result) {
-        return result.data;
-    });
-}
-
-function HistoricalTelemetryPlugin() {
+function HistoricalTelemetryPlugin(site, port) {
     return function install (openmct) {
         var provider = {
             supportsRequest: function (domainObject) {
                 return domainObject.identifier.namespace === 'isf.taxonomy';
             },
             request: function (domainObject, options) {
-                return http.get('/server/log.json').then(function (result) {
-                    return result.data[domainObject.identifier.key].filter(function (d) {
-                        return d["timestamp"] > options.start && d["timestamp"] < options.end;
+                // Query historical data point
+                var url = 'http://' + site + ':' + port.toString() + 
+                    '/telemetry/' +
+                    domainObject.identifier.key +
+                    '?start=' + options.start +
+                    '&end=' + options.end;
+
+                return http.get(url)
+                    .then(function (resp) {
+                        return resp.data;
                     });
-                });
             }
         };
 

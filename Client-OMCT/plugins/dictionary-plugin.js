@@ -1,6 +1,8 @@
+var hostSite = 'localhost';
+var hostPort = '8080';
 function getDictionary() {
     // Needs directory from root of application
-    return http.get('/plugins/dictionary.json').then(function (result) {
+    return http.get('/server/dictionary.json').then(function (result) {
         return result.data;
     });
 }
@@ -119,7 +121,9 @@ var compositionProvider = {
 
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
-var DictionaryPlugin = function (openmct) {
+function DictionaryPlugin(site, port) {
+    hostSite = site;
+    hostPort = port.toString();
     
     // Return function of plugin
     return function install(openmct) {

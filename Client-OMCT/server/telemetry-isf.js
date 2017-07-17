@@ -4,7 +4,8 @@
 
 // Used to decode packets
 var fs = require('fs');
-var deserialize = require('./deserializeIsf');
+var deserialize = require('./deserializeIsf').deserialize;
+var getIds = require('./deserializeIsf').getIds;
 
 var net = require('net');
 const WebSocket = require('ws');
@@ -19,10 +20,35 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 		// Register client
 		client.write('Register GUI\n');
-	})
+
+		// Populate history with ids
+		getIds().forEach(function (id) {
+			history[id.toString()] = [];
+		});
+
+	});
 
 	// Realtime webserver
 	const wssr = new WebSocket.Server({port: realMctPort});
+
+	// Get isf data and save to history
+	client.on('data', function (data) {
+		// Deserialize data into list of packets
+		var toMCT = deserialize(data);
+
+		// Send to websocket
+		toMCT.forEach(function (packet) {
+			// Add to history dictionary
+			history[(packet.id).toString()].push(packet);
+			fs.writeFile('server/temp/log.json', JSON.stringify(history), function (err) {
+				if (err) {
+					console.log(err);
+				}
+			});
+		
+		});
+	});
+
 
 	wssr.on('connection', function connection(ws) {
 		// For every client connection:
@@ -30,7 +56,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 		var subscribed = {}; // Subscription dictionary unique to each connected client
 
-		// Get isf data
+		// Get isf data and send realtime telem data
 		client.on('data', function (data) {
 			// Deserialize data into list of packets
 			var toMCT = deserialize(data);
@@ -38,15 +64,6 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 			// Send to websocket
 			toMCT.forEach(function (packet) {
 				// Add to history dictionary
-				if (!history[(packet.id).toString()]) {
-					history[(packet.id).toString()] = [];
-				}
-				history[(packet.id).toString()].push(packet);
-				fs.writeFile('server/log.json', JSON.stringify(history), function (err) {
-					if (err) {
-						console.log(err);
-					}
-				});
 
 				// Send to realtime server
 				if (subscribed[packet.id]) {

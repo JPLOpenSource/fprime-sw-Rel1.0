@@ -4,11 +4,12 @@
   "description": "Client for ISF server",
   "main": "client/app.js",
   "scripts": {
-    "start": "rm -f server/log.json && node app.js",
+    "start": "rm -rf server/temp/* && node app.js",
     "postinstall": "cd node_modules/openmct && npm install"
   },
   "dependencies": {
     "express": "^4.15.3",
+    "jsonfile": "^3.0.1",
     "openmct": "github:nasa/openmct",
     "sprintf-js": "^1.1.1",
     "ws": "^3.0.0"

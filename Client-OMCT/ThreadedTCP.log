@@ -1,0 +1,6 @@
+TCP Socket Server listening on host addr 127.0.0.1, port 50001
+Registered client FSW_0
+Registration complete waiting for message.
+read data from socket is empty!
+Header information is empty, client FSW_0 exiting.
+Closed FSW_0 connection.

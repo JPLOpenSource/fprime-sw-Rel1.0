@@ -12,7 +12,7 @@
 */
 
 // Dependencies
-var telem = require('./../plugins/dictionary.json').isf;	// Get format dictionary
+var telem = require('./dictionary.json').isf;	// Get format dictionary
 
 // Utils
 var vsprintf = require("sprintf-js").vsprintf;
@@ -130,7 +130,7 @@ function deserialize(data) {
 					value = stringFormatter(hexValue, strBase, argTypes);
 			}
 		} else {
-			console.log("[ERROR] No matching found in dictionary formatter")
+			console.log("[ERROR] No matching found in format dictionary")
 		}
 
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
@@ -163,6 +163,18 @@ function deserialize(data) {
 	return res;
 }
 
+function getIds() {
+	var ids = [];
+	var channels = telem["channels"];
+	for (var id in channels) {
+		ids.push(id);
+	}
+	return ids;
+}
+
 // Export
-module.exports = deserialize;
+module.exports = {
+	deserialize: deserialize,
+	getIds: getIds
+};
 
