@@ -2,7 +2,7 @@ var hostSite = 'localhost';
 var hostPort = '8080';
 function getDictionary() {
     // Needs directory from root of application
-    return http.get('/server/dictionary.json').then(function (result) {
+    return http.get('/server/res/dictionary.json').then(function (result) {
         return result.data;
     });
 }
@@ -164,7 +164,7 @@ function DictionaryPlugin(site, port) {
             // });
         // }
 
-        console.log(openmct.types.listKeys());
+        // console.log(openmct.types.listKeys());
 
         openmct.types.addType('isf.telemetry', {
             name: 'Isf Telemetry Point',

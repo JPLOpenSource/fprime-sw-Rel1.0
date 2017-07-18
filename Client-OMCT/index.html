@@ -3,6 +3,7 @@
 <head>
     <title>Open MCT</title>
     <script src="node_modules/openmct/dist/openmct.js"></script>
+    <!-- Server requests -->
     <script src="plugins/lib/http.js"></script>
 
     <!-- Get dictionary plugin-->
@@ -11,9 +12,16 @@
     <script src="plugins/realtime-telem-plugin.js"></script>
     <!-- Historical telemetry plugin -->
     <script src="plugins/historical-telem-plugin-local.js"></script>
+    <!-- Create views from local storage json -->
+    <script src="plugins/loc-storage-objects.js"></script>
+
 </head>
 <body>
     <script>
+        // Load views
+        LoadViews();
+
+        // OpenMCT
         const site = 'localhost'
         const staticPort = 8080;
         const realTelemPort = 1337;

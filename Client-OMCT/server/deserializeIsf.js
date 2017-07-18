@@ -12,7 +12,7 @@
 */
 
 // Dependencies
-var telem = require('./dictionary.json').isf;	// Get format dictionary
+var telem = require('./res/dictionary.json').isf;	// Get format dictionary
 
 // Utils
 var vsprintf = require("sprintf-js").vsprintf;
