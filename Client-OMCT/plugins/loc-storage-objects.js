@@ -1,3 +1,5 @@
+// Load views from saved-views dict
+
 function LoadViews() {
     function getViews() {
         // Needs directory of localstorage
