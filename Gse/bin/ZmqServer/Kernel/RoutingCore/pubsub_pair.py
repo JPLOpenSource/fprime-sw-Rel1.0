@@ -32,6 +32,7 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             logger.debug("Received: {}".format(msg))
 
             # Send to broker
+            msg = msg[1:] # Remove routing id prefix
             pub_socket.send_multipart(msg)
 
     except zmq.ZMQError as e:
@@ -71,7 +72,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
         
             if sub_socket in socks:
                 # Receive from broker
-                msg = pub_socket.recv_multipart()
+                msg = sub_socket.recv_multipart()
 
                 # Send to serverIO publisher 
                 output_socket.send_multipart(msg)
@@ -117,15 +118,15 @@ class PubSubPair(object):
     @params broker_publisher_output_address: Inproc address of X-PacketBroker
             XPUB socket.
     """
-    def __init__(self, name, context, routing_table_command_address,\
+    def __init__(self, client_name, context, routing_table_command_address,\
                                       serverIO_subscriber_output_address,\
                                       serverIO_publisher_input_address,\
                                       broker_subscriber_input_address,\
                                       broker_publisher_output_address):
         # Setup Logger
-        self.__name = name
+        self.__client_name = client_name
         self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-        self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        self.__logger = GetLogger(client_name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
         
         # Setup input socket to consume subcriber thread output
@@ -138,6 +139,7 @@ class PubSubPair(object):
 
         # Setup publishing socket to produce for broker subscription 
         pub_socket = context.socket(zmq.PUB)
+        pub_socket.setsockopt(zmq.IDENTITY, client_name)
         pub_socket.connect(broker_subscriber_input_address)
 
         # Setup subscribing socket to consume from broker publishing
@@ -151,10 +153,10 @@ class PubSubPair(object):
 
         # Create forwarding and receiving threads
         self.__PacketForwarder = threading.Thread(target=ForwardToBroker,\
-                          args=(name, input_socket, pub_socket))
+                          args=(client_name, input_socket, pub_socket))
 
         self.__PacketReceiver  = threading.Thread(target=ReceiveFromBroker,\
-                          args=(name, output_socket, sub_socket, cmd_socket))
+                      args=(client_name, output_socket, sub_socket, cmd_socket))
         
         
     def Start(self):

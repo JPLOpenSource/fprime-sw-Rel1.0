@@ -19,13 +19,18 @@ class PacketBroker(object):
         self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
    
-        self.__xsub = context.socket(zmq.XSUB)
+        self.__xsub = context.socket(zmq.XSUB) 
         self.__xsub_address = BindToRandomInprocEndpoint(self.__xsub)
 
         self.__xpub = context.socket(zmq.XPUB)
         self.__xpub_address = BindToRandomInprocEndpoint(self.__xpub)
 
         self.__ProxyThread = threading.Thread(target=self.__HandleProxy)
+
+        self.__logger.debug("Creating PacketBroker")
+        self.__logger.debug("Type: {}".format(client_type))
+        self.__logger.debug("XSUB Address: {}".format(self.__xsub_address))
+        self.__logger.debug("XPUB Address: {}".format(self.__xpub_address))
 
 
     def Start(self):
@@ -34,12 +39,22 @@ class PacketBroker(object):
 
     def __HandleProxy(self):
         self.__logger.debug("Entering Runnable")
+
+        poller = zmq.Poller()
+        poller.register(self.__xpub, zmq.POLLIN)
+        poller.register(self.__xsub, zmq.POLLIN)
         try:
             while(True):
+                socks = dict(poller.poll())
+                if self.__xsub in socks:         
+                    msg = self.__xsub.recv_multipart()
+                    self.__logger.debug("XSUB Received: {}".format(msg))
+                    self.__xpub.send_multipart(msg) 
 
-                msg = self.__xsub.recv_multipart()
-                self.__logger.debug("Received: {}".format(msg))
-                self.__xpub.send_multipart(msg) 
+                if self.__xpub in socks:
+                    msg = self.__xpub.recv_multipart()
+                    self.__logger.debug("XPUB Received: {}".format(msg))
+                    self.__xsub.send_multipart(msg)
 
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:

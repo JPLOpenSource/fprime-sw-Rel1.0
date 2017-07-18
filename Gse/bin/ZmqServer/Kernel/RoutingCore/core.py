@@ -53,7 +53,10 @@ class RoutingCore(object):
         else:
             raise TypeError  
            
-
+        self.__logger.debug("Creating PubSubPair")
+        self.__logger.debug("Client Type: {}".format(client_name))
+        self.__logger.debug("Broker Input: {}".format(broker_subscriber_input_address))
+        self.__logger.debug("Broker Output: {}".format(broker_publisher_output_address))
 
         routing_table_command_address = self.routing_table.GetCommandSocketAddress()
 

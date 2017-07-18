@@ -31,6 +31,7 @@ class  GeneralServerIOThread(threading.Thread):
                                        BindOutputEndpoint,\
                                        SetEndpoints):
 
+        self.__pubsub_type = pubsub_type
         name = "{}_{}_IOThread".format(client_type, pubsub_type)
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
@@ -73,6 +74,12 @@ class  GeneralServerIOThread(threading.Thread):
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
+                if(self.__pubsub_type.lower() == "subscriber"):
+                    pass # Proper message
+                elif(self.__pubsub_type.lower() == "publisher"):
+                    msg = msg[2:] # Need to remove zmq added routing prefix and
+                                  # Subscription prefix
+
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
@@ -86,39 +93,4 @@ class  GeneralServerIOThread(threading.Thread):
         self.__logger.info("Exiting Runnable")
         self.__input_socket.close()
         self.__output_socket.close()
-
-
-class PubSubPair(object):
-    """
-    """
-    def __init__(self):
-        pass
-
-
-
-    def __PubThread(self):
-        """
-
-        The packets are published to a packet broker.
-        """
-        pass
-
-    def __SubThread(self):
-        """
-        Subscriber threads consume packets output from a packet broker.
-        The packets are sent to a PublisherServerIOThread. 
-
-        Subscriber threads are also controlled by the routing table. 
-
-        A reactor is started to handle incoming
-        packets and to handle subscription commands from the
-        routing table.
-        """
-        pass
-
-
-
-
-
-
 
