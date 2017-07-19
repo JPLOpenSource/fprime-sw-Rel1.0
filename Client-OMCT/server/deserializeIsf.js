@@ -163,6 +163,7 @@ function deserialize(data) {
 	return res;
 }
 
+// Returns an array of channel ids
 function getIds() {
 	var ids = [];
 	var channels = telem["channels"];

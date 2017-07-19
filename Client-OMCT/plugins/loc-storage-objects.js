@@ -9,7 +9,6 @@ function LoadViews() {
     }
 
     getViews().then(function (v) {
-        console.log(JSON.stringify(v));
 
         localStorage.setItem('mct', JSON.stringify(v));
         

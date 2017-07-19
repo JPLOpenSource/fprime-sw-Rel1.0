@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Open MCT</title>
+    <title>FPrime</title>
     <script src="node_modules/openmct/dist/openmct.js"></script>
     <!-- Server requests -->
     <script src="plugins/lib/http.js"></script>
@@ -17,35 +17,36 @@
 
 </head>
 <body>
-    <script>
-        // Load views
-        LoadViews();
+    <div class="omct">
+        <script type="text/javascript">
+            // Load views
+            LoadViews();
 
-        // OpenMCT
-        const site = 'localhost'
-        const staticPort = 8080;
-        const realTelemPort = 1337;
-        const histTelemPort = 1338;
+            // OpenMCT
+            const site = 'localhost'
+            const staticPort = 8080;
+            const realTelemPort = 1337;
+            const histTelemPort = 1338;
 
-        openmct.setAssetPath('node_modules/openmct/dist');
-        openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-        // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
-        openmct.install(openmct.plugins.MyItems());
+            openmct.setAssetPath('node_modules/openmct/dist');
+            openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
+            // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
+            openmct.install(openmct.plugins.MyItems());
 
-        // Configure time system
-        openmct.install(openmct.plugins.UTCTimeSystem());
-        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+            // Configure time system
+            openmct.install(openmct.plugins.UTCTimeSystem());
+            openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
 
-        // Theme
-        openmct.install(openmct.plugins.Snow());
+            // Theme
+            openmct.install(openmct.plugins.Snow());
 
-        // User plugin installs
-        openmct.install(DictionaryPlugin(site, staticPort));
-        openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-        openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+            // User plugin installs
+            openmct.install(DictionaryPlugin(site, staticPort));
+            openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+            openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
 
-        openmct.start();
-
-    </script>
+            openmct.start();
+        </script>
+    </div>
 </body>
 </html>
