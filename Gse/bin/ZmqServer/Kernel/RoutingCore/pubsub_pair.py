@@ -68,7 +68,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
     try:
         while(True):
 
-            socks = dict(poller.poll())
+            socks = dict(poller.poll(0))
         
             if sub_socket in socks:
                 # Receive from broker
@@ -93,7 +93,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
                     if(option == 'subscribe'):
                         sub_socket.setsockopt(zmq.SUBSCRIBE, pub_client)
                     elif(option == 'unsubscribe'):
-                        sub_socket.setsockopt(zmq.SUBSCRIBE, pub_client) 
+                        sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
 
                         
     except zmq.ZMQError as e:
