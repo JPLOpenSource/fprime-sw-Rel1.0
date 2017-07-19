@@ -457,9 +457,71 @@ class TestKernel:
         assert ep_port == r_port2
 
 
-    def Test_AllGroundCommandsToFlight(self):
-        PASSED = True
+    def Test_XSubPacketBrokerAddress(self):
+        flight_broker = self.k._ZmqKernel__RoutingCore._RoutingCore__FlightPacketBroker
+        ground_broker = self.k._ZmqKernel__RoutingCore._RoutingCore__GroundPacketBroker
 
+        flight_broker_xsub_address = flight_broker.GetInputAddress()
+        ground_broker_xsub_address = ground_broker.GetInputAddress()
+
+
+        # Test against flight PubSubPairs
+        ps_pair1    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight1_name)
+        xs_address1 = ps_pair1.broker_subscriber_input_address 
+
+        ps_pair2    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight2_name)
+        xs_address2 = ps_pair2.broker_subscriber_input_address
+
+        assert flight_broker_xsub_address == xs_address1 
+        assert flight_broker_xsub_address == xs_address2 
+
+    
+        # Test against ground PubSubPairs
+        ps_pair1    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground1_name)
+        xs_address1 = ps_pair1.broker_subscriber_input_address
+
+        ps_pair2    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground2_name)
+        xs_address2 = ps_pair2.broker_subscriber_input_address
+
+        assert ground_broker_xsub_address == xs_address1
+        assert ground_broker_xsub_address == xs_address2
+
+
+
+    def TestXPubPacketBrokerAddress(self):
+        flight_broker = self.k._ZmqKernel__RoutingCore._RoutingCore__FlightPacketBroker
+        ground_broker = self.k._ZmqKernel__RoutingCore._RoutingCore__GroundPacketBroker
+
+        flight_broker_xpub_address = flight_broker.GetOutputAddress()
+        ground_broker_xpub_address = ground_broker.GetOutputAddress()
+
+        # Test against flight PubSubPairs
+        ps_pair1    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight1_name)
+        xp_address1 = ps_pair1.broker_publisher_output_address 
+
+        ps_pair2    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight2_name)
+        xp_address2 = ps_pair2.broker_publisher_output_address 
+
+        assert ground_broker_xpub_address == xp_address1
+        assert ground_broker_xpub_address == xp_address2
+
+        # Test against ground PubSubPairs
+        ps_pair1    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground1_name)
+        xp_address1 = ps_pair1.broker_publisher_output_address 
+
+        ps_pair2    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground2_name)
+        xp_address2 = ps_pair2.broker_publisher_output_address 
+
+        assert flight_broker_xpub_address == xp_address1
+        assert flight_broker_xpub_address == xp_address2
+
+
+
+
+    def Test_AllGroundCommandsToFlight(self):
+        """
+        Test flight client subscribing to multiple ground clients.
+        """
     
         # Subscribe flight client 1 to all ground clients
         pub_dict = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("ground")
