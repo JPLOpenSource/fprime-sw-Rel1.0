@@ -24,7 +24,7 @@ function CreateFixed() {
 			"stroke": "transparent",
 			"color": "",
 			"titled": true,
-			"width": 6,
+			"width": 8,
 			"height": 1,
 			"useGrid": true
 		});
