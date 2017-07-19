@@ -1,7 +1,19 @@
 import logging
-from logging import DEBUG
+from logging import DEBUG, ERROR
 import os
 
+GLOBAL_LEVEL = False
+GLOBAL_LOG_LEVEL = ERROR
+GLOBAL_FILE_LEVEL = ERROR
+
+def SetLevel(logLevel, fileLevel, globalLevel=False):
+    global GLOBAL_LEVEL
+    global GLOBAL_LOG_LEVEL
+    global GLOBAL_FILE_LEVEL
+
+    GLOBAL_LEVEL = globalLevel # Let each GetLogger set their own level 
+    GLOBAL_LOG_LEVEL = logLevel
+    GLOBAL_FILE_LEVEL = fileLevel
 
 
 def GetLogger(name, logPath, logLevel=DEBUG, fileLevel=DEBUG, chLevel=DEBUG):
@@ -14,6 +26,13 @@ def GetLogger(name, logPath, logLevel=DEBUG, fileLevel=DEBUG, chLevel=DEBUG):
     Author:  David Kooi 
     Created: April, 2017
     """
+    global GLOBAL_LEVEL
+    global GLOBAL_LOG_LEVEL
+    global GLOBAL_FILE_LEVEL
+
+    if GLOBAL_LEVEL:
+        logLevel  = GLOBAL_LOG_LEVEL
+        fileLevel = GLOBAL_FILE_LEVEL 
 
     logger = logging.getLogger(name)
     logger.setLevel(logLevel)

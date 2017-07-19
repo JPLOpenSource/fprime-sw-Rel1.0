@@ -13,7 +13,7 @@ from logging import DEBUG, INFO, ERROR
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
 
-from utils.logging_util import GetLogger
+from utils.logging_util import SetLevel, GetLogger
 from ServerUtils.server_config import ServerConfig
 
 from threads import GeneralServerIOThread 
@@ -35,6 +35,7 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         # Setup Logger
+        SetLevel(logLevel=INFO, fileLevel=INFO, globalLevel=True)
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)
