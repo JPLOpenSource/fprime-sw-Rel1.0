@@ -22,10 +22,17 @@
 
 </head>
 <body>
+    <script>
+        $(document).ready(function() {
+            $("#flip").click(function() {
+                $("#panel").slideToggle("fast");
+                $("#omct").height()
+            });
+        });
+    </script>
     <style>
         #omct {
-            position: absolute;
-            z-index: 1;
+            height: 50px;
         }
 
         #command {
@@ -69,14 +76,6 @@
     </div>
 
     <div id="command">
-        <script>
-            $(document).ready(function(){
-                $("#flip").click(function(){
-                    $("#panel").slideToggle("slow");
-                });
-            });
-        </script>
-         
         <style>
             #panel, #flip {
                 padding: 5px;
@@ -86,7 +85,7 @@
             }
 
             #panel {
-                padding: 50px;
+                padding: 100px;
             }
         </style>
          
