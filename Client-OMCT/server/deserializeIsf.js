@@ -139,6 +139,7 @@ function deserialize(data) {
 		var toMCT;
 		// Create datum in openMCT format
 		if (telemData["telem_type"] === 'event') {
+			// Put event in channel id '-1'
 			id = -1;
 		}
 
