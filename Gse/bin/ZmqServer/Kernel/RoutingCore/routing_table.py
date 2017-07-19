@@ -66,41 +66,31 @@ class RoutingTable(object):
         self.__ground_publishers[client_name] = set()
 
     def ConfigureFlightPublishers(self, option, ground_client_name, flight_client_list):
+        pub_dict = self.__flight_publishers
+        self.ConfigureClientPublishers(option, ground_client_name, flight_client_list, pub_dict)
+
+    def ConfigureGroundPublishers(self, option, flight_client_name, ground_client_list):
+        pub_dict = self.__ground_publishers 
+        self.ConfigureClientPublishers(option, flight_client_name, ground_client_list, pub_dict)
+
+    def ConfigureClientPublishers(self, option, receiving_client_name, publishing_client_list,\
+                                                                       pub_dict):
         """
         Subscribe a ground client to a list of flight clients by adding the
         ground client's id each flight client's publish set.
         """
-        for flight_client_name in flight_client_list:
+        for publishing_client_name in publishing_client_list:
             try:
                 if(option.lower() == "subscribe"):
-                    self.__flight_publishers[flight_client_name].add(ground_client_name)
+                    pub_dict[publishing_client_name].add(receiving_client_name)
                 elif(option.lower() == "unsubscribe"):
-                    self.__flight_publishers[flight_client_name].remove(ground_client_name)
+                    pub_dict[publishing_client_name].remove(receiving_client_name)
                     
                 # Send command to all pubsub pairs
-                self.__command_socket.send_multipart([ground_client_name, option, flight_client_name])
+                self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
 
             except KeyError as e:
-                self.__HandleKeyError(e, ground_client_name)
-
-    def ConfigureGroundPublishers(self, option, flight_client_name, ground_client_list):
-        """
-        Subscribe a flight client to a list of ground clients by adding the
-        flight client's id each ground client's publish set.        
-        """
-        for ground_client_name in ground_client_list:
-            try:
-                if(option.lower() == "subscribe"):
-                    self.__ground_publishers[ground_client_name].add(flight_client_name)
-                elif(option.lower() == "unsubscribe"):
-                    self.__ground_publishers[ground_client_name].remove(flight_client_name)
-
-                # Send command to all pubsub pairs
-                self.__command_socket.send_multipart([flight_client_name, option, ground_client_name])
-
-            except KeyError as e:
-                self.__HandleKeyError(e, flight_client_name)
-
+                self.__HandleKeyError(e, receiving_client_name)
     
     def ConfigureAllFlightPublishers(self, option, receiving_client_name):
         pub_dict = self.__flight_publishers
@@ -131,10 +121,10 @@ class RoutingTable(object):
             self.__HandleKeyError(e, receiving_client_name)
 
 
-        def __HandleKeyError(e, receiving_client_name)
-            key = e.args[0]
-            if(key == receiving_client_name):
-                pass # Attempted to unsubscribe from a non-subscription
-            else:
-                self.__logger.warning("{} not found in publishing client dict.".format(key))
+    def __HandleKeyError(self, e, receiving_client_name):
+        key = e.args[0]
+        if(key == receiving_client_name):
+            pass # Attempted to unsubscribe from a non-subscription
+        else:
+            self.__logger.warning("{} not found in publishing client dict.".format(key))
 
