@@ -53,7 +53,7 @@ class ZmqKernel(object):
 
         # Setup flight subcriber and publisher threads
         client_type   = "Flight"
-        pubsub_type   = "Subscribe"
+        pubsub_type   = "Subscriber"
         SetEndpoints  = self.__flight_sub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__flight_sub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__flight_sub_thread_endpoints.GetOutputBinder()
@@ -62,7 +62,7 @@ class ZmqKernel(object):
                      self.__context, BindInput, BindOutput, SetEndpoints) 
 
         client_type   = "Flight"
-        pubsub_type   = "Publish"
+        pubsub_type   = "Publisher"
         SetEndpoints  = self.__flight_pub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__flight_pub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__flight_pub_thread_endpoints.GetOutputBinder()
@@ -72,7 +72,7 @@ class ZmqKernel(object):
 
         # Setup ground subscriber and publisher threads
         client_type   = "Ground"
-        pubsub_type   = "Subscribe"
+        pubsub_type   = "Subscriber"
         SetEndpoints  = self.__ground_sub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__ground_sub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__ground_sub_thread_endpoints.GetOutputBinder()
@@ -81,7 +81,7 @@ class ZmqKernel(object):
                      self.__context, BindInput, BindOutput, SetEndpoints)
 
         client_type   = "Ground"
-        pubsub_type   = "Publish"
+        pubsub_type   = "Publisher"
         SetEndpoints  = self.__ground_pub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__ground_pub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__ground_pub_thread_endpoints.GetOutputBinder()
@@ -322,19 +322,19 @@ class TestKernel:
         kernel_thread = threading.Thread(target=cls.k.Start)
 
         # Create 'clients'
-        cls.flight_client1_name = "Jim"
-        cls.ground_client1_name = "Ground1"
-        cls.ground_client2_name = "Ground2"
+        cls.flight1_name = "Flight1"
+        cls.flight2_name = "Flight2"
+        cls.ground1_name = "Ground1"
+        cls.ground2_name = "Ground2"
 
-        cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight_client1_name, "Flight")
-        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground_client1_name, "Ground")
-        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground_client2_name, "Ground")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight1_name, "Flight")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight2_name, "Flight")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground1_name, "Ground")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground2_name, "Ground")
 
         context = zmq.Context()
-        # Get Server's Flight and Ground publish ports
-        server_flight_publish_port = cls.k._ZmqKernel__GetServerPubPort("flight")
-        cls.logger.info("flight pub port: {}".format(server_flight_publish_port))
-                
+        # Get Server's Flight and Ground publish and subscribe ports
+        server_flight_publish_port = cls.k._ZmqKernel__GetServerPubPort("flight")                
         server_flight_subscribe_port = cls.k._ZmqKernel__GetServerSubPort("flight")
 
         server_ground_publish_port = cls.k._ZmqKernel__GetServerPubPort("ground")
@@ -366,63 +366,137 @@ class TestKernel:
     
     @classmethod
     def teardown_class(cls):
-        cls.logger.debug("TEARDOWN")
+        pass
         #cls.k.stop()
 #        loop = cls.k._ZmqKernel__loop
 #        loop.add_callback(loop.stop)
 
     def Test_GroundSubThreadInputPort(self):  
-        ep_port = self.k._ZmqKernel__ground_sub_thread_endpoints.GetInputPort()
-        k_port = self.k._ZmqKernel__GetServerSubPort("ground") # Kernel Port 
+        ep_port = self.k._ZmqKernel__ground_sub_thread_endpoints.GetInputPort() # Endpoint port
+        k_port = self.k._ZmqKernel__GetServerSubPort("ground")                  # Kernel Port 
         assert ep_port == k_port
+
+    def Test_GroundSubThreadOutputAddress(self):
+        PASSED = True
+
+        ep_port  = self.k._ZmqKernel__ground_sub_thread_endpoints.GetOutputAddress()
+
+        ps_pair1  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground1_name)
+        r_port1   = ps_pair1.serverIO_subscriber_output_address  
+
+        ps_pair2 = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground2_name)
+        r_port2   = ps_pair2.serverIO_subscriber_output_address
+
+        assert ep_port == r_port1
+        assert ep_port == r_port2
+       
 
     def Test_GroundPubThreadOutputPort(self):
         ep_port = self.k._ZmqKernel__ground_pub_thread_endpoints.GetOutputPort()
         k_port  = self.k._ZmqKernel__GetServerPubPort("ground")
+
         assert ep_port == k_port
+    
+    def Test_GroundPubThreadInputAddress(self):
+        PASSED = True 
+
+        ep_port  = self.k._ZmqKernel__ground_pub_thread_endpoints.GetInputAddress()
+        
+        ps_pair1  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground1_name)
+        r_port1   = ps_pair1.serverIO_publisher_input_address  
+
+        ps_pair2  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.ground2_name)
+        r_port2   = ps_pair2.serverIO_publisher_input_address
+        
+        assert ep_port == r_port1
+        assert ep_port == r_port2
+
 
     def Test_FlightSubThreadInputPort(self):
         ep_port = self.k._ZmqKernel__flight_sub_thread_endpoints.GetInputPort()
         k_port = self.k._ZmqKernel__GetServerSubPort("flight")
+
         assert ep_port == k_port
 
     def Test_FlightSubThreadOutputAddress(self):
+        PASSED = True 
+
         ep_port  = self.k._ZmqKernel__flight_sub_thread_endpoints.GetOutputAddress()
-        ps_pair  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight_client1_name)
-        r_port   = ps_pair.serverIO_subscriber_output_address  
-        assert ep_port == r_port
+
+        ps_pair1  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight1_name)
+        r_port1   = ps_pair1.serverIO_subscriber_output_address  
+
+        ps_pair2 = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight2_name)
+        r_port2   = ps_pair2.serverIO_subscriber_output_address
+
+        assert ep_port == r_port1
+        assert ep_port == r_port2
+       
 
     def Test_FlightPubThreadOutputPort(self):
         ep_port = self.k._ZmqKernel__flight_pub_thread_endpoints.GetOutputPort()
         k_port  = self.k._ZmqKernel__GetServerPubPort("flight")
+
         assert ep_port == k_port
 
     def Test_FlightPubThreadInputAddress(self):
         ep_port = self.k._ZmqKernel__flight_pub_thread_endpoints.GetInputAddress()
-        ps_pair = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight_client1_name)
-        r_port  = ps_pair.serverIO_publisher_input_address
-        assert ep_port == r_port
+
+        ps_pair1 = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight1_name)
+        r_port1  = ps_pair1.serverIO_publisher_input_address
+
+        ps_pair2 = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight2_name)
+        r_port2  = ps_pair2.serverIO_publisher_input_address
+
+        assert ep_port == r_port1
+        assert ep_port == r_port2
 
 
-    def Test_ConfigureAll_Flight(self):
-        self.logger.info("Testing ConfigureAll_Flight")
+    def Test_AllGroundCommandsToFlight(self):
+        PASSED = True
+
     
-        # Subscribe Jim to all ground clients
+        # Subscribe flight client 1 to all ground clients
         pub_dict = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("ground")
-        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAll("subscribe", "Jim", pub_dict) 
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAll("subscribe",\
+                                                                self.flight1_name, pub_dict)
 
         time.sleep(2)
-        # Send Jim a message from the Ground1
-        self.ground_send.send_multipart([b"Ground1", b"Command A"])
 
-        #self.k._ZmqKernel__ground_sub_thread._GeneralServerIOThread__output_socket.\
-        #                                                send_multipart([b"Ground1", b"cmd_A"])
+        # Send Flight1 a command from the Ground1
+        cmd1 = "Command 1"
+        self.ground_send.send_multipart([self.ground1_name, cmd1.encode()])
+
         try:
             msg = self.flight_recv.recv_multipart()
+            print msg
+
+            assert msg[0] == self.ground1_name
+            assert msg[1] == cmd1
+
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
-                print("Expected a command for flight client. No command received") 
+                print("Recv Timeout. Expected a command for flight client.") 
                 assert False
             else:
-                raise
-               
+                raise 
+
+        # Send FlightClient1 a command from Ground2
+        cmd2 = "Command 2"
+        self.ground_send.send_multipart([self.ground2_name, cmd2.encode()])
+
+        try:
+            msg = self.flight_recv.recv_multipart()
+
+            assert msg[0] == self.ground2_name
+            assert msg[1] == cmd2
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("Recv Timeout. Expected a command for flight client.") 
+                assert False
+            else:
+                raise 
+
+
+

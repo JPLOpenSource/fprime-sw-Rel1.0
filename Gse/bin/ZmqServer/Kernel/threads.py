@@ -77,8 +77,11 @@ class  GeneralServerIOThread(threading.Thread):
                 if(self.__pubsub_type.lower() == "subscriber"):
                     pass # Proper message
                 elif(self.__pubsub_type.lower() == "publisher"):
+                    #pass # Proper message
+
                     msg = msg[1:]  # Need to remove zmq added routing prefix and
                                    # Subscription prefix
+                    print(msg)
 
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
             except zmq.ZMQError as e:
