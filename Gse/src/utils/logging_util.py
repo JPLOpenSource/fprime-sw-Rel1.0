@@ -6,7 +6,7 @@ GLOBAL_LEVEL = False
 GLOBAL_LOG_LEVEL = ERROR
 GLOBAL_FILE_LEVEL = ERROR
 
-def SetLevel(logLevel, fileLevel, globalLevel=False):
+def SetGlobalLoggingLevel(logLevel, fileLevel, globalLevel=False):
     global GLOBAL_LEVEL
     global GLOBAL_LOG_LEVEL
     global GLOBAL_FILE_LEVEL
