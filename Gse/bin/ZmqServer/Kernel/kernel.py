@@ -35,7 +35,7 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         # Setup Logger
-        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=INFO, globalLevel=True)
+        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=False)
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)
@@ -159,45 +159,45 @@ class ZmqKernel(object):
         """
         self.__logger.debug("Command Received: {}".format(msg))
         
-        return_id = msg[0]
-        cmd       = msg[1] 
+        client_name = msg[0]
+        cmd         = msg[1] 
 
-        if   cmd == 'REG':
+        if   cmd == 'REG': 
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
-            self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
+            self.__RegistrationResponse(client_name, status, server_pub_port, server_sub_port)
 
         elif cmd == 'SUB':
-            status = self.__HandleSubscription(msg)
-            self.__RoutingCoreConfigurationResponse(return_id, status)
+            option = "subscribe"
+            status = self.__HandleRoutingCoreConfiguration(msg, option)
+            self.__RoutingCoreConfigurationResponse(client_name, status)
 
         elif cmd == 'USUB':
-            pass
+            option = "unsubscribe" 
+            status = self.__HandleRoutingCoreConfiguration(msg, option)
+            self.__RoutingCoreConfigurationResponse(client_name, status)
 
     def __RoutingCoreConfigurationResponse(self, return_id, status):
         pass#self.__command_socket.send_multipart([return_id, status])
 
-    def __HandleSubscription(self, msg):
+    def __HandleRoutingCoreConfiguration(self, msg, option):
         client_name         = msg[2]
         client_type         = msg[3]
         subscriptions       = msg[4:]
         
-        option = "subscribe"
         if(client_type.lower() == "flight"):
             
-            publisher_dict = self.__RoutingCore.routing_table.GetPublisherTable("ground")
             if(subscriptions == ['']): # Empty message in zmq means subscribe to all
-                self.__RoutingCore.routing_table.ConfigureAll(option, client_name, publisher_dict)
+                self.__RoutingCore.routing_table.ConfigureAllGroundPublishers(option, client_name)
             else:
-                self.__RoutingCore.routing_table.ConfigureFlightToGround(option,\
+                self.__RoutingCore.routing_table.ConfigureGroundPublishers(option,\
                                                                    client_name,\
                                                                   subscriptions)
         elif(client_type.lower() == "ground"):
             
-            publisher_dict = self.__RoutingCore.routing_table.GetPublisherTable("flight")
             if(subscriptions == ['']):
-                self.__RoutingCore.routing_table.ConfigureAll(option, client_name, publisher_dict)
+                self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
             else:
-                self.__RoutingCore.routing_table.ConfigureGroundToFlight(option,\
+                self.__RoutingCore.routing_table.ConfigureFlightPublishers(option,\
                                                                 client_name,\
                                                                 subscriptions)
         else:
@@ -213,9 +213,9 @@ class ZmqKernel(object):
         Receives a client registration message.
         Returns a tuple containing the registration status, pub, and sub ports 
         """
-        client_name = msg[2]
-        client_type = msg[3]
-        proto       = msg[4]
+        client_name = msg[0]
+        client_type = msg[2]
+        proto       = msg[3]
         self.__logger.info("Registering {client_name} as {client_type} client "
                             "using {proto} protocol."\
                        .format(client_name=client_name, client_type=client_type.lower(),\
@@ -227,8 +227,8 @@ class ZmqKernel(object):
         try:
             self.__AddClientToRoutingCore(client_name, client_type)
          
-            server_pub_port          = self.__GetServerPubPort(client_type) 
-            server_sub_port          = self.__GetServerSubPort(client_type) 
+            server_pub_port = self.__GetServerPubPort(client_type) 
+            server_sub_port = self.__GetServerSubPort(client_type) 
         except TypeError:
             self.__logger.error("Client type: {} not recognized.".format(client_type))
 
@@ -239,14 +239,14 @@ class ZmqKernel(object):
         return (status, server_pub_port, server_sub_port)
 
 
-    def __RegistrationResponse(self, return_id, status, server_pub_port,\
+    def __RegistrationResponse(self, return_name, status, server_pub_port,\
                                                         server_sub_port):
         """
         Send response to the registering client 
         """
 
         msg = [
-               bytes(return_id),\
+               bytes(return_name),\
                bytes(status),\
                bytes(server_pub_port),\
                bytes(server_sub_port)
