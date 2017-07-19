@@ -32,7 +32,7 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             logger.debug("Received: {}".format(msg))
 
             # Send to broker
-            msg = msg[1:] # Remove routing id prefix
+            msg = msg[2:] # Remove routing id prefix
             pub_socket.send_multipart(msg)
 
     except zmq.ZMQError as e:
@@ -73,7 +73,8 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
             if sub_socket in socks:
                 # Receive from broker
                 msg = sub_socket.recv_multipart()
-
+                logger.debug("Received: {}".format(msg))
+ 
                 # Send to serverIO publisher 
                 output_socket.send_multipart(msg)
 
@@ -123,6 +124,14 @@ class PubSubPair(object):
                                       serverIO_publisher_input_address,\
                                       broker_subscriber_input_address,\
                                       broker_publisher_output_address):
+
+        # Make addresses available for testing purposes
+        self.routing_table_command_address = routing_table_command_address 
+        self.serverIO_subscriber_output_address = serverIO_subscriber_output_address
+        self.serverIO_publisher_input_address = serverIO_publisher_input_address
+        self.broker_subscriber_input_address = broker_subscriber_input_address
+        self.broker_publisher_output_address = broker_publisher_output_address
+
         # Setup Logger
         self.__client_name = client_name
         self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
@@ -135,6 +144,7 @@ class PubSubPair(object):
 
         # Setup output socket to produce for publisher thread input
         output_socket = context.socket(zmq.DEALER)
+        output_socket.setsockopt(zmq.IDENTITY, client_name)
         output_socket.connect(serverIO_publisher_input_address)
 
         # Setup publishing socket to produce for broker subscription 

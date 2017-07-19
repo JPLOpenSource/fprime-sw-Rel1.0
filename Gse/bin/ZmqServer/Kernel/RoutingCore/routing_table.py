@@ -111,19 +111,22 @@ class RoutingTable(object):
                                       format(g=ground_client_name, f=flight_client_name))
                 continue
 
-    def ConfigureAllFlightToGround(self, option, flight_client_name):
+    def ConfigureAll(self, option, receiving_client_name, publishing_client_dict):
+        """
+        Configures all clients in publishing_client_dict to sub/usub to the
+        publishing_client.
+        """
 
-        # Iterate througha all ground_client entries
-        for ground_client_name in self.__ground_publishers:
+        # Iterate througha all publishing_client entries
+        # And add receiving_client to their pubisher sets
+        for publishing_client_name in publishing_client_dict:
             if(option.lower() == "subscribe"): 
-                self.__ground_publishers[ground_client_name].add(flight_client_name)
+                publishing_client_dict[publishing_client_name].add(receiving_client_name)
             elif(option.lower() == "unsubscribe"): 
-                self.__ground_publishers[ground_client_name].remove(flight_client_name)
+                publishing_client_dict[publishing_client_name].remove(receiving_client_name)
 
             # Send command to all
-            self.__command_socket.send_multipart([flight_client_name, option, ground_client_name])
-    def ConfigureAllGroundToFlight(self, option, ground_client_name):
-        pass
+            self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
 
 
 
@@ -136,6 +139,7 @@ class RoutingTable(object):
         return RoutingTable.__instance
 
     getInstance = staticmethod(getInstance)
+
 
 
 

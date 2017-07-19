@@ -4,9 +4,11 @@ import time
 import zmq
 import logging
 import datetime
+import thread
 import threading
+import multiprocessing
 
-from logging import DEBUG, INFO
+from logging import DEBUG, INFO, ERROR 
 
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
@@ -24,7 +26,12 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 class ZmqKernel(object):
 
-    def __init__(self, command_port):
+    def __init__(self, command_port, timeout=None):
+        """
+        @params command_port: tcp port on which to receive registration and commands
+        @params timeout: Quit server after timeout. For unittesting purposes
+        """
+
         self.__context = zmq.Context()
 
         # Setup Logger
@@ -35,7 +42,6 @@ class ZmqKernel(object):
 
         # Create RoutingCore
         self.__RoutingCore = RoutingCore(self.__context)
-
 
         # Set endpoints for Flight subscriber and publisher threads
         self.__flight_sub_thread_endpoints = SubscriberThreadEndpoints()
@@ -59,9 +65,8 @@ class ZmqKernel(object):
         pubsub_type   = "Publish"
         SetEndpoints  = self.__flight_pub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__flight_pub_thread_endpoints.GetInputBinder()
-        BindOutput     = self.__flight_pub_thread_endpoints.GetOutputBinder()
-
-          
+        BindOutput    = self.__flight_pub_thread_endpoints.GetOutputBinder()
+ 
         self.__flight_pub_thread = GeneralServerIOThread(client_type, pubsub_type,\
                      self.__context, BindInput, BindOutput, SetEndpoints)
 
@@ -96,12 +101,16 @@ class ZmqKernel(object):
 
         # Create Reactor 
         self.__loop = IOLoop.instance()
+
+        if(timeout):
+            self.__loop.call_later(timeout, self.__loop.stop)
         
         # Wrap sockets in ZMQStreams for IOLoop handlers
         self.__command_socket = ZMQStream(self.__command_socket)
 
         # Register handlers
         self.__command_socket.on_recv(self.__HandleCommand)
+
 
     def GetContext(self):
         """
@@ -120,24 +129,27 @@ class ZmqKernel(object):
             self.__flight_pub_thread.start()
 
             self.__ground_sub_thread.start()
-            self.__ground_pub_thread.start()
+            self.__ground_pub_thread.start() 
 
-            self.__loop.start()
+            self.__loop.start() 
+
         except KeyboardInterrupt:
-            self.Quit()  
+            pass # Fall through to quit
+
+        self.Quit()  
           
     def Quit(self):
         """
         Shut down server
         """
         self.__logger.info("Initiating server shutdown") 
-
+    
         self.__RoutingCore.Quit()
 
         # Must close all sockets before context terminate
         self.__command_socket.close()
-
-        self.__context.term()
+        self.__context.term() 
+  
 
     def __HandleCommand(self, msg):
         """
@@ -170,18 +182,19 @@ class ZmqKernel(object):
         
         option = "subscribe"
         if(client_type.lower() == "flight"):
-
+            
+            publisher_dict = self.__RoutingCore.routing_table.GetPublisherTable("ground")
             if(subscriptions == ['']): # Empty message in zmq means subscribe to all
-                self.__RoutingCore.routing_table.ConfigureAllFlightToGround(option,\
-                                                                    client_name)
+                self.__RoutingCore.routing_table.ConfigureAll(option, client_name, publisher_dict)
             else:
                 self.__RoutingCore.routing_table.ConfigureFlightToGround(option,\
                                                                    client_name,\
                                                                   subscriptions)
         elif(client_type.lower() == "ground"):
+            
+            publisher_dict = self.__RoutingCore.routing_table.GetPublisherTable("flight")
             if(subscriptions == ['']):
-                self.__RoutingCore.routing_table.ConfigureAllGroundToFlight(option,\
-                                                                    client_name)
+                self.__RoutingCore.routing_table.ConfigureAll(option, client_name, publisher_dict)
             else:
                 self.__RoutingCore.routing_table.ConfigureGroundToFlight(option,\
                                                                 client_name,\
@@ -199,7 +212,7 @@ class ZmqKernel(object):
         Receives a client registration message.
         Returns a tuple containing the registration status, pub, and sub ports 
         """
-        client_name        = msg[2]
+        client_name = msg[2]
         client_type = msg[3]
         proto       = msg[4]
         self.__logger.info("Registering {client_name} as {client_type} client "
@@ -269,15 +282,15 @@ class ZmqKernel(object):
         """
 
         if client_type.lower() == "flight":
-            serverIO_subscriber_output_address = self.__flight_sub_thread_endpoints.GetOutputAddress() 
-            serverIO_publisher_input_address = self.__ground_pub_thread_endpoints.GetInputAddress()
+            serverIO_subscriber_output_address = self.__flight_sub_thread_endpoints.GetOutputAddress()
+            serverIO_publisher_input_address = self.__flight_pub_thread_endpoints.GetInputAddress()
 
             # Add to routing table
             self.__RoutingCore.routing_table.AddFlightClient(client_name)
 
         elif client_type.lower() == "ground":
-            serverIO_subscriber_output_address = self.__ground_sub_thread_endpoints.GetOutputAddress() 
-            serverIO_publisher_input_address = self.__flight_pub_thread_endpoints.GetInputAddress() 
+            serverIO_subscriber_output_address = self.__ground_sub_thread_endpoints.GetOutputAddress()
+            serverIO_publisher_input_address = self.__ground_pub_thread_endpoints.GetInputAddress()
 
             # Add to routing table
             self.__RoutingCore.routing_table.AddGroundClient(client_name)
@@ -291,3 +304,125 @@ class ZmqKernel(object):
                                             serverIO_publisher_input_address)
         
 
+class TestKernel:
+
+    @classmethod
+    def setup_class(cls):
+        # Setup Logger
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        cls.logger = GetLogger("KERNEL_UNIT_TEST",log_path, logLevel=DEBUG,\
+                                               fileLevel=ERROR)
+        cls.logger.debug("Logger Active")
+
+
+
+        cmd_port = 5555 
+        timeout  = 15
+        cls.k = ZmqKernel(cmd_port, timeout)  
+        kernel_thread = threading.Thread(target=cls.k.Start)
+
+        # Create 'clients'
+        cls.flight_client1_name = "Jim"
+        cls.ground_client1_name = "Ground1"
+        cls.ground_client2_name = "Ground2"
+
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight_client1_name, "Flight")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground_client1_name, "Ground")
+        cls.k._ZmqKernel__AddClientToRoutingCore(cls.ground_client2_name, "Ground")
+
+        context = zmq.Context()
+        # Get Server's Flight and Ground publish ports
+        server_flight_publish_port = cls.k._ZmqKernel__GetServerPubPort("flight")
+        cls.logger.info("flight pub port: {}".format(server_flight_publish_port))
+                
+        server_flight_subscribe_port = cls.k._ZmqKernel__GetServerSubPort("flight")
+
+        server_ground_publish_port = cls.k._ZmqKernel__GetServerPubPort("ground")
+        server_ground_subscribe_port = cls.k._ZmqKernel__GetServerSubPort("ground")
+        
+        # Setup flight sockets 
+        cls.flight_send = context.socket(zmq.DEALER) # Send telemetry to ground
+        cls.flight_send.connect("tcp://localhost:{}".format(server_flight_subscribe_port))
+        #
+        cls.flight_recv = context.socket(zmq.ROUTER) # Receive commands from ground
+        cls.flight_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.flight_recv.connect("tcp://localhost:{}".format(server_flight_publish_port))
+
+        # Setup ground sockets
+        cls.ground_recv = context.socket(zmq.ROUTER) # Receive telemetry from flight
+        cls.ground_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.ground_recv.connect("tcp://localhost:{}".format(server_ground_publish_port))
+        #
+        cls.ground_send = context.socket(zmq.DEALER) # Send commands from ground
+        cls.ground_send.connect("tcp://localhost:{}".format(server_ground_subscribe_port))
+
+        # Create server command port
+        cls.cmd_send = context.socket(zmq.DEALER)
+        cls.cmd_send.connect("tcp://localhost:{}".format(cmd_port))
+
+        kernel_thread.start()
+        time.sleep(2)
+
+    
+    @classmethod
+    def teardown_class(cls):
+        cls.logger.debug("TEARDOWN")
+        #cls.k.stop()
+#        loop = cls.k._ZmqKernel__loop
+#        loop.add_callback(loop.stop)
+
+    def Test_GroundSubThreadInputPort(self):  
+        ep_port = self.k._ZmqKernel__ground_sub_thread_endpoints.GetInputPort()
+        k_port = self.k._ZmqKernel__GetServerSubPort("ground") # Kernel Port 
+        assert ep_port == k_port
+
+    def Test_GroundPubThreadOutputPort(self):
+        ep_port = self.k._ZmqKernel__ground_pub_thread_endpoints.GetOutputPort()
+        k_port  = self.k._ZmqKernel__GetServerPubPort("ground")
+        assert ep_port == k_port
+
+    def Test_FlightSubThreadInputPort(self):
+        ep_port = self.k._ZmqKernel__flight_sub_thread_endpoints.GetInputPort()
+        k_port = self.k._ZmqKernel__GetServerSubPort("flight")
+        assert ep_port == k_port
+
+    def Test_FlightSubThreadOutputAddress(self):
+        ep_port  = self.k._ZmqKernel__flight_sub_thread_endpoints.GetOutputAddress()
+        ps_pair  = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight_client1_name)
+        r_port   = ps_pair.serverIO_subscriber_output_address  
+        assert ep_port == r_port
+
+    def Test_FlightPubThreadOutputPort(self):
+        ep_port = self.k._ZmqKernel__flight_pub_thread_endpoints.GetOutputPort()
+        k_port  = self.k._ZmqKernel__GetServerPubPort("flight")
+        assert ep_port == k_port
+
+    def Test_FlightPubThreadInputAddress(self):
+        ep_port = self.k._ZmqKernel__flight_pub_thread_endpoints.GetInputAddress()
+        ps_pair = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.flight_client1_name)
+        r_port  = ps_pair.serverIO_publisher_input_address
+        assert ep_port == r_port
+
+
+    def Test_ConfigureAll_Flight(self):
+        self.logger.info("Testing ConfigureAll_Flight")
+    
+        # Subscribe Jim to all ground clients
+        pub_dict = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("ground")
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAll("subscribe", "Jim", pub_dict) 
+
+        time.sleep(2)
+        # Send Jim a message from the Ground1
+        self.ground_send.send_multipart([b"Ground1", b"Command A"])
+
+        #self.k._ZmqKernel__ground_sub_thread._GeneralServerIOThread__output_socket.\
+        #                                                send_multipart([b"Ground1", b"cmd_A"])
+        try:
+            msg = self.flight_recv.recv_multipart()
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("Expected a command for flight client. No command received") 
+                assert False
+            else:
+                raise
+               

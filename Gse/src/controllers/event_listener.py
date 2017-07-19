@@ -215,7 +215,7 @@ class EventListener(observer.Observed):
             try:
                 msg = clientSocket.receiveFromServer()
 
-                queue.put(msg[2])
+                queue.put(msg[0])
 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:

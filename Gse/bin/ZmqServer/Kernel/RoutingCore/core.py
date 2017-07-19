@@ -27,7 +27,7 @@ class RoutingCore(object):
  
        
         self.__context = context
-        self.__pubsub_pair_list = [] 
+        self.__pubsub_pair_dict = {} 
 
         self.__FlightPacketBroker = PacketBroker("flight", self.__context)
         self.__GroundPacketBroker = PacketBroker("ground", self.__context)
@@ -41,8 +41,11 @@ class RoutingCore(object):
         self.routing_table.Quit()
 
 
+    def GetPubSubPair(self, client_name):
+        return self.__pubsub_pair_dict[client_name]
+
     def CreatePubSubPair(self, client_name, client_type, serverIO_subscriber_output_address,\
-                                                    serverIO_publisher_input_address):
+                                                         serverIO_publisher_input_address):
 
         if client_type.lower() == "flight":
             broker_subscriber_input_address = self.__FlightPacketBroker.GetInputAddress() 
@@ -68,7 +71,7 @@ class RoutingCore(object):
                                     broker_publisher_output_address)
 
         psp.Start()
-        self.__pubsub_pair_list.append(psp)
+        self.__pubsub_pair_dict[client_name] = psp
                                     
 
 

@@ -30,8 +30,8 @@ class  GeneralServerIOThread(threading.Thread):
                                        BindInputEndpoint,\
                                        BindOutputEndpoint,\
                                        SetEndpoints):
-
         self.__pubsub_type = pubsub_type
+
         name = "{}_{}_IOThread".format(client_type, pubsub_type)
         # Setup Logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
@@ -77,8 +77,8 @@ class  GeneralServerIOThread(threading.Thread):
                 if(self.__pubsub_type.lower() == "subscriber"):
                     pass # Proper message
                 elif(self.__pubsub_type.lower() == "publisher"):
-                    msg = msg[2:] # Need to remove zmq added routing prefix and
-                                  # Subscription prefix
+                    msg = msg[1:]  # Need to remove zmq added routing prefix and
+                                   # Subscription prefix
 
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
             except zmq.ZMQError as e:
