@@ -24,22 +24,21 @@ def MockFlightClient(context, cmd_port, client_name):
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
     logger = GetLogger("mock_target",log_path) 
     logger.debug("Logger Active") 
-
-    logger.debug("Context: {}".format(context))
+ 
     command_socket = context.socket(zmq.DEALER) 
+    command_socket.setsockopt(zmq.IDENTITY, client_name)
+
     logger.debug("Created cmd socket")
     command_socket.connect("tcp://localhost:{}".format(cmd_port))
     logger.debug("Connected cmd socket")
     
     # Register target
-    command_socket.send_multipart([b"REG", client_name.encode(), b"flight",\
-                                                                 b"ZMQ"])
+    command_socket.send_multipart([b"REG", b"flight", b"ZMQ"])
     msg = command_socket.recv_multipart()
     logger.debug("Command Reply Received:{}".format(msg))
 
     # Subscribe to all commands
-    command_socket.send_multipart([b"SUB", client_name.encode(), b"flight",\
-                                b''])
+    command_socket.send_multipart([b"SUB", b"flight", b''])
 
     # Setup pub/sub ports
     server_pub_port = msg[1]
