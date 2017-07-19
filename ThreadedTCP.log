@@ -1,0 +1,14 @@
+TCP Socket Server listening on host addr 127.0.0.1, port 50000
+Registered client FSW_0
+Registration complete waiting for message.
+Registered client GUI_0
+Registration complete waiting for message.
+Registered client GUI_1
+Registration complete waiting for message.
+Registered client GUI_2
+Registration complete waiting for message.
+read data from socket is empty!
+Header information is empty, client GUI_2 exiting.
+Closed GUI_2 connection.
+Registered client GUI_2
+Registration complete waiting for message.
