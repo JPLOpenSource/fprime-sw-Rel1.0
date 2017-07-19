@@ -70,14 +70,16 @@ class  GeneralServerIOThread(threading.Thread):
 
         while True:
             try:
+                
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
+
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
                     break
-                if e.errno == zmq.EAGAIN:
+                elif e.errno == zmq.EAGAIN:
                     continue
                 else:
                     raise

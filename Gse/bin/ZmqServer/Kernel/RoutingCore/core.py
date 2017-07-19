@@ -24,8 +24,7 @@ class RoutingCore(object):
         self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
- 
-       
+   
         self.__context = context
         self.__pubsub_pair_dict = {} 
 
@@ -46,6 +45,10 @@ class RoutingCore(object):
 
     def CreatePubSubPair(self, client_name, client_type, serverIO_subscriber_output_address,\
                                                          serverIO_publisher_input_address):
+
+        # Do not duplicate if the PubSubPair exists
+        if client_name in self.__pubsub_pair_dict:
+            return
 
         if client_type.lower() == "flight":
             broker_subscriber_input_address = self.__FlightPacketBroker.GetInputAddress() 

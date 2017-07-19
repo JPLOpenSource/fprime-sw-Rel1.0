@@ -46,12 +46,12 @@ class PacketBroker(object):
         try:
             while(True):
                 socks = dict(poller.poll())
-                if self.__xsub in socks:         
+                if self.__xsub in socks: # XSUB receives packets
                     msg = self.__xsub.recv_multipart()
                     self.__logger.debug("XSUB Received: {}".format(msg))
                     self.__xpub.send_multipart(msg) 
 
-                if self.__xpub in socks:
+                if self.__xpub in socks: # XPUB receives subscription messages and passes them through
                     msg = self.__xpub.recv_multipart()
                     self.__logger.debug("XPUB Received: {}".format(msg))
                     self.__xsub.send_multipart(msg)
