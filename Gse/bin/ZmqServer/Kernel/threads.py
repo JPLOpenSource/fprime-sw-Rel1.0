@@ -30,10 +30,9 @@ class  GeneralServerIOThread(threading.Thread):
                                        BindInputEndpoint,\
                                        BindOutputEndpoint,\
                                        SetEndpoints):
-        self.__pubsub_type = pubsub_type
-
-        name = "{}_{}_IOThread".format(client_type, pubsub_type)
+        
         # Setup Logger
+        name = "{}_{}_IOThread".format(client_type, pubsub_type) 
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
@@ -48,7 +47,7 @@ class  GeneralServerIOThread(threading.Thread):
         self.__logger.debug("Input endpoint: {}".format(input_endpoint))
 
         # Setup socket to publish to clients
-        self.__output_socket = context.socket(zmq.DEALER)
+        self.__output_socket = context.socket(zmq.ROUTER)
         try:
             output_endpoint = BindOutputEndpoint(self.__output_socket) 
         except zmq.ZMQBindError as e:
@@ -73,15 +72,6 @@ class  GeneralServerIOThread(threading.Thread):
             try:
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
-
-                if(self.__pubsub_type.lower() == "subscriber"):
-                    pass # Proper message
-                elif(self.__pubsub_type.lower() == "publisher"):
-                    #pass # Proper message
-
-                    msg = msg[1:]  # Need to remove zmq added routing prefix and
-                                   # Subscription prefix
-                    print(msg)
 
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
             except zmq.ZMQError as e:

@@ -32,8 +32,8 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             logger.debug("Received: {}".format(msg))
 
             # Send to broker
-            msg = msg[2:] # Remove routing id prefix
-            pub_socket.send_multipart(msg)
+            packet = msg[1] # Extract packet from zmq frame
+            pub_socket.send_multipart([client_name, packet]) # Publish with client's name prefixed
 
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
@@ -74,9 +74,11 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
                 # Receive from broker
                 msg = sub_socket.recv_multipart()
                 logger.debug("Received: {}".format(msg))
- 
+
+                packet = msg[1] # Extract packet
+             
                 # Send to serverIO publisher 
-                output_socket.send_multipart(msg)
+                output_socket.send_multipart([packet])
 
             if cmd_socket in socks:
                 cmd_list = cmd_socket.recv_multipart()
@@ -140,6 +142,7 @@ class PubSubPair(object):
         
         # Setup input socket to consume subcriber thread output
         input_socket = context.socket(zmq.ROUTER)
+        input_socket.setsockopt(zmq.IDENTITY, client_name)
         input_socket.connect(serverIO_subscriber_output_address)
 
         # Setup output socket to produce for publisher thread input

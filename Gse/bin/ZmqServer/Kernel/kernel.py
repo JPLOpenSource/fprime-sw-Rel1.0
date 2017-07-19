@@ -341,20 +341,24 @@ class TestKernel:
         server_ground_subscribe_port = cls.k._ZmqKernel__GetServerSubPort("ground")
         
         # Setup flight sockets 
-        cls.flight_send = context.socket(zmq.DEALER) # Send telemetry to ground
-        cls.flight_send.connect("tcp://localhost:{}".format(server_flight_subscribe_port))
+        cls.flight1_send = context.socket(zmq.DEALER) # Send telemetry to ground
+        cls.flight1_send.setsockopt(zmq.IDENTITY, cls.flight1_name)
+        cls.flight1_send.connect("tcp://localhost:{}".format(server_flight_subscribe_port))
         #
-        cls.flight_recv = context.socket(zmq.ROUTER) # Receive commands from ground
-        cls.flight_recv.setsockopt(zmq.RCVTIMEO, 2)
-        cls.flight_recv.connect("tcp://localhost:{}".format(server_flight_publish_port))
+        cls.flight1_recv = context.socket(zmq.ROUTER) # Receive commands from ground
+        cls.flight1_recv.setsockopt(zmq.IDENTITY, cls.flight1_name)
+        cls.flight1_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.flight1_recv.connect("tcp://localhost:{}".format(server_flight_publish_port))
 
         # Setup ground sockets
-        cls.ground_recv = context.socket(zmq.ROUTER) # Receive telemetry from flight
-        cls.ground_recv.setsockopt(zmq.RCVTIMEO, 2)
-        cls.ground_recv.connect("tcp://localhost:{}".format(server_ground_publish_port))
+        cls.ground1_recv = context.socket(zmq.ROUTER) # Receive telemetry from flight
+        cls.ground1_recv.setsockopt(zmq.IDENTITY, cls.ground1_name)
+        cls.ground1_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.ground1_recv.connect("tcp://localhost:{}".format(server_ground_publish_port))
         #
-        cls.ground_send = context.socket(zmq.DEALER) # Send commands from ground
-        cls.ground_send.connect("tcp://localhost:{}".format(server_ground_subscribe_port))
+        cls.ground1_send = context.socket(zmq.DEALER) # Send commands from ground
+        cls.ground1_send.setsockopt(zmq.IDENTITY, cls.ground1_name)
+        cls.ground1_send.connect("tcp://localhost:{}".format(server_ground_subscribe_port))
 
         # Create server command port
         cls.cmd_send = context.socket(zmq.DEALER)
@@ -465,13 +469,12 @@ class TestKernel:
 
         # Send Flight1 a command from the Ground1
         cmd1 = "Command 1"
-        self.ground_send.send_multipart([self.ground1_name, cmd1.encode()])
+        self.ground1_send.send_multipart([cmd1.encode()])
 
         try:
-            msg = self.flight_recv.recv_multipart()
+            msg = self.flight1_recv.recv_multipart()
             print msg
 
-            assert msg[0] == self.ground1_name
             assert msg[1] == cmd1
 
         except zmq.ZMQError as e:
@@ -483,12 +486,12 @@ class TestKernel:
 
         # Send FlightClient1 a command from Ground2
         cmd2 = "Command 2"
-        self.ground_send.send_multipart([self.ground2_name, cmd2.encode()])
+        self.ground1_send.send_multipart([cmd2.encode()])
 
         try:
-            msg = self.flight_recv.recv_multipart()
-
-            assert msg[0] == self.ground2_name
+            msg = self.flight1_recv.recv_multipart()
+            print msg
+ 
             assert msg[1] == cmd2
 
         except zmq.ZMQError as e:
