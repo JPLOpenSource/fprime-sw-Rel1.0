@@ -17,8 +17,6 @@ class RoutingTable(object):
     Mediates resource access by multiple threads through a zmq ROUTER socket.
     """
     
-    __instance = None
-
     def __init__(self, context): 
         name = "Routing_Table"
         # Setup logger
@@ -67,7 +65,7 @@ class RoutingTable(object):
         """
         self.__ground_publishers[client_name] = set()
 
-    def ConfigureGroundToFlight(self, option, ground_client_name, flight_client_list):
+    def ConfigureFlightPublishers(self, option, ground_client_name, flight_client_list):
         """
         Subscribe a ground client to a list of flight clients by adding the
         ground client's id each flight client's publish set.
@@ -82,14 +80,10 @@ class RoutingTable(object):
                 # Send command to all pubsub pairs
                 self.__command_socket.send_multipart([ground_client_name, option, flight_client_name])
 
-            except KeyError:
-                self.__logger.warning("Unable to subscribe ground client {g} to "
-                                      "flight client {f}. Flight client {f} "
-                                      "is not registered".\
-                                      format(g=ground_client_name, f=flight_client_name))
-                continue
+            except KeyError as e:
+                self.__HandleKeyError(e, ground_client_name)
 
-    def ConfigureFlightToGround(self, option, flight_client_name, ground_client_list):
+    def ConfigureGroundPublishers(self, option, flight_client_name, ground_client_list):
         """
         Subscribe a flight client to a list of ground clients by adding the
         flight client's id each ground client's publish set.        
@@ -104,12 +98,17 @@ class RoutingTable(object):
                 # Send command to all pubsub pairs
                 self.__command_socket.send_multipart([flight_client_name, option, ground_client_name])
 
-            except KeyError:
-                self.__logger.warning("Unable to subscribe flight client {f} to "
-                                      "ground client {g}. Ground client {g} "
-                                      "is not registered".\
-                                      format(g=ground_client_name, f=flight_client_name))
-                continue
+            except KeyError as e:
+                self.__HandleKeyError(e, flight_client_name)
+
+    
+    def ConfigureAllFlightPublishers(self, option, receiving_client_name):
+        pub_dict = self.__flight_publishers
+        self.ConfigureAll(option, receiving_client_name, pub_dict)
+
+    def ConfigureAllGroundPublishers(self, option, receiving_client_name):
+        pub_dict = self.__ground_publishers
+        self.ConfigureAll(option, receiving_client_name, pub_dict)
 
     def ConfigureAll(self, option, receiving_client_name, publishing_client_dict):
         """
@@ -117,29 +116,25 @@ class RoutingTable(object):
         publishing_client.
         """
 
-        # Iterate througha all publishing_client entries
+        # Iterate through all publishing_client entries
         # And add receiving_client to their pubisher sets
-        for publishing_client_name in publishing_client_dict:
-            if(option.lower() == "subscribe"): 
-                publishing_client_dict[publishing_client_name].add(receiving_client_name)
-            elif(option.lower() == "unsubscribe"): 
-                publishing_client_dict[publishing_client_name].remove(receiving_client_name)
+        try:
+            for publishing_client_name in publishing_client_dict:
+                if(option.lower() == "subscribe"): 
+                    publishing_client_dict[publishing_client_name].add(receiving_client_name)
+                elif(option.lower() == "unsubscribe"): 
+                    publishing_client_dict[publishing_client_name].remove(receiving_client_name)
 
-            # Send command to all
-            self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
-
-
-
-    def getInstance():
-        """
-        Return instance of singleton.
-        """ 
-        if(RoutingTable.__instance is None):
-            RoutingTable.__instance = RoutingTable()
-        return RoutingTable.__instance
-
-    getInstance = staticmethod(getInstance)
+                # Send command to all
+                self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
+        except KeyError as e:
+            self.__HandleKeyError(e, receiving_client_name)
 
 
-
+        def __HandleKeyError(e, receiving_client_name)
+            key = e.args[0]
+            if(key == receiving_client_name):
+                pass # Attempted to unsubscribe from a non-subscription
+            else:
+                self.__logger.warning("{} not found in publishing client dict.".format(key))
 
