@@ -21,18 +21,19 @@ class TestKernel:
                                                fileLevel=ERROR)
         cls.logger.debug("Logger Active")
 
-
-
         cmd_port = 5555 
-        timeout  = 15
-        cls.k = ZmqKernel(cmd_port, timeout)  
+        timeout_s  = 15
+        cls.k = ZmqKernel(cmd_port, timeout_s)  
         kernel_thread = threading.Thread(target=cls.k.Start)
 
         # Create 'clients'
         cls.flight1_name = "Flight1"
         cls.flight2_name = "Flight2"
+
         cls.ground1_name = "Ground1"
         cls.ground2_name = "Ground2"
+
+        cls.cmd_client_name = "CmdClient"
 
         cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight1_name, "Flight")
         cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight2_name, "Flight")
@@ -48,6 +49,7 @@ class TestKernel:
         server_ground_subscribe_port = cls.k._ZmqKernel__GetServerSubPort("ground")
         
         # Setup flight sockets 
+        timeout_ms = 10
 
         # Flight1
         cls.flight1_send = context.socket(zmq.DEALER) # Send telemetry to ground
@@ -56,7 +58,7 @@ class TestKernel:
         #
         cls.flight1_recv = context.socket(zmq.ROUTER) # Receive commands from ground
         cls.flight1_recv.setsockopt(zmq.IDENTITY, cls.flight1_name)
-        cls.flight1_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.flight1_recv.setsockopt(zmq.RCVTIMEO, timeout_ms)
         cls.flight1_recv.connect("tcp://localhost:{}".format(server_flight_publish_port))
         # Flight2
         cls.flight2_send = context.socket(zmq.DEALER) # Send telemetry to ground
@@ -65,7 +67,7 @@ class TestKernel:
         #
         cls.flight2_recv = context.socket(zmq.ROUTER) # Receive commands from ground
         cls.flight2_recv.setsockopt(zmq.IDENTITY, cls.flight2_name)
-        cls.flight2_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.flight2_recv.setsockopt(zmq.RCVTIMEO, timeout_ms)
         cls.flight2_recv.connect("tcp://localhost:{}".format(server_flight_publish_port))
 
 
@@ -75,7 +77,7 @@ class TestKernel:
         # Ground1
         cls.ground1_recv = context.socket(zmq.ROUTER) # Receive telemetry from flight
         cls.ground1_recv.setsockopt(zmq.IDENTITY, cls.ground1_name)
-        cls.ground1_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.ground1_recv.setsockopt(zmq.RCVTIMEO, timeout_ms)
         cls.ground1_recv.connect("tcp://localhost:{}".format(server_ground_publish_port))
         #
         cls.ground1_send = context.socket(zmq.DEALER) # Send commands from ground
@@ -84,7 +86,7 @@ class TestKernel:
         # Ground2
         cls.ground2_recv = context.socket(zmq.ROUTER) # Receive telemetry from flight
         cls.ground2_recv.setsockopt(zmq.IDENTITY, cls.ground2_name)
-        cls.ground2_recv.setsockopt(zmq.RCVTIMEO, 2)
+        cls.ground2_recv.setsockopt(zmq.RCVTIMEO, timeout_ms)
         cls.ground2_recv.connect("tcp://localhost:{}".format(server_ground_publish_port))
         #
         cls.ground2_send = context.socket(zmq.DEALER) # Send commands from ground
@@ -92,11 +94,10 @@ class TestKernel:
         cls.ground2_send.connect("tcp://localhost:{}".format(server_ground_subscribe_port))
 
 
-
-
         # Create server command port
-        cls.cmd_send = context.socket(zmq.DEALER)
-        cls.cmd_send.connect("tcp://localhost:{}".format(cmd_port))
+        cls.cmd_client = context.socket(zmq.DEALER)
+        cls.cmd_client.setsockopt(zmq.IDENTITY, cls.cmd_client_name)
+        cls.cmd_client.connect("tcp://localhost:{}".format(cmd_port))
 
         kernel_thread.start()
         time.sleep(2)
@@ -105,6 +106,9 @@ class TestKernel:
     @classmethod
     def teardown_class(cls):
         pass
+
+    def setup_test(self):
+        time.sleep(1)
 
     def Test_GroundSubThreadInputPort(self):  
         """
@@ -272,6 +276,124 @@ class TestKernel:
         assert flight_broker_xpub_address == xp_address2
 
 
+    def Test_ClientRegistration(self):
+        """
+        Test client registration.
+        """
+        real_sub_port = self.k._ZmqKernel__ground_sub_thread_endpoints.GetInputPort()
+        real_pub_port = self.k._ZmqKernel__ground_pub_thread_endpoints.GetOutputPort()
+
+        print("Real Sub: {}".format(real_sub_port))
+        print("Real Pub: {}".format(real_pub_port))
+
+        # Send a registration call
+        self.cmd_client.send_multipart([b"REG", b"GROUND", b"ZMQ"])  
+
+        try:
+            msg = self.cmd_client.recv_multipart()
+            print msg
+            status   = msg[0]
+            pub_port = msg[1]
+            sub_port = msg[2]
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("Registration reply not received")
+                assert False
+            else:
+                raise
+
+        assert int(status)   == 1
+        assert real_sub_port == int(sub_port)
+        assert real_pub_port == int(pub_port)
+
+        # Check client's PubSubPair exists within routing core
+        ps_pair    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.cmd_client_name)
+
+    def Test_FlightClientSubscriptionChange(self):
+
+        # Unsubscribe flight1 from ground1
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureGroundPublishers("unsubscribe",\
+                                                            self.flight1_name, [self.ground1_name]) 
+
+        time.sleep(1)
+        cmd = "Do This"
+        # Send from ground1
+        self.ground1_send.send_multipart([cmd.encode()])
+        try:
+            msg = self.flight1_recv.recv_multipart()
+            print "Unexpected Message Received." 
+            assert False 
+            
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("No message received")
+                assert True 
+            else:
+                raise 
+
+        # Subscribe again to ground1
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureGroundPublishers("subscribe",\
+                                                            self.flight1_name, [self.ground1_name]) 
+        
+        time.sleep(1)
+        cmd = "Do Something Else"
+        # Send from ground1
+        self.ground1_send.send_multipart([cmd.encode()])
+        try:
+            msg = self.flight1_recv.recv_multipart()
+            assert True 
+            print "Message Received." 
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("No message received")
+                assert False 
+            else:
+                raise 
+
+
+        # Clear routing table
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllGroundPublishers("unsubscribe",\
+                                                                    self.flight1_name)
+
+        # Subscribe to ground2
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureGroundPublishers("subscribe",\
+                                                            self.flight1_name, [self.ground2_name]) 
+
+        time.sleep(1)
+
+        cmd = "Ground2 Cmd"
+        # Send from ground1
+        self.ground2_send.send_multipart([cmd.encode()])
+        try:
+            msg = self.flight1_recv.recv_multipart()
+            assert True 
+            print "Message Received." 
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("No message received")
+                assert False 
+            else:
+                raise 
+
+        # Clear routing table
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllFlightPublishers("unsubscribe",\
+                                                                    self.flight1_name)
+        time.sleep(1)
+        try:
+            msg = self.flight1_recv.recv_multipart()
+            assert False 
+            print "Message Received." 
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                print("No message received")
+                assert True 
+            else:
+                raise 
+
 
 
     def Test_AllGroundCommandsToFlight(self):
@@ -279,10 +401,9 @@ class TestKernel:
         Test a flight client subscribing to multiple ground clients.
         """
     
-        # Subscribe flight client 1 to all ground clients
-        pub_dict = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("ground")
-        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAll("subscribe",\
-                                                                self.flight1_name, pub_dict)
+        # Subscribe flight client 1 to all ground clients 
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllGroundPublishers("subscribe",\
+                                                                self.flight1_name)
 
         time.sleep(2)
 
@@ -326,9 +447,8 @@ class TestKernel:
         """
 
         # Subscribe to all
-        pub_dict = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("flight")
-        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAll("subscribe",\
-                                                                self.ground1_name, pub_dict)
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllFlightPublishers("subscribe",\
+                                                                self.ground1_name)
 
         time.sleep(2)
 
