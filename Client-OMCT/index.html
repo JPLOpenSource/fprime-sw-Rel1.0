@@ -2,10 +2,12 @@
 <html>
 <head>
     <title>FPrime</title>
+
+    <!-- Open MCT Ditribution and plugins -->
+    <!-- OMCT -->
     <script src="node_modules/openmct/dist/openmct.js"></script>
     <!-- Server requests -->
     <script src="plugins/lib/http.js"></script>
-
     <!-- Get dictionary plugin-->
     <script src="plugins/dictionary-plugin.js"></script>
     <!-- Realtime telemetry plugin -->
@@ -15,9 +17,26 @@
     <!-- Create views from local storage json -->
     <script src="plugins/loc-storage-objects.js"></script>
 
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 </head>
 <body>
-    <div class="omct">
+    <style>
+        #omct {
+            position: absolute;
+            z-index: 1;
+        }
+
+        #command {
+            width: 100%;
+            position: absolute;
+            z-index: 2;
+            bottom: 0px;
+
+        }
+    </style>
+    <div id="omct">
         <script type="text/javascript">
             // Load views
             LoadViews();
@@ -47,6 +66,34 @@
 
             openmct.start();
         </script>
+    </div>
+
+    <div id="command">
+        <script>
+            $(document).ready(function(){
+                $("#flip").click(function(){
+                    $("#panel").slideToggle("slow");
+                });
+            });
+        </script>
+         
+        <style>
+            #panel, #flip {
+                padding: 5px;
+                text-align: center;
+                background-color: #e5eecc;
+                border: solid 1px #c3c3c3;
+            }
+
+            #panel {
+                padding: 50px;
+            }
+        </style>
+         
+        <div id="panel">Command Panel</div>
+        <div id="flip">Click to toggle command pannel</div>
+        
+
     </div>
 </body>
 </html>

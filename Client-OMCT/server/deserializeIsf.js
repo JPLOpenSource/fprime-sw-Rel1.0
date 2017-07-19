@@ -139,23 +139,17 @@ function deserialize(data) {
 		var toMCT;
 		// Create datum in openMCT format
 		if (telemData["telem_type"] === 'event') {
-			toMCT = {
-				'timestamp':timestamp,
-				'value':value,
-				'name': telemData["name"],
-				'event_id': id.toString(),
-				'id': '-1',
-				'type': telemData["telem_type"]
-			};
-		} else {
-
-			toMCT = {
-				'timestamp':timestamp,
-				'value':value,
-				'id':id.toString(),
-				'type': telemData["telem_type"]
-			};
+			id = -1;
 		}
+
+		toMCT = {
+			'timestamp':timestamp,
+			'value':value,
+			'name': telemData["name"],
+			'identifier': id.toString(),
+			'id': id.toString(),
+			'type': telemData["telem_type"]
+		};
 
 		res.push(toMCT);
 

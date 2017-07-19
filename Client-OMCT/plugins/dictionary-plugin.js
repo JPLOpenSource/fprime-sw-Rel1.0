@@ -38,7 +38,7 @@ var id_format = {
     "hints": {
         "range": 3
     },
-    "key": "event_id",
+    "key": "identifier",
     "name": "ID"
 };
 
@@ -84,7 +84,7 @@ var objectProvider = {
                         type: 'isf.telemetry',
                         // type: typeStr,
                         telemetry: {
-                            values: [time_format, value_format]  // Values already in default format
+                            values: [time_format, name_format, id_format, value_format]  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };

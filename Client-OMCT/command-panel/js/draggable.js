@@ -1,7 +1,7 @@
 window.onload = addListeners();
 
 function addListeners(){
-    document.getElementById('dxy').addEventListener('mousedown', mouseDown, false);
+    document.getElementById('faketerminal').addEventListener('mousedown', mouseDown, false);
     window.addEventListener('mouseup', mouseUp, false);
 
 }
@@ -16,7 +16,7 @@ function mouseDown(e){
 }
 
 function divMove(e){
-	var div = document.getElementById('dxy');
+	var div = document.getElementById('faketerminal');
 	div.style.position = 'absolute';
 	div.style.top = e.clientY + 'px';
 	div.style.left = e.clientX + 'px';
