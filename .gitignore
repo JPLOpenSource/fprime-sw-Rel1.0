@@ -57,7 +57,9 @@ core
 # Modules
 Client-OMCT/node_modules
 Client-OMCT/bower_components
+# Npm
 Client-OMCT/package-lock.json
+# Server temp files
 Client-OMCT/server/temp/*
 
 
