@@ -22,7 +22,7 @@ class TestKernel:
         cls.logger.debug("Logger Active")
 
         cmd_port = 5555 
-        timeout_s  = 15
+        timeout_s  = 27
         cls.k = ZmqKernel(cmd_port, timeout_s)  
         kernel_thread = threading.Thread(target=cls.k.Start)
 
@@ -119,7 +119,7 @@ class TestKernel:
         time.sleep(2)
 
     
-    def setup_test(self):
+    def setUp(self):
         time.sleep(1)
 
     def Test_Subcription(self):
@@ -132,7 +132,8 @@ class TestKernel:
                                                                     self.subtest_flight_client_name)
 
         # Subscribe Ground Client
-        self.subtest_ground_client.send_multipart([b"SUB", b"GROUND", b""])  
+        self.subtest_ground_client.send_multipart([b"SUB", self.subtest_ground_client_name.encode(),\
+                                                   b"GROUND", b""])  
         time.sleep(1) # Allow subcription message to reach
 
         flight_pubs = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("Flight")
@@ -141,7 +142,8 @@ class TestKernel:
 
 
         # Subscribe Flight Client
-        self.subtest_flight_client.send_multipart([b"SUB", b"FLIGHT", b""])
+        self.subtest_flight_client.send_multipart([b"SUB", self.subtest_flight_client_name.encode(),\
+                                                   b"FLIGHT", b""])
         time.sleep(1)
 
         ground_pubs = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("Ground")
@@ -347,13 +349,22 @@ class TestKernel:
         assert real_pub_port == int(pub_port)
 
         # Check client's PubSubPair exists within routing core
-        ps_pair    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.cmd_client_name)
+        s_pair    = self.k._ZmqKernel__RoutingCore.GetPubSubPair(self.cmd_client_name)
 
     def Test_FlightClientSubscriptionChange(self):
 
-        # Unsubscribe flight1 from ground1
+        # Unsubscribe flight1 from all
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllGroundPublishers("unsubscribe",\
+                                                            self.flight1_name) 
+
+         # Subscribe flight1 to ground1
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureGroundPublishers("subscribe",\
+                                                            self.flight1_name, [self.ground1_name]) 
+
+        # Unsubscribe flight1 to ground1
         self.k._ZmqKernel__RoutingCore.routing_table.ConfigureGroundPublishers("unsubscribe",\
                                                             self.flight1_name, [self.ground1_name]) 
+
 
         time.sleep(1)
         cmd = "Do This"
