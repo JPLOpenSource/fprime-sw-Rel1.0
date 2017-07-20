@@ -48,6 +48,8 @@ class  GeneralServerIOThread(threading.Thread):
 
         # Setup socket to publish to clients
         self.__output_socket = context.socket(zmq.ROUTER)
+        self.__output_socket.setsockopt(zmq.ROUTER_HANDOVER, 1) # Needed to handle reconnections
+
         try:
             output_endpoint = BindOutputEndpoint(self.__output_socket) 
         except zmq.ZMQBindError as e:
