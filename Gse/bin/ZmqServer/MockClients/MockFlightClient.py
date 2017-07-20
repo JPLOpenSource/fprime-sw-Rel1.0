@@ -18,7 +18,7 @@ import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()
 
-def MockFlightClient(context, cmd_port, client_name): 
+def MockFlightClient(context, cmd_port, client_name, ch_idx): 
    
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
@@ -63,7 +63,7 @@ def MockFlightClient(context, cmd_port, client_name):
     channel_loader.create("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref/"
                           "channels")
     ch_dict  = channel_loader.getChDict() 
-    sensor1  = ch_dict[103]
+    sensor1  = ch_dict[ch_idx]
     
     
 
@@ -113,7 +113,7 @@ def MockFlightClient(context, cmd_port, client_name):
                 time_s  = u32_type.U32Type(time_s)
                 time_us = u32_type.U32Type(time_us) 
 
-                value.val  = float(val)
+                value.val  = float(ch_idx)
                 
                 
                
@@ -147,12 +147,19 @@ def MockFlightClient(context, cmd_port, client_name):
 
 if __name__ == "__main__":
     cmd_port = sys.argv[1] 
-    client_name = "F1"
+    number   = int(sys.argv[2])
+
+    if number == 1:
+        ch_idx = 103
+    else:
+        ch_idx = 104
+
+    client_name = "F{}".format(number)
     
     context = zmq.Context()
 
     mock_flight_client = threading.Thread(target=MockFlightClient,\
-                                          args=(context, cmd_port, client_name))
+                                          args=(context, cmd_port, client_name, ch_idx))
     mock_flight_client.start() 
     
     try:
