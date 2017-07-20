@@ -31,6 +31,8 @@ class RoutingTable(object):
         self.__flights_subscribed_to_all = set() # Set of the flight clients who are subscribed to all ground clients 
         self.__grounds_subscribed_to_all = set()
 
+        self.__outstanding_subscriptions = [] # List of unsuccessfuly recorded subscriptions 
+
         # Setup command socket
         self.__command_socket     = context.socket(zmq.PUB)
         self.__command_socket_adr = BindToRandomInprocEndpoint(self.__command_socket)
@@ -64,6 +66,7 @@ class RoutingTable(object):
         publisher_set = self.__flight_publishers[client_name]
         sub_all_set   = self.__grounds_subscribed_to_all
         self.SetNewClientSubscription(publisher_set, sub_all_set)
+        self.SyncOutstanding(client_name, publisher_set)
 
     def AddGroundClient(self, client_name):
         """
@@ -74,13 +77,23 @@ class RoutingTable(object):
         publisher_set = self.__ground_publishers[client_name] 
         sub_all_set   = self.__flights_subscribed_to_all
         self.SetNewClientSubscription(publisher_set, sub_all_set)
+        self.SyncOutstanding(client_name, publisher_set)
 
-    def SetNewClientSubscription(publisher_set, sub_all_set):
+    def SetNewClientSubscription(self, publisher_set, sub_all_set):
         """
         Add to publisher_set any receiving client who is subscribed to all.
         """
         for receiving_client in sub_all_set:
             publisher_set.add(receiving_client)
+    
+    def SyncOutstanding(self, publishing_client_name, publisher_set):
+        """
+        Check if publishing_client name is in outstanding_subscriptions.
+        If yes, add recv_client to publisher_set.
+        """
+        for recv_client, pub_client in self.__outstanding_subscriptions:
+            if pub_client == publishing_client_name:
+                publisher_set.add(recv_client)
 
     def ConfigureFlightPublishers(self, option, ground_client_name, flight_client_list):
         """
@@ -113,6 +126,11 @@ class RoutingTable(object):
 
             except KeyError as e:
                 self.__HandleKeyError(e, receiving_client_name)
+
+                # If publishing client does not exist, add to an outstanding list
+                if(e.args[0] == publishing_client_name):
+                    recv_pub = receiving_client_name, publishing_client_name
+                    self.__outstanding_subscriptions.append(recv_pub)
 
             # Subscribe the receiving_client's PubSubPair to every publishing_client_name
             self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
