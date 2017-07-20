@@ -1,3 +1,5 @@
+
+
 To install:
 npm install
 To run:
@@ -7,65 +9,5 @@ Shows telemetry information for fprime using OpenMCT
 Must have fprime netserver running
 
 Known Bugs:
-Client memory leak when browser disconnects and reconnects multiple times
-	- For every connection, two clients are found in ws.
+   - Client memory leak when browser disconnects and reconnects multiple times
 
-Notes:
-"composition": [
-      "462bc40f-2558-41b4-a156-4529095f8a63",	Tables
-      "5a05c94c-2998-4e8a-b190-c47d7d860447",	Res
-      "61948d5a-9154-4f37-90c7-560fa41f8d6f",	Plots
-
-      "8dbd2ce3-a87d-496f-809a-0a98225d86c9"	Created at demo
-    ],
-
-    "294c4011-c91c-4d6d-bab3-eb5e24c3e94b": {
-      "position": [
-        0,
-        12
-      ],
-      "dimensions": [
-        33,
-        9
-      ]
-    },
-    "d0712139-44e7-4c87-9146-e679ac30a3f5": {
-      "position": [
-        0,
-        12
-      ],
-      "dimensions": [
-        48,
-        17
-      ]
-    },
-    "2f73c14e-fd2e-47f5-89b8-af5b49d95bae": {
-      "position": [
-        0,
-        0
-      ],
-      "dimensions": [
-        16,
-        12
-      ]
-    },
-    "23472b83-e5ef-4cb6-b30e-4ae850cbeff0": {
-      "position": [
-        16,
-        0
-      ],
-      "dimensions": [
-        15,
-        12
-      ]
-    },
-    "ff222604-365c-46ea-8e14-f902efc409c6": {
-      "position": [
-        31,
-        0
-      ],
-      "dimensions": [
-        17,
-        12
-      ]
-    }

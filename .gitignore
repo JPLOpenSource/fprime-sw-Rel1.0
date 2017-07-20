@@ -54,10 +54,12 @@ core
 .swp
 
 # Ignoring files for node client view:
+# Modules
 Client-OMCT/node_modules
+Client-OMCT/bower_components
 Client-OMCT/package-lock.json
 Client-OMCT/server/temp/*
-Client-OMCT/command-panel/faketerminal
+
 
 # Python base folder
 lib

@@ -20,30 +20,39 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
+    <!-- Command pannel: faketerminal -->
+    <link href="command-panel/faketerminal/dist/faketerminal.css" media="all" rel="stylesheet" type="text/css"/>
+    <script src="command-panel/faketerminal/dist/faketerminal.min.js" type="text/javascript"></script>
+
+
 </head>
 <body>
     <script>
         $(document).ready(function() {
+            // Init command panel
+            $('#faketerminal').faketerminal();
+
+            // Flip
             $("#flip").click(function() {
-                $("#panel").slideToggle("fast");
+                $("#faketerminal").slideToggle("fast");
                 $("#omct").height()
             });
         });
     </script>
     <style>
-        #omct {
-            height: 50px;
-        }
-
+        /*Command pannel*/
         #command {
             width: 100%;
             position: absolute;
             z-index: 2;
             bottom: 0px;
+            margin: 0 auto;
 
         }
     </style>
-    <div id="omct">
+
+    <!-- OpenMCT -->
+    <!-- <div id="omct">
         <script type="text/javascript">
             // Load views
             LoadViews();
@@ -73,23 +82,37 @@
 
             openmct.start();
         </script>
-    </div>
+    </div> -->
 
     <div id="command">
         <style>
-            #panel, #flip {
+            #flip {
                 padding: 5px;
                 text-align: center;
                 background-color: #e5eecc;
                 border: solid 1px #c3c3c3;
             }
 
-            #panel {
-                padding: 100px;
+            #faketerminal {
+                padding: 130px;
+                height: 100px;
+                margin: 0 auto;
+                text-align: center;
+                border: solid 1px #c3c3c3;
             }
+
+            
+
         </style>
          
-        <div id="panel">Command Panel</div>
+        <!-- <div id="panel"> -->
+            <div id="faketerminal">
+                <info>Command Window</info>
+                <line></line>
+                This is a basic terminal emulator for websites, type <comment>help</comment> to get started
+
+            </div>
+        <!-- </div> -->
         <div id="flip">Click to toggle command pannel</div>
         
 
