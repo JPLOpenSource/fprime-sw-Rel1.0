@@ -64,7 +64,7 @@ class ClientSocket:
 
             time.sleep(1)
             # Subscribe to all targets
-            self.__server_cmd_socket.send_multipart([b"SUB", b"GROUND", b''])
+            self.__server_cmd_socket.send_multipart([b"SUB", gui_name.encode(), b"GROUND", b''])
 
             ###########################
             ## Setup pub/sub sockets ##
@@ -80,6 +80,7 @@ class ClientSocket:
 
             self.__gui_pub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_sub_port))
             self.__gui_sub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_pub_port))
+
 
             ############
             ## Finish ##
