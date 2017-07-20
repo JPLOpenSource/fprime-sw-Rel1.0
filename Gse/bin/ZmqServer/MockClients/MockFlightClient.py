@@ -38,7 +38,7 @@ def MockFlightClient(context, cmd_port, client_name):
     logger.debug("Command Reply Received:{}".format(msg))
 
     # Subscribe to all commands
-    command_socket.send_multipart([b"SUB", b"flight", b''])
+    command_socket.send_multipart([b"SUB", client_name.encode(), b"flight", b''])
 
     # Setup pub/sub ports
     server_pub_port = msg[1]
