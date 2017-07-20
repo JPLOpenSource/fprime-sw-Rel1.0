@@ -122,6 +122,9 @@ class RoutingTable(object):
         Notify the subscribing client of each publisher to subscribe to.
         """
         for publishing_client_name in publishing_client_list:
+            # Subscribe or unsubscrobe the receiving_client's PubSubPair to every publishing_client_name
+            self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
+
             try:
                 if(option.lower() == "subscribe"):
                     pub_dict[publishing_client_name].add(receiving_client_name)
@@ -136,8 +139,6 @@ class RoutingTable(object):
                     recv_pub = receiving_client_name, publishing_client_name
                     self.__outstanding_subscriptions.append(recv_pub)
 
-            # Subscribe the receiving_client's PubSubPair to every publishing_client_name
-            self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
     
     def ConfigureAllFlightPublishers(self, option, ground_client_name):
         """
@@ -190,6 +191,9 @@ class RoutingTable(object):
         
         for publishing_client_name in publishing_client_dict:
             try:
+                # Tell receiving_client to subcribe or unsubscribe
+                self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
+                
                 if(option.lower() == "subscribe"): 
                     publishing_client_dict[publishing_client_name].add(receiving_client_name)
                 elif(option.lower() == "unsubscribe"): 
@@ -198,8 +202,7 @@ class RoutingTable(object):
             except KeyError as e:
                 self.__HandleKeyError(e, receiving_client_name)
 
-        # Tell receiving_client to subcribe or unsubscribe to all
-        self.__command_socket.send_multipart([receiving_client_name, option, b''])
+
 
     def __HandleKeyError(self, e, receiving_client_name):
         key = e.args[0]
