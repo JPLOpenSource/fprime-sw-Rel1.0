@@ -14,7 +14,6 @@ SERVER_CONFIG = ServerConfig.getInstance()
 class RoutingTable(object):
     """
     Maintains the zmq server's routing table.
-    Mediates resource access by multiple threads through a zmq ROUTER socket.
     """
     
     def __init__(self, context): 
@@ -29,8 +28,11 @@ class RoutingTable(object):
         self.__flight_publishers = {}
         self.__ground_publishers = {}
 
+        self.__flights_subscribed_to_all = set() # Set of the flight clients who are subscribed to all ground clients 
+        self.__grounds_subscribed_to_all = set()
+
         # Setup command socket
-        self.__command_socket = context.socket(zmq.PUB)
+        self.__command_socket     = context.socket(zmq.PUB)
         self.__command_socket_adr = BindToRandomInprocEndpoint(self.__command_socket)
 
     def Quit(self):
@@ -59,25 +61,48 @@ class RoutingTable(object):
         """
         self.__flight_publishers[client_name] = set()
 
+        publisher_set = self.__flight_publishers[client_name]
+        sub_all_set   = self.__grounds_subscribed_to_all
+        self.SetNewClientSubscription(publisher_set, sub_all_set)
+
     def AddGroundClient(self, client_name):
         """
         Create a ground publisher entry and create it's publish set.
         """
         self.__ground_publishers[client_name] = set()
 
+        publisher_set = self.__ground_publishers[client_name] 
+        sub_all_set   = self.__flights_subscribed_to_all
+        self.SetNewClientSubscription(publisher_set, sub_all_set)
+
+    def SetNewClientSubscription(publisher_set, sub_all_set):
+        """
+        Add to publisher_set any receiving client who is subscribed to all.
+        """
+        for receiving_client in sub_all_set:
+            publisher_set.add(receiving_client)
+
     def ConfigureFlightPublishers(self, option, ground_client_name, flight_client_list):
+        """
+        Add ground_client_name to each flight publisher's set.
+        """
         pub_dict = self.__flight_publishers
         self.ConfigureClientPublishers(option, ground_client_name, flight_client_list, pub_dict)
 
     def ConfigureGroundPublishers(self, option, flight_client_name, ground_client_list):
+        """
+        Add flight_client_name to each ground publisher's set.
+        """
         pub_dict = self.__ground_publishers 
         self.ConfigureClientPublishers(option, flight_client_name, ground_client_list, pub_dict)
 
     def ConfigureClientPublishers(self, option, receiving_client_name, publishing_client_list,\
                                                                        pub_dict):
         """
-        Subscribe a ground client to a list of flight clients by adding the
-        ground client's id each flight client's publish set.
+        Subscribe a receiving client to a list of publishing clients by adding the
+        receiving client's name to each publishing client's set.
+
+        Notify the subscribing client of each publisher to subscribe to.
         """
         for publishing_client_name in publishing_client_list:
             try:
@@ -92,13 +117,40 @@ class RoutingTable(object):
             # Subscribe the receiving_client's PubSubPair to every publishing_client_name
             self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
     
-    def ConfigureAllFlightPublishers(self, option, receiving_client_name):
+    def ConfigureAllFlightPublishers(self, option, ground_client_name):
+        """
+        Add ground_client's name to all flight publisher's sets. 
+        """
         pub_dict = self.__flight_publishers
-        self.ConfigureAll(option, receiving_client_name, pub_dict)
+        self.ConfigureAll(option, ground_client_name, pub_dict)
 
-    def ConfigureAllGroundPublishers(self, option, receiving_client_name):
+        # Add receiving_client to all subscribe list
+        sub_set = self.__grounds_subscribed_to_all
+        self.ConfigureSubscribedToAll(option, ground_client_name, sub_set)
+
+
+    def ConfigureAllGroundPublishers(self, option, flight_client_name):
+        """
+        Add flight_client's name to all ground publisher's sets.
+        """
         pub_dict = self.__ground_publishers
-        self.ConfigureAll(option, receiving_client_name, pub_dict)
+        self.ConfigureAll(option, flight_client_name, pub_dict)
+
+        # Add receiving_client to all subscribe list
+        sub_set = self.__flights_subscribed_to_all
+        self.ConfigureSubscribedToAll(option, flight_client_name, sub_set)
+
+    def ConfigureSubscribedToAll(self, option, receiving_client_name, sub_set):
+        """
+        Add or remove receiving_client from its type's subscribe to all set. 
+        """
+        try:
+            if(option.lower() == "subscribe"):
+                sub_set.add(receiving_client_name)
+            elif(option.lower() == "unsubscribe"):
+                sub_set.remove(receiving_client_name)
+        except KeyError as e:
+            self.__HandleKeyError(e, receiving_client_name) 
 
     def ConfigureAll(self, option, receiving_client_name, publishing_client_dict):
         """
@@ -126,7 +178,8 @@ class RoutingTable(object):
     def __HandleKeyError(self, e, receiving_client_name):
         key = e.args[0]
         if(key == receiving_client_name):
-            pass # Attempted to unsubscribe from a non-subscription
-        else:    # Must be unable to find publishing_client_name within publishing dict
+            pass # Attempted to unsubscribe from a non-subscription.
+
+        else:    # Must be unable to find publishing_client_name within publishing dict.
             self.__logger.warning("{} is not a registered publisher.".format(key))
 

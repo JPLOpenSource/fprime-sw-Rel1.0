@@ -194,7 +194,7 @@ class ZmqKernel(object):
                                                                    client_name,\
                                                                   subscriptions)
         elif(client_type.lower() == "ground"):
-            if(subscriptions == ['']):
+            if(subscriptions == ['']): # Subscribe to all
                 self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
             else:
                 self.__RoutingCore.routing_table.ConfigureFlightPublishers(option,\
@@ -279,7 +279,8 @@ class ZmqKernel(object):
 
     def __AddClientToRoutingCore(self, client_name, client_type):
         """
-        Based on it's type, add client to the routing core. 
+        Based on it's type, add client to the routing table and create
+        a PubSubPair. 
         """
 
         if client_type.lower() == "flight":
