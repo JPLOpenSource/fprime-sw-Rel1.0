@@ -45,7 +45,7 @@ class PacketBroker(object):
         poller.register(self.__xsub, zmq.POLLIN)
         try:
             while(True):
-                socks = dict(poller.poll())
+                socks = dict(poller.poll(0))
                 if self.__xsub in socks: # XSUB receives packets
                     msg = self.__xsub.recv_multipart()
                     self.__logger.debug("XSUB Received: {}".format(msg))

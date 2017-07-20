@@ -103,6 +103,7 @@ class ZmqKernel(object):
         # Create Reactor 
         self.__loop = IOLoop.instance()
 
+        # Set timeout for unit testing
         if(timeout):
             self.__loop.call_later(timeout, self.__loop.stop)
         
@@ -180,9 +181,9 @@ class ZmqKernel(object):
         pass#self.__command_socket.send_multipart([return_id, status])
 
     def __HandleRoutingCoreConfiguration(self, msg, option):
-        client_name         = msg[0]
-        client_type         = msg[2]
-        subscriptions       = msg[3:]
+        client_name         = msg[2]
+        client_type         = msg[3]
+        subscriptions       = msg[4:]
 
 
         if(client_type.lower() == "flight"):
