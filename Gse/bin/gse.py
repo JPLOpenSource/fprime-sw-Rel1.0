@@ -189,13 +189,21 @@ def main(argv=None):
                           default="local")
         parser.add_option("-n", "--no-about", dest="no_about", action="store_true", help="Do not show about text screen on start", \
                           default=True)
+        parser.add_option("-N", "--name", dest="name", action="store", help="Name of gui client", default=None)
+        parser.add_option("-T", "--targets", dest="targets", action="append", help="Targets to subscribe to.", default=None)
+
 
 
         #parser.add_option("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %default]")
 
         # process options
         (opts, args) = parser.parse_args(argv)
-        #
+        
+        if opts.name is None:
+            sys.stderr.write("Error: a client name must be provided. Exiting.")
+            return
+    
+
         # Launch the Threaded TCP Server here...
 
         # check for gm time in options

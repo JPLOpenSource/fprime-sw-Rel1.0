@@ -85,7 +85,7 @@ class TopPanel(object):
         parent.minsize(min_x, min_y)
 
 
-        self.__gui_name = "GUI_1"
+        self.__gui_name = opts.name
         self.__clientSocket = None
 
         #
@@ -437,6 +437,7 @@ class TopPanel(object):
         addr = self.__opts.addr
 
         self.__clientSocket = client_sock.GetClientSocket(self, addr, port, self.__gui_name)
+        self.__clientSocket.SubscribeToTargets(self.__opts.targets)
         
         # Register the socket with the event_listener and
         # Spawn the listener thread here....

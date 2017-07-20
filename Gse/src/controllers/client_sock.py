@@ -25,6 +25,7 @@ class ClientSocket:
         """
         try:
 
+            self.__gui_name = gui_name
             self.__zmq_initialized = False # Let the destructor know if all zmq components were initialzed
             self.__mainPanel = main_panel
 
@@ -63,8 +64,6 @@ class ClientSocket:
             self.__server_sub_port = response[2]
 
             time.sleep(1)
-            # Subscribe to all targets
-            self.__server_cmd_socket.send_multipart([b"SUB", gui_name.encode(), b"GROUND", b''])
 
             ###########################
             ## Setup pub/sub sockets ##
@@ -105,6 +104,12 @@ class ClientSocket:
 
     def __del__(self):
         self.disconnect()
+
+    def SubscribeToTargets(self, targets):
+        for target in targets:
+             # Subscribe to all targets
+            self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
+
 
 
     def disconnect(self):
