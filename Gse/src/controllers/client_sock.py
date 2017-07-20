@@ -48,6 +48,7 @@ class ClientSocket:
             self.__server_cmd_socket = self.__zmq_context.socket(zmq.DEALER)
 
             # Set socket options
+            self.__server_cmd_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
             self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
             self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
             
@@ -55,12 +56,15 @@ class ClientSocket:
 
             # Register the GUI with the server
             # TODO: Create unique ground-client name
-            self.__server_cmd_socket.send_multipart([b"REG", gui_name.encode(), b"GROUND",\
-                                                     b"ZMQ"])
+            self.__server_cmd_socket.send_multipart([b"REG", b"GROUND", b"ZMQ"])
 
             response = self.__server_cmd_socket.recv_multipart()
             self.__server_pub_port = response[1]
             self.__server_sub_port = response[2]
+
+            time.sleep(1)
+            # Subscribe to all targets
+            self.__server_cmd_socket.send_multipart([b"SUB", b"GROUND", b''])
 
             ###########################
             ## Setup pub/sub sockets ##
@@ -72,6 +76,7 @@ class ClientSocket:
             self.__gui_pub_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
             self.__gui_pub_socket.setsockopt(zmq.LINGER, 0) # Immidiately close socket
             self.__gui_sub_socket.setsockopt(zmq.LINGER, 0)
+            self.__gui_sub_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
 
             self.__gui_pub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_sub_port))
             self.__gui_sub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_pub_port))

@@ -180,10 +180,11 @@ class ZmqKernel(object):
         pass#self.__command_socket.send_multipart([return_id, status])
 
     def __HandleRoutingCoreConfiguration(self, msg, option):
-        client_name         = msg[2]
-        client_type         = msg[3]
-        subscriptions       = msg[4:]
-        
+        client_name         = msg[0]
+        client_type         = msg[2]
+        subscriptions       = msg[3:]
+
+
         if(client_type.lower() == "flight"):
             
             if(subscriptions == ['']): # Empty message in zmq means subscribe to all
@@ -193,7 +194,6 @@ class ZmqKernel(object):
                                                                    client_name,\
                                                                   subscriptions)
         elif(client_type.lower() == "ground"):
-            
             if(subscriptions == ['']):
                 self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
             else:

@@ -215,14 +215,16 @@ class EventListener(observer.Observed):
             try:
                 msg = clientSocket.receiveFromServer()
 
-                queue.put(msg[0])
+                queue.put(msg[1])
 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
                     break
                 else:
                     raise
-        
+            except TypeError:
+                continue
+
         sub_socket.close()
 
 

@@ -85,12 +85,12 @@ class RoutingTable(object):
                     pub_dict[publishing_client_name].add(receiving_client_name)
                 elif(option.lower() == "unsubscribe"):
                     pub_dict[publishing_client_name].remove(receiving_client_name)
-                    
-                # Send command to all pubsub pairs
-                self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
 
             except KeyError as e:
                 self.__HandleKeyError(e, receiving_client_name)
+
+            # Subscribe the receiving_client's PubSubPair to every publishing_client_name
+            self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
     
     def ConfigureAllFlightPublishers(self, option, receiving_client_name):
         pub_dict = self.__flight_publishers
@@ -108,23 +108,25 @@ class RoutingTable(object):
 
         # Iterate through all publishing_client entries
         # And add receiving_client to their pubisher sets
-        try:
-            for publishing_client_name in publishing_client_dict:
+        self.__logger.debug("Adding {} to {}".format(receiving_client_name, publishing_client_dict))
+        
+        for publishing_client_name in publishing_client_dict:
+            try:
                 if(option.lower() == "subscribe"): 
                     publishing_client_dict[publishing_client_name].add(receiving_client_name)
                 elif(option.lower() == "unsubscribe"): 
                     publishing_client_dict[publishing_client_name].remove(receiving_client_name)
 
-                # Send command to all
-                self.__command_socket.send_multipart([receiving_client_name, option, publishing_client_name])
-        except KeyError as e:
-            self.__HandleKeyError(e, receiving_client_name)
+            except KeyError as e:
+                self.__HandleKeyError(e, receiving_client_name)
 
+        # Tell receiving_client to subcribe or unsubscribe to all
+        self.__command_socket.send_multipart([receiving_client_name, option, b''])
 
     def __HandleKeyError(self, e, receiving_client_name):
         key = e.args[0]
         if(key == receiving_client_name):
             pass # Attempted to unsubscribe from a non-subscription
-        else:
-            self.__logger.warning("{} not found in publishing client dict.".format(key))
+        else:    # Must be unable to find publishing_client_name within publishing dict
+            self.__logger.warning("{} is not a registered publisher.".format(key))
 

@@ -34,6 +34,9 @@ class TestKernel:
         cls.ground2_name = "Ground2"
 
         cls.cmd_client_name = "CmdClient"
+        cls.subtest_flight_client_name = "FlightSubClient"
+        cls.subtest_ground_client_name = "GroundSubClient"
+
 
         cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight1_name, "Flight")
         cls.k._ZmqKernel__AddClientToRoutingCore(cls.flight2_name, "Flight")
@@ -99,16 +102,53 @@ class TestKernel:
         cls.cmd_client.setsockopt(zmq.IDENTITY, cls.cmd_client_name)
         cls.cmd_client.connect("tcp://localhost:{}".format(cmd_port))
 
+
+        # Create subtest flight client 
+        cls.subtest_flight_client = context.socket(zmq.DEALER)
+        cls.subtest_flight_client.setsockopt(zmq.IDENTITY, cls.subtest_flight_client_name)
+        cls.subtest_flight_client.connect("tcp://localhost:{}".format(cmd_port))
+
+
+        # Create subtest ground client 
+        cls.subtest_ground_client = context.socket(zmq.DEALER)
+        cls.subtest_ground_client.setsockopt(zmq.IDENTITY, cls.subtest_ground_client_name)
+        cls.subtest_ground_client.connect("tcp://localhost:{}".format(cmd_port))
+
+
         kernel_thread.start()
         time.sleep(2)
 
     
-    @classmethod
-    def teardown_class(cls):
-        pass
-
     def setup_test(self):
         time.sleep(1)
+
+    def Test_Subcription(self):
+
+        # Unsubscribe all from subtest clients 
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllFlightPublishers("unsubscribe",\
+                                                                    self.subtest_ground_client_name)
+
+        self.k._ZmqKernel__RoutingCore.routing_table.ConfigureAllGroundPublishers("unsubscribe",\
+                                                                    self.subtest_flight_client_name)
+
+        # Subscribe Ground Client
+        self.subtest_ground_client.send_multipart([b"SUB", b"GROUND", b""])  
+        time.sleep(1) # Allow subcription message to reach
+
+        flight_pubs = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("Flight")
+        for flight_name in flight_pubs:
+            assert self.subtest_ground_client_name in flight_pubs[flight_name]
+
+
+        # Subscribe Flight Client
+        self.subtest_flight_client.send_multipart([b"SUB", b"FLIGHT", b""])
+        time.sleep(1)
+
+        ground_pubs = self.k._ZmqKernel__RoutingCore.routing_table.GetPublisherTable("Ground")
+        for ground_name in ground_pubs:
+            assert self.subtest_flight_client_name in ground_pubs[ground_name]
+
+
 
     def Test_GroundSubThreadInputPort(self):  
         """
