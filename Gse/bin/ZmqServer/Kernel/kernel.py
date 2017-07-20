@@ -35,7 +35,7 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         # Setup Logger
-        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=False)
+        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=True)
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)

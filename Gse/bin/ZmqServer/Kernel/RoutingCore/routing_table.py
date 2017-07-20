@@ -99,6 +99,8 @@ class RoutingTable(object):
         """
         Add ground_client_name to each flight publisher's set.
         """
+        self.__logger.info("{} {} to {}".format(option, ground_client_name, flight_client_list))
+
         pub_dict = self.__flight_publishers
         self.ConfigureClientPublishers(option, ground_client_name, flight_client_list, pub_dict)
 
@@ -106,6 +108,8 @@ class RoutingTable(object):
         """
         Add flight_client_name to each ground publisher's set.
         """
+        self.__logger.info("{} {} to {}".format(option, flight_client_name, ground_client_list))
+
         pub_dict = self.__ground_publishers 
         self.ConfigureClientPublishers(option, flight_client_name, ground_client_list, pub_dict)
 
@@ -139,6 +143,8 @@ class RoutingTable(object):
         """
         Add ground_client's name to all flight publisher's sets. 
         """
+        self.__logger.info("{} {} from all Flight-Clients".format(option, ground_client_name))
+
         pub_dict = self.__flight_publishers
         self.ConfigureAll(option, ground_client_name, pub_dict)
 
@@ -151,6 +157,8 @@ class RoutingTable(object):
         """
         Add flight_client's name to all ground publisher's sets.
         """
+        self.__logger.info("{} {} from all Ground-Clients".format(option, flight_client_name))
+
         pub_dict = self.__ground_publishers
         self.ConfigureAll(option, flight_client_name, pub_dict)
 
