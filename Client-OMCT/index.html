@@ -17,82 +17,57 @@
     <!-- Create views from local storage json -->
     <script src="plugins/loc-storage-objects.js"></script>
 
-    <!-- JQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 </head>
 <body>
-    <script>
-        $(document).ready(function() {
-            $("#flip").click(function() {
-                $("#panel").slideToggle("fast");
-                $("#omct").height()
-            });
-        });
+    <script type="text/javascript">
+        // Load views
+        LoadViews();
+
+        // OpenMCT
+        const site = 'localhost';
+        const staticPort = 8080;
+        const realTelemPort = 1337;
+        const histTelemPort = 1338;
+
+        openmct.setAssetPath('node_modules/openmct/dist');
+        openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
+        // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
+        openmct.install(openmct.plugins.MyItems());
+
+        // Configure time system
+        openmct.install(openmct.plugins.UTCTimeSystem());
+        openmct.install(openmct.plugins.Conductor({
+            menuOptions: [
+                {
+                    name: "Fixed",
+                    timeSystem: 'utc',
+                    bounds: {
+                        start: Date.now() - 30 * 60 * 1000,
+                        end: Date.now()
+                    }
+                },
+                {
+                    name: "Realtime",
+                    timeSystem: 'utc',
+                    clock: 'local',
+                    clockOffsets: {
+                        start: -10 * 60 * 1000,
+                        end: 0 * 60 * 1000
+                    }
+                }
+            ]
+        }));
+        openmct.time.timeSystem('utc');
+
+        // Theme
+        openmct.install(openmct.plugins.Snow());
+
+        // User plugin installs
+        openmct.install(DictionaryPlugin(site, staticPort));
+        openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+        openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+
+        openmct.start();
     </script>
-    <style>
-        #omct {
-            height: 50px;
-        }
-
-        #command {
-            width: 100%;
-            position: absolute;
-            z-index: 2;
-            bottom: 0px;
-
-        }
-    </style>
-    <div id="omct">
-        <script type="text/javascript">
-            // Load views
-            LoadViews();
-
-            // OpenMCT
-            const site = 'localhost'
-            const staticPort = 8080;
-            const realTelemPort = 1337;
-            const histTelemPort = 1338;
-
-            openmct.setAssetPath('node_modules/openmct/dist');
-            openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-            // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
-            openmct.install(openmct.plugins.MyItems());
-
-            // Configure time system
-            openmct.install(openmct.plugins.UTCTimeSystem());
-            openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
-
-            // Theme
-            openmct.install(openmct.plugins.Snow());
-
-            // User plugin installs
-            openmct.install(DictionaryPlugin(site, staticPort));
-            openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-            openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
-
-            openmct.start();
-        </script>
-    </div>
-
-    <div id="command">
-        <style>
-            #panel, #flip {
-                padding: 5px;
-                text-align: center;
-                background-color: #e5eecc;
-                border: solid 1px #c3c3c3;
-            }
-
-            #panel {
-                padding: 100px;
-            }
-        </style>
-         
-        <div id="panel">Command Panel</div>
-        <div id="flip">Click to toggle command pannel</div>
-        
-
-    </div>
 </body>
 </html>

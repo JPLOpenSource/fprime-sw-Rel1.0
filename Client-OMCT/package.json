@@ -4,8 +4,8 @@
   "description": "Client for ISF server",
   "main": "client/app.js",
   "scripts": {
-    "start": "rm -rf server/temp/* && node app.js",
-    "postinstall": "cd node_modules/openmct && npm install"
+    "start": "node app.js",
+    "postinstall": "cd node_modules/openmct && export NODE_ENV=development && npm install"
   },
   "dependencies": {
     "express": "^4.15.3",
