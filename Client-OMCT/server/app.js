@@ -4,10 +4,10 @@
 
  var fs = require('fs');
 
-var StaticServer = require('./server/static-server');
-var RealtimeIsfServer = require('./server/telemetry-isf');
-var HistoryIsfServer = require('./server/history-server');
-var CreateFixed = require('./server/create-fixed');
+var StaticServer = require('./src/static-server');
+var RealtimeIsfServer = require('./src/telemetry-isf');
+var HistoryIsfServer = require('./src/history-server');
+var CreateFixed = require('./src/create-fixed');
 
 const OMCTPort = 8080;
 // Create static server for client
@@ -49,7 +49,7 @@ rmDir = function(dirPath, removeSelf) {
 
 process.on('SIGINT', function () {
 	console.log("Deleting temp files, cleaning up, and exiting");
-	rmDir('./server/temp', false);
+	rmDir('./temp', false);
 	process.exit();
 
 });

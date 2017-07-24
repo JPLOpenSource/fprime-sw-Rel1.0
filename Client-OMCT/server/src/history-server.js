@@ -12,7 +12,7 @@ function HistoryServer(site, port) {
     });
 
     server.get('/telemetry/:pointId', function (req, res) {
-    	var log = fs.readFileSync('server/temp/log.json');
+    	var log = fs.readFileSync('./../temp/log.json');
         var start = +req.query.start;
         var end = +req.query.end;
         var ids = req.params.pointId.split(',');

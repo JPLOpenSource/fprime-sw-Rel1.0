@@ -12,7 +12,7 @@
 */
 
 // Dependencies
-var telem = require('./res/dictionary.json').isf;	// Get format dictionary
+var telem = require('./../res/dictionary.json').isf;	// Get format dictionary
 
 // Utils
 var vsprintf = require("sprintf-js").vsprintf;
@@ -128,6 +128,11 @@ function deserialize(data) {
 					var strBase = telemData["format_string"];
 					var argTypes = telemData["arguments"];
 					value = stringFormatter(hexValue, strBase, argTypes);
+					break;
+
+				default:
+					// None
+					break;
 			}
 		} else {
 			console.log("[ERROR] No matching found in format dictionary")

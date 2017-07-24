@@ -30,7 +30,11 @@
     <script>
         $(document).ready(function() {
             // Init command panel
-            $('#faketerminal').faketerminal();
+            $('#faketerminal').faketerminal({
+                username: 'commander',
+                history: 1000,
+                prompt: '%username%: '
+            });
 
             // Flip
             $("#flip").click(function() {
@@ -97,7 +101,7 @@
                 padding: 130px;
                 height: 100px;
                 margin: 0 auto;
-                text-align: center;
+                text-align: left;
                 border: solid 1px #c3c3c3;
             }
 
@@ -105,14 +109,14 @@
 
         </style>
          
-        <!-- <div id="panel"> -->
-            <div id="faketerminal">
-                <info>Command Window</info>
-                <line></line>
-                This is a basic terminal emulator for websites, type <comment>help</comment> to get started
+        
+        <div id="faketerminal">
+            <info>Command Window</info>
+            <line></line>
+            Enter commands for targets, type <comment>help</comment> to get started
 
-            </div>
-        <!-- </div> -->
+        </div>
+        
         <div id="flip">Click to toggle command pannel</div>
         
 
