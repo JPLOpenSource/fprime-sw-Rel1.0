@@ -78,7 +78,8 @@ REF_MODULES := \
 	Ref/RecvBuffApp \
 	Ref/SendBuffApp \
 	Ref/SignalGen \
-	Ref/PingReceiver
+	Ref/PingReceiver\
+	Ref/zmq
 	
 Ref_MODULES := \
 	\
@@ -173,7 +174,6 @@ OTHER_MODULES := \
 	fprime-zmq/zmq-pub\
 	fprime-zmq/zmq-sub\
 	fprime-zmq/zmq-adapter\
-	fprime-zmq/zmq\
 	$(FW_GTEST_MODULES)
 
 # List deployments
