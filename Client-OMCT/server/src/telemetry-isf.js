@@ -12,7 +12,6 @@ var deserialize = require('./deserializeIsf').deserialize;	// Decode packets
 var getIds = require('./deserializeIsf').getIds;	// Get ids for history
 
 
-
 var history = {};
 function RealtimeIsfServer(site, gsePort, realMctPort) {
 

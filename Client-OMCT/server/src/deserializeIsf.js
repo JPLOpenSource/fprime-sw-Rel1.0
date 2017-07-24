@@ -15,12 +15,12 @@
 var telem = require('./../res/dictionary.json').isf;	// Get format dictionary
 
 // Utils
-var vsprintf = require("sprintf-js").vsprintf;
+var vsprintf = require('sprintf-js').vsprintf;
 
 function numConverter(hexValue, type) {
 	if (type.substring(0,1) === 'F') {
 		var dv = new DataView(new ArrayBuffer(8));
-		dv.setUint32(0, parseInt("0x" + hexValue));
+		dv.setUint32(0, parseInt('0x' + hexValue));
 		return dv.getFloat32(0);
 	} else {
 		return parseInt(hexValue, 16);
@@ -38,16 +38,16 @@ function stringFormatter(hexValue, strBase, argTypes) {
 	argTypes.forEach(function (type) {
 		// Arg type used to decode each value
 		var argToPush;
-		if (typeof type === "string") {
+		if (typeof type === 'string') {
 			// Non Enum type
-			if (type === "String") {
+			if (type === 'String') {
 				// If string type
 
 				// Get limit for pointer
 				var charLimit = (2 * parseInt(hexValue.substring(ptr, ptr += 4), 16)) + ptr;
 
 				// Create string through conversion of hex to char
-				argToPush = "";
+				argToPush = '';
 				while (ptr < charLimit) {
 					argToPush += String.fromCharCode(parseInt(hexValue.substring(ptr, ptr += 2), 16));
 				}
@@ -99,10 +99,10 @@ function deserialize(data) {
 		var telemData;
 		if (descriptor === 1) {
 			// If channel
-			telemData = telem["channels"][id.toString()];
+			telemData = telem['channels'][id.toString()];
 		} else if (descriptor === 2) {
 			// If event
-			telemData = telem["events"][id.toString()];
+			telemData = telem['events'][id.toString()];
 		}
 
 		// Get size of value in nibbles
@@ -113,20 +113,20 @@ function deserialize(data) {
 		var value;
 		if (telemData) {
 			// If found in dictionary
-			switch(telemData["telem_type"]) {
-				case "channel":
+			switch(telemData['telem_type']) {
+				case 'channel':
 					// If channel type
-					if (telemData["format_string"]) {
-						value = vsprintf(telemData["format_string"], [numConverter(hexValue, telemData["type"])]);
+					if (telemData['format_string']) {
+						value = vsprintf(telemData['format_string'], [numConverter(hexValue, telemData['type'])]);
 					} else {
-						value = numConverter(hexValue, telemData["type"]);
+						value = numConverter(hexValue, telemData['type']);
 					}
 					break;
 
-				case "event":
+				case 'event':
 					// If event type
-					var strBase = telemData["format_string"];
-					var argTypes = telemData["arguments"];
+					var strBase = telemData['format_string'];
+					var argTypes = telemData['arguments'];
 					value = stringFormatter(hexValue, strBase, argTypes);
 					break;
 
@@ -135,27 +135,28 @@ function deserialize(data) {
 					break;
 			}
 		} else {
-			console.log("[ERROR] No matching found in format dictionary")
+			console.log('[ERROR] No matching found in format dictionary')
 		}
 
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
 		var timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
 
-		var toMCT;
-		// Create datum in openMCT format
-		if (telemData["telem_type"] === 'event') {
-			// Put event in channel id '-1'
-			id = -1;
-		}
-
-		toMCT = {
+		var toMCT = {
 			'timestamp':timestamp,
 			'value':value,
-			'name': telemData["name"],
+			'name': telemData['name'],
 			'identifier': id.toString(),
 			'id': id.toString(),
-			'type': telemData["telem_type"]
+			'type': telemData['telem_type']
 		};
+
+		// Create datum in openMCT format
+		if (telemData['telem_type'] === 'event') {
+			// Put event in channel id '-1'
+			toMCT['id'] = '-1';
+			// Add severity
+			toMCT['severity'] = telemData['severity'];
+		}
 
 		res.push(toMCT);
 
@@ -166,7 +167,7 @@ function deserialize(data) {
 // Returns an array of channel ids
 function getIds() {
 	var ids = [];
-	var channels = telem["channels"];
+	var channels = telem['channels'];
 	for (var id in channels) {
 		ids.push(id);
 	}

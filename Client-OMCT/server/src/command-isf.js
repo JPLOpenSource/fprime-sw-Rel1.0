@@ -1,6 +1,7 @@
 // Routes commands to net server.
 
 var net = require('net');
+const WebSocket = require('ws');	// Websocket server
 
 function CommandServer(site, gsePort, commandPort) {
 	var client = new net.Socket();
@@ -11,7 +12,7 @@ function CommandServer(site, gsePort, commandPort) {
 	});
 
 	// Command websocket listener
-	const wssc = new WebSocket.server({port: commandPort});
+	const wssc = new WebSocket.Server({port: commandPort});
 
 	wssc.on('connection', function connection(ws) {
 		ws.on('message', function incoming(message) {

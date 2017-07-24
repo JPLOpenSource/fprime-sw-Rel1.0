@@ -29,11 +29,11 @@ function SetupCommands(site, commandPort) {
 			var commands = $.makeArray(arguments);
 			var args;
 			commands.forEach(function (cmd) {
-				
+
 			});
 			console.log(args);
 
-			instance.
+			instance.input
 
 			base.deferred.resolve();
 			return base.deferred.promise();

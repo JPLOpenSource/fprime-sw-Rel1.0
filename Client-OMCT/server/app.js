@@ -22,7 +22,7 @@ const gsePort = 50000;
 const site = '127.0.0.1';
 RealtimeIsfServer(site, gsePort, realMctPort);
 HistoryIsfServer(site, histMctPort);
-CommandIsfServer(site, gsePort, commandPort);
+// CommandIsfServer(site, gsePort, commandPort);
 
 CreateFixed();	// Generate fixed view from channels
 

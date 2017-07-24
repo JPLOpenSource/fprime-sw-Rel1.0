@@ -41,6 +41,13 @@ var id_format = {
     "key": "identifier",
     "name": "ID"
 };
+var severity_format = {
+    "hints": {
+        "range": 4
+    },
+    "key": "severity",
+    "name": "Severity"
+};
 
 var objectProvider = {
     get: function (identifier) {
@@ -72,7 +79,13 @@ var objectProvider = {
                         name: measurement.name,
                         type: 'isf.event',
                         telemetry: {
-                            values: [time_format, name_format, id_format, value_format]  // Values already in default format
+                            values: [
+                                time_format, 
+                                name_format, 
+                                id_format, 
+                                value_format, 
+                                severity_format
+                            ]  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };
@@ -84,7 +97,12 @@ var objectProvider = {
                         type: 'isf.telemetry',
                         // type: typeStr,
                         telemetry: {
-                            values: [time_format, name_format, id_format, value_format]  // Values already in default format
+                            values: [
+                                time_format,
+                                name_format,
+                                id_format,
+                                value_format,
+                            ]  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };
