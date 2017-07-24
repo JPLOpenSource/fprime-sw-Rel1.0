@@ -19,3 +19,5 @@ function CommandServer(site, gsePort, commandPort) {
 		});
 	});
 }
+
+module.exports = CommandServer;

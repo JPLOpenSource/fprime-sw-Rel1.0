@@ -2,13 +2,16 @@
 	Server used to translate tcp packet stream into mct format. Only works with one client atm.
 */
 
-// Used to decode packets
-var fs = require('fs');
-var deserialize = require('./deserializeIsf').deserialize;
-var getIds = require('./deserializeIsf').getIds;
+// System modules
+var fs = require('fs');		// File system
+var net = require('net');	// Net server
+const WebSocket = require('ws');	// Websocket server
 
-var net = require('net');
-const WebSocket = require('ws');
+// User modules
+var deserialize = require('./deserializeIsf').deserialize;	// Decode packets
+var getIds = require('./deserializeIsf').getIds;	// Get ids for history
+
+
 
 var history = {};
 function RealtimeIsfServer(site, gsePort, realMctPort) {
