@@ -57,10 +57,12 @@ class RoutingCore(object):
             broker_subscriber_input_address = self.__GroundPacketBroker.GetInputAddress() 
             broker_publisher_output_address = self.__FlightPacketBroker.GetOutputAddress() 
         else:
+            self.__logger.info("Type: {}".format(client_type.lower()))
+
             raise TypeError  
            
         self.__logger.debug("Creating PubSubPair")
-        self.__logger.debug("Client Type: {}".format(client_name))
+        self.__logger.debug("Client Type: {}".format(client_type))
         self.__logger.debug("Broker Input: {}".format(broker_subscriber_input_address))
         self.__logger.debug("Broker Output: {}".format(broker_publisher_output_address))
 
