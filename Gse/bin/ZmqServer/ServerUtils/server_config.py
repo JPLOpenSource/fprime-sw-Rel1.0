@@ -45,6 +45,19 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.__prop   = dict()
         self._setProps()
 
+        # Constants
+        self.FLIGHT_TYPE = "flight"
+        self.GROUND_TYPE = "ground"
+        self.PUB_TYPE    = "publish"
+        self.SUB_TYPE    = "subscription"
+        self.SUB_OPTION  = "subscribe"
+        self.USUB_OPTION = "unsubscribe"
+        
+        self.REG_CMD     = "reg"
+        self.SUB_CMD     = "sub"
+        self.USUB_CMD    = "usub"
+
+
         config_file_name = 'server.ini'
         files = list()
 
@@ -89,6 +102,8 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
                                                   server_filepath, log_filepath)
                                                     
+
+
 
 
         # This sets the defaults within a section. 

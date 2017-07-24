@@ -28,8 +28,8 @@ class RoutingCore(object):
         self.__context = context
         self.__pubsub_pair_dict = {} 
 
-        self.__FlightPacketBroker = PacketBroker("flight", self.__context)
-        self.__GroundPacketBroker = PacketBroker("ground", self.__context)
+        self.__FlightPacketBroker = PacketBroker(SERVER_CONFIG.FLIGHT_TYPE, self.__context)
+        self.__GroundPacketBroker = PacketBroker(SERVER_CONFIG.GROUND_TYPE, self.__context)
 
         self.routing_table = RoutingTable(context)
 
@@ -50,10 +50,11 @@ class RoutingCore(object):
         if client_name in self.__pubsub_pair_dict:
             return
 
-        if client_type.lower() == "flight":
+        if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
             broker_subscriber_input_address = self.__FlightPacketBroker.GetInputAddress() 
             broker_publisher_output_address = self.__GroundPacketBroker.GetOutputAddress() 
-        elif client_type.lower() == "ground":
+
+        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
             broker_subscriber_input_address = self.__GroundPacketBroker.GetInputAddress() 
             broker_publisher_output_address = self.__FlightPacketBroker.GetOutputAddress() 
         else:

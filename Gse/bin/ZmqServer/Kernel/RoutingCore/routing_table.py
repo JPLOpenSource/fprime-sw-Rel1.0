@@ -126,7 +126,7 @@ class RoutingTable(object):
             self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
 
             try:
-                if(option.lower() == "subscribe"):
+                if(option.lower() == SERVER_CONFIG.SUB_OPTION):
                     pub_dict[publishing_client_name].add(receiving_client_name)
                 elif(option.lower() == "unsubscribe"):
                     pub_dict[publishing_client_name].remove(receiving_client_name)
@@ -172,9 +172,9 @@ class RoutingTable(object):
         Add or remove receiving_client from its type's subscribe to all set. 
         """
         try:
-            if(option.lower() == "subscribe"):
+            if(option.lower() == SERVER_CONFIG.SUB_OPTION):
                 sub_set.add(receiving_client_name)
-            elif(option.lower() == "unsubscribe"):
+            elif(option.lower() == SERVER_CONFIG.USUB_OPTION):
                 sub_set.remove(receiving_client_name)
         except KeyError as e:
             self.__HandleKeyError(e, receiving_client_name) 
@@ -194,9 +194,9 @@ class RoutingTable(object):
                 # Tell receiving_client to subcribe or unsubscribe
                 self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
                 
-                if(option.lower() == "subscribe"): 
+                if(option.lower() == SERVER_CONFIG.SUB_OPTION): 
                     publishing_client_dict[publishing_client_name].add(receiving_client_name)
-                elif(option.lower() == "unsubscribe"): 
+                elif(option.lower() == SERVER_CONFIG.USUB_OPTION): 
                     publishing_client_dict[publishing_client_name].remove(receiving_client_name)
 
             except KeyError as e:

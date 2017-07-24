@@ -6,6 +6,7 @@ import logging
 import datetime
 import thread
 import threading
+import traceback
 import multiprocessing
 
 from logging import DEBUG, INFO, ERROR 
@@ -159,21 +160,21 @@ class ZmqKernel(object):
         proper command handler.
         """
         self.__logger.debug("Command Received: {}".format(msg))
-        
-        client_name = msg[0]
-        cmd         = msg[1] 
 
-        if   cmd == 'REG': 
+        client_name = msg[0]
+        cmd         = msg[1].lower()
+
+        if   cmd == SERVER_CONFIG.REG_CMD: 
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
             self.__RegistrationResponse(client_name, status, server_pub_port, server_sub_port)
 
-        elif cmd == 'SUB':
-            option = "subscribe"
+        elif cmd == SEVER_CONFIG.SUB_CMD: 
+            option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(client_name, status)
 
-        elif cmd == 'USUB':
-            option = "unsubscribe" 
+        elif cmd == SERVER_CONFIG.USUB_CMD:
+            option = SERVER_CONFIG.USUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(client_name, status)
 
@@ -186,7 +187,7 @@ class ZmqKernel(object):
         subscriptions       = msg[4:]
 
 
-        if(client_type.lower() == "flight"):
+        if(client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE):
             
             if(subscriptions == ['']): # Empty message in zmq means subscribe to all
                 self.__RoutingCore.routing_table.ConfigureAllGroundPublishers(option, client_name)
@@ -194,7 +195,7 @@ class ZmqKernel(object):
                 self.__RoutingCore.routing_table.ConfigureGroundPublishers(option,\
                                                                    client_name,\
                                                                   subscriptions)
-        elif(client_type.lower() == "ground"):
+        elif(client_type.lower() == SERVER_CONFIG.GROUND_TYPE):
             if(subscriptions == ['']): # Subscribe to all
                 self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
             else:
@@ -231,6 +232,7 @@ class ZmqKernel(object):
             server_pub_port = self.__GetServerPubPort(client_type) 
             server_sub_port = self.__GetServerSubPort(client_type) 
         except TypeError:
+            traceback.print_exc()
             self.__logger.error("Client type: {} not recognized.".format(client_type))
 
             status = -1
@@ -259,9 +261,9 @@ class ZmqKernel(object):
         """
         Return the publish port based on client_type 
         """
-        if   client_type.lower() == "flight":
+        if   client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
             return self.__flight_pub_thread_endpoints.GetOutputPort()
-        elif client_type.lower() == "ground":
+        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
             return self.__ground_pub_thread_endpoints.GetOutputPort()
         else:
             raise TypeError
@@ -270,9 +272,9 @@ class ZmqKernel(object):
         """
         Based on client_type return the subscription port.
         """
-        if   client_type.lower() == "flight":
+        if   client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
             return self.__flight_sub_thread_endpoints.GetInputPort()
-        elif client_type.lower() == "ground":
+        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
             return self.__ground_sub_thread_endpoints.GetInputPort()
         else:
             raise TypeError 
@@ -283,15 +285,15 @@ class ZmqKernel(object):
         Based on it's type, add client to the routing table and create
         a PubSubPair. 
         """
+        if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
 
-        if client_type.lower() == "flight":
             serverIO_subscriber_output_address = self.__flight_sub_thread_endpoints.GetOutputAddress()
             serverIO_publisher_input_address = self.__flight_pub_thread_endpoints.GetInputAddress()
 
             # Add to routing table
             self.__RoutingCore.routing_table.AddFlightClient(client_name)
 
-        elif client_type.lower() == "ground":
+        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
             serverIO_subscriber_output_address = self.__ground_sub_thread_endpoints.GetOutputAddress()
             serverIO_publisher_input_address = self.__ground_pub_thread_endpoints.GetInputAddress()
 
@@ -305,6 +307,8 @@ class ZmqKernel(object):
         self.__RoutingCore.CreatePubSubPair(client_name, client_type,\
                                             serverIO_subscriber_output_address,\
                                             serverIO_publisher_input_address)
+
+
         
 
 
