@@ -258,14 +258,14 @@ class EventListener(observer.Observed):
         u32_obj.deserialize(msg, 0)
         size = u32_obj.val
         ptr += u32_obj.getSize()
-        #print "Size = 0x%x" % size
+        print "Size = 0x%x" % size
 
         # Decode descriptor part of message
         u32_obj = u32_type.U32Type()
         u32_obj.deserialize(msg, ptr)
         desc = u32_obj.val
         ptr += u32_obj.getSize()
-        #print "Desc = 0x%x" % desc
+        print "Desc = 0x%x" % desc
         return (desc, size)
 
     def decode_desc_api(self, msg):
