@@ -14,7 +14,7 @@ namespace Ref{
 #else
 	    ZmqSocketIfImpl();
 #endif
-	    void init(NATIVE_INT_TYPE instance);
+	    void init(NATIVE_INT_TYPE instance, const char* name);
 	    ~ZmqSocketIfImpl();
 
 	    void startSocketTask(I32 priority, U32 port_number, const char* hostname);

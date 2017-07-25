@@ -74,7 +74,8 @@ namespace Ref {
     // Class implementation
     /////////////////////////////////////////////////////////////////////
 
-    void ZmqSocketIfImpl::init(NATIVE_INT_TYPE instance) {
+    void ZmqSocketIfImpl::init(NATIVE_INT_TYPE instance, const char* target_name) {
+    	this->m_name = target_name;
         GndIfComponentBase::init(instance);
     }
     
@@ -85,14 +86,14 @@ namespace Ref {
     ZmqSocketIfImpl::ZmqSocketIfImpl(const char* name):
 	    GndIfComponentBase(name), 
 	    m_cmdSocket(0),  m_pubSocket(0), m_subSocket(0), m_zmqContext(0),
-	    m_name(name), m_hostname(NULL), m_serverCommandPort(0), m_serverPublishPort(0),
+	    m_name(NULL), m_hostname(NULL), m_serverCommandPort(0), m_serverPublishPort(0),
 	    m_serverSubscribePort(0){
     }
 #else
     ZmqSocketIfImpl::ZmqSocketIfImpl():
 	    GndIfComponentBase(), 
 	    m_cmdSocket(0), m_pubSocket(0), m_subSocket(0), m_zmqContext(0),
-	    m_hostname(NULL), m_serverCommandPort(0), m_serverPublishPort(0),
+	    m_name(NULL), m_hostname(NULL), m_serverCommandPort(0), m_serverPublishPort(0),
 	    m_serverSubscribePort(0){
     }
 #endif
@@ -124,8 +125,7 @@ namespace Ref {
 		this->m_cmdSocket = zmq_socket(this->m_zmqContext, ZMQ_DEALER);
 
 		// Set cmd socket ID
-		U8 id[] = "F1";
-	    zmq_setsockopt(this->m_cmdSocket, ZMQ_IDENTITY, (const char*)id, strlen((const char*)id));
+	    zmq_setsockopt(this->m_cmdSocket, ZMQ_IDENTITY, this->m_name, strlen(this->m_name));
 
 		// Connect to server's command port
 		char endpoint[256];
@@ -202,7 +202,7 @@ namespace Ref {
 		// null terminate
         endpoint[255] = 0;
 		this->m_pubSocket = zmq_socket(this->m_zmqContext, ZMQ_DEALER);
-		zmq_setsockopt(this->m_pubSocket, ZMQ_IDENTITY, (const char*)id, strlen((const char*)id));
+		zmq_setsockopt(this->m_pubSocket, ZMQ_IDENTITY, this->m_name, strlen(this->m_name));
 		stat = zmq_connect(this->m_pubSocket,endpoint);
 		if (-1 == stat) {
 		  printf("ZMQBind Error\n");
@@ -212,7 +212,7 @@ namespace Ref {
 		// Create subscribe socket
 		(void)snprintf(endpoint, 256, "tcp://%s:%d", this->m_hostname, this->m_serverPublishPort);
 		this->m_subSocket = zmq_socket(this->m_zmqContext, ZMQ_ROUTER);
-		zmq_setsockopt(this->m_subSocket, ZMQ_IDENTITY, (const char*)id, strlen((const char*)id));
+		zmq_setsockopt(this->m_subSocket, ZMQ_IDENTITY, this->m_name, strlen(this->m_name));
 		stat = zmq_connect(this->m_subSocket,endpoint);
 		if (-1 == stat) {
 		  printf("ZMQBind Error\n");
@@ -367,6 +367,8 @@ namespace Ref {
 
     void ZmqSocketIfImpl::downlinkPort_handler(NATIVE_INT_TYPE portNum, Fw::ComBuffer &data,
 					      U32 context) {
+
+
     }
 
 
