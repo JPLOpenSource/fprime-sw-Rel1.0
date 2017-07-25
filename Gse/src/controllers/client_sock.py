@@ -60,8 +60,8 @@ class ClientSocket:
             self.__server_cmd_socket.send_multipart([b"REG", b"GROUND", b"ZMQ"])
 
             response = self.__server_cmd_socket.recv_multipart()
-            self.__server_pub_port = response[1]
-            self.__server_sub_port = response[2]
+            self.__server_pub_port = struct.unpack("<I", response[1])[0]
+            self.__server_sub_port = struct.unpack("<I", response[2])[0]
 
             time.sleep(1)
 

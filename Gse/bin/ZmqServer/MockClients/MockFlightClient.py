@@ -41,8 +41,8 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     command_socket.send_multipart([b"SUB", client_name.encode(), b"flight", b''])
 
     # Setup pub/sub ports
-    server_pub_port = msg[1]
-    server_sub_port = msg[2]
+    server_pub_port = struct.unpack("<I", msg[1])[0]
+    server_sub_port = struct.unpack("<I", msg[2])[0]
 
     pub_socket = context.socket(zmq.DEALER)
     sub_socket = context.socket(zmq.ROUTER)
