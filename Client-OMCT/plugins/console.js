@@ -1,3 +1,9 @@
+function getDictionary() {
+    // Needs directory from root of application
+    return http.get('/server/res/dictionary.json').then(function (result) {
+        return result.data;
+    });
+}
 
 $(document).ready(function() {	
 	$('#faketerminal').faketerminal({
@@ -5,23 +11,14 @@ $(document).ready(function() {
 	    hostname: window.location.host,
 	    history: 1000,
 	    prompt: '%username%: '
-
 	});
-
-	// Flip
 	$("#flip").click(function() {
 	    $("#faketerminal").slideToggle("fast");
-	    $("#omct").height();
 	});
 });
 
 function SetupCommands(site, commandPort) {
 	var socket = new WebSocket('ws://' + site + ':' + commandPort.toString());
-	var commands = http.get('/server/res/dictionary.json').then(function (result) {
-		return result.data['commands'];
-	});
-
-	console.log(JSON.stringify(commands));
 
 	window.FakeTerminal.command.send = function(instance) {
 		window.FakeTerminal.command.apply(this, arguments);
@@ -38,16 +35,38 @@ function SetupCommands(site, commandPort) {
 		base.execute = function() {
 			// Print list of commands
 			var commands = $.makeArray(arguments);
-			var args;
-			commands.forEach(function (cmd) {
+			console.log(commands);
+			
+			getDictionary().then(function(dict) {
+				var usrCommands = {};
+				commands.forEach(function (cmd) {
+					// Get command
+					var commandReq = dict["isf"]["commands"][cmd];
+					var name = commandReq["name"];
+					var cmdArgs = commandReq["arguments"];
 
+					// Get arguments
+					instance.output.write(name + ': ');
+					// var userArgs = [];
+					var inputs = [];
+					cmdArgs.forEach(function (a) {
+
+						instance.output.write('Enter ' + a['name'] + ' (' + a["description"] + ')');
+						return instance.input.request().then(function(value) {
+						    userArgs.push(value);
+						});
+					});
+
+					usrCommands[cmd] = userArgs;
+				});
+
+				instance.output.write(JSON.stringify(usrCommands));
+				base.deferred.resolve();
 			});
-			console.log(args);
 
-			instance.input
-
-			base.deferred.resolve();
+			
 			return base.deferred.promise();
+			
 		};
 
 		return base;
