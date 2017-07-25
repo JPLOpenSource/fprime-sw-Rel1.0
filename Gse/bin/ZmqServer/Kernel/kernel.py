@@ -169,7 +169,7 @@ class ZmqKernel(object):
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
             self.__RegistrationResponse(client_name, status, server_pub_port, server_sub_port)
 
-        elif cmd == SEVER_CONFIG.SUB_CMD: 
+        elif cmd == SERVER_CONFIG.SUB_CMD: 
             option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(client_name, status)
