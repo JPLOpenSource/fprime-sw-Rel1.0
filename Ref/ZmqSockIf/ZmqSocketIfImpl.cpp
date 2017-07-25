@@ -225,19 +225,18 @@ namespace Ref {
     	printf("socketReadTask\n");
     	fflush(stderr);
 
-    	bool acceptConnections;
-        U32 packetDelimiter;
-        U32 packetSize;
-        U32 packetDesc;
-        U8 buf[FW_COM_BUFFER_MAX_SIZE];
-        U16 buf_ptr = 0;
-
     	// cast pointer to component type
     	ZmqSocketIfImpl* comp = (ZmqSocketIfImpl*) ptr;
 
     	while(1){
-    		// Read incoming zmq message
+	        U32 packetDelimiter;
+	        U32 packetSize;
+	        U32 packetDesc;
+	        U8 buf[FW_COM_BUFFER_MAX_SIZE];
+	        U16 buf_ptr = 0;
 
+
+    		// Read incoming zmq message
     		U32 msgSize = 0;
 			msgSize = zmqSocketRead(comp->m_subSocket, buf, (NATIVE_INT_TYPE)FW_COM_BUFFER_MAX_SIZE);
 
@@ -281,7 +280,9 @@ namespace Ref {
             buf_ptr += sizeof(packetDesc);
 
             switch(packetDesc) {
+
                 case Fw::ComPacket::FW_PACKET_COMMAND:
+                {
                 	U8 cmdPacket[FW_COM_BUFFER_MAX_SIZE];
 
                     // check size of command
@@ -312,17 +313,17 @@ namespace Ref {
                          comp->uplinkPort_out(0,cmdBuffer,0);
                     }
                     break;
-            }
-/*
+                }
+            
+
                 case Fw::ComPacket::FW_PACKET_FILE:
                 {
-
+                
                     // Get Buffer
                     Fw::Buffer packet_buffer = comp->fileUplinkBufferGet_out(0, packetSize - sizeof(packetDesc));
                     U8* data_ptr = (U8*)packet_buffer.getdata();
 
-
-                    // Read file packet minus description
+					/*
                     bytesRead = socketRead(comp->m_socketFd, data_ptr, packetSize - sizeof(packetDesc));
                     if (-1 == bytesRead) {
                         (void) printf("Size read error: %s\n",strerror(errno));
@@ -332,37 +333,28 @@ namespace Ref {
                     // for(uint32_t i =0; i < bytesRead; i++){
                     //     (void) printf("IN_DATA:%02x\n", data_ptr[i]);
                     // }
+					*/
+
+					// Read file packet minus description. Same as above?
+                    memcpy(data_ptr, buf + buf_ptr, packetSize - sizeof(packetDesc));
 
                     if (comp->isConnected_fileUplinkBufferSendOut_OutputPort(0)) {
                         comp->fileUplinkBufferSendOut_out(0, packet_buffer);
                     }
 
-                }
                     break;
+                }
+
                 default:
                     FW_ASSERT(0);
             }
 
 
 
-            } // while not done with packets
-            close(comp->m_socketFd);
-            comp->m_connectionFd = -1;
+        } // while not done with packets
 
-            //try to re-establish connection with server
-            if (bytesRead == 0) {
-                comp->log_WARNING_LO_LostConnectionToServer(comp->port_number);
-                while (comp->m_connectionFd == -1){
-                    Os::Task::delay(5000);
-                	comp->openSocket(comp->port_number);
-                }
-            }
-            else {
-            	break;
-            }
-            */
+        // Reconnection scheme here?
 
-    	}
 
     }
 
