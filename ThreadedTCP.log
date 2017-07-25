@@ -3,31 +3,18 @@ Registered client FSW_0
 Registration complete waiting for message.
 Registered client GUI_0
 Registration complete waiting for message.
-Registered client GUI_1
-Registration complete waiting for message.
-Registered client GUI_2
-Registration complete waiting for message.
 read data from socket is empty!
-Header information is empty, client GUI_2 exiting.
-Closed GUI_2 connection.
-Registered client GUI_2
-Registration complete waiting for message.
-read data from socket is empty!
-Header information is empty, client GUI_2 exiting.
-Closed GUI_2 connection.
-Registered client GUI_2
-Registration complete waiting for message.
-read data from socket is empty!
-Header information is empty, client GUI_2 exiting.
-Closed GUI_2 connection.
-Registered client GUI_2
-Registration complete waiting for message.
-Quit received!read data from socket is empty!
-Header information is empty, client GUI_1 exiting.
-
+Header information is empty, client GUI_0 exiting.
 Closed GUI_0 connection.
-Closed GUI_1 connection.Closed FSW_0 connection.
+Registered client GUI_0Registered client GUI_1
 
-read data from socket is empty!
-Header information is empty, client GUI_2 exiting.
-Closed GUI_2 connection.
+Registration complete waiting for message.Registration complete waiting for message.
+
+read data from socket is empty!read data from socket is empty!
+Header information is empty, client GUI_0 exiting.
+Closed GUI_0 connection.
+
+Header information is empty, client GUI_1 exiting.
+Closed GUI_1 connection.
+Ctrl-C received, server shutting down.
+Closed FSW_0 connection.

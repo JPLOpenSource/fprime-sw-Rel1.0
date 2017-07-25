@@ -7,10 +7,21 @@ $(document).ready(function() {
 	    prompt: '%username%: '
 
 	});
+
+	// Flip
+	$("#flip").click(function() {
+	    $("#faketerminal").slideToggle("fast");
+	    $("#omct").height();
+	});
 });
 
 function SetupCommands(site, commandPort) {
 	var socket = new WebSocket('ws://' + site + ':' + commandPort.toString());
+	var commands = http.get('/server/res/dictionary.json').then(function (result) {
+		return result.data['commands'];
+	});
+
+	console.log(JSON.stringify(commands));
 
 	window.FakeTerminal.command.send = function(instance) {
 		window.FakeTerminal.command.apply(this, arguments);

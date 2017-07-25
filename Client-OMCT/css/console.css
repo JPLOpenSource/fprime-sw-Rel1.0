@@ -1,0 +1,24 @@
+/*Command pannel*/
+#command {
+    width: 100%;
+    position: absolute;
+    z-index: 2;
+    bottom: 0px;
+    margin: 0 auto;
+
+}
+
+#flip {
+    padding: 5px;
+    text-align: center;
+    background-color: #e5eecc;
+    border: solid 1px #c3c3c3;
+}
+
+#faketerminal {
+    padding: 130px;
+    height: 100px;
+    margin: 0 auto;
+    text-align: left;
+    border: solid 1px #c3c3c3;
+}

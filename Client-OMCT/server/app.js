@@ -20,9 +20,9 @@ const histMctPort = 1338;
 const commandPort = 1339;
 const gsePort = 50000;
 const site = '127.0.0.1';
-RealtimeIsfServer(site, gsePort, realMctPort);
-HistoryIsfServer(site, histMctPort);
-// CommandIsfServer(site, gsePort, commandPort);
+// RealtimeIsfServer(site, gsePort, realMctPort);
+// HistoryIsfServer(site, histMctPort);
+CommandIsfServer(site, gsePort, commandPort);
 
 CreateFixed();	// Generate fixed view from channels
 
@@ -40,10 +40,12 @@ rmDir = function(dirPath, removeSelf) {
 	if (files.length > 0)
 		for (var i = 0; i < files.length; i++) {
 		  	var filePath = dirPath + '/' + files[i];
-		  	if (fs.statSync(filePath).isFile())
+		  	if (fs.statSync(filePath).isFile()) {
 		  	  fs.unlinkSync(filePath);
-		  	else
+		  	}
+		  	else {
 		  	  rmDir(filePath);
+		  	}
 		}
 	if (removeSelf) {
 	  fs.rmdirSync(dirPath);

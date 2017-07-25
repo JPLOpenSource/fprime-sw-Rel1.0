@@ -16,6 +16,7 @@ function CommandServer(site, gsePort, commandPort) {
 
 	wssc.on('connection', function connection(ws) {
 		ws.on('message', function incoming(message) {
+			// Serialize message
 			client.write(message);
 		});
 	});
