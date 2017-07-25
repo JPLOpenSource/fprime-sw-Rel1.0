@@ -1,5 +1,6 @@
 import zmq
 import time
+import struct
 import threading
 
 from logging import DEBUG, ERROR
@@ -334,9 +335,10 @@ class TestKernel:
         try:
             msg = self.cmd_client.recv_multipart()
             print msg
-            status   = msg[0]
-            pub_port = msg[1]
-            sub_port = msg[2]
+            status   = struct.unpack('<I',msg[0])[0]
+            pub_port = struct.unpack('<I', msg[1])[0]
+            sub_port = struct.unpack('<I', msg[2])[0]
+            print("Received: Pub {} Sub {}".format(pub_port, sub_port))
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
                 print("Registration reply not received")
