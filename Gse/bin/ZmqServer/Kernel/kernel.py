@@ -5,6 +5,7 @@ import zmq
 import logging
 import datetime
 import thread
+import struct
 import threading
 import traceback
 import multiprocessing
@@ -36,7 +37,7 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         # Setup Logger
-        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=True)
+        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=False)
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)
@@ -250,11 +251,13 @@ class ZmqKernel(object):
 
         msg = [
                bytes(return_name),\
-               bytes(status),\
-               bytes(server_pub_port),\
-               bytes(server_sub_port)
+               struct.pack("<I", status),\
+               struct.pack("<I", server_pub_port),\
+               struct.pack("<I", server_sub_port)
               ]
 
+        self.__logger.debug("Registartion Status  :{}".format(bytes(status)))
+        self.__logger.debug("Registration Response: {}".format(msg))
         self.__command_socket.send_multipart(msg)
 
     def __GetServerPubPort(self, client_type):
