@@ -256,7 +256,7 @@ class ZmqKernel(object):
                struct.pack("<I", server_sub_port)
               ]
 
-        self.__logger.debug("Registartion Status  :{}".format(bytes(status)))
+        self.__logger.debug("Registartion Status: {}".format(bytes(status)))
         self.__logger.debug("Registration Response: {}".format(msg))
         self.__command_socket.send_multipart(msg)
 
