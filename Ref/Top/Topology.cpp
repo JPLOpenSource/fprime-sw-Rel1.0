@@ -82,7 +82,7 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 ;
 
 // Command Components
-Svc::SocketGndIfImpl sockGndIf
+Ref::ZmqSocketIfImpl sockGndIf
 #if FW_OBJECT_NAMES == 1
                     ("SGIF")
 #endif
@@ -449,6 +449,7 @@ int main(int argc, char* argv[]) {
 
 	(void) printf("Hit Ctrl-C to quit\n");
 
+printf("Port: %d\n", port_number);
     constructApp(port_number, hostname);
     //dumparch();
 

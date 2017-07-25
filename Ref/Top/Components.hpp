@@ -19,8 +19,7 @@ void exitTasks(void);
 #include <Svc/BufferManager/BufferManager.hpp>
 #include <Svc/Health/HealthComponentImpl.hpp>
 
-#include <Svc/SocketGndIf/SvcSocketGndIfImpl.hpp>
-
+#include <Ref/ZmqSockIf/ZmqSocketIfImpl.hpp>
 #include <Ref/RecvBuffApp/RecvBuffComponentImpl.hpp>
 #include <Ref/SendBuffApp/SendBuffComponentImpl.hpp>
 #include <Ref/PingReceiver/PingReceiverComponentImpl.hpp>
@@ -33,7 +32,6 @@ void exitTasks(void);
 extern Svc::RateGroupDriverImpl rateGroupDriverComp;
 extern Svc::ActiveRateGroupImpl rateGroup1Comp, rateGroup2Comp, rateGroup3Comp;
 extern Svc::CmdSequencerComponentImpl cmdSeq;
-extern Svc::SocketGndIfImpl sockGndIf;
 extern Svc::ConsoleTextLoggerImpl textLogger;
 extern Svc::ActiveLoggerImpl eventLogger;
 extern Svc::LinuxTimeImpl linuxTime;
@@ -50,6 +48,7 @@ extern Svc::HealthImpl health;
 
 extern Drv::BlockDriverImpl blockDrv;
 
+extern Ref::ZmqSocketIfImpl sockGndIf;
 extern Ref::RecvBuffImpl recvBuffComp;
 extern Ref::SendBuffImpl sendBuffComp;
 extern Ref::SignalGen SG1 , SG2, SG3, SG4, SG5;
