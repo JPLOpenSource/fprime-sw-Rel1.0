@@ -30,18 +30,38 @@ namespace Ref {
 					return false;
 				case EFAULT:
 					printf("%s: ZMQ EFAULT\n",from);
+					return false;
+				case ENOMEM:
+					printf("%s: ZMQ ENOMEM\n", from);
+					return false;
 				default:
 					printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
 					return true;
 			}
 		}
 
-        NATIVE_INT_TYPE socketWrite(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
-            NATIVE_INT_TYPE total=0;
-            while(size > 0) {
+        NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
+        	//printf("Data Size: 0x%04x\n", data.getBuffLength());
+        	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
 
-            }
-            return total;
+
+        	U32 data_net_size = htonl(data.getBuffLength());
+        	U8 buf[sizeof(data_net_size) + data.getBuffLength()];
+        	memcpy(buf, &data_net_size, sizeof(data_net_size));
+        	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
+
+        	zmq_msg_t fPrimePacket;
+        	zmq_msg_init_data(&fPrimePacket, buf, sizeof(data_net_size) + data.getBuffLength(),
+        					 NULL, NULL);
+
+        	int rc = zmq_send(zmqSocket, buf, sizeof(buf), 0);
+        	//int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
+        	zmq_msg_close(&fPrimePacket);
+        	if(rc == -1){
+        		zmqError("zmqSocketWriteComBuffer\n");
+        	}
+        	return 1;
+
         }
 
         NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
@@ -368,7 +388,9 @@ namespace Ref {
     void ZmqSocketIfImpl::downlinkPort_handler(NATIVE_INT_TYPE portNum, Fw::ComBuffer &data,
 					      U32 context) {
 
-
+    	if(this->m_pubSocket){
+    		zmqSocketWriteComBuffer(this->m_pubSocket, data);
+		}
     }
 
 
