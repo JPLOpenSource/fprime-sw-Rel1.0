@@ -55,8 +55,8 @@ class ZmqKernel(object):
         self.__ground_pub_thread_endpoints = PublisherThreadEndpoints()
 
         # Setup flight subcriber and publisher threads
-        client_type   = "Flight"
-        pubsub_type   = "Subscriber"
+        client_type   = SERVER_CONFIG.FLIGHT_TYPE
+        pubsub_type   = SERVER_CONFIG.SUB_TYPE
         SetEndpoints  = self.__flight_sub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__flight_sub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__flight_sub_thread_endpoints.GetOutputBinder()
@@ -64,8 +64,8 @@ class ZmqKernel(object):
         self.__flight_sub_thread = GeneralServerIOThread(client_type, pubsub_type,\
                      self.__context, BindInput, BindOutput, SetEndpoints) 
 
-        client_type   = "Flight"
-        pubsub_type   = "Publisher"
+        client_type   = SERVER_CONFIG.FLIGHT_TYPE
+        pubsub_type   = SERVER_CONFIG.PUB_TYPE
         SetEndpoints  = self.__flight_pub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__flight_pub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__flight_pub_thread_endpoints.GetOutputBinder()
@@ -74,8 +74,8 @@ class ZmqKernel(object):
                      self.__context, BindInput, BindOutput, SetEndpoints)
 
         # Setup ground subscriber and publisher threads
-        client_type   = "Ground"
-        pubsub_type   = "Subscriber"
+        client_type   = SERVER_CONFIG.GROUND_TYPE
+        pubsub_type   = SERVER_CONFIG.SUB_TYPE
         SetEndpoints  = self.__ground_sub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__ground_sub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__ground_sub_thread_endpoints.GetOutputBinder()
@@ -83,8 +83,8 @@ class ZmqKernel(object):
         self.__ground_sub_thread = GeneralServerIOThread(client_type, pubsub_type,\
                      self.__context, BindInput, BindOutput, SetEndpoints)
 
-        client_type   = "Ground"
-        pubsub_type   = "Publisher"
+        client_type   = SERVER_CONFIG.GROUND_TYPE
+        pubsub_type   = SERVER_CONFIG.PUB_TYPE
         SetEndpoints  = self.__ground_pub_thread_endpoints.GetEndpointSetter()
         BindInput     = self.__ground_pub_thread_endpoints.GetInputBinder()
         BindOutput    = self.__ground_pub_thread_endpoints.GetOutputBinder()
