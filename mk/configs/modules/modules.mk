@@ -172,9 +172,6 @@ OTHER_MODULES := \
 	gtest \
 	Os/Stubs \
 	Fw/Test \
-	fprime-zmq/zmq-pub\
-	fprime-zmq/zmq-sub\
-	fprime-zmq/zmq-adapter\
 	$(FW_GTEST_MODULES)
 
 # List deployments
