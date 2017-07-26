@@ -3,7 +3,7 @@ import threading
 from logging import DEBUG, INFO
 from utils.logging_util import GetLogger
 
-from ServerUtils.server_config import ServerConfig
+from server.ServerUtils.server_config import ServerConfig
 
 SERVER_CONFIG = ServerConfig.getInstance()
 

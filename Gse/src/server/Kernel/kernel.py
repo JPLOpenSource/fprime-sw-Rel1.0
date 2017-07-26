@@ -16,7 +16,7 @@ from zmq.eventloop.ioloop import IOLoop, PeriodicCallback
 from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import SetGlobalLoggingLevel, GetLogger
-from ServerUtils.server_config import ServerConfig
+from server.ServerUtils.server_config import ServerConfig
 
 from threads import GeneralServerIOThread 
 from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints

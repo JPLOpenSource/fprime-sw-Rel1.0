@@ -96,15 +96,18 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         # Log file save path
         # Default: Current Directory
 
-        server_filepath = os.getcwd()
+        try:
+            build_root = os.environ['BUILD_ROOT']
+        except KeyError, e:
+            print "Server Config: BUILD_ROOT not found."
+            build_root = ''
+
+        server_filepath = os.path.join(build_root, 'Gse/src/server')
         log_filepath = os.path.join("logs", "server_logs")
         self.__prop['filepaths']['server_filepath'] = server_filepath 
         self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
                                                   server_filepath, log_filepath)
                                                     
-
-
-
 
         # This sets the defaults within a section. 
         self._setSectionDefaults('filepaths')
@@ -118,20 +121,3 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         for (key,value) in self.__prop[section].items():
             self.set(section, key, "%s" % value)
 
-
-if __name__ == '__main__':
-    #
-    # Quick test of configure defaults.
-    #
-    config = ConfigManager().getInstance()
-    print
-    print 'IPC section defaults:'
-    for (key, value) in config.items('ipc'):
-        print "%s = %s" % (key, value)
-    print
-    print 'Get some of the ipc values:'
-    print 'h_pub_suffix = %s' % config.get('ipc','h_pub_suffix')
-    print 'h_msg_suffix = %s' % config.get('ipc','h_msg_suffix')
-    print 'c_int_suffix = %s' % config.get('ipc','c_int_suffix')
-    print 'c_dispatch_suffix = %s' % config.get('ipc','c_dispatch_suffix')
-    print 'c_cmd_dispatch_suffix = %s' % config.get('ipc', 'c_cmd_dispatch_suffix')

@@ -5,8 +5,8 @@ import threading
 
 from logging import DEBUG, ERROR
 
-from ServerUtils.server_config import ServerConfig
-from Kernel.kernel import ZmqKernel
+from server.ServerUtils.server_config import ServerConfig
+from server.Kernel.kernel import ZmqKernel
 from utils.logging_util import GetLogger
 
 # Global server config class

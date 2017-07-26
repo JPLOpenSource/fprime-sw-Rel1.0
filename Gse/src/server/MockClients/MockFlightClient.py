@@ -7,13 +7,13 @@ import datetime
 
 sys.path.append("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref") 
 
-from ServerUtils.server_config import ServerConfig
+from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
 
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
 from models.serialize import *
-from ServerUtils import test_utils
+from server.ServerUtils import test_utils
 import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()

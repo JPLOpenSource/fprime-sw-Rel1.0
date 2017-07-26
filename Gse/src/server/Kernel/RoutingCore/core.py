@@ -4,8 +4,8 @@ from logging import DEBUG, INFO
 
 from utils.logging_util import GetLogger
 
-from ServerUtils.server_config import ServerConfig
-from Kernel.interconnect import BindToRandomInprocEndpoint
+from server.ServerUtils.server_config import ServerConfig
+from server.Kernel.interconnect import BindToRandomInprocEndpoint
 from pubsub_pair import PubSubPair
 from packet_broker import PacketBroker
 from routing_table import RoutingTable
