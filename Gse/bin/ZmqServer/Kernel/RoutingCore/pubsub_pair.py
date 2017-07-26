@@ -42,7 +42,7 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             logger.info("Exiting Runnable")
  
 
-def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
+def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket):
     """
     Thread of control for receiveing packets from a broker
     Consumes packets from a broker.
@@ -95,12 +95,17 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket):
                     elif(option == 'unsubscribe'):
                         sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
 
+                    # Ack routing table
+                    cmd_reply_socket.send(b"Received")
+
+
                         
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
             output_socket.close()
             sub_socket.close()
             cmd_socket.close()
+            cmd_reply_socket.close()
             logger.info("Exiting Runnable")
 
 
@@ -122,6 +127,7 @@ class PubSubPair(object):
             XPUB socket.
     """
     def __init__(self, client_name, context, routing_table_command_address,\
+                                      routing_table_command_reply_address,\
                                       serverIO_subscriber_output_address,\
                                       serverIO_publisher_input_address,\
                                       broker_subscriber_input_address,\
@@ -129,6 +135,7 @@ class PubSubPair(object):
 
         # Make addresses available for testing purposes
         self.routing_table_command_address = routing_table_command_address 
+        self.routing_table_command_reply_address = routing_table_command_reply_address
         self.serverIO_subscriber_output_address = serverIO_subscriber_output_address
         self.serverIO_publisher_input_address = serverIO_publisher_input_address
         self.broker_subscriber_input_address = broker_subscriber_input_address
@@ -164,12 +171,16 @@ class PubSubPair(object):
         cmd_socket.setsockopt(zmq.SUBSCRIBE, '')
         cmd_socket.connect(routing_table_command_address)
 
+        # Setup command reply socket to ACK the routing table
+        cmd_reply_socket = context.socket(zmq.DEALER)
+        cmd_reply_socket.connect(routing_table_command_reply_address)
+
         # Create forwarding and receiving threads
         self.__PacketForwarder = threading.Thread(target=ForwardToBroker,\
                           args=(client_name, input_socket, pub_socket))
 
         self.__PacketReceiver  = threading.Thread(target=ReceiveFromBroker,\
-                      args=(client_name, output_socket, sub_socket, cmd_socket))
+                      args=(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket))
         
         
     def Start(self):

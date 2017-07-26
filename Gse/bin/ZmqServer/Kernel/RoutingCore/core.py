@@ -67,10 +67,12 @@ class RoutingCore(object):
         self.__logger.debug("Broker Input: {}".format(broker_subscriber_input_address))
         self.__logger.debug("Broker Output: {}".format(broker_publisher_output_address))
 
-        routing_table_command_address = self.routing_table.GetCommandSocketAddress()
+        routing_table_command_address       = self.routing_table.GetCommandSocketAddress()
+        routing_table_command_reply_address = self.routing_table.GetCommandReplySocketAddress()
 
         psp = PubSubPair(client_name, self.__context,
                                     routing_table_command_address,\
+                                    routing_table_command_reply_address,\
                                     serverIO_subscriber_output_address,\
                                     serverIO_publisher_input_address,\
                                     broker_subscriber_input_address,\

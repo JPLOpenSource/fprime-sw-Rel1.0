@@ -28,7 +28,8 @@ class RoutingTable(object):
         self.__flight_publishers = {}
         self.__ground_publishers = {}
 
-        self.__flights_subscribed_to_all = set() # Set of the flight clients who are subscribed to all ground clients 
+        self.__flights_subscribed_to_all = set() # Set of the flight clients who are subscribed 
+                                                 # to all ground clients 
         self.__grounds_subscribed_to_all = set()
 
         self.__outstanding_subscriptions = [] # List of unsuccessfuly recorded subscriptions 
@@ -37,8 +38,14 @@ class RoutingTable(object):
         self.__command_socket     = context.socket(zmq.PUB)
         self.__command_socket_adr = BindToRandomInprocEndpoint(self.__command_socket)
 
+        # Set command reply socket
+        self.__command_reply_socket = context.socket(zmq.ROUTER)
+        self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 300) # Timeout after 300 ms
+        self.__command_reply_socket_adr = BindToRandomInprocEndpoint(self.__command_reply_socket)
+
     def Quit(self):
         self.__command_socket.close()
+        self.__command_reply_socket.close()
 
     def GetCommandSocketAddress(self):
         """
@@ -46,15 +53,20 @@ class RoutingTable(object):
         """
         return self.__command_socket_adr
 
+    def GetCommandReplySocketAddress(self):
+        """
+        Return command reply socket inproc address.
+        """
+        return self.__command_reply_socket_adr
 
     def GetPublisherTable(self, client_type):
         """
         Return the desired publisher table based on 
         client_type.
         """
-        if client_type.lower() == "flight":
+        if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
             return self.__flight_publishers
-        elif client_type.lower() == "ground":
+        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
             return self.__ground_publishers
 
     def AddFlightClient(self, client_name):
@@ -123,8 +135,23 @@ class RoutingTable(object):
         """
         for publishing_client_name in publishing_client_list:
             # Subscribe or unsubscrobe the receiving_client's PubSubPair to every publishing_client_name
-            self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
+            self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(),\
+                                                  publishing_client_name.encode()])
+            
+            # Do not update the publisher list if receiving client does not exist.
+            try:
+                self.__command_reply_socket.recv()
+            except zmq.ZMQError as e:
+                if e.errno == zmq.EAGAIN:
+                    self.__logger.warning("{} not registered. Unable to subscribe {} to {}."\
+                                          .format(receiving_client_name,receiving_client_name,\
+                                                  publishing_client_list))
+                    return
+                else:
+                    raise
 
+            # Command to receiving client was successfuly reached
+            # Add to sending clients pub dict
             try:
                 if(option.lower() == SERVER_CONFIG.SUB_OPTION):
                     pub_dict[publishing_client_name].add(receiving_client_name)
