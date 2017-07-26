@@ -17,8 +17,9 @@ $(document).ready(function() {
 	});
 });
 
+
 function SetupCommands(site, commandPort) {
-	var socket = new WebSocket('ws://' + site + ':' + commandPort.toString());
+	// var socket = new WebSocket('ws://' + site + ':' + commandPort.toString());
 
 	window.FakeTerminal.command.send = function(instance) {
 		window.FakeTerminal.command.apply(this, arguments);
@@ -33,38 +34,72 @@ function SetupCommands(site, commandPort) {
 
 		// Execution
 		base.execute = function() {
+
+
 			// Print list of commands
-			var commands = $.makeArray(arguments);
-			console.log(commands);
+			var command = $.makeArray(arguments)[0];
+			console.log(command);
 			
 			getDictionary().then(function(dict) {
-				var usrCommands = {};
-				commands.forEach(function (cmd) {
-					// Get command
-					var commandReq = dict["isf"]["commands"][cmd];
-					var name = commandReq["name"];
-					var cmdArgs = commandReq["arguments"];
+				// Get command
+				var commandReq = dict["isf"]["commands"][command];
+				var name = commandReq["name"];
+				var cmdArgs = commandReq["arguments"];
+				instance.output.write('Enter arguments for ' + name + ':');
 
-					// Get arguments
-					instance.output.write(name + ': ');
-					// var userArgs = [];
-					var inputs = [];
-					cmdArgs.forEach(function (a) {
+				console.log(JSON.stringify(commandReq));
 
-						instance.output.write('Enter ' + a['name'] + ' (' + a["description"] + ')');
-						return instance.input.request().then(function(value) {
-						    userArgs.push(value);
-						});
-					});
+				var userArgs = [];
+				var GetCmdArg = function () {
+					return instance.input.request().then((value) => userArgs.push(value));
+				};
 
-					usrCommands[cmd] = userArgs;
+				// var end = function () {
+				// 	return Promise.resolve().then(function () {
+				// 		instance.output.write(userArgs);
+				// 		return base.deferred.resolve();
+				// 	});
+				// };
+
+				var cmdProm = [];
+
+				cmdArgs.forEach(function (a) {
+					cmdProm.push(GetCmdArg);
 				});
 
-				instance.output.write(JSON.stringify(usrCommands));
-				base.deferred.resolve();
+				cmdProm.push(base.deferred.resolve);
+
+				cmdProm.reduce(function (prev, cur, i) {
+					console.log(i);
+					if (i !== cmdProm.length) {
+						instance.output.write('Enter ' + cmdArgs[i]['name'] + ' (' + cmdArgs[i]["description"] + '):');
+					} else {
+						instance.output.write(userArgs);
+					}
+					return prev.then(cur);
+				});
+
 			});
 
+			// var test = function () {
+			// 	instance.output.write('hi');
+			// 	return instance.input.request().then(function (value) {
+			// 		instance.output.write(value);
+			// 	});
+			// }
+
+			// test().then(() => test()).then(() => base.deferred.resolve());
+			// var a = [test, test, base.deferred.resolve];
+
+			// var prom = a[0]();
+			// for (var i = 1; i < a.length; i++) {
+			// 	prom = prom.then(a[i]);
+			// }
+			// a.reduce(function (prev, cur) {
+			// 	return prev.then(cur);
+			// }, test());
 			
+			// base.deferred.resolve();
 			return base.deferred.promise();
 			
 		};
