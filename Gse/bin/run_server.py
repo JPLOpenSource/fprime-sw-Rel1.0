@@ -1,13 +1,16 @@
 import os
 import sys
+import argparse
+
 from server.Kernel.kernel import ZmqKernel
 
 def main():
-    sys.path.append(os.getcwd())
+    parser = argparse.ArgumentParser(description="FPrime GSE Server")
+    parser.add_argument('cmd_port', metavar='p', type=int, help="Server command port number.")
 
-    cmd_port = sys.argv[1] 
-       
-    kernel = ZmqKernel(cmd_port)  
+    args = parser.parse_args()	
+
+    kernel = ZmqKernel(args.cmd_port)  
     kernel.Start()
 
 
