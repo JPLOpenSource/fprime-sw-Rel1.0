@@ -52,18 +52,19 @@ def main(argv=None):
 
     # run ThreadedTCPServer
     if twin:
-        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ThreadedTCP.log","Threaded TCP Server",python_bin,"%s/Gse/bin/ThreadedTCPServer.py"%build_root,"--port","%d"%used_port, "--host",addr]
+        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port,"-v"]
         TTS = subprocess.Popen(TTS_args)
     else:
-        tts_log = open("ThreadedTCP.log",'w')
-        TTS_args = [python_bin, "-u", "%s/Gse/bin/ThreadedTCPServer.py"%build_root,"--port","%d"%used_port, "--host",addr]
+        tts_log = open("ZmqServer.log",'w')
+        TTS_args = [python_bin, "-u", "%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
         TTS = subprocess.Popen(TTS_args,stdout=tts_log,stderr=subprocess.STDOUT)
     
     # wait for TCP Server to start
-    time.sleep(2)
+    time.sleep(5)
     
     # run Gse GUI
-    GUI_args = [python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root]
+    GUI_args = [python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
+                "-Ngui_1"]
     #print ("GUI: %s"%" ".join(GUI_args))
     GUI = subprocess.Popen(GUI_args)
     
@@ -74,7 +75,7 @@ def main(argv=None):
     ref_bin = "%s/Ref/%s/Ref"%(build_root,os.environ["OUTPUT_DIR"])
     
     if not nobin:
-        REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref Application",ref_bin,"-p","%d"%used_port,"-a",addr]
+        REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_1"]
         REF = subprocess.Popen(REF_args)
     
     GUI.wait()

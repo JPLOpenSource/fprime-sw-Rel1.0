@@ -24,7 +24,7 @@ class TestKernel:
 
         cmd_port = 5555 
         timeout_s  = 27
-        cls.k = ZmqKernel(cmd_port, timeout_s)  
+        cls.k = ZmqKernel(cmd_port, log_lvl=DEBUG, file_lvl=ERROR, timeout=timeout_s)  
         kernel_thread = threading.Thread(target=cls.k.Start)
 
         # Create 'clients'

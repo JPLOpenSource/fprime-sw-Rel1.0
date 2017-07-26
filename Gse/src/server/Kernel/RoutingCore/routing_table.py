@@ -40,7 +40,7 @@ class RoutingTable(object):
 
         # Set command reply socket
         self.__command_reply_socket = context.socket(zmq.ROUTER)
-        self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 300) # Timeout after 300 ms
+        self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 300 ms
         self.__command_reply_socket_adr = BindToRandomInprocEndpoint(self.__command_reply_socket)
 
     def Quit(self):

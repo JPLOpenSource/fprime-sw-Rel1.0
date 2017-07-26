@@ -6,13 +6,13 @@ GLOBAL_LEVEL = False
 GLOBAL_LOG_LEVEL = ERROR
 GLOBAL_FILE_LEVEL = ERROR
 
-def SetGlobalLoggingLevel(logLevel, fileLevel, globalLevel=False):
+def SetGlobalLoggingLevel(consoleLevel, fileLevel, globalLevel=False):
     global GLOBAL_LEVEL
     global GLOBAL_LOG_LEVEL
     global GLOBAL_FILE_LEVEL
 
     GLOBAL_LEVEL = globalLevel # Let each GetLogger set their own level 
-    GLOBAL_LOG_LEVEL = logLevel
+    GLOBAL_LOG_LEVEL = consoleLevel
     GLOBAL_FILE_LEVEL = fileLevel
 
 

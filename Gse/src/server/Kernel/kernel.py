@@ -28,7 +28,7 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 class ZmqKernel(object):
 
-    def __init__(self, command_port, timeout=None):
+    def __init__(self, command_port, console_lvl=INFO, file_lvl=INFO, timeout=None):
         """
         @params command_port: tcp port on which to receive registration and commands
         @params timeout: Quit server after timeout. For unittesting purposes
@@ -37,7 +37,7 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         # Setup Logger
-        SetGlobalLoggingLevel(logLevel=INFO, fileLevel=DEBUG, globalLevel=True)
+        SetGlobalLoggingLevel(consoleLevel=console_lvl, fileLevel=file_lvl, globalLevel=True)
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)

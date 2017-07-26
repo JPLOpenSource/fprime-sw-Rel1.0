@@ -24,7 +24,6 @@ class ClientSocket:
         Initialize zmq components and register to server
         """
         try:
-
             self.__gui_name = gui_name
             self.__zmq_initialized = False # Let the destructor know if all zmq components were initialzed
             self.__mainPanel = main_panel
@@ -106,9 +105,10 @@ class ClientSocket:
         self.disconnect()
 
     def SubscribeToTargets(self, targets):
-        for target in targets:
-             # Subscribe to all targets
-            self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
+        if targets is not None:
+            for target in targets:
+                 # Subscribe to all targets
+                self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
 
 
 

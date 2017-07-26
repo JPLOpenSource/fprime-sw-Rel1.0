@@ -432,6 +432,9 @@ class TopPanel(object):
         """
         Creates a ClientSocket class. 
         """
+        # Return is client socket is initialized
+        if(self.__clientSocket is not None):
+            return
         
         port = self.__opts.port
         addr = self.__opts.addr
