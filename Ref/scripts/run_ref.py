@@ -39,7 +39,7 @@ def main(argv=None):
     parser.add_option("-p", "--port", dest="port", action="store", type="int", help="Set the threaded TCP socket server port [default: %default]", default=used_port)
     parser.add_option("-a", "--addr", dest="addr", action="store", type="string", help="set the threaded TCP socket server address [default: %default]", default=addr)
     parser.add_option("-n", "--nobin", dest="nobin", action="store_true", help="Disables the binary app from starting [default: %default]", default=False)
-    parser.add_option("-t", "--twin", dest="twin", action="store_true", help="Runs Threaed TCP Server in window, otherwise backgrounds [default: %default]", default=False)
+    parser.add_option("-t", "--twin", dest="twin", action="store_true", help="Runs ZmqServer in window, otherwise backgrounds [default: %default]", default=False)
 
     (opts, args) = parser.parse_args(argv)
     used_port = opts.port
@@ -50,7 +50,7 @@ def main(argv=None):
 #     print 'port = ', used_port
 #     print 'addr = ', addr 
 
-    # run ThreadedTCPServer
+    # run ZmqServer 
     if twin:
         TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port,"-v"]
         TTS = subprocess.Popen(TTS_args)
