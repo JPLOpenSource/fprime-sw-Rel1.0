@@ -3,7 +3,6 @@ var hostPort = '8080';
 function getDictionary() {
     // Needs directory from root of application
     return http.get('/server/res/dictionary.json').then(function (result) {
-        console.log(JSON.stringify(result.data));
         return result.data;
     });
 }
