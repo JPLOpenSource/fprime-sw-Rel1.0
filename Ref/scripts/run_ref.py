@@ -87,7 +87,7 @@ def main(argv=None):
         REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref 2 Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_2"]
         REF2 = subprocess.Popen(REF_args)
     
-    GUI2.wait()
+    GUI1.wait()
     GUI2.wait()
 
     if not nobin:
