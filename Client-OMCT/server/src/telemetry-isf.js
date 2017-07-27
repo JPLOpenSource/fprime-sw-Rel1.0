@@ -20,6 +20,8 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 	client.connect(gsePort, site, function() {
 		console.log('Connected! Realtime server on port: ' + realMctPort);
 
+		fs.closeSync(fs.openSync('server/temp/log.json', 'w'));	// Create log json
+
 		// Register client
 		client.write('Register GUI\n');
 
