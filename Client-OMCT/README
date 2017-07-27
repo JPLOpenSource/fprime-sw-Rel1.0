@@ -8,6 +8,13 @@ npm start
 Shows telemetry information for fprime using OpenMCT
 Must have fprime netserver running
 
+TCP server:
+cd Gse/src && export PYTHON_PATH=`pwd` && python ../bin/ThreadedTCPServer.py -p 50000 -i localhost
+
+Ref App (in root):
+./Ref/darwin-darwin-x86-debug-llvm-bin/Ref -p 50000 -a localhost
+
 Known Bugs:
    - Client memory leak when browser disconnects and reconnects multiple times
+
 
