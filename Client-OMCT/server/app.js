@@ -10,6 +10,11 @@ var HistoryIsfServer = require('./src/history-server');
 var CommandIsfServer = require('./src/command-isf');
 var CreateFixed = require('./src/create-fixed');
 
+// Create temp directory
+if (!fs.existsSync('./temp')) {
+    fs.mkdirSync('./temp');
+}
+
 const OMCTPort = 8080;
 // Create static server for client
 var staticServer = new StaticServer(OMCTPort);
@@ -21,10 +26,6 @@ const commandPort = 1339;
 const gsePort = 50000;
 const site = '127.0.0.1';
 
-// Create temp directory
-if (!fs.existsSync('./temp')) {
-    fs.mkdirSync('./temp');
-}
 
 RealtimeIsfServer(site, gsePort, realMctPort);
 HistoryIsfServer(site, histMctPort);
