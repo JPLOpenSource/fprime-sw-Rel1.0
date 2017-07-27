@@ -61,6 +61,8 @@ Client-OMCT/bower_components
 Client-OMCT/package-lock.json
 # Server temp files
 Client-OMCT/server/temp/*
+# TCP Log
+ThreadedTCP.log
 
 
 # Python base folder
