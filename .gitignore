@@ -55,17 +55,17 @@ core
 
 # Ignoring files for node client view:
 # Modules
-Client-OMCT/node_modules
-Client-OMCT/bower_components
+./Client-OMCT/node_modules
+./Client-OMCT/bower_components
 # Npm
-Client-OMCT/package-lock.json
+./Client-OMCT/package-lock.json
 # Server temp files
-Client-OMCT/server/temp/*
+./Client-OMCT/server/temp/*
 # TCP Log
-ThreadedTCP.log
+./ThreadedTCP.log
 
 
 # Python base folder
-lib/
-bin/
+./lib/
+./bin/
 
