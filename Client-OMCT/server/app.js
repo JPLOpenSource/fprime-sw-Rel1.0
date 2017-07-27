@@ -11,8 +11,8 @@ var CommandIsfServer = require('./src/command-isf');
 var CreateFixed = require('./src/create-fixed');
 
 // Create temp directory
-if (!fs.existsSync('./temp')) {
-    fs.mkdirSync('./temp');
+if (!fs.existsSync('server/temp')) {
+    fs.mkdirSync('server/temp');
 }
 
 const OMCTPort = 8080;
