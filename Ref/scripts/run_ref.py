@@ -52,7 +52,7 @@ def main(argv=None):
 
     # run ZmqServer 
     if twin:
-        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port,"-v"]
+        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
         TTS = subprocess.Popen(TTS_args)
     else:
         tts_log = open("ZmqServer.log",'w')
@@ -63,31 +63,44 @@ def main(argv=None):
     time.sleep(5)
     
     # run Gse GUI
-    GUI_args = [python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
+    GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_1.log","GUI 1",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
                 "-Ngui_1"]
     #print ("GUI: %s"%" ".join(GUI_args))
-    GUI = subprocess.Popen(GUI_args)
+    GUI1 = subprocess.Popen(GUI_args)
+
+    GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_2.log","GUI 2",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
+                "-Ngui_2"]
+    GUI2 = subprocess.Popen(GUI_args)
+
+
     
-    # run Ref app
+    # run two Ref apps
     
     op_sys = os.uname()[0]
     
     ref_bin = "%s/Ref/%s/Ref"%(build_root,os.environ["OUTPUT_DIR"])
     
     if not nobin:
-        REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_1"]
-        REF = subprocess.Popen(REF_args)
+        REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref 1 Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_1"]
+        REF1 = subprocess.Popen(REF_args)
+
+        REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref 2 Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_2"]
+        REF2 = subprocess.Popen(REF_args)
     
-    GUI.wait()
+    GUI2.wait()
+    GUI2.wait()
 
     if not nobin:
         try:
-            REF.send_signal(signal.SIGTERM)
+            REF1.send_signal(signal.SIGTERM)
+            REF2.send_signal(signal.SIGTERM)
+
         except:
             pass
             
         try:
-            REF.wait()
+            REF1.wait()
+            REF2.wait()
         except:
             pass
             
