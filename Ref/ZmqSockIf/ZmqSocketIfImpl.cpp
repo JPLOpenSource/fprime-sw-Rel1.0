@@ -51,11 +51,10 @@ namespace Ref {
         	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
 
         	zmq_msg_t fPrimePacket;
-        	zmq_msg_init_data(&fPrimePacket, buf, sizeof(data_net_size) + data.getBuffLength(),
-        					 NULL, NULL);
+        	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
+        	memcpy(zmq_msg_data(&fPrimePacket), buf, sizeof(buf));
 
-        	int rc = zmq_send(zmqSocket, buf, sizeof(buf), 0);
-        	//int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
+        	int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
         	zmq_msg_close(&fPrimePacket);
         	if(rc == -1){
         		zmqError("zmqSocketWriteComBuffer\n");
@@ -208,8 +207,8 @@ namespace Ref {
 			zmq_msg_close(&msg);
 		}
 
-		printf("S %04x P %04x S %04x\n", regStatus, this->m_serverPublishPort, this->m_serverSubscribePort);
-		printf("S %d P %d S %d\n", regStatus, this->m_serverPublishPort, this->m_serverSubscribePort);
+		//printf("S %04x P %04x S %04x\n", regStatus, this->m_serverPublishPort, this->m_serverSubscribePort);
+		//printf("S %d P %d S %d\n", regStatus, this->m_serverPublishPort, this->m_serverSubscribePort);
 		if(regStatus != 0){
 			this->log_ACTIVITY_HI_ConnectedToServer(this->m_serverCommandPort);
 		}else{
@@ -242,7 +241,7 @@ namespace Ref {
     }
 
     void ZmqSocketIfImpl::socketReadTask(void* ptr){
-    	printf("socketReadTask\n");
+    	printf("Entering SocketReadTask\n");
     	fflush(stderr);
 
     	// cast pointer to component type
@@ -266,7 +265,7 @@ namespace Ref {
 
             // correct for network order
             packetDelimiter = ntohl(packetDelimiter);
-            printf("Packet delimiter: 0x%04x\n",packetDelimiter);
+            //printf("Packet delimiter: 0x%04x\n",packetDelimiter);
 
             // if magic number to quit, exit loop
             if (packetDelimiter == 0xA5A5A5A5) {
@@ -285,12 +284,10 @@ namespace Ref {
             // Extract FPrime packet size
             packetSize = *(U32*)(buf + buf_ptr);
             packetSize = ntohl(packetSize);
-
-            printf("Packet Size: 0x%04x\n", packetSize);
+            //printf("Packet Size: 0x%04x\n", packetSize);
 
             // Increment buffer pointer
             buf_ptr += sizeof(packetSize);
-
 
             // Extract FPrime packet description
             packetDesc = *(U32*)(buf + buf_ptr);
