@@ -15,6 +15,14 @@
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
                 "id": 21, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup1Comp_RgMaxTime", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -24,6 +32,14 @@
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
                 "id": 22, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup1Comp_RgCycleSlips", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -33,6 +49,14 @@
                 "description": "Number of pings received", 
                 "format_string": null, 
                 "id": 41, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "PR_NumPings", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -42,6 +66,14 @@
                 "description": "Number of packets sent", 
                 "format_string": null, 
                 "id": 81, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "PacketsSent", 
                 "telem_type": "channel", 
                 "type": "U64"
@@ -51,6 +83,14 @@
                 "description": "Number of errors injected", 
                 "format_string": null, 
                 "id": 82, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "NumErrorsInjected", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -60,6 +100,14 @@
                 "description": "Readback of Parameter3", 
                 "format_string": null, 
                 "id": 83, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "Parameter3", 
                 "telem_type": "channel", 
                 "type": "U8"
@@ -69,6 +117,14 @@
                 "description": "Readback of Parameter4", 
                 "format_string": null, 
                 "id": 84, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "Parameter4", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -78,6 +134,14 @@
                 "description": "Readback of Parameter4", 
                 "format_string": "%s", 
                 "id": 85, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SendState", 
                 "telem_type": "channel", 
                 "type": "Enum"
@@ -87,6 +151,14 @@
                 "description": "Number of packets received", 
                 "format_string": "%d", 
                 "id": 101, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "NumPkts", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -96,6 +168,14 @@
                 "description": "Number of packets received with errors", 
                 "format_string": null, 
                 "id": 102, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": 2, 
+                    "high_yellow": 1, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "NumErrPkts", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -105,6 +185,14 @@
                 "description": "Value of Sensor1", 
                 "format_string": null, 
                 "id": 103, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "Sensor1", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -114,6 +202,14 @@
                 "description": "Value of Sensor3", 
                 "format_string": null, 
                 "id": 104, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "Sensor2", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -123,6 +219,14 @@
                 "description": "Readback of Parameter1", 
                 "format_string": null, 
                 "id": 105, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "Parameter1", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -132,6 +236,14 @@
                 "description": "Readback of Parameter2", 
                 "format_string": null, 
                 "id": 106, 
+                "limits": {
+                    "high_orange": 2, 
+                    "high_red": 3, 
+                    "high_yellow": 1, 
+                    "low_orange": -2, 
+                    "low_red": -3, 
+                    "low_yellow": -1
+                }, 
                 "name": "Parameter2", 
                 "telem_type": "channel", 
                 "type": "I16"
@@ -141,6 +253,14 @@
                 "description": "Number of commands dispatched", 
                 "format_string": null, 
                 "id": 121, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CommandsDispatched", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -150,6 +270,14 @@
                 "description": "Number of command errors", 
                 "format_string": null, 
                 "id": 122, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CommandErrors", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -159,6 +287,14 @@
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
                 "id": 161, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup2Comp_RgMaxTime", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -168,6 +304,14 @@
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
                 "id": 162, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup2Comp_RgCycleSlips", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -177,6 +321,14 @@
                 "description": "SignalGen Output", 
                 "format_string": null, 
                 "id": 181, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SG1_SignalGen_Output", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -186,6 +338,14 @@
                 "description": "SignalGen Output", 
                 "format_string": null, 
                 "id": 201, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SG3_SignalGen_Output", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -195,6 +355,14 @@
                 "description": "SignalGen Output", 
                 "format_string": null, 
                 "id": 221, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SG2_SignalGen_Output", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -204,6 +372,14 @@
                 "description": "Max execution time rate group", 
                 "format_string": "%u us", 
                 "id": 241, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup3Comp_RgMaxTime", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -213,6 +389,14 @@
                 "description": "Cycle slips for rate group", 
                 "format_string": null, 
                 "id": 242, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "rateGroup3Comp_RgCycleSlips", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -222,6 +406,14 @@
                 "description": "The total number of complete files received", 
                 "format_string": null, 
                 "id": 261, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileUplink_FilesReceived", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -231,6 +423,14 @@
                 "description": "The total number of packets received", 
                 "format_string": null, 
                 "id": 262, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileUplink_PacketsReceived", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -240,6 +440,14 @@
                 "description": "The total number of warnings issued", 
                 "format_string": null, 
                 "id": 263, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileUplink_Warnings", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -249,6 +457,14 @@
                 "description": "SignalGen Output", 
                 "format_string": null, 
                 "id": 281, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SG5_SignalGen_Output", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -258,6 +474,14 @@
                 "description": "The number of buffers currently allocated", 
                 "format_string": null, 
                 "id": 301, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "fileUplinkBufferManager_BufferManager_NumAllocatedBuffers", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -267,6 +491,14 @@
                 "description": "The total size of all allocated buffers", 
                 "format_string": null, 
                 "id": 302, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "fileUplinkBufferManager_BufferManager_AllocatedSize", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -276,6 +508,14 @@
                 "description": "SignalGen Output", 
                 "format_string": null, 
                 "id": 321, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "SG4_SignalGen_Output", 
                 "telem_type": "channel", 
                 "type": "F32"
@@ -285,6 +525,14 @@
                 "description": "Number of overrun warnings", 
                 "format_string": null, 
                 "id": 361, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "PingLateWarnings", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -294,6 +542,14 @@
                 "description": "The number of buffers currently allocated", 
                 "format_string": null, 
                 "id": 401, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "fileDownlinkBufferManager_BufferManager_NumAllocatedBuffers", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -303,6 +559,14 @@
                 "description": "The total size of all allocated buffers", 
                 "format_string": null, 
                 "id": 402, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "fileDownlinkBufferManager_BufferManager_AllocatedSize", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -312,6 +576,14 @@
                 "description": "Driver cycle count", 
                 "format_string": null, 
                 "id": 481, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "BD_Cycles", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -321,6 +593,14 @@
                 "description": "The total number of files sent", 
                 "format_string": null, 
                 "id": 501, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileDownlink_FilesSent", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -330,6 +610,14 @@
                 "description": "The total number of packets sent", 
                 "format_string": null, 
                 "id": 502, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileDownlink_PacketsSent", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -339,6 +627,14 @@
                 "description": "The total number of warnings", 
                 "format_string": null, 
                 "id": 503, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "FileDownlink_Warnings", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -348,6 +644,14 @@
                 "description": "The number of Load commands executed", 
                 "format_string": null, 
                 "id": 541, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CS_LoadCommands", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -357,6 +661,14 @@
                 "description": "The number of Cancel commands executed", 
                 "format_string": null, 
                 "id": 542, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CS_CancelCommands", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -366,6 +678,14 @@
                 "description": "The number of errors that have occurred", 
                 "format_string": null, 
                 "id": 543, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CS_Errors", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -375,6 +695,14 @@
                 "description": "The number of commands executed across all sequences.", 
                 "format_string": null, 
                 "id": 544, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CS_CommandsExecuted", 
                 "telem_type": "channel", 
                 "type": "U32"
@@ -384,6 +712,14 @@
                 "description": "The number of sequences completed.", 
                 "format_string": null, 
                 "id": 545, 
+                "limits": {
+                    "high_orange": null, 
+                    "high_red": null, 
+                    "high_yellow": null, 
+                    "low_orange": null, 
+                    "low_red": null, 
+                    "low_yellow": null
+                }, 
                 "name": "CS_SequencesCompleted", 
                 "telem_type": "channel", 
                 "type": "U32"

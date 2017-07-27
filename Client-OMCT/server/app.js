@@ -26,15 +26,15 @@ const commandPort = 1339;
 const gsePort = 50000;
 const site = '127.0.0.1';
 
-
 RealtimeIsfServer(site, gsePort, realMctPort);
 HistoryIsfServer(site, histMctPort);
 CommandIsfServer(site, gsePort, commandPort);
 
 CreateFixed();	// Generate fixed view from channels
 
+
 // Handle exit
-rmDir = function(dirPath, removeSelf) {
+rmDirExit = function(dirPath, removeSelf) {
 	if (removeSelf === undefined) {
 		removeSelf = true;
 	}
@@ -49,18 +49,17 @@ rmDir = function(dirPath, removeSelf) {
 		  	var filePath = dirPath + '/' + files[i];
 		  	if (fs.statSync(filePath).isFile()) {
 		  	  fs.unlinkSync(filePath);
-		  	}
-		  	else {
-		  	  rmDir(filePath);
+		  	} else {
+		  	  rmDirExit(filePath);
 		  	}
 		}
 	if (removeSelf) {
 	  fs.rmdirSync(dirPath);
 	}
+	process.exit();
 };
 process.on('SIGINT', function () {
 	console.log("Deleting temp files, cleaning up, and exiting");
-	rmDir('./temp', false);
-	process.exit();
+	rmDirExit('./temp', false);
 
 });

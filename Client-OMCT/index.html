@@ -38,6 +38,7 @@
 
         // Configure time system
         openmct.install(openmct.plugins.UTCTimeSystem());
+        openmct.install(openmct.plugins.LADTable());
         openmct.install(openmct.plugins.Conductor({
             menuOptions: [
                 {

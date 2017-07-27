@@ -66,6 +66,6 @@ ThreadedTCP.log
 
 
 # Python base folder
-./lib/
-./bin/
+lib/
+bin/
 
