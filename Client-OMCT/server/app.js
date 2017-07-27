@@ -20,6 +20,12 @@ const histMctPort = 1338;
 const commandPort = 1339;
 const gsePort = 50000;
 const site = '127.0.0.1';
+
+// Create temp directory
+if (!fs.existsSync('./temp')) {
+    fs.mkdirSync('./temp');
+}
+
 RealtimeIsfServer(site, gsePort, realMctPort);
 HistoryIsfServer(site, histMctPort);
 CommandIsfServer(site, gsePort, commandPort);
