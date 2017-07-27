@@ -59,6 +59,34 @@ class RoutingTable(object):
         """
         return self.__command_reply_socket_adr
 
+    def GetAllClientSubscription(self):
+        sub_dict = {SERVER_CONFIG.FLIGHT_TYPE:dict(), 
+                    SERVER_CONFIG.GROUND_TYPE:dict()}
+
+        self.__logger.debug("GetAllClientSubscription")
+        # Initialize sub_dict
+        for flight_client in self.__flight_publishers:
+            sub_dict[SERVER_CONFIG.FLIGHT_TYPE][flight_client] = set()  
+        for ground_client in self.__ground_publishers:
+            sub_dict[SERVER_CONFIG.GROUND_TYPE][ground_client] = set()
+
+
+        # Get Ground Subscriptions
+        for flight_client in self.__flight_publishers:
+            for ground_client in self.__ground_publishers:
+                if ground_client in self.__flight_publishers[flight_client]:
+                    sub_dict[SERVER_CONFIG.GROUND_TYPE][ground_client].add(flight_client)
+
+        # Get Flight Subscriptions
+        for ground_client in self.__ground_publishers:
+            for flight_client in self.__flight_publishers:
+                if flight_client in self.__ground_publishers[ground_client]:
+                    sub_dict[SERVER_CONFIG.FLIGHT_TYPE][flight_client].add(ground_client)
+
+        return sub_dict
+
+
+
     def GetPublisherTable(self, client_type):
         """
         Return the desired publisher table based on 

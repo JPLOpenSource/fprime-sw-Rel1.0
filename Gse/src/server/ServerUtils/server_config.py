@@ -56,6 +56,7 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.REG_CMD     = "reg"
         self.SUB_CMD     = "sub"
         self.USUB_CMD    = "usub"
+        self.LIST_CMD    = "list"
 
 
         config_file_name = 'server.ini'

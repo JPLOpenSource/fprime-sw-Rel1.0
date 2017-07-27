@@ -6,6 +6,7 @@ import logging
 import datetime
 import thread
 import struct
+import pickle
 import threading
 import traceback
 import multiprocessing
@@ -162,22 +163,34 @@ class ZmqKernel(object):
         """
         self.__logger.debug("Command Received: {}".format(msg))
 
-        client_name = msg[0]
-        cmd         = msg[1].lower()
+        return_id = msg[0]
+        cmd       = msg[1].lower()
 
         if   cmd == SERVER_CONFIG.REG_CMD: 
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
-            self.__RegistrationResponse(client_name, status, server_pub_port, server_sub_port)
+            self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
 
         elif cmd == SERVER_CONFIG.SUB_CMD: 
             option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
-            self.__RoutingCoreConfigurationResponse(client_name, status)
+            self.__RoutingCoreConfigurationResponse(return_id, status)
 
         elif cmd == SERVER_CONFIG.USUB_CMD:
             option = SERVER_CONFIG.USUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
-            self.__RoutingCoreConfigurationResponse(client_name, status)
+            self.__RoutingCoreConfigurationResponse(return_id, status)
+
+        elif cmd == SERVER_CONFIG.LIST_CMD:
+            client_sub_dict = self.__HandleListSubscription()
+            self.__ListSubscriptionResponse(return_id, client_sub_dict)
+
+    def __HandleListSubscription(self):
+        return self.__RoutingCore.routing_table.GetAllClientSubscription()
+
+    def __ListSubscriptionResponse(self, return_id, client_sub_dict):
+
+        self.__logger.debug("Sending ListSubscription Response")
+        self.__command_socket.send_multipart([return_id, pickle.dumps(client_sub_dict)])
 
     def __RoutingCoreConfigurationResponse(self, return_id, status):
         pass#self.__command_socket.send_multipart([return_id, status])
@@ -187,7 +200,7 @@ class ZmqKernel(object):
         client_type         = msg[3]
         subscriptions       = msg[4:]
 
-
+        # Configure Flight Client subscriptions
         if(client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE):
             
             if(subscriptions == ['']): # Empty message in zmq means subscribe to all
@@ -196,6 +209,7 @@ class ZmqKernel(object):
                 self.__RoutingCore.routing_table.ConfigureGroundPublishers(option,\
                                                                    client_name,\
                                                                   subscriptions)
+        # Configure Ground Client subscriptions
         elif(client_type.lower() == SERVER_CONFIG.GROUND_TYPE):
             if(subscriptions == ['']): # Subscribe to all
                 self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
