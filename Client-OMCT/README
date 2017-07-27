@@ -1,4 +1,4 @@
-
+Web Client
 
 To install:
 npm install
@@ -16,5 +16,3 @@ Ref App (in root):
 
 Known Bugs:
    - Client memory leak when browser disconnects and reconnects multiple times
-
-
