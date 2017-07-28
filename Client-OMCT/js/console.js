@@ -43,9 +43,7 @@ function SetupCommands(site, commandPort) {
 				console.log(JSON.stringify(commandReq));
 
 				var userArgs = [];
-				var GetCmdArg = function () {
-					return instance.input.request().then((value) => userArgs.push(value));
-				};
+				var GetCmdArg = () => instance.input.request().then((value) => userArgs.push(value));
 
 				// var end = function () {
 				// 	return Promise.resolve().then(function () {
@@ -54,26 +52,26 @@ function SetupCommands(site, commandPort) {
 				// 	});
 				// };
 
-				var cmdProm = [];
-
-				cmdArgs.forEach(function (a) {
-					cmdProm.push(GetCmdArg);
-				});
-
+				// Fill array with an input promise for each argument
+				var cmdProm = Array(cmdArgs.length).fill(GetCmdArg);
 				cmdProm.push(base.deferred.resolve);
+				console.log(JSON.stringify(cmdArgs), JSON.stringify(cmdProm));
 
-				cmdProm.reduce(function (prev, cur, i) {
+				var i = 0;
+				cmdProm.reduce(function (prev, cur) {
 					console.log(i);
-					if (i !== cmdProm.length) {
+					if (i < cmdArgs.length) {
 						instance.output.write('Enter ' + cmdArgs[i]['name'] + ' (' + cmdArgs[i]["description"] + '):');
 					} else {
 						instance.output.write(userArgs);
 					}
-					return prev.then(cur);
+					i += 1;
+					return prev().then(cur);
 				});
 
 			});
 
+			// // Tests
 			// var test = function () {
 			// 	instance.output.write('hi');
 			// 	return instance.input.request().then(function (value) {
