@@ -1,12 +1,3 @@
-var hostSite = 'localhost';
-var hostPort = '8080';
-function getDictionary() {
-    // Needs directory from root of application
-    return http.get('/server/res/dictionary.json').then(function (result) {
-        return result.data;
-    });
-}
-
 // Value formatters
 var value_format = {
     "hints": {
@@ -73,12 +64,15 @@ var objectProvider = {
                 // Object provider for each object in measurments. 
                 // Does not populate tree
 
+                var typeStr = 'isf.telemetry:';
+                // typeStr += measurement['id'].toString();
+                // console.log('type' + typeStr);
                 if (measurement.name === "Events") {
                     // Object provider for events
                     return {
                         identifier: identifier,
                         name: measurement.name,
-                        type: 'isf.event',
+                        type: typeStr,
                         telemetry: {
                             values: [
                                 time_format, 
@@ -96,7 +90,7 @@ var objectProvider = {
                     return {
                         identifier: identifier,
                         name: measurement.name,
-                        type: 'isf.telemetry',
+                        type: typeStr,
                         // type: typeStr,
                         telemetry: {
                             values: [
@@ -142,17 +136,9 @@ var compositionProvider = {
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
 function DictionaryPlugin(site, port) {
-    hostSite = site;
-    hostPort = port.toString();
     
     // Return function of plugin
     return function install(openmct) {
-        // var chanDict;
-        // getDictionary().then(function (dictionary) {
-        //     chanDict = dictionary["isf"]["channels"];
-        // });
-        // Define what this plugin will do
-
         // Create root of dictionary
         openmct.objects.addRoot({
             // Create identifier
@@ -163,30 +149,22 @@ function DictionaryPlugin(site, port) {
             key: 'isf'
         });
 
+        // Add types to events
+        openmct.types.addType('isf.telemetry:-1', {
+            name: 'ISF Event',
+            description: 'Event from ISF',
+            cssClass: 'icon-info'
+        });
+
         // Create domain object ('isf' folder) under the root namespace 'isf.taxonomy'
         openmct.objects.addProvider('isf.taxonomy', objectProvider);
 
         // Composition provider will define structure of the tree and populate it.
         openmct.composition.addProvider(compositionProvider);
 
-        // Add types to events
-        openmct.types.addType('isf.event', {
-            name: 'ISF Event',
-            description: 'Event from ISF',
-            cssClass: 'icon-info'
-        });
+        console.log(openmct.types.listKeys());
 
-        // for (var id in chanDict) {
-            // openmct.types.addType('isf.85', {
-            //     name: chanDict["85"]["name"],
-            //     description: chanDict["85"]["description"],
-            //     cssClass: 'icon-telemetry'
-            // });
-        // }
-
-        // console.log(openmct.types.listKeys());
-
-        openmct.types.addType('isf.telemetry', {
+        openmct.types.addType('isf.telemetry:', {
             name: 'Isf Telemetry Point',
             description: 'Isf telemetry point from our happy tutorial.',
             cssClass: 'icon-telemetry'
@@ -194,3 +172,22 @@ function DictionaryPlugin(site, port) {
         
     };
 };
+
+function CreateTypes() {
+    return function install(openmct) {
+        getDictionary().then(function (dictionary) {
+            var channels = dictionary['isf']['channels'];
+            for (var id in channels) {
+                var chan = channels[id];
+                var typeStr = 'isf.telemetry:' + chan['id'].toString();
+                console.log('addType: ' + typeStr);
+                openmct.types.addType(typeStr, {
+                    name: chan['name'],
+                    description: chan['description'],
+                    cssClass: 'icon-telemetry'
+                });
+            };
+        });
+    }
+}
+

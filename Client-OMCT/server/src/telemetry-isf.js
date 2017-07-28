@@ -11,7 +11,7 @@ const WebSocket = require('ws');	// Websocket server
 var deserialize = require('./deserializeIsf').deserialize;	// Decode packets
 var getIds = require('./deserializeIsf').getIds;	// Get ids for history
 
-
+var ws_number = 0;
 var history = {};
 function RealtimeIsfServer(site, gsePort, realMctPort) {
 
@@ -55,6 +55,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 
 	wssr.on('connection', function connection(ws) {
+		ws_number += 1;
 		// For every client connection:
 		console.log("Realtime Client connected");
 
@@ -95,7 +96,12 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 		  		// Unsubscribe to id
 		  		subscribed[idReq] = false;
 		  	}	
-		});  	
+		});
+
+		ws.on('disconnect', function() {
+			ws_number -= 1;
+			console.log('Realtime Client disconnected: ' + ws_number.toString());
+		});
 	});
 }
 

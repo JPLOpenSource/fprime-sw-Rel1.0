@@ -10,6 +10,8 @@
     <script src="node_modules/openmct/dist/openmct.js"></script>
     <!-- Server requests -->
     <script src="plugins/lib/http.js"></script>
+    <!-- Get dictionary -->
+    <script src="js/get-dict.js"></script>
     <!-- Get dictionary plugin-->
     <script src="plugins/dictionary-plugin.js"></script>
     <!-- Realtime telemetry plugin -->
@@ -32,8 +34,8 @@
         const histTelemPort = 1338;
 
         openmct.setAssetPath('node_modules/openmct/dist');
-        // openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-        openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
+        openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
+        // openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
         openmct.install(openmct.plugins.MyItems());
 
         // Configure time system
@@ -68,6 +70,7 @@
 
         // User plugin installs
         openmct.install(DictionaryPlugin(site, staticPort));
+        // openmct.install(CreateTypes());
         openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
         openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
 

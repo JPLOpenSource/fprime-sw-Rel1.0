@@ -30,36 +30,36 @@ RealtimeIsfServer(site, gsePort, realMctPort);
 HistoryIsfServer(site, histMctPort);
 CommandIsfServer(site, gsePort, commandPort);
 
-CreateFixed();	// Generate fixed view from channels
 
+console.log('Site is up!');
 
 // Handle exit
-rmDirExit = function(dirPath, removeSelf) {
-	if (removeSelf === undefined) {
-		removeSelf = true;
-	}
-	try {
-		var files = fs.readdirSync(dirPath);
-	}
-	catch(e) {
-		return;
-	}
-	if (files.length > 0)
-		for (var i = 0; i < files.length; i++) {
-		  	var filePath = dirPath + '/' + files[i];
-		  	if (fs.statSync(filePath).isFile()) {
-		  	  fs.unlinkSync(filePath);
-		  	} else {
-		  	  rmDirExit(filePath);
-		  	}
-		}
-	if (removeSelf) {
-	  fs.rmdirSync(dirPath);
-	}
-	process.exit();
-};
-process.on('SIGINT', function () {
-	console.log("Deleting temp files, cleaning up, and exiting");
-	rmDirExit('./temp', false);
+// rmDirExit = function(dirPath, removeSelf) {
+// 	if (removeSelf === undefined) {
+// 		removeSelf = true;
+// 	}
+// 	try {
+// 		var files = fs.readdirSync(dirPath);
+// 	}
+// 	catch(e) {
+// 		return;
+// 	}
+// 	if (files.length > 0)
+// 		for (var i = 0; i < files.length; i++) {
+// 		  	var filePath = dirPath + '/' + files[i];
+// 		  	if (fs.statSync(filePath).isFile()) {
+// 		  	  fs.unlinkSync(filePath);
+// 		  	} else {
+// 		  	  rmDirExit(filePath);
+// 		  	}
+// 		}
+// 	if (removeSelf) {
+// 	  fs.rmdirSync(dirPath);
+// 	}
+// 	process.exit();
+// };
+// process.on('SIGINT', function () {
+// 	console.log("Deleting temp files, cleaning up, and exiting");
+// 	rmDirExit('./temp', false);
 
-});
+// });
