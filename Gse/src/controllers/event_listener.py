@@ -44,6 +44,9 @@ from models.serialize import u16_type
 from models.serialize import u8_type
 
 from utils import Logger
+from utils import ConfigManager
+
+import zmq
 
 
 class EventListener(consumer.Consumer):
@@ -63,6 +66,24 @@ class EventListener(consumer.Consumer):
         """
         super(EventListener, self).__init__()
 
+        #
+        # Socket when connection established
+        #
+        self.__clientSocket = sock
+
+        #
+        # Store thread here
+        #
+        self.__thread = threading.Thread()
+        #
+        # Instance a lock and make all socket read/write atomic
+        #
+        self.__lock = threading.Lock()
+        #
+        # Create Queue for events here
+        #
+        self.__queue = Queue.Queue()
+        #
         # Instance the event loader here
         self.__event_loader = event_loader.EventLoader.getInstance()
         self.__event_obj_dict = self.__event_loader.getEventsDict()
@@ -79,6 +100,7 @@ class EventListener(consumer.Consumer):
         # store options
         self.__opt = None
 
+        self.__config = ConfigManager.ConfigManager.getInstance()
 
     def getInstance():
         """
@@ -127,7 +149,71 @@ class EventListener(consumer.Consumer):
       # Descriptor and length of message have already been decoded
       self.__status_bar_updater.put_data((8 + len(data), 0))
 
+    def get_after_id(self):
+        return self.__after_id
 
+    def register_root(self, the_root):
+        """
+        Register the root so that the after call works in thread.
+        """
+        self.__root = the_root
+
+
+    def register_main_panel(self, the_main_panel):
+        """
+        Register the main panel to get socket handle
+        if one is set.  This is an indication of connection.
+        """
+        self.__the_main_panel = the_main_panel
+        self.__clientSocket   = the_main_panel.getClientSocket()
+
+    def register_status_bar(self, status_bar):
+        self.__status_bar = status_bar
+
+
+    def enqueue_output(self, clientSocket, queue):
+        """
+        Queue up socket telemetry for TK processing
+        """
+
+        while True:
+            try:
+                msg = clientSocket.receiveFromServer()
+
+                queue.put(msg[1])
+
+            except zmq.ZMQError as e:
+                if e.errno == zmq.ETERM:
+                    break
+                else:
+                    raise
+            except TypeError:
+                continue
+
+        sub_socket.close()
+
+
+    def connect(self, clientSocket):
+        """
+        Start thread that is connected to sock talking to TCPThreadServer.py
+        This is called from the TCP Server menu Connect... item.
+        """
+
+        if self.__thread.isAlive() == True:
+            print "LISTENER THREAD IS ALIVE!"
+            return
+
+        self.__clientSocket = clientSocket
+
+        # create background listener thread
+        self.__thread = threading.Thread(target=self.enqueue_output, args=(clientSocket, self.__queue))
+        # thread dies with the program
+        self.__thread.daemon = True
+        # state listener thread here
+        self.__thread.start()
+
+
+   
     def decode_event(self, msg):
         """
         Decode event log message using Event object dictionary.
@@ -145,10 +231,10 @@ class EventListener(consumer.Consumer):
 
         # Decode time...
         # Base
-        u32_obj = u16_type.U16Type()
-        u32_obj.deserialize(msg, ptr)
-        ptr += u32_obj.getSize()
-        time_base = u32_obj.val
+        u16_obj = u16_type.U16Type()
+        u16_obj.deserialize(msg, ptr)
+        ptr += u16_obj.getSize()
+        time_base = u16_obj.val
         #print "Time Base: %d" % time_base
 
         # Time context

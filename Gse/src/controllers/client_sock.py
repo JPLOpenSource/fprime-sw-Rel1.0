@@ -12,96 +12,170 @@ import socket
 import struct
 import time
 import select
+import zmq
 
 class ClientSocket:
     """
     Class to perform client side socket connection
     """
 
-    def __init__(self, host_addr, port):
+    def __init__(self, main_panel, host_addr, port, gui_name):
         """
-        Connect up the socket here.
+        Initialize zmq components and register to server
         """
-        self.exit_flag = False
         try:
-            print "Connecting to host addr %s, port %d\n" % (host_addr, port)
-            # Create the socket
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.__gui_name = gui_name
+            self.__zmq_initialized = False # Let the destructor know if all zmq components were initialzed
+            self.__mainPanel = main_panel
 
-            # Set the size of the socket send and receive buffers to blen
-            #socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, len(msg))
-            #socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, len(msg))
-            # Connect to server
-            self.sock.connect((host_addr, port))
+            ####################
+            ## Zmq Components ##
+            ####################
+            self.__zmq_context       = None
+            self.__server_cmd_socket = None # Server command socket
+            
+            self.__server_pub_port   = None # The port the server sends telemetry, events, files
+            self.__server_sub_port   = None # The port the server receives commands, files
 
-        except IOError as e:
-            print "EXCEPTION: Could not connect to socket at host addr %s, port %s" % (host_addr, port)
-            raise IOError
+            self.__gui_sub_socket   = None # The socket the gui receives telemetry, events, files 
+            self.__gui_pub_socket   = None # The socket the gui sends commands, files
+
+            self.__zmq_context = zmq.Context()
+
+            #########################################################
+            ## Setup server command socket and handle registration ##
+            #########################################################
+            self.__server_cmd_socket = self.__zmq_context.socket(zmq.DEALER)
+
+            # Set socket options
+            self.__server_cmd_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
+            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
+            self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
+            
+            self.__server_cmd_socket.connect("tcp://{}:{}".format(host_addr, port))
+
+            # Register the GUI with the server
+            # TODO: Create unique ground-client name
+            self.__server_cmd_socket.send_multipart([b"REG", b"GROUND", b"ZMQ"])
+
+            response = self.__server_cmd_socket.recv_multipart()
+            self.__server_pub_port = struct.unpack("<I", response[1])[0]
+            self.__server_sub_port = struct.unpack("<I", response[2])[0]
+
+            time.sleep(1)
+
+            ###########################
+            ## Setup pub/sub sockets ##
+            ###########################
+            self.__gui_pub_socket = self.__zmq_context.socket(zmq.DEALER)
+            self.__gui_sub_socket = self.__zmq_context.socket(zmq.ROUTER)
+
+            # Set socket options
+            self.__gui_pub_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
+            self.__gui_pub_socket.setsockopt(zmq.LINGER, 0) # Immidiately close socket
+            self.__gui_sub_socket.setsockopt(zmq.LINGER, 0)
+            self.__gui_sub_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
+
+            self.__gui_pub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_sub_port))
+            self.__gui_sub_socket.connect("tcp://{}:{}".format(host_addr, self.__server_pub_port))
+
+
+            ############
+            ## Finish ##
+            ############
+            print("Publishing to port: {} | Subscribed to port: {}".\
+            format(self.__server_sub_port, self.__server_pub_port))
+
+            s = "Connected to server (host addr %s)" % (host_addr)
+            self.__mainPanel.statusUpdate(s, 'red')
+
+            self.__zmq_initialized = True
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                # EAGAIN occurs if a zmq recv call times out.
+                # In this case we only await the registration response,
+                # So close command socket and terminate context.
+                self.__server_cmd_socket.close()
+                self.__zmq_context.term()
+            raise
 
 
     def __del__(self):
         self.disconnect()
 
+    def SubscribeToTargets(self, targets):
+        if targets is not None:
+            for target in targets:
+                 # Subscribe to all targets
+                self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
+
+
+
     def disconnect(self):
         """
-        Exit a potentially hanged receive aand close the socket
+        Tell server to close, close all sockets, and terminate the zmq context.
         """
-        self.exit_flag = True
+        if(self.__zmq_initialized):
+            self.__server_cmd_socket.close()
+            self.__gui_sub_socket.close()
+            self.__gui_pub_socket.close()
+            self.__zmq_context.term()
+
+
+    def receiveFromServer(self):
+        """
+        Return a list of messages. A single message will be returned
+        in a single indexed list.
+        """
         try:
-            self.sock.shutdown(socket.SHUT_RDWR)
-            self.sock.close()
-        except:
-            pass
-
-    def receive(self):
-        """
-        Just return a msg if less them 512 bytes, otherwise
-        return 1024 at a time.
-        """
-        l=1024
-        msg = ''
-
-        msg = self.sock.recv(l/2)
-        if len(msg) < l/2:
+            msg = self.__gui_sub_socket.recv_multipart()
             return msg
 
-        while len(msg) < l:
-            chunk = self.sock.recv(l-len(msg))
-            print chunk
-            if chunk == '':
-                raise RuntimeError("socket connection broken")
-            msg = msg + chunk
-        return msg
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                return None
+            else:
+                raise
+   
 
-    def recv(self, l):
+    def sendToServer(self, msg):
         """
-        Read l bytes from socket.
+        Sends msg to the server's subscribe port.
         """
-        chunk =""
-        msg = ""
-        n = 0
-        while l > n:
-            if self.exit_flag:
-                raise Exception("Exiting receive loop")
-
-            # Check if the socket is ready to read
-            fd = select.select([self.sock], [], [], .25)
-            if fd[0]:
-                chunk = self.sock.recv(l-n)
-                if chunk == '':
-                    return ''
-                    #raise RuntimeError("socket connection broken")
-                msg = msg + chunk
-                n = len(msg)
-        return msg
-
-    def send(self, msg):
         try:
-            self.sock.sendall(msg)
-        except IOError:
-            print "EXCEPTION: Could not send message (%s) to socket" % msg
+            
+            if(type(msg) is list):
+                self.__gui_pub_socket.send_multipart(msg)
+            else:
+                self.__gui_pub_socket.send_multipart([msg])
 
-#
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                return
+            else:
+                raise
+
+
+def GetClientSocket(main_panel, host_addr, port, gui_name):
+    """
+    Factory function to create ClientSocket
+    """
+    try:
+
+        clientSocket = ClientSocket(main_panel, host_addr, port, gui_name)
+        return clientSocket
+
+    except zmq.ZMQError as e:
+        if e.errno == zmq.EAGAIN:
+            string = "Unable to connect to {}:{}".format(host_addr, port)
+            main_panel.statusUpdate(string, "red")
+            print(string)
+            return None
+        else:
+            raise
+
+
 # Main loop
 #
 def main():

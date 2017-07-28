@@ -82,7 +82,7 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 ;
 
 // Command Components
-Svc::SocketGndIfImpl sockGndIf
+Ref::ZmqSocketIfImpl sockGndIf
 #if FW_OBJECT_NAMES == 1
                     ("SGIF")
 #endif
@@ -220,7 +220,7 @@ void dumpobj(const char* objName) {
 
 #endif
 
-void constructApp(int port_number, char* hostname) {
+void constructApp(int port_number, char* hostname, char* targetname) {
 
     localTargetInit();
 
@@ -262,7 +262,7 @@ void constructApp(int port_number, char* hostname) {
 
     prmDb.init(10,0);
 
-    sockGndIf.init(0);
+    sockGndIf.init(0, targetname);
 
     fileUplink.init(30, 0);
     fileDownlink.init(30, 0);
@@ -394,7 +394,7 @@ void exitTasks(void) {
 }
 
 void print_usage() {
-	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n");
+	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n-n\ttargetname");
 }
 
 
@@ -411,11 +411,12 @@ int main(int argc, char* argv[]) {
 	U32 port_number;
 	I32 option;
 	char *hostname;
+    char *targetname;
 	port_number = 0;
 	option = 0;
 	hostname = NULL;
 
-	while ((option = getopt(argc, argv, "hp:a:")) != -1){
+	while ((option = getopt(argc, argv, "h:p:n:a:")) != -1){
 		switch(option) {
 			case 'h':
 				print_usage();
@@ -427,6 +428,9 @@ int main(int argc, char* argv[]) {
 			case 'a':
 				hostname = optarg;
 				break;
+            case 'n':
+                targetname = optarg;
+                break;
 			case '?':
 				return 1;
 			default:
@@ -437,7 +441,10 @@ int main(int argc, char* argv[]) {
 
 	(void) printf("Hit Ctrl-C to quit\n");
 
-    constructApp(port_number, hostname);
+    printf("Port: %d\n", port_number);
+    printf("Target Name: %s\n", targetname);
+
+    constructApp(port_number, hostname, targetname);
     //dumparch();
 
     signal(SIGINT,sighandler);
@@ -461,3 +468,74 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
+#endif
+
+#ifdef TGT_OS_TYPE_VXWORKS
+
+#include "Fw/Types/VxWorks/VxWorksLogAssert.hpp"
+
+extern "C" {
+    void go(int portNum, char* hostname);
+}
+
+void cycleTask(void* arg) {
+    runcycles(-1);
+}
+
+Os::Task cycleTaskObj;
+
+Fw::VxWorksLogAssertHook logAssertHook;
+
+void go(int portNum, char* hostname) {
+    logAssertHook.registerHook();
+    constructApp(portNum,hostname, targetname);
+    // start thread cycling
+    Fw::EightyCharString taskName("Cycler");
+    if (cycleTaskObj.start(taskName,CYCLER_TASK,160, 10*1024,cycleTask,0) != Os::Task::TASK_OK) {
+        printf("Failed to start cycler task!\n");
+    }
+
+    Os::Task::delay(10000);
+}
+
+#endif
+
+#ifdef TGT_OS_TYPE_RTEMS
+
+#include <stdio.h>
+#include <rtems/rtems_config.h>
+
+
+rtems_task Init (rtems_task_argument ignored) {
+
+    (void) printf("Constructing Architecture\n");
+
+    // *** Probably broken. Hasn't been tested in a few releases ***
+
+    constructApp();
+
+    int cycle = 0;
+
+    while (cycle != 10) {
+        Os::Task::delay(1000);
+        (void) printf("Cycle %d\n",cycle);
+        runcycles(1);
+        cycle++;
+    }
+
+    // stop tasks
+    rateGroup1KhzComp.exit();
+    rateGroup100hzComp.exit();
+    rateGroup1hzComp.exit();
+    blockDrv.exit();
+
+    // Give time for threads to exit
+    (void) printf("Waiting for threads...\n");
+    Os::Task::delay(1000);
+
+    (void) printf("Exiting...\n");
+    exit(0);
+}
+
+#endif

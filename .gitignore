@@ -47,6 +47,7 @@ coverity.out
 *-template
 
 logs
+ZmqServer.log
 
 test_harness/.autotools
 core

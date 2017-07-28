@@ -26,6 +26,7 @@ import Pmw
 import exceptions
 import subprocess
 import signal
+import zmq
 
 import log_event_panel
 import command_panel
@@ -84,7 +85,10 @@ class TopPanel(object):
         min_y = self.__config.get("gui", "window_min_y")
         parent.minsize(min_x, min_y)
 
-        self.__sock = None
+
+        self.__gui_name = opts.name
+        self.__clientSocket = None
+
         #
         # List of sub-panels for destruction
         self.__panels = []
@@ -347,8 +351,8 @@ class TopPanel(object):
             self.break_update_tasks()
 
             if self.__opts.connect == True or self.__opts.exec_app != None:
-                if self.__sock != None:
-                    self.__sock.send("Quit\n")
+                if self.__clientSocket != None:
+                    self.__clientSocket.disconnect()
 
             self.__file_listener.exit()
 
@@ -436,49 +440,41 @@ class TopPanel(object):
 
     def connectTCP(self):
         """
-        Connect to a running ThreadedTCPServer here...
+        Creates a ClientSocket class. 
         """
-        # connect to server
-        try:
-            port = self.__opts.port
-            server = self.__opts.addr
-            s = "Connected to server (host addr %s, port %d)" % (server, port)
-            self.__sock=client_sock.ClientSocket(server,port)
-            self.__status_update.update(s, 'red')
-            #
-            # Register the GUI with the server
-            #self.lock.acquire()
-            self.__sock.send("Register GUI\n")
-            #self.lock.release()
-            #
-            # Register the socket with the socket_listener and
-            # Spawn the listener thread here....
-            self.__socket_listen.connect(self.__sock)
-        except IOError:
-            del(self.__sock)
-            self.__sock = None
-            s = "EXCEPTION: Could not connect to socket at host addr %s, port %s" % (server, port)
-            print s
-            self.__status_update.update(s,color='red')
+        # Return is client socket is initialized
+        if(self.__clientSocket is not None):
+            return
+        
+        port = self.__opts.port
+        addr = self.__opts.addr
 
+        self.__clientSocket = client_sock.GetClientSocket(self, addr, port, self.__gui_name)
+        self.__clientSocket.SubscribeToTargets(self.__opts.targets)
+        
+        # Register the socket with the event_listener and
+        # Spawn the listener thread here....
+        if(self.__clientSocket is not None):
+            self.__event_listen.connect(self.__clientSocket)
 
-    def getSock(self):
-        """
-        Return socket client object handle.
-        """
-        return self.__sock
-
+    def getClientSocket(self):
+        return self.__clientSocket
 
     def killTCP(self):
         """
         Kill the TCP Socket Server.
         """
         #@todo: This does not quite work yet.  Make it shutdown and stop listener thread.
-        self.__sock.send("Quit\n")
-        #
-        if self.__sock != None:
-            del(self.__sock)
-            self.__sock = None
+
+        if self.__clientSocket != None:
+            del(self.__clientSocket)
+            self.__clientSocket = None
+
+    def statusUpdate(self, string, color):
+        """
+        Update the status bar.
+        """
+        self.__status_update.update(string,color)
 
 
     def build_notebook(self,parent):

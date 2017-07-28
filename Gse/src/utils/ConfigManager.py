@@ -194,6 +194,13 @@ class ConfigManager(ConfigParser.SafeConfigParser):
         self.__prop['helppanel']['default_header_link_size'] = 16
         self.__prop['helppanel']['panel_header_font_size'] = 18
 
+        self.__prop['server'] = dict()
+        self.__prop['server']['command_socket'] = None
+        self.__prop['server']['zmq_context'] = None
+        self.__prop['server']['address']  = ''
+        self.__prop['server']['pub_port'] = ''
+        self.__prop['server']['sub_port'] = ''
+
 
         # 'DEFAULT' section is baked in for Python 2.6x
         # the call below will raise ValueError
@@ -204,6 +211,7 @@ class ConfigManager(ConfigParser.SafeConfigParser):
 
         #
 
+        self._setSectionDefaults('server')
         self._setSectionDefaults('persist')
         self._setSectionDefaults('helppanel')
         self._setSectionDefaults('performance')
