@@ -32,8 +32,8 @@
         const histTelemPort = 1338;
 
         openmct.setAssetPath('node_modules/openmct/dist');
-        openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-        // openmct.install(openmct.plugins.CouchDB('http://localhost:8080/node_modules/openmct'));
+        // openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
+        openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
         openmct.install(openmct.plugins.MyItems());
 
         // Configure time system
