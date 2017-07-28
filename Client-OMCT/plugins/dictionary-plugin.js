@@ -133,10 +133,45 @@ var compositionProvider = {
     }
 };
 
+function getTypes() {
+    var types = [];
+    getDictionary().then(function(dictionary) {
+        for (var id in channels) {
+            var chan = channels[id];
+            var typeStr = 'isf.telemetry:' + chan['id'].toString();
+            console.log('addType: ' + typeStr);
+            openmct.types.addType(typeStr, {
+                name: chan['name'],
+                description: chan['description'],
+                cssClass: 'icon-telemetry'
+            });
+        };
+    })
+}
+
+function CreateTypes(openmct) {
+    getDictionary().then(function (dictionary) {
+        var channels = dictionary['isf']['channels'];
+
+        
+        for (var id in channels) {
+            var chan = channels[id];
+            var typeStr = 'isf.telemetry:' + chan['id'].toString();
+            console.log('addType: ' + typeStr);
+            openmct.types.addType(typeStr, {
+                name: chan['name'],
+                description: chan['description'],
+                cssClass: 'icon-telemetry'
+            });
+        };
+
+        console.log('in: ' + openmct.types.listKeys());
+    });
+}
+
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
 function DictionaryPlugin(site, port) {
-    
     // Return function of plugin
     return function install(openmct) {
         // Create root of dictionary
@@ -149,12 +184,12 @@ function DictionaryPlugin(site, port) {
             key: 'isf'
         });
 
-        // Add types to events
-        openmct.types.addType('isf.telemetry:-1', {
-            name: 'ISF Event',
-            description: 'Event from ISF',
-            cssClass: 'icon-info'
-        });
+        // // Add types to events
+        // openmct.types.addType('isf.telemetry:-1', {
+        //     name: 'ISF Event',
+        //     description: 'Event from ISF',
+        //     cssClass: 'icon-info'
+        // });
 
         // Create domain object ('isf' folder) under the root namespace 'isf.taxonomy'
         openmct.objects.addProvider('isf.taxonomy', objectProvider);
@@ -162,32 +197,12 @@ function DictionaryPlugin(site, port) {
         // Composition provider will define structure of the tree and populate it.
         openmct.composition.addProvider(compositionProvider);
 
-        console.log(openmct.types.listKeys());
+        console.log('out: ' + openmct.types.listKeys());
 
         openmct.types.addType('isf.telemetry:', {
             name: 'Isf Telemetry Point',
-            description: 'Isf telemetry point from our happy tutorial.',
+            description: 'Isf telemetry point from Ref App.',
             cssClass: 'icon-telemetry'
         });
-        
     };
 };
-
-function CreateTypes() {
-    return function install(openmct) {
-        getDictionary().then(function (dictionary) {
-            var channels = dictionary['isf']['channels'];
-            for (var id in channels) {
-                var chan = channels[id];
-                var typeStr = 'isf.telemetry:' + chan['id'].toString();
-                console.log('addType: ' + typeStr);
-                openmct.types.addType(typeStr, {
-                    name: chan['name'],
-                    description: chan['description'],
-                    cssClass: 'icon-telemetry'
-                });
-            };
-        });
-    }
-}
-

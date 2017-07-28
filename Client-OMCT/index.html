@@ -47,7 +47,7 @@
                     name: "Fixed",
                     timeSystem: 'utc',
                     bounds: {
-                        start: Date.now() - 1 * 60 * 1000,
+                        start: Date.now() - 5 * 60 * 1000,
                         end: Date.now()
                     }
                 },
@@ -70,7 +70,6 @@
 
         // User plugin installs
         openmct.install(DictionaryPlugin(site, staticPort));
-        // openmct.install(CreateTypes());
         openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
         openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
 
