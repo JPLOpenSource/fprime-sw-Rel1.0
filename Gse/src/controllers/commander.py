@@ -119,8 +119,9 @@ class Commander:
         cmd = desc.serialize() + data_len.serialize() + desc_type.serialize() + data
         #type_base.showBytes(cmd)
 
-        self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
+        #self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
         self.__clientSocket.sendToServer(cmd)
+
 
 
 class Mediator(object):

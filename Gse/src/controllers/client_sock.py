@@ -128,7 +128,6 @@ class ClientSocket:
         Return a list of messages. A single message will be returned
         in a single indexed list.
         """
-
         try:
             msg = self.__gui_sub_socket.recv_multipart()
             return msg

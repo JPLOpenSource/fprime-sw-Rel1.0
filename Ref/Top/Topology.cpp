@@ -398,15 +398,8 @@ void print_usage() {
 }
 
 
-#if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
-
-//#include <mqueue.h>
 #include <signal.h>
 #include <stdio.h>
-
-extern "C" {
-    int main(int argc, char* argv[]);
-};
 
 volatile sig_atomic_t terminate = 0;
 
@@ -415,11 +408,6 @@ static void sighandler(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-//    mq_unlink("/QP_1KhzRateGroup");
-//    mq_unlink("/QP_100hzRateGroup");
-//    mq_unlink("/QP_1hzRateGroup");
-//    mq_unlink("/QP_CmdComponent");
-//    return 0;
 	U32 port_number;
 	I32 option;
 	char *hostname;
@@ -551,4 +539,3 @@ rtems_task Init (rtems_task_argument ignored) {
 }
 
 #endif
-
