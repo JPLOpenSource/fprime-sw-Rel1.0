@@ -397,6 +397,7 @@ void print_usage() {
 	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n-n\ttargetname");
 }
 
+#if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
 
 #include <signal.h>
 #include <stdio.h>
@@ -441,6 +442,7 @@ int main(int argc, char* argv[]) {
 
 	(void) printf("Hit Ctrl-C to quit\n");
 
+    printf("Address: %s", hostname);
     printf("Port: %d\n", port_number);
     printf("Target Name: %s\n", targetname);
 
