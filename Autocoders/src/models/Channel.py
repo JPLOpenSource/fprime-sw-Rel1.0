@@ -41,7 +41,7 @@ class Channel(object):
     This is a very simple component meta-model class.
     Note: associations to Arg instances as needed.
     """
-    def __init__(self, ids, name, ctype, size, abbrev = None, format_string=None, update=None, limits = (None,None,None,None), comment=None, xml_filename=None, component_name=None , component_base_name = None):
+    def __init__(self, ids, name, ctype, size, abbrev = None, format_string=None, update=None, limits = (None,None,None,None), comment=None, xml_filename=None, component_name=None , component_base_name = None, units=None):
         """
         Constructor
         @param id:  Numeric ID of channel
@@ -65,6 +65,7 @@ class Channel(object):
         self.__xml_filename = xml_filename
         self.__component_name = component_name
         self.__component_base_name = component_base_name
+        self.__units = units
         # 
 
     def get_ids(self):
@@ -138,3 +139,6 @@ class Channel(object):
     
     def get_component_base_name(self):
         return self.__component_base_name
+    
+    def get_units(self):
+        return self.__units

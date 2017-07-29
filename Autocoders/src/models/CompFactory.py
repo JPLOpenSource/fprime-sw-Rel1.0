@@ -168,6 +168,7 @@ class CompFactory:
             f=channel_obj.get_format_string()
             u=channel_obj.get_update()
             l=channel_obj.get_limits()
+            u=channel_obj.get_units()
             channel_obj_list.append(
                 Channel.Channel(ids=i, 
                                 name=n, 
@@ -180,7 +181,8 @@ class CompFactory:
                                 comment=c,
                                 xml_filename=comp_xml_filename,
                                 component_name=comp_full_name,
-                                component_base_name = comp_name))
+                                component_base_name = comp_name,
+                                units=u))
         
         event_obj_list = []
         for event_obj in comp_event_obj_list:

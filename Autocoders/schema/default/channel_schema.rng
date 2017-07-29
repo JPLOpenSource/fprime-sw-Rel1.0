@@ -21,7 +21,6 @@
                 </attribute>
             </optional>
             
-            
             <oneOrMore>
                 <ref name = "channel_defenition"></ref>
             </oneOrMore>
@@ -43,9 +42,6 @@
                 <a:documentation>Name of the telemetry channel.</a:documentation>
                 <text/>
             </attribute>
-            
-            
-            
             
             <!-- Optional Attributes -->
             <optional>
@@ -105,15 +101,16 @@
                 </attribute>
             </optional>
             
-            
-           <interleave>
-               <ref name = "type_size_choice_define"></ref>
-               <optional>
+            <interleave>            
+                <optional>
+                    <ref name = "type_size_choice_define"></ref>
                     <ref name = "comment_define"></ref>
                 </optional>
-           </interleave>
-            
-                
+                <!-- Zero of more units elements for option GUI usage for unit conversion. -->
+                <zeroOrMore>
+                    <ref name = "units_define"></ref>
+                </zeroOrMore>
+            </interleave>
         </element>
     </define>
     

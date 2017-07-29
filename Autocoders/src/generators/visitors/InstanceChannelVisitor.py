@@ -172,7 +172,16 @@ class InstanceChannelVisitor(AbstractVisitor.AbstractVisitor):
             (c.type,c.ser_import,type_name) = DictTypeConverter.DictTypeConverter().convert(obj.get_type(),obj.get_size())
             # special case for enums and Gse GUI. Needs to convert %d to %s
             if type_name == "enum":
-                c.format_string = "%s"            
+                c.format_string = "%s"  
+                
+            u = obj.get_units()
+            if len(u) == 0:
+                c.units = None
+            else:
+                l = list()
+                for e in u:
+                    l.append({"Label":e[0], "Gain": e[1], "Offset":e[2]})
+                c.units = l        
     
             self._writeTmpl(c, self.__fp[fname], "channelBodyVisit")
             self.__fp[fname].close()

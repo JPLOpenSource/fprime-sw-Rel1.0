@@ -123,7 +123,26 @@
         </data>
     </define>
 
-
+    <define name = "units_define">
+        <element name = "units">
+            <a:documentation>Optional unit conversions for channel.</a:documentation>
+            <attribute name = "name">
+                <a:documentation>Name of unit - visiable in GUI's.</a:documentation>
+                <text/>
+            </attribute>
+            <attribute name = "gain">
+                <a:documentation>Name of unit - visiable in GUI's.</a:documentation>
+                <data  type = "float">
+                </data>
+            </attribute>
+            <attribute name = "offset">
+                <a:documentation>Name of unit - visiable in GUI's.</a:documentation>
+                <data  type = "float">
+                </data>
+            </attribute>
+        </element>
+    </define>
+    
     <!-- Repeated element defines -->
 
     <define name = "comment_define">

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?oxygen RNGSchema="file:../xml/ISF_Component_Schema.rnc" type="compact"?>
+<?xml-model href="../../Autocoders/schema/default/component_schema.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+
+<!-- <?oxygen RNGSchema="file:../xml/ISF_Component_Schema.rnc" type="compact"?> -->
 
 <!--====================================================================== 
 
@@ -12,5 +14,7 @@
 <telemetry telemetry_base="$SignalGenIdBase">
   <channel id="0" name="SignalGen_Output" data_type="F32" abbrev="T001-300">
     <comment>SignalGen Output</comment>
+    <units name="volts" gain="2.5" offset="0.0"></units>
+    <units name="power" gain="5.0" offset="0.0"></units>
   </channel>
 </telemetry>
