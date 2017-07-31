@@ -275,7 +275,6 @@ class MainPanelFactory:
         #
         # Create Help Panel
         #
-
         h_panel= help_panel.HelpPanel(the_panel.p9(), the_panel)
         the_panel.register_panel(h_panel)
 

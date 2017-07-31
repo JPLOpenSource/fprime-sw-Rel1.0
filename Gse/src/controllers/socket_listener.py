@@ -31,6 +31,7 @@ from controllers import event_listener
 from controllers import channel_listener
 from controllers import status_bar_updater
 from controllers import stripchart_listener
+from controllers.client_sock import ServerReceiveError
 
 from models.serialize import type_base
 from models.serialize import u32_type
@@ -49,14 +50,14 @@ class SocketListener:
     __instance = None
 
 
-    def __init__(self, sock=None):
+    def __init__(self):
         """
         Constructor.
         WARNING: After the first instantiation setupLogging must be executed.
         """
 
         # Socket when connection established
-        self.__sock = sock
+        self.__sock = None
 
         # Thread handler
         self.__thread = threading.Thread()
@@ -118,64 +119,72 @@ class SocketListener:
 
     def register_main_panel(self, the_main_panel):
         """
-        Register the main panel to get socket handle
-        if one is set.  This is an indication of connection.
+        Register the main panel.
         """
         self.__the_main_panel = the_main_panel
-        self.__sock = self.__the_main_panel.getSock()
-
+        
     def register_status_bar(self, status_bar):
       self.__status_bar = status_bar
 
-    def receive_packet(self, sock):
+    def splitDataFromMeta(self, fp_packet):
         """
-        Receive packet by first reading 4 byte size,
-        then 4 byte desc. Then recieve the rest of message.
-        Send size, desc, id, and optional args for decoding.
+        Extract 4 byte size, then 
+        extract 4 byte desc, then
+        extract the rest of message.
+
+        Return size, desc, data.
         """
-        pkt_len = sock.recv(4)
-        if self.__binfile != None:
-          self.__binfile.write(pkt_len)
+        ptr = 0
 
-        pkt_desc = sock.recv(4)
-        if self.__binfile != None:
-          self.__binfile.write(pkt_desc)
+        u32_obj = u32_type.U32Type()
+        u32_obj.deserialize(fp_packet, 0)
+        pkt_len = u32_obj.val
+        ptr += u32_obj.getSize()
 
-        desc = int(struct.unpack(">I",pkt_desc)[0])
-        size = int(struct.unpack(">I",pkt_len)[0])
+        u32_obj = u32_type.U32Type()
+        u32_obj.deserialize(fp_packet, ptr)
+        pkt_desc = u32_obj.val
+        ptr += u32_obj.getSize()
 
-        data = sock.recv(size - u32_type.U32Type().getSize())
+        data = fp_packet[ptr:]
 
-        if self.__binfile != None:
-          self.__binfile.write(data)
+        return (pkt_len, pkt_desc, data)
 
-        return (size, desc, data)
+    def writeToBinaryLog(self, packet):
+        if self.__binfile is not None:
+            self.__binfile.write(packet)
 
-    def enqueue_output(self, sock, event_listen, channel_listen):
+    def enqueue_output(self, subscriber_socket, event_listen, channel_listen):
         """
         Queue up socket data for TK processing
         """
         while 1:
             try:
-              length, descriptor, data = self.receive_packet(sock)
-              if descriptor == 1:
+                msg = subscriber_socket.receiveFromServer()
+
+            except ServerReceiveError:
+                print "Socket connection terminated"
+                break
+
+            packet = msg[1]
+            length, descriptor, data = self.splitDataFromMeta(packet)
+            self.writeToBinaryLog(packet)
+          
+            if descriptor == 1:
                 channel_listen.put_data(data)
-              elif descriptor == 2:
+            elif descriptor == 2:
                 event_listen.put_data(data)
-              else:
+            else:
                 print "Unkown descriptor: " + str(descriptor)
-            except:
-              print "Socket connection terminated"
-              break
+        
+
         return
 
-    def connect(self, sock):
+    def connect(self, subscriber_socket):
         """
         Start thread that is connected to sock talking to TCPThreadServer.py
         THis is called from the TCP Server menu Connect... item.
         """
-        self.__sock = sock
-
         if self.__thread.isAlive() == True:
             print "LISTENER THREAD IS ALIVE!"
             return
@@ -183,7 +192,7 @@ class SocketListener:
         # create background listener thread
         self.__thread = threading.Thread(
           target=self.enqueue_output,
-          args=(self.__sock, self.__event_listen, self.__channel_listen)
+          args=(subscriber_socket, self.__event_listen, self.__channel_listen)
         )
         # thread dies with the program
         self.__thread.daemon = True

@@ -14,12 +14,71 @@ import time
 import select
 import zmq
 
+class ServerReceiveError(Exception):
+    def __init__(self, msg):
+        self.__msg = msg
+    def __str__(self):
+        return repr(self.__msg)
+
+class ServerSendError(Exception):
+    def __init__(self, msg):
+        self.__msg = msg
+    def __str__(self):
+        return repr(self.__msg)
+
+class _SubscriberSocket:
+
+    def __init__(self, socket):
+        self.__socket = socket
+    
+    def receiveFromServer(self):
+        """
+        Return a list of messages. A single message will be returned
+        in a single indexed list.
+        """
+        try:
+            msg = self.__socket.recv_multipart()
+            return msg
+
+        except zmq.ZMQError as e:
+            raise ServerReceiveError("Unable to send message.")
+   
+class _PublisherSocket:
+
+    def __init__(self, socket):
+        self.__socket = socket
+
+    def publishToServer(self, msg):
+        """
+        Sends msg to the server's subscribe port.
+        """
+        try:
+            
+            if(type(msg) is list):
+                self.__socket.send_multipart(msg)
+            else:
+                self.__socket.send_multipart([msg])
+
+        except zmq.ZMQError as e:
+            raise ServerSendError("Unable to send message.")
+
+class _CommanderSocket:
+
+    def __init__(self, socket):
+        self.__socket = socket
+
+    def sendCommand(self, msg):
+        try:
+            self.__socket.send_multipart(msg)
+        except zmq.ZMQError as e:
+            raise ServerSendError("Unable to send message.")
+
 class ClientSocket:
     """
     Class to perform client side socket connection
     """
 
-    def __init__(self, main_panel, host_addr, port, gui_name):
+    def __init__(self, main_panel, gui_name, host_addr, port):
         """
         Initialize zmq components and register to server
         """
@@ -91,6 +150,11 @@ class ClientSocket:
 
             self.__zmq_initialized = True
 
+            # Setup Listen, Publish, and Command sockets
+            self.__publisher_socket   = _PublisherSocket(self.__gui_pub_socket)
+            self.__subscriber_socket  = _SubscriberSocket(self.__gui_sub_socket)
+            self.__commander_socket   = _CommanderSocket(self.__server_cmd_socket) 
+
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
                 # EAGAIN occurs if a zmq recv call times out.
@@ -111,7 +175,6 @@ class ClientSocket:
                 self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
 
 
-
     def disconnect(self):
         """
         Tell server to close, close all sockets, and terminate the zmq context.
@@ -123,43 +186,20 @@ class ClientSocket:
             self.__zmq_context.term()
 
 
-    def receiveFromServer(self):
-        """
-        Return a list of messages. A single message will be returned
-        in a single indexed list.
-        """
-        try:
-            msg = self.__gui_sub_socket.recv_multipart()
-            return msg
+    def GetSubscriberSocket(self):
+        return self.__subscriber_socket
 
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                return None
-            else:
-                raise
-   
+    def GetPublisherSocket(self):
+        return self.__publisher_socket
 
-    def sendToServer(self, msg):
-        """
-        Sends msg to the server's subscribe port.
-        """
-        try:
-            
-            if(type(msg) is list):
-                self.__gui_pub_socket.send_multipart(msg)
-            else:
-                self.__gui_pub_socket.send_multipart([msg])
-
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                return
-            else:
-                raise
+    def GetCommanderSocket(self):
+        return self.__commander_socket
 
 
 def GetClientSocket(main_panel, host_addr, port, gui_name):
     """
-    Factory function to create ClientSocket
+    Factory function to create ClientSocket.
+    Returns None if connection cannot be made. 
     """
     try:
 

@@ -69,7 +69,7 @@ class EventListener(consumer.Consumer):
         #
         # Socket when connection established
         #
-        self.__clientSocket = sock
+        self.__clientSocket = None
 
         #
         # Store thread here
@@ -169,49 +169,6 @@ class EventListener(consumer.Consumer):
 
     def register_status_bar(self, status_bar):
         self.__status_bar = status_bar
-
-
-    def enqueue_output(self, clientSocket, queue):
-        """
-        Queue up socket telemetry for TK processing
-        """
-
-        while True:
-            try:
-                msg = clientSocket.receiveFromServer()
-
-                queue.put(msg[1])
-
-            except zmq.ZMQError as e:
-                if e.errno == zmq.ETERM:
-                    break
-                else:
-                    raise
-            except TypeError:
-                continue
-
-        sub_socket.close()
-
-
-    def connect(self, clientSocket):
-        """
-        Start thread that is connected to sock talking to TCPThreadServer.py
-        This is called from the TCP Server menu Connect... item.
-        """
-
-        if self.__thread.isAlive() == True:
-            print "LISTENER THREAD IS ALIVE!"
-            return
-
-        self.__clientSocket = clientSocket
-
-        # create background listener thread
-        self.__thread = threading.Thread(target=self.enqueue_output, args=(clientSocket, self.__queue))
-        # thread dies with the program
-        self.__thread.daemon = True
-        # state listener thread here
-        self.__thread.start()
-
 
    
     def decode_event(self, msg):

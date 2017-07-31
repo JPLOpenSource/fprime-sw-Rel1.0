@@ -43,6 +43,7 @@ from controllers import exceptions
 from controllers import status_updater
 from controllers import status_bar_updater
 from controllers import file_listener
+from controllers import commander
 
 from utils import ConfigManager
 from utils.gse_persist import WindowMementoOriginator, MementoCaretaker
@@ -97,6 +98,9 @@ class TopPanel(object):
 
         # Socket listener
         self.__socket_listen = socket_listener.SocketListener.getInstance()
+
+        # Commander
+        self.__commander = commander.Commander.getInstance()
 
         # Event listener singleton with observer
         self.__event_listen = event_listener.EventListener.getInstance()
@@ -442,20 +446,16 @@ class TopPanel(object):
         """
         Creates a ClientSocket class. 
         """
-        # Return is client socket is initialized
-        if(self.__clientSocket is not None):
-            return
         
-        port = self.__opts.port
-        addr = self.__opts.addr
+        # Create server connection
+        gui_name  = self.__opts.name
+        host_addr = self.__opts.addr
+        port      = self.__opts.port
 
-        self.__clientSocket = client_sock.GetClientSocket(self, addr, port, self.__gui_name)
-        self.__clientSocket.SubscribeToTargets(self.__opts.targets)
-        
-        # Register the socket with the event_listener and
-        # Spawn the listener thread here....
-        if(self.__clientSocket is not None):
-            self.__event_listen.connect(self.__clientSocket)
+        self.__client_socket = client_sock.GetClientSocket(self, gui_name, host_addr, port)
+
+        self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
+        self.__commander.connect(self.__client_socket.GetPublisherSocket())
 
     def getClientSocket(self):
         return self.__clientSocket
