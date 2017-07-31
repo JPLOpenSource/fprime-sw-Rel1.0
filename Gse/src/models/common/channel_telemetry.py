@@ -35,7 +35,7 @@ class Channel(object):
     Really this is a container since the type will have it's own deserialize
     implementation.
     '''
-    def __init__(self, name, id, comp_name, ch_description, ch_type, ch_format_string, low_red, low_orange, low_yellow, high_yellow, high_orange, high_red):
+    def __init__(self, name, id, comp_name, ch_description, ch_type, ch_format_string, low_red, low_orange, low_yellow, high_yellow, high_orange, high_red, units):
         '''
         Constructor
         '''
@@ -67,6 +67,7 @@ class Channel(object):
         self.__high_yellow = high_yellow
         self.__high_orange = high_orange
         self.__high_red = high_red
+        self.__units = units
         #
         self.__time_base = None
         self.__time_context = None
@@ -158,6 +159,9 @@ class Channel(object):
 
     def getHighRed(self):
         return self.__high_red
+        
+    def getUnits(self):
+        return self.__units
 
     @property
     def changed(self):
