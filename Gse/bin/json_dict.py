@@ -73,7 +73,7 @@ for id in ev_cd:
     for argument in el.getEventDesc()[id]:
         arg = argument[2].__repr__()
         if arg == 'Enum':
-            enum_dict = {v:k for k,v in argument[2].enum_dict().iteritems()}
+            enum_dict = {v:k for k,v in argument[2].enum_dict().iteritems()}    # switch key,value pair
             arguments.append(enum_dict)
         else:
             arguments.append(arg)
