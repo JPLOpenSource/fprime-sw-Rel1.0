@@ -82,7 +82,7 @@ class EventListener(consumer.Consumer):
         #
         # Create Queue for events here
         #
-        self.__queue = Queue.Queue()
+        #self.__queue = Queue.Queue()
         #
         # Instance the event loader here
         self.__event_loader = event_loader.EventLoader.getInstance()
@@ -298,11 +298,10 @@ class EventListener(consumer.Consumer):
     def get_event(self):
       # Get item off queue
       try:
-        msg = self.__queue.get_nowait()
+        msg = self._queue.get_nowait()
       except Queue.Empty:
         # No Events to get
         return None
-
       return self.decode_event_api(msg)
 
     def getCurrentEventLogMsg(self):

@@ -31,6 +31,7 @@ import os
 import struct
 import logging
 import time
+import Queue
 
 #@todo Add logging to disk of log events via the Logger module.
 from controllers import stripchart_listener
@@ -72,6 +73,7 @@ class ChannelListener(consumer.Consumer):
 
         self.__current_ch_msg = None
         self.__opt = None
+
 
     def getInstance():
         """
@@ -247,7 +249,7 @@ class ChannelListener(consumer.Consumer):
     def get_channel(self):
       # Get item off queue
       try:
-        msg = self.__queue.get_nowait()
+        msg = self._queue.get_nowait()
       except Queue.Empty:
         # No Telemetry to get
         return None
