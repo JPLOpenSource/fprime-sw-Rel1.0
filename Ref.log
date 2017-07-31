@@ -1,63 +1,75 @@
 /Users/ssinha/Documents/fprime-sw/Gse/bin/pexpect_runner.py: Running command "/Users/ssinha/Documents/fprime-sw/Ref/darwin-darwin-x86-debug-llvm-bin/Ref -p 50000 -a 127.0.0.1"
 Hit Ctrl-C to quit
-EVENT: (121) (2:1501269419,79611) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0051 registered to port 6 slot 0
-EVENT: (121) (2:1501269419,79924) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0052 registered to port 6 slot 1
-EVENT: (121) (2:1501269419,79934) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0053 registered to port 6 slot 2
-EVENT: (121) (2:1501269419,79941) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0054 registered to port 6 slot 3
-EVENT: (121) (2:1501269419,79946) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005B registered to port 6 slot 4
-EVENT: (121) (2:1501269419,79951) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005C registered to port 6 slot 5
-EVENT: (121) (2:1501269419,79957) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005D registered to port 6 slot 6
-EVENT: (121) (2:1501269419,79963) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005E registered to port 6 slot 7
-EVENT: (121) (2:1501269419,79969) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0065 registered to port 10 slot 8
-EVENT: (121) (2:1501269420,91196) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0066 registered to port 10 slot 9
-EVENT: (121) (2:1501269420,91220) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0067 registered to port 10 slot 10
-EVENT: (121) (2:1501269420,91227) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0068 registered to port 10 slot 11
-EVENT: (121) (2:1501269420,91234) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021D registered to port 13 slot 12
-EVENT: (121) (2:1501269420,91240) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021E registered to port 13 slot 13
-EVENT: (121) (2:1501269420,91246) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021F registered to port 13 slot 14
-EVENT: (121) (2:1501269420,91252) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0220 registered to port 13 slot 15
-EVENT: (121) (2:1501269420,91258) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0221 registered to port 13 slot 16
-EVENT: (121) (2:1501269420,91265) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0222 registered to port 13 slot 17
-EVENT: (121) (2:1501269420,91794) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0223 registered to port 13 slot 18
-EVENT: (121) (2:1501269420,91808) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0079 registered to port 7 slot 19
-EVENT: (121) (2:1501269420,91814) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007A registered to port 7 slot 20
-EVENT: (121) (2:1501269420,91820) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007B registered to port 7 slot 21
-EVENT: (121) (2:1501269420,91827) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007C registered to port 7 slot 22
-EVENT: (121) (2:1501269420,91832) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A5 registered to port 0 slot 23
-EVENT: (121) (2:1501269420,91836) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A6 registered to port 0 slot 24
-EVENT: (121) (2:1501269420,91841) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A7 registered to port 0 slot 25
-EVENT: (121) (2:1501269420,92390) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A8 registered to port 0 slot 26
-EVENT: (121) (2:1501269420,92403) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A9 registered to port 0 slot 27
-EVENT: (121) (2:1501269420,92411) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x008D registered to port 12 slot 28
-EVENT: (121) (2:1501269420,92418) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01F5 registered to port 5 slot 29
-EVENT: (121) (2:1501269420,92425) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01F6 registered to port 5 slot 30
-EVENT: (121) (2:1501269420,92430) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B5 registered to port 2 slot 31
-EVENT: (121) (2:1501269420,92434) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B6 registered to port 2 slot 32
-EVENT: (121) (2:1501269420,92438) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B7 registered to port 2 slot 33
-EVENT: (121) (2:1501269420,92442) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DD registered to port 1 slot 34
-EVENT: (121) (2:1501269420,92839) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DE registered to port 1 slot 35
-EVENT: (121) (2:1501269420,92851) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DF registered to port 1 slot 36
-EVENT: (121) (2:1501269420,92860) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00C9 registered to port 8 slot 37
-EVENT: (121) (2:1501269420,92867) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00CA registered to port 8 slot 38
-EVENT: (121) (2:1501269420,92873) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00CB registered to port 8 slot 39
-EVENT: (121) (2:1501269420,92879) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0141 registered to port 3 slot 40
-EVENT: (121) (2:1501269420,92885) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0142 registered to port 3 slot 41
-EVENT: (121) (2:1501269420,92890) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0143 registered to port 3 slot 42
-EVENT: (121) (2:1501269420,93334) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0119 registered to port 11 slot 43
-EVENT: (121) (2:1501269420,93347) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x011A registered to port 11 slot 44
-EVENT: (121) (2:1501269420,93354) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x011B registered to port 11 slot 45
-EVENT: (121) (2:1501269420,93360) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0169 registered to port 9 slot 46
-EVENT: (121) (2:1501269420,93367) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x016A registered to port 9 slot 47
-EVENT: (121) (2:1501269420,93371) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x016B registered to port 9 slot 48
-EVENT: (121) (2:1501269420,93376) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0029 registered to port 4 slot 49
-EVENT: (147) (2:1501269420,93453) WARNING_HI: (PRM) PrmFileReadError : Parameter file read failed in stage 0 with record 0 and error 1
-EVENT: (141) (2:1501269420,93548) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000065 not found
-EVENT: (141) (2:1501269420,94380) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000066 not found
-EVENT: (141) (2:1501269420,94406) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000051 not found
-EVENT: (141) (2:1501269420,94416) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000052 not found
-EVENT: (21) (2:1501269420,108220) DIAGNOSTIC: (RG1) RateGroupStarted : Rate group started.
-EVENT: (241) (2:1501269420,108313) DIAGNOSTIC: (RG3) RateGroupStarted : Rate group started.
-EVENT: (161) (2:1501269420,108317) DIAGNOSTIC: (RG2) RateGroupStarted : Rate group started.
-EVENT: (381) (2:1501269420,108506) WARNING_LO: (SGIF) NoConnectionToServer : Unable to connect to the socket server on port 50000
-EVENT: (382) (2:1501269420,131347) ACTIVITY_HI: (SGIF) ConnectedToServer : Connection made to the socket server on port 50000
+EVENT: (121) (2:1501289228,373747) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0051 registered to port 6 slot 0
+EVENT: (121) (2:1501289228,373791) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0052 registered to port 6 slot 1
+EVENT: (121) (2:1501289228,373801) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0053 registered to port 6 slot 2
+EVENT: (121) (2:1501289228,373808) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0054 registered to port 6 slot 3
+EVENT: (121) (2:1501289228,373815) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005B registered to port 6 slot 4
+EVENT: (121) (2:1501289228,373822) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005C registered to port 6 slot 5
+EVENT: (121) (2:1501289228,373829) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005D registered to port 6 slot 6
+EVENT: (121) (2:1501289228,373836) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x005E registered to port 6 slot 7
+EVENT: (121) (2:1501289228,373844) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0065 registered to port 10 slot 8
+EVENT: (121) (2:1501289230,74861) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0066 registered to port 10 slot 9
+EVENT: (121) (2:1501289230,74883) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0067 registered to port 10 slot 10
+EVENT: (121) (2:1501289230,74891) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0068 registered to port 10 slot 11
+EVENT: (121) (2:1501289230,74898) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021D registered to port 13 slot 12
+EVENT: (121) (2:1501289230,74904) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021E registered to port 13 slot 13
+EVENT: (121) (2:1501289230,74911) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x021F registered to port 13 slot 14
+EVENT: (121) (2:1501289230,74918) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0220 registered to port 13 slot 15
+EVENT: (121) (2:1501289230,74924) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0221 registered to port 13 slot 16
+EVENT: (121) (2:1501289230,75758) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0222 registered to port 13 slot 17
+EVENT: (121) (2:1501289230,75773) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0223 registered to port 13 slot 18
+EVENT: (121) (2:1501289230,75781) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0079 registered to port 7 slot 19
+EVENT: (121) (2:1501289230,75787) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007A registered to port 7 slot 20
+EVENT: (121) (2:1501289230,75793) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007B registered to port 7 slot 21
+EVENT: (121) (2:1501289230,75799) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x007C registered to port 7 slot 22
+EVENT: (121) (2:1501289230,75805) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A5 registered to port 0 slot 23
+EVENT: (121) (2:1501289230,75811) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A6 registered to port 0 slot 24
+EVENT: (121) (2:1501289230,75817) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A7 registered to port 0 slot 25
+EVENT: (121) (2:1501289230,77475) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A8 registered to port 0 slot 26
+EVENT: (121) (2:1501289230,77503) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01A9 registered to port 0 slot 27
+EVENT: (121) (2:1501289230,77512) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x008D registered to port 12 slot 28
+EVENT: (121) (2:1501289230,77520) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01F5 registered to port 5 slot 29
+EVENT: (121) (2:1501289230,77527) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x01F6 registered to port 5 slot 30
+EVENT: (121) (2:1501289230,77534) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B5 registered to port 2 slot 31
+EVENT: (121) (2:1501289230,77540) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B6 registered to port 2 slot 32
+EVENT: (121) (2:1501289230,77546) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00B7 registered to port 2 slot 33
+EVENT: (121) (2:1501289230,77553) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DD registered to port 1 slot 34
+EVENT: (121) (2:1501289230,78611) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DE registered to port 1 slot 35
+EVENT: (121) (2:1501289230,78628) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00DF registered to port 1 slot 36
+EVENT: (121) (2:1501289230,78636) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00C9 registered to port 8 slot 37
+EVENT: (121) (2:1501289230,78643) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00CA registered to port 8 slot 38
+EVENT: (121) (2:1501289230,78649) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x00CB registered to port 8 slot 39
+EVENT: (121) (2:1501289230,78655) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0141 registered to port 3 slot 40
+EVENT: (121) (2:1501289230,78661) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0142 registered to port 3 slot 41
+EVENT: (121) (2:1501289230,78667) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0143 registered to port 3 slot 42
+EVENT: (121) (2:1501289230,79459) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0119 registered to port 11 slot 43
+EVENT: (121) (2:1501289230,79473) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x011A registered to port 11 slot 44
+EVENT: (121) (2:1501289230,79480) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x011B registered to port 11 slot 45
+EVENT: (121) (2:1501289230,79489) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0169 registered to port 9 slot 46
+EVENT: (121) (2:1501289230,79496) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x016A registered to port 9 slot 47
+EVENT: (121) (2:1501289230,79503) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x016B registered to port 9 slot 48
+EVENT: (121) (2:1501289230,79511) DIAGNOSTIC: (CMDDISP) OpCodeRegistered : Opcode 0x0029 registered to port 4 slot 49
+EVENT: (147) (2:1501289230,79610) WARNING_HI: (PRM) PrmFileReadError : Parameter file read failed in stage 0 with record 0 and error 1
+EVENT: (141) (2:1501289230,79708) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000065 not found
+EVENT: (141) (2:1501289230,80252) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000066 not found
+EVENT: (141) (2:1501289230,80275) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000051 not found
+EVENT: (141) (2:1501289230,80285) WARNING_LO: (PRM) PrmIdNotFound : Parameter ID 0x00000052 not found
+EVENT: (21) (2:1501289230,80427) DIAGNOSTIC: (RG1) RateGroupStarted : Rate group started.
+EVENT: (161) (2:1501289230,80496) DIAGNOSTIC: (RG2) RateGroupStarted : Rate group started.
+EVENT: (241) (2:1501289230,80526) DIAGNOSTIC: (RG3) RateGroupStarted : Rate group started.
+EVENT: (381) (2:1501289230,80731) WARNING_LO: (SGIF) NoConnectionToServer : Unable to connect to the socket server on port 50000
+EVENT: (382) (2:1501289230,82135) ACTIVITY_HI: (SGIF) ConnectedToServer : Connection made to the socket server on port 50000
 Sent register FSW string to ground
+EVENT: (122) (2:1501289288,628353) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00B5 dispatched to port 2
+EVENT: (123) (2:1501289289,171202) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00B5 completed
+EVENT: (122) (2:1501289312,467671) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00B6 dispatched to port 2
+EVENT: (123) (2:1501289313,206605) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00B6 completed
+EVENT: (122) (2:1501289322,714368) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00DD dispatched to port 1
+EVENT: (123) (2:1501289323,224595) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00DD completed
+EVENT: (122) (2:1501289331,215363) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00DE dispatched to port 1
+EVENT: (123) (2:1501289331,237315) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00DE completed
+EVENT: (122) (2:1501289345,543033) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00C9 dispatched to port 8
+EVENT: (123) (2:1501289346,254333) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00C9 completed
+EVENT: (122) (2:1501289380,998543) COMMAND: (CMDDISP) OpCodeDispatched : Opcode 0x00CA dispatched to port 8
+EVENT: (123) (2:1501289382,296132) COMMAND: (CMDDISP) OpCodeCompleted : Opcode 0x00CA completed
