@@ -101,7 +101,7 @@ class Commander:
         """
 
         if(self.__publisherSocket is None):
-            print("Cannot send command. GSE not connected to server.")
+            print("Cannot send command. Commander not connected to server.")
             return
 
         #print "Command serialized: %s (0x%x)" % (cmd_obj.getMnemonic(), cmd_obj.getOpCode())
