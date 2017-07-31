@@ -394,7 +394,10 @@ void exitTasks(void) {
 }
 
 void print_usage() {
-	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n-n\ttargetname");
+	(void) printf("Usage: ./Ref [options]\n"
+                  "-p\tport_number [ REQUIRED ]\n"
+                  "-a\thostname/IP address [ REQUIRED ]\n"
+                  "-n\ttargetname [ REQUIRED ]\n\n");
 }
 
 #if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
@@ -441,6 +444,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	(void) printf("Hit Ctrl-C to quit\n");
+
+    if(hostname == NULL || port_number == NULL || targetname == NULL){
+        print_usage();
+        return 1;
+    }
+
 
     printf("Address: %s", hostname);
     printf("Port: %d\n", port_number);
