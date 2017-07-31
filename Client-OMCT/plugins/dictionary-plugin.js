@@ -1,43 +1,43 @@
 // Value formatters
-var value_format = {
-    "hints": {
-        "range": 1
+const value_format = {
+    'hints': {
+        'range': 1
     }, 
-    "key": "value", 
-    "max": 100, 
-    "min": 0, 
-    "name": "Value", 
-    "units": "units"
+    'key': 'value', 
+    'max': 100, 
+    'min': 0, 
+    'name': 'Value', 
+    'units': 'units'
 };
-var time_format = {
-    "key": "utc",
-    "source": "timestamp",
-    "name": "Timestamp",
-    "format": "utc",
-    "hints": {
-        "domain": 1
+const time_format = {
+    'key': 'utc',
+    'source': 'timestamp',
+    'name': 'Timestamp',
+    'format': 'utc',
+    'hints': {
+        'domain': 1
     }
 };
-var name_format = {
-    "hints": {
-        "range": 2
+const name_format = {
+    'hints': {
+        'domain': 2
     },
-    "key": "name",
-    "name": "Name"
+    'key': 'name',
+    'name': 'Name'
 };
-var id_format = {
-    "hints": {
-        "range": 3
+const id_format = {
+    'hints': {
+        'domain': 3
     },
-    "key": "identifier",
-    "name": "ID"
+    'key': 'identifier',
+    'name': 'ID'
 };
-var severity_format = {
-    "hints": {
-        "range": 4
+const severity_format = {
+    'hints': {
+        'domain': 4
     },
-    "key": "severity",
-    "name": "Severity"
+    'key': 'severity',
+    'name': 'Severity'
 };
 
 var objectProvider = {
@@ -57,35 +57,52 @@ var objectProvider = {
                 };
             } else {
                 // Provider if not isf root
+                
 
                 // Measurement = measurement object with same key as 'identifier.key'
-                var measurement = dictionary.isf.channels[identifier.key];
+                let measurement = dictionary.isf.channels[identifier.key];
+
+
+                value_formats = [value_format];
+                let units = measurement['units'];
+                if (units != null) {
+                    units.forEach(function (u, i) {
+                        let value_format_save = Object.assign({}, value_format);
+                        value_format_save['units'] = u['Label'];
+                        value_format_save['key'] = 'value:' + u['Label'];
+                        value_format_save['hints']['range'] = i + 2;
+                        value_format_save['name'] = 'Value in ' + u['Label'];
+                        value_formats.push(value_format_save);
+                    });
+                }
+
+                if (measurement['id'] == '181') {
+                    console.log(JSON.stringify(value_formats));
+                }
 
                 // Object provider for each object in measurments. 
                 // Does not populate tree
 
-                var typeStr = 'isf.telemetry:';
+                let typeStr = 'isf.telemetry:';
                 // typeStr += measurement['id'].toString();
                 // console.log('type' + typeStr);
-                if (measurement.name === "Events") {
+                if (measurement.name === 'Events') {
                     // Object provider for events
                     return {
                         identifier: identifier,
                         name: measurement.name,
                         type: typeStr,
                         telemetry: {
-                            values: [
+                            values: value_formats.concat(
                                 time_format, 
                                 name_format, 
-                                id_format, 
-                                value_format, 
+                                id_format,
                                 severity_format
-                            ]  // Values already in default format
+                            )  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };
                 } else {
-                    var typeStr = 'isf.' + measurement['id'].toString();
                     // Object provider for all channels
                     return {
                         identifier: identifier,
@@ -93,12 +110,11 @@ var objectProvider = {
                         type: typeStr,
                         // type: typeStr,
                         telemetry: {
-                            values: [
+                            values: value_formats.concat(
                                 time_format,
                                 name_format,
                                 id_format,
-                                value_format,
-                            ]  // Values already in default format
+                            )  // Values already in default format
                         },
                         location: 'isf.taxonomy:isf'
                     };
@@ -119,8 +135,8 @@ var compositionProvider = {
         // Returns promise of an array of domain objects, in this case list of measurements.
         return getDictionary().then(function (dictionary) {
             // 'dictionary.measurements' is a list of telemetry objects
-            var channels = [];
-            var chanDict = dictionary["isf"]["channels"];
+            let channels = [];
+            let chanDict = dictionary['isf']['channels'];
             for (id in chanDict) {
                 channels.push({
                     namespace: 'isf.taxonomy',
@@ -133,41 +149,41 @@ var compositionProvider = {
     }
 };
 
-function getTypes() {
-    var types = [];
-    getDictionary().then(function(dictionary) {
-        for (var id in channels) {
-            var chan = channels[id];
-            var typeStr = 'isf.telemetry:' + chan['id'].toString();
-            console.log('addType: ' + typeStr);
-            openmct.types.addType(typeStr, {
-                name: chan['name'],
-                description: chan['description'],
-                cssClass: 'icon-telemetry'
-            });
-        };
-    })
-}
+// function getTypes() {
+//     var types = [];
+//     getDictionary().then(function(dictionary) {
+//         for (var id in channels) {
+//             var chan = channels[id];
+//             var typeStr = 'isf.telemetry:' + chan['id'].toString();
+//             console.log('addType: ' + typeStr);
+//             openmct.types.addType(typeStr, {
+//                 name: chan['name'],
+//                 description: chan['description'],
+//                 cssClass: 'icon-telemetry'
+//             });
+//         };
+//     })
+// }
 
-function CreateTypes(openmct) {
-    getDictionary().then(function (dictionary) {
-        var channels = dictionary['isf']['channels'];
+// function CreateTypes(openmct) {
+//     return getDictionary().then(function (dictionary) {
+//         var channels = dictionary['isf']['channels'];
 
         
-        for (var id in channels) {
-            var chan = channels[id];
-            var typeStr = 'isf.telemetry:' + chan['id'].toString();
-            console.log('addType: ' + typeStr);
-            openmct.types.addType(typeStr, {
-                name: chan['name'],
-                description: chan['description'],
-                cssClass: 'icon-telemetry'
-            });
-        };
+//         for (var id in channels) {
+//             var chan = channels[id];
+//             var typeStr = 'isf.telemetry:' + chan['id'].toString();
+//             console.log('addType: ' + typeStr);
+//             openmct.types.addType(typeStr, {
+//                 name: chan['name'],
+//                 description: chan['description'],
+//                 cssClass: 'icon-telemetry'
+//             });
+//         };
 
-        console.log('in: ' + openmct.types.listKeys());
-    });
-}
+//         console.log('in: ' + openmct.types.listKeys());
+//     });
+// }
 
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
