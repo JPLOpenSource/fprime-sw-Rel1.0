@@ -452,7 +452,7 @@ class TopPanel(object):
         host_addr = self.__opts.addr
         port      = self.__opts.port
 
-        self.__client_socket = client_sock.GetClientSocket(self, gui_name, host_addr, port)
+        self.__client_socket = client_sock.GetClientSocket(host_addr, port, gui_name, self)
 
         self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
         self.__commander.connect(self.__client_socket.GetPublisherSocket())
