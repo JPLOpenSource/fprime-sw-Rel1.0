@@ -63,6 +63,7 @@ Client-OMCT/package-lock.json
 Client-OMCT/server/temp/*
 # TCP Log
 ThreadedTCP.log
+Ref.log
 
 
 # Python base folder
