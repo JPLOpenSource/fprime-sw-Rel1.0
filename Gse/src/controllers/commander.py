@@ -22,7 +22,10 @@ import zmq
 
 from models.serialize import type_base
 from models.serialize import u32_type
+
 from controllers import status_bar_updater
+from controllers.client_sock import ServerSendError
+
 #from views import main_panel
 
 class Commander:
@@ -40,7 +43,7 @@ class Commander:
         """
         self.create_mediator()
         self.__the_main_panel    = None
-        self.__clientSocket      = None
+        self.__publisherSocket   = None
 
         # Update the status bar whenever packets are sent
         self.__status_bar_updater = status_bar_updater.StatusBarUpdater.getInstance()
@@ -88,18 +91,18 @@ class Commander:
         self.__clientSocket = self.__the_main_panel.getClientSocket()
 
 
+    def connect(self, socket):
+        self.__publisherSocket = socket
+
     def cmd_send(self, widget, cmd_obj):
         """
         Check if clientSocket instance exists.
         Do not continue if gse is not connected to server.
         """
 
-        if(self.__clientSocket is None):
-            self.__clientSocket = self.__the_main_panel.getClientSocket()
-            if(self.__clientSocket is None):
-                self.__the_main_panel.statusUpdate("Not connected to server", "red")
-                return
-            
+        if(self.__publisherSocket is None):
+            print("Cannot send command. Commander not connected to server.")
+            return
 
         #print "Command serialized: %s (0x%x)" % (cmd_obj.getMnemonic(), cmd_obj.getOpCode())
         data = cmd_obj.serialize()
@@ -119,8 +122,13 @@ class Commander:
         cmd = desc.serialize() + data_len.serialize() + desc_type.serialize() + data
         #type_base.showBytes(cmd)
 
-        self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
-        self.__clientSocket.sendToServer(cmd)
+        #self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
+
+        try:
+            self.__publisherSocket.publishToServer(cmd)
+        except ServerSendError as e:
+            print(e)
+            return
 
 
 class Mediator(object):

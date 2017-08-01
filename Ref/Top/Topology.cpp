@@ -394,19 +394,16 @@ void exitTasks(void) {
 }
 
 void print_usage() {
-	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n-n\ttargetname");
+	(void) printf("Usage: ./Ref [options]\n"
+                  "-p\tport_number [ REQUIRED ]\n"
+                  "-a\thostname/IP address [ REQUIRED ]\n"
+                  "-n\ttargetname [ REQUIRED ]\n\n");
 }
-
 
 #if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
 
-//#include <mqueue.h>
 #include <signal.h>
 #include <stdio.h>
-
-extern "C" {
-    int main(int argc, char* argv[]);
-};
 
 volatile sig_atomic_t terminate = 0;
 
@@ -415,11 +412,6 @@ static void sighandler(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-//    mq_unlink("/QP_1KhzRateGroup");
-//    mq_unlink("/QP_100hzRateGroup");
-//    mq_unlink("/QP_1hzRateGroup");
-//    mq_unlink("/QP_CmdComponent");
-//    return 0;
 	U32 port_number;
 	I32 option;
 	char *hostname;
@@ -453,6 +445,13 @@ int main(int argc, char* argv[]) {
 
 	(void) printf("Hit Ctrl-C to quit\n");
 
+    if(hostname == NULL || port_number == NULL || targetname == NULL){
+        print_usage();
+        return 1;
+    }
+
+
+    printf("Address: %s", hostname);
     printf("Port: %d\n", port_number);
     printf("Target Name: %s\n", targetname);
 
@@ -551,4 +550,3 @@ rtems_task Init (rtems_task_argument ignored) {
 }
 
 #endif
-
