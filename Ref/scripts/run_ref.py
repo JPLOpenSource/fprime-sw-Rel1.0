@@ -52,7 +52,7 @@ def main(argv=None):
 
     # run ZmqServer 
     if twin:
-        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port,"-v"]
+        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
         TTS = subprocess.Popen(TTS_args)
     else:
         tts_log = open("ZmqServer.log",'w')
