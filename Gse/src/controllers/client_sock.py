@@ -114,8 +114,7 @@ class ClientSocket:
             self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
             self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
             
-            self.__server_cmd_socket.connect("tcp://localhost:5555")
-            #self.__server_cmd_socket.connect("tcp://{}:{}".format(str(host_addr), str(port)))
+            self.__server_cmd_socket.connect("tcp://{}:{}".format(str(host_addr), str(port)))
 
             # Register the GUI with the server
             # TODO: Create unique ground-client name

@@ -52,7 +52,7 @@ def main(argv=None):
 
     # run ZmqServer 
     if twin:
-        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
+        TTS_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"ZmqServer.log","ZmqServer",python_bin,"%s/Gse/bin/run_server.py"%build_root,"%d"%used_port,"-v"]
         TTS = subprocess.Popen(TTS_args)
     else:
         tts_log = open("ZmqServer.log",'w')
@@ -64,12 +64,12 @@ def main(argv=None):
     
     # run Gse GUI
     GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_1.log","GUI 1",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
-                "-Ngui_1"]
+                "-N gui_1"]
     #print ("GUI: %s"%" ".join(GUI_args))
     GUI1 = subprocess.Popen(GUI_args)
 
     GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_2.log","GUI 2",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
-                "-Ngui_2"]
+                "-N gui_2"]
     GUI2 = subprocess.Popen(GUI_args)
 
 

@@ -454,8 +454,9 @@ class TopPanel(object):
 
         self.__client_socket = client_sock.GetClientSocket(host_addr, port, gui_name, self)
 
-        self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
-        self.__commander.connect(self.__client_socket.GetPublisherSocket())
+        if(self.__client_socket):
+            self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
+            self.__commander.connect(self.__client_socket.GetPublisherSocket())
 
     def getClientSocket(self):
         return self.__clientSocket

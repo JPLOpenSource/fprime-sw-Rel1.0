@@ -106,9 +106,10 @@ class SocketListener:
 
         if not os.path.exists(p):
           os.makedirs(p)
-          logfilename = 'RAW.bin'
-          outfile = p + os.sep + logfilename
-          #bufsize of 0 tells python not to buffer data when writing to file, just flush
+        
+        logfilename = 'RAW.bin' 
+        outfile = p + os.sep + logfilename
+        #bufsize of 0 tells python not to buffer data when writing to file, just flush
         bufsize = 0
         self.__binfile = open(outfile, "wb", bufsize)
 
