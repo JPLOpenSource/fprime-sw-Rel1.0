@@ -191,6 +191,7 @@ def main(argv=None):
                           default=True)
         parser.add_option("-N", "--name", dest="name", action="store", help="Name of gui client", default=None)
         parser.add_option("-T", "--targets", dest="targets", action="append", help="Targets to subscribe to.", default=None)
+        parser.add_option("-t", "--tcp", action="store_true", dest="tcp", help="Sets gse.py server connection type to TCP. Default is ZMQ.")
 
 
 

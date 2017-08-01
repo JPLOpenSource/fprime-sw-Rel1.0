@@ -161,16 +161,16 @@ class SocketListener:
         """
         while 1:
             try:
-                msg = subscriber_socket.receiveFromServer()
+                packet = subscriber_socket.receiveFromServer()
 
             except ServerReceiveError:
                 print "Socket connection terminated"
                 break
-
-            packet = msg[1]
+            
             length, descriptor, data = self.splitDataFromMeta(packet)
             self.writeToBinaryLog(packet)
           
+
             if descriptor == 1:
                 channel_listen.put_data(data)
             elif descriptor == 2:

@@ -452,7 +452,11 @@ class TopPanel(object):
         host_addr = self.__opts.addr
         port      = self.__opts.port
 
-        self.__client_socket = client_sock.GetClientSocket(host_addr, port, gui_name, self)
+
+        if(self.__opts.tcp):
+            pass
+        else:
+            self.__client_socket = client_sock.ZmqClientSocket.GetClientSocket(host_addr, port, gui_name, self)
 
         if(self.__client_socket):
             self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
