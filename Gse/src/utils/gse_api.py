@@ -491,8 +491,6 @@ class GseApi(object):
         try:
             while(blocking):
                 evr_id, evr_args = self._ev_listener.get_event()
-                print("{} {}".format(evr_id, evr_args))
-
                 output = '(' + str(evr_id) + ':' + evr_dict[evr_id] + ')'
                 self.__logger.info(output)
 
