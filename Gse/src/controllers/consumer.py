@@ -48,7 +48,7 @@ class Consumer(observer.Observable):
       self.__run = True
 
       # create background event thread
-      self.__thread = threading.Thread(target=self.service_queue, args=[self.__queue])
+      self.__thread = threading.Thread(target=self.service_queue, args=[self._queue])
 
       # state event thread here
       self.__thread.start()
