@@ -36,6 +36,7 @@ for id in ch_cd:
     ch_cd[id]["telem_type"]    = "channel"
     ch_cd[id]["component"]     = cl.getCompDict()[id]
     ch_cd[id]["description"]   = cl.getChDescDict()[id]
+    ch_cd[id]["units"]         = cl.getUnitsDict()[id]
     ch_cd[id]["type"]          = cl.getTypesDict()[id].__repr__()
     ch_cd[id]["format_string"] = cl.getFormatStringDict()[id]
     ch_cd[id]["limits"]        = {

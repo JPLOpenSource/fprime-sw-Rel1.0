@@ -19,7 +19,7 @@ var vsprintf = require('sprintf-js').vsprintf;
 
 function numConverter(hexValue, type) {
 	if (type.substring(0,1) === 'F') {
-		var dv = new DataView(new ArrayBuffer(8));
+		let dv = new DataView(new ArrayBuffer(8));
 		dv.setUint32(0, parseInt('0x' + hexValue));
 		return dv.getFloat32(0);
 	} else {
@@ -31,20 +31,20 @@ function stringFormatter(hexValue, strBase, argTypes) {
 	// In case of non number value:
 
 	hexValue = hexValue.toString();	// Reinforce string type
-	var args = [];	// Arg array
+	let args = [];	// Arg array
 
 	// Pointer to keep track of values
-	var ptr = 0;
+	let ptr = 0;
 	argTypes.forEach(function (type) {
 		// Arg type used to decode each value
-		var argToPush;
+		let argToPush;
 		if (typeof type === 'string') {
 			// Non Enum type
 			if (type === 'String') {
 				// If string type
 
 				// Get limit for pointer
-				var charLimit = (2 * parseInt(hexValue.substring(ptr, ptr += 4), 16)) + ptr;
+				let charLimit = (2 * parseInt(hexValue.substring(ptr, ptr += 4), 16)) + ptr;
 
 				// Create string through conversion of hex to char
 				argToPush = '';
@@ -53,9 +53,9 @@ function stringFormatter(hexValue, strBase, argTypes) {
 				}
 			} else {
 				// Number type
-				var numType = type.substring(0,1);
-				var bits = parseInt(type.substring(1), 10);
-				var rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
+				let numType = type.substring(0,1);
+				let bits = parseInt(type.substring(1), 10);
+				let rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
 				if (numType === 'F') {
 					argToPush = numConverter(rawNumStr);
 				} else {
@@ -64,7 +64,7 @@ function stringFormatter(hexValue, strBase, argTypes) {
 			}
 		} else {
 			// Enum type
-			var index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
+			let index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
 			argToPush = type[index.toString()];
 		}
 		args.push(argToPush);
@@ -74,29 +74,32 @@ function stringFormatter(hexValue, strBase, argTypes) {
 	return vsprintf(strBase, args);
 }
 
+function gainOffsetConv(value, gain, offset) {
+	return value * gain + offset;
+}
 // Get telem list for format lookup
 
 // Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
 const packDescrSize = 38;
 
 function deserialize(data) {
-	var res = [];
+	let res = [];
 
-	var packetLength = data.toString('hex').length;
-	var ptr = 0;
+	let packetLength = data.toString('hex').length;
+	let ptr = 0;
 	while (ptr < packetLength) {
 
 		// Ptr is incremented in nibbles since each character is a hex representation
-		var size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
-		var timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
-		var timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		var timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
+		let timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
+		let timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
 
 		// Find telemetry format specifiers
-		var telemData;
+		let telemData;
 		if (descriptor === 1) {
 			// If channel
 			telemData = telem['channels'][id.toString()];
@@ -106,11 +109,11 @@ function deserialize(data) {
 		}
 
 		// Get size of value in nibbles
-		var valueSize = (size * 2) - packDescrSize;
+		let valueSize = (size * 2) - packDescrSize;
 		// Get hexvalue
-		var hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+		let hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
 
-		var value;
+		let value;
 		if (telemData) {
 			// If found in dictionary
 			switch(telemData['telem_type']) {
@@ -125,8 +128,8 @@ function deserialize(data) {
 
 				case 'event':
 					// If event type
-					var strBase = telemData['format_string'];
-					var argTypes = telemData['arguments'];
+					let strBase = telemData['format_string'];
+					let argTypes = telemData['arguments'];
 					value = stringFormatter(hexValue, strBase, argTypes);
 					break;
 
@@ -139,9 +142,9 @@ function deserialize(data) {
 		}
 
 		// Create timestamp by concatenating the microseconds value onto the seconds value.
-		var timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
+		let timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
 
-		var toMCT = {
+		let toMCT = {
 			'timestamp':timestamp,
 			'value':value,
 			'name': telemData['name'],
@@ -158,6 +161,15 @@ function deserialize(data) {
 			toMCT['severity'] = telemData['severity'];
 		}
 
+		let units = telemData['units'];
+		if (units != null) {
+			units.forEach(function (u) {
+				let keyForm = 'value:' + u['Label'];
+				let valueForm = gainOffsetConv(value, parseInt(u['Gain'], 10), parseInt(u['Offset'], 10));
+				toMCT[keyForm] = valueForm;
+			});
+		}
+
 		res.push(toMCT);
 
 	}
@@ -166,9 +178,9 @@ function deserialize(data) {
 
 // Returns an array of channel ids
 function getIds() {
-	var ids = [];
-	var channels = telem['channels'];
-	for (var id in channels) {
+	let ids = [];
+	let channels = telem['channels'];
+	for (let id in channels) {
 		ids.push(id);
 	}
 	return ids;

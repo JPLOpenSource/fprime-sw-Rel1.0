@@ -33,53 +33,52 @@ function SetupCommands(site, commandPort) {
 			var command = $.makeArray(arguments)[0];
 			console.log(command);
 			
-			getDictionary().then(function(dict) {
-				// Get command
-				var commandReq = dict["isf"]["commands"][command];
-				var name = commandReq["name"];
-				var cmdArgs = commandReq["arguments"];
-				instance.output.write('Enter arguments for ' + name + ':');
+			// getDictionary().then(function(dict) {
+			// 	// Get command
+			// 	var commandReq = dict["isf"]["commands"][command];
+			// 	var name = commandReq["name"];
+			// 	var cmdArgs = commandReq["arguments"];
+			// 	instance.output.write('Enter arguments for ' + name + ':');
 
-				console.log(JSON.stringify(commandReq));
+			// 	console.log(JSON.stringify(commandReq));
 
-				var userArgs = [];
-				var GetCmdArg = () => instance.input.request().then((value) => userArgs.push(value));
+			// 	var userArgs = [];
+			// 	var GetCmdArg = () => instance.input.request().then((value) => userArgs.push(value));
 
-				// var end = function () {
-				// 	return Promise.resolve().then(function () {
-				// 		instance.output.write(userArgs);
-				// 		return base.deferred.resolve();
-				// 	});
-				// };
+			// 	// var end = function () {
+			// 	// 	return Promise.resolve().then(function () {
+			// 	// 		instance.output.write(userArgs);
+			// 	// 		return base.deferred.resolve();
+			// 	// 	});
+			// 	// };
 
-				// Fill array with an input promise for each argument
-				var cmdProm = Array(cmdArgs.length).fill(GetCmdArg);
-				cmdProm.push(base.deferred.resolve);
-				console.log(JSON.stringify(cmdArgs), JSON.stringify(cmdProm));
+			// 	// Fill array with an input promise for each argument
+			// 	var cmdProm = Array(cmdArgs.length).fill(GetCmdArg);
+			// 	cmdProm.push(base.deferred.resolve);
+			// 	console.log(JSON.stringify(cmdArgs), JSON.stringify(cmdProm));
 
-				var i = 0;
-				cmdProm.reduce(function (prev, cur) {
-					console.log(i);
-					if (i < cmdArgs.length) {
-						instance.output.write('Enter ' + cmdArgs[i]['name'] + ' (' + cmdArgs[i]["description"] + '):');
-					} else {
-						instance.output.write(userArgs);
-					}
-					i += 1;
-					return prev().then(cur);
-				});
-
-			});
-
-			// // Tests
-			// var test = function () {
-			// 	instance.output.write('hi');
-			// 	return instance.input.request().then(function (value) {
-			// 		instance.output.write(value);
+			// 	var i = 0;
+			// 	cmdProm.reduce(function (prev, cur) {
+			// 		console.log(i);
+			// 		if (i < cmdArgs.length) {
+			// 			instance.output.write('Enter ' + cmdArgs[i]['name'] + ' (' + cmdArgs[i]["description"] + '):');
+			// 		} else {
+			// 			instance.output.write(userArgs);
+			// 		}
+			// 		i += 1;
+			// 		return prev().then(cur);
 			// 	});
-			// }
+			// });
 
-			// test().then(() => test()).then(() => base.deferred.resolve());
+			// Tests
+			var test = function () {
+				instance.output.write('hi');
+				return instance.input.request();
+			}
+
+			test()
+				.then(test()
+					.then(base.deferred.resolve()));
 			// var a = [test, test, base.deferred.resolve];
 
 			// var prom = a[0]();
@@ -90,7 +89,8 @@ function SetupCommands(site, commandPort) {
 			// 	return prev.then(cur);
 			// }, test());
 			
-			// base.deferred.resolve();
+			
+
 			return base.deferred.promise();
 			
 		};

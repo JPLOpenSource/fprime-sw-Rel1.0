@@ -25,7 +25,8 @@
                 }, 
                 "name": "rateGroup1Comp_RgMaxTime", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "22": {
                 "component": "Svc::ActiveRateGroup", 
@@ -42,7 +43,8 @@
                 }, 
                 "name": "rateGroup1Comp_RgCycleSlips", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "41": {
                 "component": "Ref::PingReceiver", 
@@ -59,7 +61,8 @@
                 }, 
                 "name": "PR_NumPings", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "81": {
                 "component": "Ref::SendBuff", 
@@ -76,7 +79,8 @@
                 }, 
                 "name": "PacketsSent", 
                 "telem_type": "channel", 
-                "type": "U64"
+                "type": "U64", 
+                "units": null
             }, 
             "82": {
                 "component": "Ref::SendBuff", 
@@ -93,7 +97,8 @@
                 }, 
                 "name": "NumErrorsInjected", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "83": {
                 "component": "Ref::SendBuff", 
@@ -110,7 +115,8 @@
                 }, 
                 "name": "Parameter3", 
                 "telem_type": "channel", 
-                "type": "U8"
+                "type": "U8", 
+                "units": null
             }, 
             "84": {
                 "component": "Ref::SendBuff", 
@@ -127,7 +133,8 @@
                 }, 
                 "name": "Parameter4", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": null
             }, 
             "85": {
                 "component": "Ref::SendBuff", 
@@ -144,7 +151,8 @@
                 }, 
                 "name": "SendState", 
                 "telem_type": "channel", 
-                "type": "Enum"
+                "type": "Enum", 
+                "units": null
             }, 
             "101": {
                 "component": "Ref::RecvBuff", 
@@ -161,7 +169,8 @@
                 }, 
                 "name": "NumPkts", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "102": {
                 "component": "Ref::RecvBuff", 
@@ -178,7 +187,8 @@
                 }, 
                 "name": "NumErrPkts", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "103": {
                 "component": "Ref::RecvBuff", 
@@ -195,7 +205,8 @@
                 }, 
                 "name": "Sensor1", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": null
             }, 
             "104": {
                 "component": "Ref::RecvBuff", 
@@ -212,7 +223,8 @@
                 }, 
                 "name": "Sensor2", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": null
             }, 
             "105": {
                 "component": "Ref::RecvBuff", 
@@ -229,7 +241,8 @@
                 }, 
                 "name": "Parameter1", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "106": {
                 "component": "Ref::RecvBuff", 
@@ -246,7 +259,8 @@
                 }, 
                 "name": "Parameter2", 
                 "telem_type": "channel", 
-                "type": "I16"
+                "type": "I16", 
+                "units": null
             }, 
             "121": {
                 "component": "Svc::CommandDispatcher", 
@@ -263,7 +277,8 @@
                 }, 
                 "name": "CommandsDispatched", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "122": {
                 "component": "Svc::CommandDispatcher", 
@@ -280,7 +295,8 @@
                 }, 
                 "name": "CommandErrors", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "161": {
                 "component": "Svc::ActiveRateGroup", 
@@ -297,7 +313,8 @@
                 }, 
                 "name": "rateGroup2Comp_RgMaxTime", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "162": {
                 "component": "Svc::ActiveRateGroup", 
@@ -314,7 +331,8 @@
                 }, 
                 "name": "rateGroup2Comp_RgCycleSlips", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "181": {
                 "component": "Ref::SignalGen", 
@@ -331,7 +349,19 @@
                 }, 
                 "name": "SG1_SignalGen_Output", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": [
+                    {
+                        "Gain": "2.5", 
+                        "Label": "volts", 
+                        "Offset": "0.0"
+                    }, 
+                    {
+                        "Gain": "5.0", 
+                        "Label": "power", 
+                        "Offset": "0.0"
+                    }
+                ]
             }, 
             "201": {
                 "component": "Ref::SignalGen", 
@@ -348,7 +378,19 @@
                 }, 
                 "name": "SG3_SignalGen_Output", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": [
+                    {
+                        "Gain": "2.5", 
+                        "Label": "volts", 
+                        "Offset": "0.0"
+                    }, 
+                    {
+                        "Gain": "5.0", 
+                        "Label": "power", 
+                        "Offset": "0.0"
+                    }
+                ]
             }, 
             "221": {
                 "component": "Ref::SignalGen", 
@@ -365,7 +407,19 @@
                 }, 
                 "name": "SG2_SignalGen_Output", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": [
+                    {
+                        "Gain": "2.5", 
+                        "Label": "volts", 
+                        "Offset": "0.0"
+                    }, 
+                    {
+                        "Gain": "5.0", 
+                        "Label": "power", 
+                        "Offset": "0.0"
+                    }
+                ]
             }, 
             "241": {
                 "component": "Svc::ActiveRateGroup", 
@@ -382,7 +436,8 @@
                 }, 
                 "name": "rateGroup3Comp_RgMaxTime", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "242": {
                 "component": "Svc::ActiveRateGroup", 
@@ -399,7 +454,8 @@
                 }, 
                 "name": "rateGroup3Comp_RgCycleSlips", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "261": {
                 "component": "Svc::FileUplink", 
@@ -416,7 +472,8 @@
                 }, 
                 "name": "FileUplink_FilesReceived", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "262": {
                 "component": "Svc::FileUplink", 
@@ -433,7 +490,8 @@
                 }, 
                 "name": "FileUplink_PacketsReceived", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "263": {
                 "component": "Svc::FileUplink", 
@@ -450,7 +508,8 @@
                 }, 
                 "name": "FileUplink_Warnings", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "281": {
                 "component": "Ref::SignalGen", 
@@ -467,7 +526,19 @@
                 }, 
                 "name": "SG5_SignalGen_Output", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": [
+                    {
+                        "Gain": "2.5", 
+                        "Label": "volts", 
+                        "Offset": "0.0"
+                    }, 
+                    {
+                        "Gain": "5.0", 
+                        "Label": "power", 
+                        "Offset": "0.0"
+                    }
+                ]
             }, 
             "301": {
                 "component": "Svc::BufferManager", 
@@ -484,7 +555,8 @@
                 }, 
                 "name": "fileUplinkBufferManager_BufferManager_NumAllocatedBuffers", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "302": {
                 "component": "Svc::BufferManager", 
@@ -501,7 +573,8 @@
                 }, 
                 "name": "fileUplinkBufferManager_BufferManager_AllocatedSize", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "321": {
                 "component": "Ref::SignalGen", 
@@ -518,7 +591,19 @@
                 }, 
                 "name": "SG4_SignalGen_Output", 
                 "telem_type": "channel", 
-                "type": "F32"
+                "type": "F32", 
+                "units": [
+                    {
+                        "Gain": "2.5", 
+                        "Label": "volts", 
+                        "Offset": "0.0"
+                    }, 
+                    {
+                        "Gain": "5.0", 
+                        "Label": "power", 
+                        "Offset": "0.0"
+                    }
+                ]
             }, 
             "361": {
                 "component": "Svc::Health", 
@@ -535,7 +620,8 @@
                 }, 
                 "name": "PingLateWarnings", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "401": {
                 "component": "Svc::BufferManager", 
@@ -552,7 +638,8 @@
                 }, 
                 "name": "fileDownlinkBufferManager_BufferManager_NumAllocatedBuffers", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "402": {
                 "component": "Svc::BufferManager", 
@@ -569,7 +656,8 @@
                 }, 
                 "name": "fileDownlinkBufferManager_BufferManager_AllocatedSize", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "481": {
                 "component": "Drv::BlockDriver", 
@@ -586,7 +674,8 @@
                 }, 
                 "name": "BD_Cycles", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "501": {
                 "component": "Svc::FileDownlink", 
@@ -603,7 +692,8 @@
                 }, 
                 "name": "FileDownlink_FilesSent", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "502": {
                 "component": "Svc::FileDownlink", 
@@ -620,7 +710,8 @@
                 }, 
                 "name": "FileDownlink_PacketsSent", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "503": {
                 "component": "Svc::FileDownlink", 
@@ -637,7 +728,8 @@
                 }, 
                 "name": "FileDownlink_Warnings", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "541": {
                 "component": "Svc::CmdSequencer", 
@@ -654,7 +746,8 @@
                 }, 
                 "name": "CS_LoadCommands", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "542": {
                 "component": "Svc::CmdSequencer", 
@@ -671,7 +764,8 @@
                 }, 
                 "name": "CS_CancelCommands", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "543": {
                 "component": "Svc::CmdSequencer", 
@@ -688,7 +782,8 @@
                 }, 
                 "name": "CS_Errors", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "544": {
                 "component": "Svc::CmdSequencer", 
@@ -705,7 +800,8 @@
                 }, 
                 "name": "CS_CommandsExecuted", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }, 
             "545": {
                 "component": "Svc::CmdSequencer", 
@@ -722,7 +818,8 @@
                 }, 
                 "name": "CS_SequencesCompleted", 
                 "telem_type": "channel", 
-                "type": "U32"
+                "type": "U32", 
+                "units": null
             }
         }, 
         "commands": {

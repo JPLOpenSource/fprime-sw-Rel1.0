@@ -16,3 +16,7 @@ Ref App (in root):
 
 Known Bugs:
    - Client memory leak when browser disconnects and reconnects multiple times
+
+Notes:
+
+[{"hints":{"range":3},"key":"value","max":100,"min":0,"name":"Value","units":"units"},{"hints":{"range":3},"key":"value:volts","max":100,"min":0,"name":"Value in volts","units":"volts"},{"hints":{"range":3},"key":"value:power","max":100,"min":0,"name":"Value in power","units":"power"}]
