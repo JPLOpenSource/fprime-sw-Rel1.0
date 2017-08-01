@@ -20,11 +20,13 @@ import time
 import glob
 import signal
 import subprocess
+import binascii
 from subprocess import PIPE, STDOUT
 
 from utils import Logger
 from checksum import *
 from models.serialize.u32_type import *
+
 from views import command_args_factory
 from controllers import command_loader
 from controllers import commander
@@ -36,6 +38,9 @@ from controllers import client_sock
 from controllers import socket_listener
 from controllers import file_uplink_client
 from controllers import file_downlink_client
+from controllers import zmq_server_command
+
+
 from controllers.file_downlink_client import DownlinkStatus
 from controllers.file_uplink_client import UplinkStatus
 
@@ -57,7 +62,7 @@ class GseApi(object):
     poll and if message then return it and update console and log file.
     """
 
-    def __init__(self, server_addr='127.0.0.1', port=50000, generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False):
+    def __init__(self, server_addr='127.0.0.1', port=50000, api_client_name = '', generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False):
         """
         Constructor.
         @param server_addr: Socket server addr
@@ -137,26 +142,36 @@ class GseApi(object):
         self._ev_listener = event_listener.EventListener.getInstance()
         self._ev_listener.setupLogging()
         self._ch_listener = channel_listener.ChannelListener.getInstance()
+        self._ch_listener.setupLogging()
+        
         self.__sock_listener = socket_listener.SocketListener.getInstance()
+        self.__commander = commander.Commander.getInstance()
+        self.__server_command_interface = zmq_server_command.ServerCommandInterface()
+
         self.__logger = logger
 
         self.__server_addr = server_addr
         self.__port        = port
+
+        # Generate random number if a name is not provided
+        if api_client_name == '':
+          api_client_name = "api-%s" % binascii.hexlify(os.urandom(8))
+
+        self.__api_client_name = api_client_name
 
 
         # Uplink and downlink clients will log to null handler if none is specified
         file_uplink_client.set_logger(log_folder=log_file_updown)
         file_downlink_client.set_logger(log_folder=log_file_updown)
 
-
-
         # connect to TCP server
         try:
-          self.__sock = client_sock.ClientSocket(server_addr, port)
-          self.__sock.send("Register GUI\n")
-          self.__sock_listener.connect(self.__sock)
-        except IOError:
-          self.__sock = None
+          self.__client_socket = client_sock.GetClientSocket(server_addr, port, api_client_name)
+          self.__sock_listener.connect(self.__client_socket.GetSubscriberSocket())
+          self.__commander.connect(self.__client_socket.GetPublisherSocket())
+          self.__server_command_interface.connect(self.__client_socket.GetServerCommandSocket())
+        except AttributeError:
+          self.__sock_listener = None
 
         super(GseApi, self).__init__()
 
@@ -222,6 +237,24 @@ class GseApi(object):
       tlm = self._ch_listener.get_channel()
 
       return tlm, evr
+
+    # Subscription Configuration
+    # Sleep to give server time to make changes.
+    def subscribeTo(self, targetName):
+      self.__server_command_interface.SubscribeClientTo(self.__api_client_name, "GROUND", targetName)
+      time.sleep(1)
+
+    def unsubscribeFrom(self, targetName):
+      self.__server_command_interface.UnsubscribeClientFrom(self.__api_client_name, "GROUND", targetName)
+      time.sleep(1)
+
+    def subscribeTargetToSelf(self, targetName):
+      self.__server_command_interface.SubscribeClientTo(targetName, "FLIGHT", self.__api_client_name)
+      time.sleep(1)
+
+    def unsubscribeTargetFromSelf(self, targetName):
+      self.__server_command_interface.UnsubscribeClientFrom(targetName, "FLIGHT", self.__api_client_name)
+      time.sleep(1)
 
     def receive(self):
       """
@@ -296,24 +329,8 @@ class GseApi(object):
                arg_name, arg_desc, arg_type = cmd_obj.getArgs()[i]
                arg_obj = self.__args_factory.create_arg_type(arg_name, arg_type, args[i])
                cmd_obj.setArg(arg_name, arg_obj)
-        #print "Command serialized: %s (0x%x)" % (cmd_obj.getMnemonic(), cmd_obj.getOpCode())
-        data = cmd_obj.serialize()
-        #type_base.showBytes(data)
 
-        # Package and send immediate command here...
-        desc = U32Type( 0x5A5A5A5A )
-
-        # Added desc. type for to know it is a command (0).
-        desc_type = U32Type(0)
-
-        data_len = U32Type( len(data) + desc_type.getSize() )
-        cmd = "A5A5 " + "" + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
-        #type_base.showBytes(cmd)
-        if self.__sock == None:
-            print "Command %s not sent: No socket connection" % cmd_name
-            return -1
-
-        self.__sock.send(cmd)
+        self.__commander.cmd_send(None, cmd_obj)
         if args is None:
             print 'Sent command', cmd_name
         else:
@@ -473,15 +490,15 @@ class GseApi(object):
         evr_dict = self._events.getNameDict()
         try:
             while(blocking):
-                desc, tlm_id, args = self._ev_listener.update_task_api()
-                # only interested in events
-                if desc is 0x1 or desc is None:
-                    continue
-                if id is None or tlm_id in id:
-                    output = '(' + str(tlm_id) + ':' + evr_dict[tlm_id] + ')'
-                    self.__logger.info(output)
+                evr_id, evr_args = self._ev_listener.get_event()
+                print("{} {}".format(evr_id, evr_args))
+
+                output = '(' + str(evr_id) + ':' + evr_dict[evr_id] + ')'
+                self.__logger.info(output)
+
         except Exception, exc:
             print exc
+            
 
 
     def monitor_tlm(self, id=None, blocking=True):
@@ -501,13 +518,10 @@ class GseApi(object):
         ch_dict = self._channels.getNameDict()
         try:
             while(blocking):
-                desc, tlm_id, args = self._ev_listener.update_task_api()
-                # only interested in channelzed telemetry
-                if desc is 0x2 or desc is None:
-                    continue
-                if id is None or tlm_id in id:
-                    output = '(' + str(tlm_id) + ':' + ch_dict[tlm_id] + ')'
-                    self.__logger.info(output)
+                tlm_id, args = self._ch_listener.get_channel()
+
+                output = '(' + str(tlm_id) + ':' + ch_dict[tlm_id] + ')'
+                self.__logger.info(output)
         except Exception, exc:
             print exc
 

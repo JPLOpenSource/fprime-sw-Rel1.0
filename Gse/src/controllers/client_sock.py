@@ -43,7 +43,7 @@ class _SubscriberSocket:
         except zmq.ZMQError as e:
             raise ServerReceiveError("Unable to send message.")
    
-class _PublisherSocket:
+class _PublisherSocket(object):
 
     def __init__(self, socket):
         self.__socket = socket
@@ -62,7 +62,7 @@ class _PublisherSocket:
         except zmq.ZMQError as e:
             raise ServerSendError("Unable to send message.")
 
-class _CommanderSocket:
+class _CommanderSocket(object):
 
     def __init__(self, socket):
         self.__socket = socket
@@ -73,12 +73,15 @@ class _CommanderSocket:
         except zmq.ZMQError as e:
             raise ServerSendError("Unable to send message.")
 
+
+
+
 class ClientSocket:
     """
     Class to perform client side socket connection
     """
 
-    def __init__(self, main_panel, gui_name, host_addr, port):
+    def __init__(self, host_addr, port, gui_name, main_panel = None):
         """
         Initialize zmq components and register to server
         """
@@ -111,7 +114,8 @@ class ClientSocket:
             self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
             self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
             
-            self.__server_cmd_socket.connect("tcp://{}:{}".format(host_addr, port))
+            self.__server_cmd_socket.connect("tcp://localhost:5555")
+            #self.__server_cmd_socket.connect("tcp://{}:{}".format(str(host_addr), str(port)))
 
             # Register the GUI with the server
             # TODO: Create unique ground-client name
@@ -146,14 +150,15 @@ class ClientSocket:
             format(self.__server_sub_port, self.__server_pub_port))
 
             s = "Connected to server (host addr %s)" % (host_addr)
-            self.__mainPanel.statusUpdate(s, 'red')
+            self.UpdateMainPanelStatus(s)
 
             self.__zmq_initialized = True
 
             # Setup Listen, Publish, and Command sockets
             self.__publisher_socket   = _PublisherSocket(self.__gui_pub_socket)
             self.__subscriber_socket  = _SubscriberSocket(self.__gui_sub_socket)
-            self.__commander_socket   = _CommanderSocket(self.__server_cmd_socket) 
+            self.__commander_socket   = _CommanderSocket(self.__server_cmd_socket)
+
 
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
@@ -168,13 +173,6 @@ class ClientSocket:
     def __del__(self):
         self.disconnect()
 
-    def SubscribeToTargets(self, targets):
-        if targets is not None:
-            for target in targets:
-                 # Subscribe to all targets
-                self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
-
-
     def disconnect(self):
         """
         Tell server to close, close all sockets, and terminate the zmq context.
@@ -185,6 +183,21 @@ class ClientSocket:
             self.__gui_pub_socket.close()
             self.__zmq_context.term()
 
+    def register_main_panel(self, main_panel):
+        self.__mainPanel = main_panel
+
+    def UpdateMainPanelStatus(self, string, color="black"):
+        try:
+            self.main_panel.statusUpdate(string, color)
+        except AttributeError: # Api does not register main panel
+            pass
+
+    def SubscribeToTargets(self, targets):
+        if targets is not None:
+            for target in targets:
+                 # Subscribe to all targets
+                self.__server_cmd_socket.send_multipart([b"SUB", self.__gui_name.encode(), b"GROUND", target.encode()])
+
 
     def GetSubscriberSocket(self):
         return self.__subscriber_socket
@@ -192,30 +205,40 @@ class ClientSocket:
     def GetPublisherSocket(self):
         return self.__publisher_socket
 
-    def GetCommanderSocket(self):
-        return self.__commander_socket
+    def GetServerCommandSocket(self):
+        return self.__server_cmd_socket
 
 
-def GetClientSocket(main_panel, host_addr, port, gui_name):
+def GetClientSocket(host_addr, port, gui_name, main_panel=None):
     """
     Factory function to create ClientSocket.
     Returns None if connection cannot be made. 
     """
     try:
+        print("HOST: {}".format(host_addr))
+        print("PORT: {}".format(port))
+        print("NAME: {}".format(gui_name))
 
-        clientSocket = ClientSocket(main_panel, host_addr, port, gui_name)
+        clientSocket = ClientSocket(host_addr, port, gui_name)
+        clientSocket.register_main_panel(main_panel)
         return clientSocket
 
     except zmq.ZMQError as e:
         if e.errno == zmq.EAGAIN:
             string = "Unable to connect to {}:{}".format(host_addr, port)
-            main_panel.statusUpdate(string, "red")
             print(string)
+
+            try: # To update main_panel. If API is used main_panel == None
+                main_panel.statusUpdate(string, "red")
+            except AttributeError:
+                pass
+
+
             return None
         else:
             raise
 
-
+    
 # Main loop
 #
 def main():
