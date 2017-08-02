@@ -4,10 +4,10 @@ import zmq
 import time
 import struct
 import signal
+import random
 
 import threading
-import subprocess
-from multiprocessing import Process
+from subprocess import Popen
 
 from logging import DEBUG, ERROR
 
@@ -26,10 +26,9 @@ class TestObject(object):
     def __init__(self):
         self._object_process = None
 
-    def _StartMainProcess(self, function, args):
-        self._object_process = Process(target=function, args=args)
-        self._object_process.start()
-        print("PID: {}".format(self._object_process.pid))
+    def _StartMainProcess(self, args):
+        self._object_process = Popen(args=args, shell=True)
+        
 
     def Start(*args, **kwargs):
         raise NotImplementedError
@@ -51,14 +50,15 @@ class RefApp(TestObject):
             cmd  = os.environ['BUILD_ROOT'] + "/Ref/darwin-darwin-x86-debug-llvm-bin/Ref"
             cmd += " -p {port} -a {addr} -n {nm}".format(port=server_cmd_port, addr=address, nm=name)
 
-            function = os.system
-            args     = (cmd,)
-            self._StartMainProcess(function, args)
+            self._StartMainProcess(cmd)
     
     def Quit(self):
         pid = self._object_process.pid
         os.kill(pid, signal.SIGINT)
         print("RefApp {} closed.".format(self.name))
+        self._object_process.terminate()
+
+
 
 
 class ZmqServer(TestObject):
@@ -66,37 +66,39 @@ class ZmqServer(TestObject):
     def Start(self, server_cmd_port):
         cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {}".format(server_cmd_port)
 
-        function = os.system
-        args     = (cmd,)
-        self._StartMainProcess(function, args)
+        self._StartMainProcess(cmd)
 
     def Quit(self):
         pid = self._object_process.pid
         os.kill(pid, signal.SIGINT)
+        self._object_process.terminate()
         print("ZmqServerClosed")
+        
+
 
 
 class MockClient(TestObject):
     def __init__(self):
         super(MockClient, self).__init__()
 
-        self.__context = zmq.Context()
-
-    def Start(self, cmd_port, client_name, m_type, ch_idx = None):
+    def Start(self, cmd_port, client_name, m_type):
         self.name = client_name
 
         if m_type == "flight":
-            function = MockFlightClient
-            args = (self.__context, cmd_port, client_name, ch_idx)
+            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockFlightClient.py {} {}"\
+                    .format(cmd_port, client_name)
         else:
-            function = MockGroundClient
-            args = (self.__context, cmd_port, client_name)
+            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockGroundClient.py {} {}"\
+                    .format(cmd_port, client_name)
+            
 
         
-        self._StartMainProcess(function, args)
+        self._StartMainProcess(args)
     
     def Quit(self):
-        self.__context.term()
+        pid = self._object_process.pid
+        os.kill(pid, signal.SIGINT)
+        self._object_process.terminate()
         print("MockClient {} closed.".format(self.name))
 
 
@@ -133,7 +135,7 @@ class TestConnectivity:
 
 
         # Start Server
-        cmd_port   = 5557
+        cmd_port   = 5551
         address    = 'localhost'
         timeout_s  = 10
 
@@ -146,11 +148,10 @@ class TestConnectivity:
 
 
         cls.mock_flight_list = []
-        for i in range(10):
+        for i in range(5):
             name   = "flight_{}".format(i)
-            ch_idx = 103 # Sensor 1
             cls.mock_flight_list.append( MockClient() )
-            cls.mock_flight_list[i].Start(cmd_port, name, "flight", ch_idx)
+            cls.mock_flight_list[i].Start(cmd_port, name, "flight")
 
         cls.mock_ground_list = []
         for i in range(5):
@@ -158,7 +159,7 @@ class TestConnectivity:
             cls.mock_ground_list.append( MockClient() )
             cls.mock_ground_list[i].Start(cmd_port, name, "ground")
 
-        time.sleep(5)
+        time.sleep(10)
 
     @classmethod
     def teardown_class(cls):
@@ -169,7 +170,9 @@ class TestConnectivity:
             cls.mock_flight_list[i].Quit()
         for i in range(len(cls.mock_ground_list)):
             cls.mock_ground_list[i].Quit()
+
         
 
-    def test_all(self):
+    def test_random_ground_disconnect(self):
         pass
+        
