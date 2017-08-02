@@ -98,7 +98,7 @@ class TcpClientSocket(ClientSocket):
         """
 
         # Initialize Base Class
-        super(ZmqClientSocket, self).__init__(host_addr, port, gui_name, main_panel)
+        super(TcpClientSocket, self).__init__(host_addr, port, gui_name, main_panel)
 
         self.__tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -108,7 +108,7 @@ class TcpClientSocket(ClientSocket):
         self._subscriber_socket  = client_sock_plugins.TcpSubscriberSocket(self.__tcp_sock)
         
         # Register with server
-        self._publisher_socket.send("Register GUI\n")
+        self._publisher_socket.publishToServer("Register GUI\n")
 
 
     def disconnect(self):

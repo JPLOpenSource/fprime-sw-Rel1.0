@@ -28,6 +28,11 @@ import zmq
 import select
 import struct
 
+from models.serialize import type_base
+from models.serialize import u32_type
+from models.serialize import u16_type
+from models.serialize import u8_type
+
 from controllers.exceptions import ServerReceiveError, ServerSendError
 
 
@@ -98,6 +103,7 @@ class TcpSubscriberSocket(__SubscriberSocket):
         pkt_len  = self.__recv(4)
         pkt_desc = self.__recv(4)
 
+
         desc = int(struct.unpack(">I",pkt_desc)[0])
         size = int(struct.unpack(">I",pkt_len)[0])
 
@@ -118,9 +124,9 @@ class TcpSubscriberSocket(__SubscriberSocket):
                 raise Exception("Exiting receive loop")
 
             # Check if the socket is ready to read
-            fd = select.select([self.sock], [], [], .25)
+            fd = select.select([self._socket], [], [], .25)
             if fd[0]:
-                chunk = self.sock.recv(l-n)
+                chunk = self._socket.recv(l-n)
                 if chunk == '':
                     return ''
                     #raise RuntimeError("socket connection broken")
