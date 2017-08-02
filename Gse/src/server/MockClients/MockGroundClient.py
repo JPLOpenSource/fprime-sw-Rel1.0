@@ -2,7 +2,7 @@ import sys
 import zmq
 import threading
 
-from server_utils.ServerConfig import ServerConfig
+from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
 
 # Modules required for test
@@ -30,6 +30,10 @@ def MockGroundClient(context, cmd_port, client_name):
     command_socket.send_multipart([b"REG", client_name.encode(), b"ground", b"ZMQ"])
     msg = command_socket.recv_multipart()
     logger.debug("Command Reply Received:{}".format(msg))
+
+    # Subscribe
+    command_socket.send_multipart([b"SUB", client_name.encode(), b"ground", b''])
+
 
     # Setup pub/sub ports
     server_pub_port = msg[1]

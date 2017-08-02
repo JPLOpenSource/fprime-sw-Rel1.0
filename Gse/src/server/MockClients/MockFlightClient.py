@@ -22,7 +22,7 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
    
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
-    logger = GetLogger("mock_target",log_path) 
+    logger = GetLogger("{}".format(client_name),log_path) 
     logger.debug("Logger Active") 
  
     command_socket = context.socket(zmq.DEALER) 
@@ -47,6 +47,9 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     pub_socket = context.socket(zmq.DEALER)
     sub_socket = context.socket(zmq.ROUTER)
     sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to send
+    sub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
+    pub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
+
 
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
