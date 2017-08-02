@@ -72,9 +72,34 @@ class ClientSocket(object):
         """
         raise NotImplementedError
 
+
+
+
+class TCPClientSocket(ClientSocket):
+    """
+    Class to perform client side socket connection
+    using the GSE TCP server.
+    """
+    def __init__(self, host_addr, port, gui_name, main_panel=None):
+        """
+        Initialize zmq components and register to server
+        """
+
+        # Initialize Base Class
+        super(ZmqClientSocket, self).__init__(host_addr, port, gui_name, main_panel)
+
+        self.__tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+        self._publisher_socket   = client_sock_plugins.TcpPublisherSocket(self.__tcp_sock)
+        self._subscriber_socket  = client_sock_plugins.TcpSubscriberSocket(self.__tcp_sock)
+
+
+
 class ZmqClientSocket(ClientSocket):
     """
     Class to perform client side socket connection
+    using the GSE ZMQ server.
     """
 
     def __init__(self, host_addr, port, gui_name, main_panel=None):

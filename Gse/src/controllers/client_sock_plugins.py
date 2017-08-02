@@ -44,12 +44,39 @@ class __PublisherSocket(object):
 ## Classes        ##
 ####################
 
+
+
+class TcpSubscriberSocket(__SubscriberSocket):
+
+    def receiveFromServer(self):
+        """
+        @returns One FPrime packet
+        """
+        pkt_len = self._socket.recv(4)
+
+        pkt_desc = self._socket.recv(4)
+
+        desc = int(struct.unpack(">I",pkt_desc)[0])
+        size = int(struct.unpack(">I",pkt_len)[0])
+
+        data = self._socket.recv(size - u32_type.U32Type().getSize())
+
+        return pkt_len + pkt_desc + data
+
+class TcpPublisherSocket(__PublisherSocket):
+
+    def publishToServer(self, packet):
+        """
+        Sends one FPrime packet to the server
+        """
+        self._socket.send(packet)
+
+
 class ZmqSubscriberSocket(__SubscriberSocket):
 
     def receiveFromServer(self):
         """
-        Return a list of messages. A single message will be returned
-        in a single indexed list.
+        @returns One FPrime packet
         """
         try:
             msg = self._socket.recv_multipart()
@@ -62,7 +89,7 @@ class ZmqSubscriberSocket(__SubscriberSocket):
 
 class ZmqPublisherSocket(__PublisherSocket):
 
-    def publishToServer(self, msg):
+    def publishToServer(self, packet):
         """
         Sends msg to the server's subscribe port.
         """

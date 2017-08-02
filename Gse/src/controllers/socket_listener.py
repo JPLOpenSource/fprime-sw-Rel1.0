@@ -127,7 +127,7 @@ class SocketListener:
     def register_status_bar(self, status_bar):
       self.__status_bar = status_bar
 
-    def splitDataFromMeta(self, fp_packet):
+    def parsePacket(self, fp_packet):
         """
         Extract 4 byte size, then 
         extract 4 byte desc, then
@@ -167,7 +167,7 @@ class SocketListener:
                 print "Socket connection terminated"
                 break
             
-            length, descriptor, data = self.splitDataFromMeta(packet)
+            length, descriptor, data = self.parsePacket(packet)
             self.writeToBinaryLog(packet)
           
 
