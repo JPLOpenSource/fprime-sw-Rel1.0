@@ -1,3 +1,13 @@
+#####################################################
+#    Simple logging utility that retuns a logger
+#    setup for console and file logging.
+#    Creates the log in:
+#        logPath/<name>.log
+#
+#    Author:  David Kooi 
+#    Created: April, 2017
+
+
 import logging
 from logging import DEBUG, ERROR
 import os
@@ -7,6 +17,9 @@ GLOBAL_LOG_LEVEL = ERROR
 GLOBAL_FILE_LEVEL = ERROR
 
 def SetGlobalLoggingLevel(consoleLevel, fileLevel, globalLevel=False):
+    """
+    Call to set a globally configured logging level. 
+    """
     global GLOBAL_LEVEL
     global GLOBAL_LOG_LEVEL
     global GLOBAL_FILE_LEVEL
@@ -18,13 +31,7 @@ def SetGlobalLoggingLevel(consoleLevel, fileLevel, globalLevel=False):
 
 def GetLogger(name, logPath, logLevel=DEBUG, fileLevel=DEBUG, chLevel=DEBUG):
     """
-    Simple logging utility that retuns a logger
-    setup for console and file logging.
-    Creates the log in:
-        logPath/<name>.log
-
-    Author:  David Kooi 
-    Created: April, 2017
+    Factory Method
     """
     global GLOBAL_LEVEL
     global GLOBAL_LOG_LEVEL
