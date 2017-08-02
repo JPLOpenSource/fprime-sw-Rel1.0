@@ -99,7 +99,7 @@ class ZmqKernel(object):
             self.__command_socket.bind("tcp://*:{}".format(command_port))
         except zmq.ZMQError as e:
             if e.errno == zmq.EADDRINUSE:
-                logger.error("Unable to bind command socket to port {}"\
+                self.__logger.error("Unable to bind command socket to port {}"\
                              .format(command_port))
                 raise e
 
