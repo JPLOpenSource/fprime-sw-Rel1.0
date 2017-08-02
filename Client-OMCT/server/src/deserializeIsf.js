@@ -161,6 +161,7 @@ function deserialize(data) {
 			toMCT['severity'] = telemData['severity'];
 		}
 
+		// Create datums for eac unit type
 		let units = telemData['units'];
 		if (units != null) {
 			units.forEach(function (u) {
@@ -170,6 +171,7 @@ function deserialize(data) {
 			});
 		}
 
+		// Push packet into queue
 		res.push(toMCT);
 
 	}

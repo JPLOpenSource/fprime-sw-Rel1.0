@@ -21,22 +21,21 @@
     <!-- Create views from local storage json -->
     <script src="plugins/loc-storage-objects.js"></script>
 
-    <!-- JQuery -->
-    <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <!-- JQuery --><!-- 
+    <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script> -->
 
-    <!-- Command pannel: faketerminal -->
-    <link href="bower_components/faketerminal/dist/faketerminal.css" media="all" rel="stylesheet" type="text/css"/>
-    <script src="bower_components/faketerminal/dist/faketerminal.min.js" type="text/javascript"></script>
+    <!-- vue -->
+    <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
+
+    <!-- console -->
+    <script src="js/vue-console.js" type="text/javascript"></script>    
 
     <!-- Console style -->
     <link href="css/console.css" media="all" rel="stylesheet" type="text/css"/>
 
-    <!-- User commands -->
-    <script src="js/console.js"></script>
-
 </head>
 <body>
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
         // Load views
         LoadViews();
 
@@ -87,23 +86,20 @@
         openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
 
         openmct.start();
-    </script>
+    </script> -->
 
-    <!-- <div id="command">
-        
-        <div id="faketerminal">
-            <info>Command Window</info>
-            <line></line>
-            Enter commands for targets, type <comment>help</comment> to get started
-
+    <div id="command">
+        <input id="input" v-model="cmd" v-on:keyup="sendCmd" placeholder="Enter command">
+        <div id="history">
+            
         </div>
+
         
-        <div id="flip">Click to toggle command pannel</div>
-        <script type="text/javascript">
-            const site = 'localhost';
-            const commandPort = 1339;
-            SetupCommands(site, commandPort);
-        </script>
-    </div> -->
+        
+    </div>
+
+    <script type="text/javascript">
+            SetupConsole();
+    </script>
 </body>
 </html>

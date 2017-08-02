@@ -12,14 +12,12 @@ function CreateFixed() {
 		return type + id.toString()
 	});
 
-	var y = -1;
 	var elements = [];
-	composition.forEach(function (id) {
-		y++;
+	composition.forEach(function (id, i) {
 		elements.push({
 			"type": "fixed.telemetry",
 			"x": 0,
-			"y": y,
+			"y": i,
 			"id": id,
 			"stroke": "transparent",
 			"color": "",
