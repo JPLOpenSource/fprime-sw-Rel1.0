@@ -53,6 +53,7 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
 
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
+    sub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
 
     pub_socket.connect("tcp://localhost:{}".format(server_sub_port))
     sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
@@ -90,6 +91,7 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     time_cxt  = u8_type.U8Type(0)    
 
     sine_wave = test_utils.GetSineWave() 
+    ramp      = test_utils.GetRamp()
 
     while True: 
         try:
@@ -103,7 +105,7 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
                 else:
                     raise
 
-            for val in sine_wave: 
+            for val in ramp: 
                 # Set variable values
                 ch_time = datetime.datetime.now()
                 sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
@@ -126,9 +128,10 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
                          time_cxt.serialize() + time_s.serialize() +\
                          time_us.serialize() + value.serialize()
 
-                pub_socket.send(packet)
-               
-                time.sleep(0.1)           
+                #pub_socket.send(packet)
+                pub_socket.send(bytes(val))
+
+                time.sleep(0.1)        
 
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
@@ -150,14 +153,14 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
 
 if __name__ == "__main__":
     cmd_port = sys.argv[1] 
-    number   = int(sys.argv[2])
+    client_name = sys.argv[2]
 
+    number = 1
     if number == 1:
         ch_idx = 103
     else:
         ch_idx = 104
 
-    client_name = "F{}".format(number)
     
     context = zmq.Context()
 
