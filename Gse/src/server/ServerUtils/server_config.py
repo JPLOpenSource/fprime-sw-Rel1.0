@@ -108,6 +108,8 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.__prop['filepaths']['server_filepath'] = server_filepath 
         self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
                                                   server_filepath, log_filepath)
+        self.__prop['filepaths']['server_log_internal_filepath'] = os.path.join(\
+                                        self.__prop['filepaths']['server_log_filepath'], 'internals')
                                                     
 
         # This sets the defaults within a section. 
