@@ -20,7 +20,7 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
     """
     # Setup logger
     name = "{}_PubSubPair_PacketForwarder".format(client_name)
-    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
     logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=INFO)
     logger.debug("Logger Active")
     logger.debug("Entering Runnable")
@@ -39,7 +39,7 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
         if e.errno == zmq.ETERM:
             input_socket.close()
             pub_socket.close()
-            logger.info("Exiting Runnable")
+            logger.debug("Exiting Runnable")
  
 
 def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket):
@@ -55,7 +55,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
     """
     # Setup logger
     name = "{}_PubSubPair_PacketReceiver".format(client_name)
-    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
     logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=INFO)
     logger.debug("Logger Active")
     logger.debug("Entering Runnable")
@@ -106,7 +106,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
             sub_socket.close()
             cmd_socket.close()
             cmd_reply_socket.close()
-            logger.info("Exiting Runnable")
+            logger.debug("Exiting Runnable")
 
 
 

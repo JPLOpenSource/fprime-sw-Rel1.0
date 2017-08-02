@@ -32,7 +32,7 @@ class  GeneralServerIOThread(threading.Thread):
         
         # Setup Logger
         name = "{}_{}_IOThread".format(client_type, pubsub_type) 
-        log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
 
@@ -86,7 +86,7 @@ class  GeneralServerIOThread(threading.Thread):
                     raise
 
 
-        self.__logger.info("Exiting Runnable")
+        self.__logger.debug("Exiting Runnable")
         self.__input_socket.close()
         self.__output_socket.close()
 

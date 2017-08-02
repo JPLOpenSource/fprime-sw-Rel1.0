@@ -19,7 +19,7 @@ class RoutingTable(object):
     def __init__(self, context): 
         name = "Routing_Table"
         # Setup logger
-        log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, log_path, logLevel=DEBUG,\
                                                              fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 

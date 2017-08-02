@@ -7,6 +7,7 @@ import datetime
 import thread
 import struct
 import pickle
+import signal
 import threading
 import traceback
 import multiprocessing
@@ -34,7 +35,6 @@ class ZmqKernel(object):
         @params command_port: tcp port on which to receive registration and commands
         @params timeout: Quit server after timeout. For unittesting purposes
         """
-
         self.__context = zmq.Context()
 
         # Setup Logger
@@ -97,7 +97,7 @@ class ZmqKernel(object):
         self.__command_socket = self.__context.socket(zmq.ROUTER)
         try:
             self.__command_socket.bind("tcp://*:{}".format(command_port))
-        except ZMQError as e:
+        except zmq.ZMQError as e:
             if e.errno == zmq.EADDRINUSE:
                 logger.error("Unable to bind command socket to port {}"\
                              .format(command_port))

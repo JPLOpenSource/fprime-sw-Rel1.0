@@ -15,7 +15,7 @@ class PacketBroker(object):
     def __init__(self, client_type, context):
         # Setup Logger
         name = "{}_PacketBroker".format(client_type)
-        self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
    
@@ -60,7 +60,7 @@ class PacketBroker(object):
             if e.errno == zmq.ETERM:
                 self.__xsub.close()
                 self.__xpub.close()
-                self.__logger.info("Exiting Runnable")
+                self.__logger.debug("Exiting Runnable")
 
 
     def GetInputAddress(self):

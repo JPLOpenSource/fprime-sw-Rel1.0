@@ -21,7 +21,7 @@ class RoutingCore(object):
     def __init__(self, context):
         # Setup Logger
         name = "RoutingCore"
-        self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
+        self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
    
