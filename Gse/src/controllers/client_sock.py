@@ -1,10 +1,22 @@
-##########################################
+#!/bin/env python
+#===============================================================================
+# NAME: client_sock.py
 #
-# Quick client sockets example.
-# reder@jpl.nasa.gov
+# DESCRIPTION: A refactoring of Len Reder's original ClientSocket class.
 #
-##########################################
+#              This module contain ClientSocket base class that provides a
+#              standard interface for accessing Publisher and Subscriber socket
+#              operators. 
 #
+#              Two implementation classes, TCP and ZMQ are included. 
+#              
+# AUTHOR: David Kooi
+# DATE CREATED: August 1, 2017
+#
+# Copyright 2017, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
+
 from Tkinter import *
 
 import Tkinter
@@ -28,7 +40,7 @@ class ClientSocket(object):
         self.__gui_name   = gui_name
         self.__main_panel = main_panel
 
-        # Define in implementation
+        # Declare in implementation
         self._publisher_socket  = None
         self._subscriber_socket = None
         self._server_cmd_socket = None # TCP does not need this.
@@ -75,7 +87,7 @@ class ClientSocket(object):
 
 
 
-class TCPClientSocket(ClientSocket):
+class TcpClientSocket(ClientSocket):
     """
     Class to perform client side socket connection
     using the GSE TCP server.
@@ -90,10 +102,35 @@ class TCPClientSocket(ClientSocket):
 
         self.__tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        self.__tcp_sock.connect((host_addr, port))
 
         self._publisher_socket   = client_sock_plugins.TcpPublisherSocket(self.__tcp_sock)
         self._subscriber_socket  = client_sock_plugins.TcpSubscriberSocket(self.__tcp_sock)
+        
+        # Register with server
+        self._publisher_socket.send("Register GUI\n")
 
+
+    def disconnect(self):
+        try:
+            self.sock.shutdown(socket.SHUT_RDWR)
+            self.sock.close()
+        except:
+            pass
+
+
+    @classmethod
+    def GetClientSocket(cls, host_addr, port, gui_name, main_panel=None):
+        try:
+            client_sock = TcpClientSocket(host_addr, port, gui_name)
+            client_sock.register_main_panel(main_panel)
+            return client_sock
+
+        except IOError:
+            string = "EXCEPTION: Could not connect to socket at host addr %s, port %s" % (host_addr, port)
+            print(string)
+            self.UpdateMainPanelStatus(string, "red")
+            return None
 
 
 class ZmqClientSocket(ClientSocket):
@@ -215,7 +252,7 @@ class ZmqClientSocket(ClientSocket):
     @classmethod
     def GetClientSocket(cls, host_addr, port, gui_name, main_panel=None):
         """
-        Factory function to create ClientSocket.
+        Factory function to create ZmqClientSocket.
         Returns None if connection cannot be made. 
         """
         try:
@@ -231,11 +268,8 @@ class ZmqClientSocket(ClientSocket):
             if e.errno == zmq.EAGAIN:
                 string = "Unable to connect to {}:{}".format(host_addr, port)
                 print(string)
-
-                try: # To update main_panel. If API is used main_panel == None
-                    main_panel.statusUpdate(string, "red")
-                except AttributeError:
-                    pass
+                self.UpdateMainPanelStatus(string, "red")
+                    
 
 
                 return None
