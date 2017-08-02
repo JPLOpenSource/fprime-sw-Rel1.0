@@ -1,27 +1,104 @@
 import os
+import sys
 import zmq
 import time
 import struct
+import signal
+
 import threading
+import subprocess
 from multiprocessing import Process
 
 from logging import DEBUG, ERROR
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.kernel import ZmqKernel
+from server.MockClients.MockFlightClient import MockFlightClient
+from server.MockClients.MockGroundClient import MockGroundClient
+
 from utils.logging_util import GetLogger
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
 
-def StartRefApp(server_cmd_port, address, name):
-        cmd  = os.environ['BUILD_ROOT'] + "/Ref/darwin-darwin-x86-debug-llvm-bin/Ref"
-        cmd += " -p {port} -a {addr} -n {nm}".format(port=server_cmd_port, addr=address, nm=name)
 
-        print("Starting Ref App")
-        print("Running command:")
-        print(cmd)
-        os.system(cmd)
+class TestObject(object):
+    def __init__(self):
+        self._object_process = None
+
+    def _StartMainProcess(self, function, args):
+        self._object_process = Process(target=function, args=args)
+        self._object_process.start()
+        print("PID: {}".format(self._object_process.pid))
+
+    def Start(*args, **kwargs):
+        raise NotImplementedError
+
+    def Quit(self):
+        raise NotImplementedError
+
+    def ForceQuit(self):
+        pid = self._object_process.pid
+        os.kill(pid, signal.SIGKILL)
+
+
+
+class RefApp(TestObject):
+
+    def Start(self, server_cmd_port, address, name):
+            self.name = name
+
+            cmd  = os.environ['BUILD_ROOT'] + "/Ref/darwin-darwin-x86-debug-llvm-bin/Ref"
+            cmd += " -p {port} -a {addr} -n {nm}".format(port=server_cmd_port, addr=address, nm=name)
+
+            function = os.system
+            args     = (cmd,)
+            self._StartMainProcess(function, args)
+    
+    def Quit(self):
+        pid = self._object_process.pid
+        os.kill(pid, signal.SIGINT)
+        print("RefApp {} closed.".format(self.name))
+
+
+class ZmqServer(TestObject):
+
+    def Start(self, server_cmd_port):
+        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {}".format(server_cmd_port)
+
+        function = os.system
+        args     = (cmd,)
+        self._StartMainProcess(function, args)
+
+    def Quit(self):
+        pid = self._object_process.pid
+        os.kill(pid, signal.SIGINT)
+        print("ZmqServerClosed")
+
+
+class MockClient(TestObject):
+    def __init__(self):
+        super(MockClient, self).__init__()
+
+        self.__context = zmq.Context()
+
+    def Start(self, cmd_port, client_name, m_type, ch_idx = None):
+        self.name = client_name
+
+        if m_type == "flight":
+            function = MockFlightClient
+            args = (self.__context, cmd_port, client_name, ch_idx)
+        else:
+            function = MockGroundClient
+            args = (self.__context, cmd_port, client_name)
+
+        
+        self._StartMainProcess(function, args)
+    
+    def Quit(self):
+        self.__context.term()
+        print("MockClient {} closed.".format(self.name))
+
 
 def StartGseGui(server_cmd_port, address, name, subscription_list):
     cmd  = "python "
@@ -56,36 +133,43 @@ class TestConnectivity:
 
 
         # Start Server
-        cmd_port = 5555 
+        cmd_port   = 5557
+        address    = 'localhost'
         timeout_s  = 10
 
-        cls.k = ZmqKernel(cmd_port, console_lvl=DEBUG, file_lvl=ERROR, timeout=timeout_s)  
-        cls.kernel_process = Process(target=cls.k.Start)
-        cls.kernel_process.start()
+        name = "flight_ref"
+        cls.flight_1 = RefApp()
+        cls.flight_1.Start(cmd_port, address, name)
 
-        # Start Red App
-        cls.ref_process = Process(target=StartRefApp, args=(cmd_port, "localhost", "flight_1"))
-        cls.ref_process.start()
+        cls.server = ZmqServer()
+        cls.server.Start(cmd_port)
 
-        # Start 2 GSE GUIs
-        cls.gui1_process = Process(target=StartGseGui, args=(cmd_port, "localhost", "gui_1", ["flight_1"]))
-        cls.gui1_process.start()
-        #StartGseGui(cmd_port, "localhost", "gui_2", "flight_1")
 
+        cls.mock_flight_list = []
+        for i in range(10):
+            name   = "flight_{}".format(i)
+            ch_idx = 103 # Sensor 1
+            cls.mock_flight_list.append( MockClient() )
+            cls.mock_flight_list[i].Start(cmd_port, name, "flight", ch_idx)
+
+        cls.mock_ground_list = []
+        for i in range(5):
+            name = "ground_{}".format(i)
+            cls.mock_ground_list.append( MockClient() )
+            cls.mock_ground_list[i].Start(cmd_port, name, "ground")
+
+        time.sleep(5)
 
     @classmethod
     def teardown_class(cls):
-        # Kill GUI
-        cmd = "ps -ef | grep gse.py | head -n 1 | cut -f 2 -d ' '"
-        pid = subprocess.check_output(cmd)
-        print("GUI PID: {}".format(pid))
-    
+        cls.flight_1.Quit()
+        cls.server.Quit()
 
-
-        cls.kernel_process.join()
-        cls.ref_process.join()
-        cls.gui1_process.join()
-
+        for i in range(len(cls.mock_flight_list)):
+            cls.mock_flight_list[i].Quit()
+        for i in range(len(cls.mock_ground_list)):
+            cls.mock_ground_list[i].Quit()
+        
 
     def test_all(self):
-        assert True
+        pass
