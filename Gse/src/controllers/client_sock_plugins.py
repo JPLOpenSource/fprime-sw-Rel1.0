@@ -106,7 +106,7 @@ class TcpSubscriberSocket(__SubscriberSocket):
         return pkt_len + pkt_desc + data
 
 
-     def __recv(self, l):
+    def __recv(self, l):
         """
         Read l bytes from socket.
         """
