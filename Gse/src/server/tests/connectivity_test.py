@@ -140,15 +140,15 @@ class TestConnectivity:
         timeout_s  = 10
 
         name = "flight_ref"
-        cls.flight_1 = RefApp()
-        cls.flight_1.Start(cmd_port, address, name)
+        #cls.flight_1 = RefApp()
+        #cls.flight_1.Start(cmd_port, address, name)
 
         cls.server = ZmqServer()
         cls.server.Start(cmd_port)
 
 
         cls.mock_flight_list = []
-        for i in range(5):
+        for i in range(1):
             name   = "flight_{}".format(i)
             cls.mock_flight_list.append( MockClient() )
             cls.mock_flight_list[i].Start(cmd_port, name, "flight")
@@ -159,11 +159,11 @@ class TestConnectivity:
             cls.mock_ground_list.append( MockClient() )
             cls.mock_ground_list[i].Start(cmd_port, name, "ground")
 
-        time.sleep(10)
+        time.sleep(7200) # 2 Hours
 
     @classmethod
     def teardown_class(cls):
-        cls.flight_1.Quit()
+        #cls.flight_1.Quit()
         cls.server.Quit()
 
         for i in range(len(cls.mock_flight_list)):
