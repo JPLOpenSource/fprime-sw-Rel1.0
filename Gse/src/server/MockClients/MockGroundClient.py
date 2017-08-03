@@ -21,7 +21,7 @@ def MockGroundClient(context, cmd_port, client_name):
 
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
-    logger = GetLogger("{}".format(client_name),log_path, logLevel = logging.INFO) 
+    logger = GetLogger("{}".format(client_name),log_path, chLevel=logging.INFO) 
     logger.debug("Logger Active") 
 
     command_socket = context.socket(zmq.DEALER)
