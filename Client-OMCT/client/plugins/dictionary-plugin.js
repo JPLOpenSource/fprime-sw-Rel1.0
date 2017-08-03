@@ -71,13 +71,9 @@ var objectProvider = {
                         value_format_save['units'] = u['Label'];
                         value_format_save['key'] = 'value:' + u['Label'];
                         value_format_save['hints']['range'] = i + 2;
-                        value_format_save['name'] = 'Value in ' + u['Label'];
+                        value_format_save['name'] = u['Label'];
                         value_formats.push(value_format_save);
                     });
-                }
-
-                if (measurement['id'] == '181') {
-                    console.log(JSON.stringify(value_formats));
                 }
 
                 // Object provider for each object in measurments. 

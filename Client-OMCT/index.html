@@ -9,17 +9,17 @@
     <!-- OMCT -->
     <script src="node_modules/openmct/dist/openmct.js"></script>
     <!-- Server requests -->
-    <script src="js/http.js"></script>
+    <script src="client/js/http.js"></script>
     <!-- Get dictionary -->
-    <script src="js/get-dict.js"></script>
+    <script src="client/js/get-dict.js"></script>
     <!-- Get dictionary plugin-->
-    <script src="plugins/dictionary-plugin.js"></script>
+    <script src="client/plugins/dictionary-plugin.js"></script>
     <!-- Realtime telemetry plugin -->
-    <script src="plugins/realtime-telem-plugin.js"></script>
+    <script src="client/plugins/realtime-telem-plugin.js"></script>
     <!-- Historical telemetry plugin -->
-    <script src="plugins/historical-telem-plugin-local.js"></script>
+    <script src="client/plugins/historical-telem-plugin-local.js"></script>
     <!-- Create views from local storage json -->
-    <script src="plugins/loc-storage-objects.js"></script>
+    <script src="client/plugins/loc-storage-objects.js"></script>
 
     <!-- JQuery --><!-- 
     <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script> -->
@@ -28,10 +28,10 @@
     <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
 
     <!-- console -->
-    <script src="js/vue-console.js" type="text/javascript"></script>    
+    <script src="client/js/vue-console.js" type="text/javascript"></script>    
 
     <!-- Console style -->
-    <link href="css/console.css" media="all" rel="stylesheet" type="text/css"/>
+    <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
 
 </head>
 <body>
@@ -88,18 +88,18 @@
         openmct.start();
     </script> -->
 
-    <div id="command">
-        <input id="input" v-model="cmd" v-on:keyup="sendCmd" placeholder="Enter command">
-        <div id="history">
-            
-        </div>
+    <!-- <div id="command">
+        <input id="input"
+        v-model="cmd"
+        v-on:keydown="sendCmd"
+        placeholder="Enter command">
 
-        
-        
+        <p>{{ history }}</p>
+
     </div>
 
     <script type="text/javascript">
             SetupConsole();
-    </script>
+    </script> -->
 </body>
 </html>
