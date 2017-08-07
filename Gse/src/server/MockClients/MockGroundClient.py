@@ -1,5 +1,6 @@
 import sys
 import zmq
+import time
 import threading
 import logging
 
@@ -8,6 +9,7 @@ from utils.logging_util import GetLogger
 
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
+from server.ServerUtils import test_utils
 from models.serialize import *
 import struct
 
@@ -55,10 +57,32 @@ def MockGroundClient(context, cmd_port, client_name):
     logger.debug("Publishing to port: {}".format(server_sub_port))
     logger.debug("Subscribed to port: {}".format(server_pub_port))
 
+    # Setup poller for pub and sub
+    # Initialize poll set
+    poller = zmq.Poller()
+    poller.register(pub_socket, zmq.POLLOUT)
+    poller.register(sub_socket, zmq.POLLIN)
+
+    ramp = test_utils.GetRamp()
+
+    time.sleep(1)
+
+
     while True:
         try:
-            msg = sub_socket.recv_multipart()
-            logger.debug("{}".format(msg[1]))
+
+            for val in ramp:
+                socks = dict(poller.poll())
+
+                if pub_socket in socks:
+                    pub_socket.send(client_name.encode() + b": " + bytes(val))
+
+                if sub_socket in socks:
+                    msg = sub_socket.recv_multipart()
+                    logger.debug("{}".format(msg[1]))
+                
+                time.sleep(0.1)   
+
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break

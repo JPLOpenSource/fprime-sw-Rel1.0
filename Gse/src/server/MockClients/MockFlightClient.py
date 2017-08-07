@@ -4,6 +4,8 @@ import zmq
 import threading
 import datetime
 
+from logging import INFO
+
 
 sys.path.append("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref") 
 
@@ -22,7 +24,7 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
    
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
-    logger = GetLogger("{}".format(client_name),log_path) 
+    logger = GetLogger("{}".format(client_name),log_path, chLevel=INFO) 
     logger.debug("Logger Active") 
  
     command_socket = context.socket(zmq.DEALER) 
@@ -62,6 +64,53 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     logger.debug("Subscribed to port: {}".format(server_pub_port))
 
 
+    # Setup Poller
+    poller = zmq.Poller()
+    poller.register(pub_socket, zmq.POLLOUT)
+    poller.register(sub_socket, zmq.POLLIN)
+
+
+    sine_wave = test_utils.GetSineWave() 
+    ramp = test_utils.GetRamp()
+    
+    time.sleep(1)
+
+    while True: 
+        try:
+
+            for val in ramp: 
+
+                socks = dict(poller.poll())
+
+                if pub_socket in socks:
+                    pub_socket.send(client_name.encode() +b": "+ bytes(val))
+
+                if sub_socket in socks:
+                    msg = sub_socket.recv_multipart()
+                    logger.debug("{}".format(msg[1]))
+
+
+                time.sleep(0.1)        
+
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                logger.debug("ETERM received") 
+                break
+            else:
+                raise
+
+
+
+    # Quit
+    logger.debug("Closing")
+    command_socket.close()
+    pub_socket.close()
+    sub_socket.close()
+
+   
+
+
+def SetupMockTelemetry():
     # Get Sensor1 dictionary
     channel_loader = ChannelLoader()
     channel_loader.create("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref/"
@@ -90,65 +139,32 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     time_base = u16_type.U16Type(0)
     time_cxt  = u8_type.U8Type(0)    
 
-    sine_wave = test_utils.GetSineWave() 
-    ramp      = test_utils.GetRamp()
 
-    while True: 
-        try:
+    # Set variable values
+    ch_time = datetime.datetime.now()
+    sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
+    
+    # Time Values
+    time_s  = sensor1.getTimeSec()
+    time_us = sensor1.getTimeUsec()  
 
-            try: 
-                msg = sub_socket.recv()
-                logger.debug("Received Command: {}".format(msg))
-            except zmq.ZMQError as e:
-                if e.errno == zmq.EAGAIN:
-                    pass
-                else:
-                    raise
+    # Time as fprime type
+    time_s  = u32_type.U32Type(time_s)
+    time_us = u32_type.U32Type(time_us) 
 
-            for val in ramp: 
-                # Set variable values
-                ch_time = datetime.datetime.now()
-                sensor1.setTime(0, 0, ch_time.second, ch_time.microsecond)          
-                
-                # Time Values
-                time_s  = sensor1.getTimeSec()
-                time_us = sensor1.getTimeUsec()  
-        
-                # Time as fprime type
-                time_s  = u32_type.U32Type(time_s)
-                time_us = u32_type.U32Type(time_us) 
-
-                value.val  = float(ch_idx)
-                
-                
-               
-                # Create channel packet          
-                packet = data_len.serialize() + pk_desc.serialize() +\
-                         ch_id.serialize() + time_base.serialize() +\
-                         time_cxt.serialize() + time_s.serialize() +\
-                         time_us.serialize() + value.serialize()
-
-                #pub_socket.send(packet)
-                pub_socket.send(bytes(val))
-
-                time.sleep(0.1)        
-
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                logger.debug("ETERM received") 
-                break
-            else:
-                raise
-
-
-
-    # Quit
-    logger.debug("Closing")
-    command_socket.close()
-    pub_socket.close()
-    sub_socket.close()
-
+    value.val  = float(ch_idx)
+    
+    
    
+    # Create channel packet          
+    packet = data_len.serialize() + pk_desc.serialize() +\
+             ch_id.serialize() + time_base.serialize() +\
+             time_cxt.serialize() + time_s.serialize() +\
+             time_us.serialize() + value.serialize()
+
+    pub_socket.send(packet)
+
+
 
 
 if __name__ == "__main__":
