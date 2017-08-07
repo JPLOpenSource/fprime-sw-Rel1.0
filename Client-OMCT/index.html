@@ -96,37 +96,59 @@
       v-on:keyup.enter="sendCmd"
       placeholder="Enter command">
 
-    <p>{{ history }}</p>
+    <ul>
+      <li
+        id="cmd-hist"
+        v-for="command in reverseCmd">
+        {{ command.cmd }}
+      </li>
+    </ul>
+
+    <input 
+      id="input" 
+      type="text"
+      v-model="cmdHistQuery"
+      placeholder="Search history">
 
   </div>
 
   <script type="text/javascript">
-    // getDictionary().then(function (dict) {
-        // let commandDict = dict['isf']['commands'];       
-        // let validCommands = [];
-        // for (id in commandDict) {
-        //  validCommands.push(commandDict[id]['name']);
-        // }
+    const site = 'localhost';
+    const cmdPort = 1339;
 
-        var command = new Vue({
-          el: '#command',
-          data: {
-            cmd: '',
-            cmdHist: [],
-            history: ''
-          },
-          methods: {
-            sendCmd: function (event) {
-              // if (event.key == "Enter") {
+    var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
 
-                this.cmdHist.push(this.cmd);
-                console.log("Enter pressed!");
-                console.log(JSON.stringify(this.cmdHist));
-              // }
-            }
+    getDictionary().then(function (dict) {
+      let commandDict = dict['isf']['commands'];       
+      let validCommands = [];
+      for (id in commandDict) {
+        validCommands.push(commandDict[id]['name']);
+      }
+
+      var command = new Vue({
+        el: '#command',
+        data: {
+          cmd: '',
+          cmdHist: [],
+          cmdHistQuery: ''
+        },
+        methods: {
+          sendCmd: function (event) {
+            // Add command and time
+            socket.send(this.cmd);
+            this.cmdHist.push({
+              cmd: this.cmd,
+              time: Date()
+            });
           }
-        });
-      // });
+        },
+        computed: {
+          reverseCmd: function () {
+            return this.cmdHist.reverse()
+          }
+        }
+      });
+    });
   </script>
 </body>
 </html>
