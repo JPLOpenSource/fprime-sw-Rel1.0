@@ -108,6 +108,7 @@
       id="input" 
       type="text"
       v-model="cmdHistQuery"
+      v-on:keyup="searchHist"
       placeholder="Search history">
 
   </div>
@@ -130,7 +131,8 @@
         data: {
           cmd: '',
           cmdHist: [],
-          cmdHistQuery: ''
+          cmdHistQuery: '',
+          cmdHistToShow: []
         },
         methods: {
           sendCmd: function (event) {
@@ -140,14 +142,22 @@
               cmd: this.cmd,
               time: Date()
             });
+            this.cmdHistToShow = this.cmdHist.slice();
           },
           select: function (command) {
             this.cmd = command;
+          },
+          searchHist: function () {
+            if (this.cmdHistQuery !== '') {
+              this.cmdHistToShow = this.cmdHist.filter((c) => c.cmd.indexOf(this.cmdHistQuery) !== -1);
+            } else {
+              this.cmdHistToShow = this.cmdHist.slice();
+            }
           }
         },
         computed: {
           reverseCmd: function () {
-            return this.cmdHist.reverse()
+            return this.cmdHistToShow.reverse()
           }
         }
       });

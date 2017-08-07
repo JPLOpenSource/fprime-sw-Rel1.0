@@ -3,6 +3,8 @@
 var net = require('net');
 const WebSocket = require('ws');	// Websocket server
 
+var serialize = require('./serialize').serialize;
+
 function CommandServer(site, gsePort, commandPort) {
 	var client = new net.Socket();
 	client.connect(gsePort, site, function() {
@@ -17,7 +19,8 @@ function CommandServer(site, gsePort, commandPort) {
 	wssc.on('connection', function connection(ws) {
 		ws.on('message', function incoming(message) {
 			// Serialize message
-			console.log(message);
+			serialize(message);
+			// console.log(message);
 			// client.write(message);
 		});
 	});

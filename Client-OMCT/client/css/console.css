@@ -15,7 +15,8 @@
   padding: 1em;
   background-color: #EFEFEF;
   border: solid 1px #c3c3c3;
-  height: 400px;
+  position: relative;
+  height: 300px;
 }
 
 #input {
@@ -24,7 +25,8 @@
   font-size: 18px;
 }
 
-#cmd-hist {
+html, body {
+  height: 99%;
 }
 
 ul {
