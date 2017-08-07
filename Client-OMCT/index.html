@@ -1,105 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>FPrime</title>    
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>FPrime</title>    
 
-    <!-- Open MCT Ditribution and plugins -->
-    <!-- OMCT -->
-    <script src="node_modules/openmct/dist/openmct.js"></script>
-    <!-- Server requests -->
-    <script src="client/js/http.js"></script>
-    <!-- Get dictionary -->
-    <script src="client/js/get-dict.js"></script>
-    <!-- Get dictionary plugin-->
-    <script src="client/plugins/dictionary-plugin.js"></script>
-    <!-- Realtime telemetry plugin -->
-    <script src="client/plugins/realtime-telem-plugin.js"></script>
-    <!-- Historical telemetry plugin -->
-    <script src="client/plugins/historical-telem-plugin-local.js"></script>
-    <!-- Create views from local storage json -->
-    <script src="client/plugins/loc-storage-objects.js"></script>
+  <!-- Open MCT Ditribution and plugins -->
+  <!-- OMCT -->
+  <script src="node_modules/openmct/dist/openmct.js"></script>
+  <!-- Server requests -->
+  <script src="client/js/http.js"></script>
+  <!-- Get dictionary -->
+  <script src="client/js/get-dict.js"></script>
+  <!-- Get dictionary plugin-->
+  <script src="client/plugins/dictionary-plugin.js"></script>
+  <!-- Realtime telemetry plugin -->
+  <script src="client/plugins/realtime-telem-plugin.js"></script>
+  <!-- Historical telemetry plugin -->
+  <script src="client/plugins/historical-telem-plugin-local.js"></script>
+  <!-- Create views from local storage json -->
+  <script src="client/plugins/loc-storage-objects.js"></script>
 
-    <!-- JQuery --><!-- 
-    <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script> -->
+  <!-- JQuery --><!-- 
+  <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script> -->
 
-    <!-- vue -->
-    <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
+  <!-- vue -->
+  <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
 
-    <!-- console -->
-    <script src="client/js/vue-console.js" type="text/javascript"></script>    
+  <!-- console -->
+  <!-- <script src="client/js/vue-console.js" type="text/javascript"></script> -->
 
-    <!-- Console style -->
-    <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
+  <!-- Console style -->
+  <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
 
 </head>
 <body>
-    <!-- <script type="text/javascript">
-        // Load views
-        LoadViews();
+  <!-- <script type="text/javascript">
+    // Load views
+    LoadViews();
 
-        // OpenMCT
-        const site = 'localhost';
-        const staticPort = 8080;
-        const realTelemPort = 1337;
-        const histTelemPort = 1338;
+    // OpenMCT
+    const site = 'localhost';
+    const staticPort = 8080;
+    const realTelemPort = 1337;
+    const histTelemPort = 1338;
 
-        openmct.setAssetPath('node_modules/openmct/dist');
-        openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-        // openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
-        openmct.install(openmct.plugins.MyItems());
+    openmct.setAssetPath('node_modules/openmct/dist');
+    openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
+    // openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
+    openmct.install(openmct.plugins.MyItems());
 
-        // Configure time system
-        openmct.install(openmct.plugins.UTCTimeSystem());
-        openmct.install(openmct.plugins.LADTable());
-        openmct.install(openmct.plugins.Conductor({
-            menuOptions: [
-                {
-                    name: "Fixed",
-                    timeSystem: 'utc',
-                    bounds: {
-                        start: Date.now() - 5 * 60 * 1000,
-                        end: Date.now()
-                    }
-                },
-                {
-                    name: "Realtime",
-                    timeSystem: 'utc',
-                    clock: 'local',
-                    clockOffsets: {
-                        start: -10 * 60 * 1000,
-                        end: 0 * 60 * 1000
-                    }
-                }
-            ]
-        }));
-        openmct.time.clock('local', {start: -1 * 60 * 1000, end: 0});
-        openmct.time.timeSystem('utc');
+    // Configure time system
+    openmct.install(openmct.plugins.UTCTimeSystem());
+    openmct.install(openmct.plugins.LADTable());
+    openmct.install(openmct.plugins.Conductor({
+      menuOptions: [
+        {
+          name: "Fixed",
+          timeSystem: 'utc',
+          bounds: {
+            start: Date.now() - 5 * 60 * 1000,
+            end: Date.now()
+          }
+        },
+        {
+          name: "Realtime",
+          timeSystem: 'utc',
+          clock: 'local',
+          clockOffsets: {
+            start: -10 * 60 * 1000,
+            end: 0 * 60 * 1000
+          }
+        }
+      ]
+    }));
+    openmct.time.clock('local', {start: -1 * 60 * 1000, end: 0});
+    openmct.time.timeSystem('utc');
 
-        // Theme
-        openmct.install(openmct.plugins.Snow());
+    // Theme
+    openmct.install(openmct.plugins.Snow());
 
-        // User plugin installs
-        openmct.install(DictionaryPlugin(site, staticPort));
-        openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-        openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+    // User plugin installs
+    openmct.install(DictionaryPlugin(site, staticPort));
+    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
 
-        openmct.start();
-    </script> -->
+    openmct.start();
+  </script> -->
 
-    <!-- <div id="command">
-        <input id="input"
-        v-model="cmd"
-        v-on:keydown="sendCmd"
-        placeholder="Enter command">
+  <div id="command">
+    <input 
+      id="input" 
+      type="text"
+      v-model="cmd"
+      v-on:keyup.enter="sendCmd"
+      placeholder="Enter command">
 
-        <p>{{ history }}</p>
+    <p>{{ history }}</p>
 
-    </div>
+  </div>
 
-    <script type="text/javascript">
-            SetupConsole();
-    </script> -->
+  <script type="text/javascript">
+    // getDictionary().then(function (dict) {
+        // let commandDict = dict['isf']['commands'];       
+        // let validCommands = [];
+        // for (id in commandDict) {
+        //  validCommands.push(commandDict[id]['name']);
+        // }
+
+        var command = new Vue({
+          el: '#command',
+          data: {
+            cmd: '',
+            cmdHist: [],
+            history: ''
+          },
+          methods: {
+            sendCmd: function (event) {
+              // if (event.key == "Enter") {
+
+                this.cmdHist.push(this.cmd);
+                console.log("Enter pressed!");
+                console.log(JSON.stringify(this.cmdHist));
+              // }
+            }
+          }
+        });
+      // });
+  </script>
 </body>
 </html>
