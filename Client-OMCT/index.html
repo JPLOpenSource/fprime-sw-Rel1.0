@@ -100,7 +100,7 @@
       <li
         id="cmd-hist"
         v-for="command in reverseCmd">
-        {{ command.cmd }}
+        <p v-on:click="select(command.cmd)">{{ command.cmd }}</p>
       </li>
     </ul>
 
@@ -140,6 +140,9 @@
               cmd: this.cmd,
               time: Date()
             });
+          },
+          select: function (command) {
+            this.cmd = command;
           }
         },
         computed: {
