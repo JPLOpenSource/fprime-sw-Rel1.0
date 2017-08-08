@@ -4,20 +4,20 @@
 #ifndef ZMQGROUNDIFIMPL_HPP_
 #define ZMQGROUNDIFIMPL_HPP_
 
-#include <Svc/ZmqIf/ZmqIfComponentAc.hpp>
+#include <Svc/ZmqGroundIf/ZmqGroundIfComponentAc.hpp>
 
-namespace Svc{
+namespace Zmq{
 
-    class ZmqGroundIfImpl : public ZmqIfComponentBase{
+    class ZmqGroundIfComponentImpl : public ZmqGroundIfComponentBase{
 	public:
 #if FW_OBJECT_NAMES == 1
-	    ZmqGroundIfImpl(const char* name);
+	    ZmqGroundIfComponentImpl(const char* name);
 #else
-	    ZmqGroundIfImpl();
+	    ZmqGroundIfComponentImpl(void);
 #endif
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
 
-	    virtual ~ZmqGroundIfImpl();
+	    virtual ~ZmqGroundIfComponentImpl();
 	
 	PROTECTED:
 	PRIVATE:
@@ -40,8 +40,14 @@ namespace Svc{
 		Fw::Buffer fwBuffer 
 	    );
 
+	    U32   m_packetsSent;
+	    void* m_context; //!< zmq context
+	    void* m_pubSocket; //!< zmq socket for outbound telemetry,events, and files
+	    void* m_subSocket; //!< zmq socket for inbound commands and files
+	    void* m_cmdSocket; //!< zmq socket for server registration
 
-    }
+
+    };
 
 
 } // namespace Svc

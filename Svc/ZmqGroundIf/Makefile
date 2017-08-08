@@ -4,7 +4,7 @@
 
 # derive module name from directory
 
-MODULE_DIR = Svc/ZmqIf
+MODULE_DIR = Svc/ZmqGroundIf
 MODULE = $(subst /,,$(MODULE_DIR))
 
 BUILD_ROOT ?= $(subst /$(MODULE_DIR),,$(CURDIR))

@@ -11,6 +11,4 @@
 #   or an ITAR exemption prior to the export or transfer.
 #
 
-SRC = ZmqIfComponentAi.xml
-		
-		
+SUBDIRS = ut

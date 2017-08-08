@@ -67,7 +67,7 @@ SVC_MODULES := \
     Svc/AssertFatalAdapter \
     Svc/FatalHandler \
 	Svc/FileManager \
-	Svc/ZmqIf
+	Svc/ZmqGroundIf
 
 DRV_MODULES := \
 	Drv/DataTypes \
