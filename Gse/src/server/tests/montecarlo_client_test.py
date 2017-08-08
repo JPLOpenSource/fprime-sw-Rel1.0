@@ -215,7 +215,6 @@ class TestConnectivity:
         time.sleep(4)
         self.monte_carlo_disconnect(monte_carlo_time_s)
         self.passthrough(passthrough_time_s)
-        assert self.check_logs()
 
         self.destory_clients()
         
