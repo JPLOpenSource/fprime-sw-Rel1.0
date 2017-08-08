@@ -33,4 +33,4 @@ def GetSineWave():
             0x6a,0x6d,0x70,0x73,0x76,0x79,0x7c,0x80]
 
 def GetRamp():
-      return range(0,255)
+      return range(0,256)
