@@ -1,9 +1,9 @@
-TEST_SRC = 	main.cpp \
+TEST_SRC = 		main.cpp \
 			Tester.cpp \
 			TesterBase.cpp \
 			GTestBase.cpp
 
-TEST_MODS = Fw/Tlm \
+TEST_MODS = 		Fw/Tlm \
 			Fw/Comp \
 			Fw/Cmd \
 			Fw/Log \
@@ -14,4 +14,5 @@ TEST_MODS = Fw/Tlm \
 			Fw/Com \
 			Svc/Sched \
 			Svc/Ping \
+			Svc/ZmqGroundIf \
 			Os
