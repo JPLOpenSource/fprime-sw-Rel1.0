@@ -207,7 +207,7 @@ class TestConnectivity:
 
     def test_server_integrity(self):
         monte_carlo_time_s = 21600 # Time to perform random disconnects
-        passthrough_time_s = 21600 # Time to test unobsructed data path
+        passthrough_time_s = 5400# Time to test unobsructed data path
 
         self.initialize_clients()
         time.sleep(4)
@@ -221,7 +221,7 @@ class TestConnectivity:
         time.sleep(passthrough_time_s)    
 
     def monte_carlo_disconnect(self, monte_carlo_time_s):
-        action_limit_s = 600 # Max time before a connect or kill is performed
+        action_limit_s = 60 # Max time before a connect or kill is performed
 
         run_test = Event()
         run_test.set()
