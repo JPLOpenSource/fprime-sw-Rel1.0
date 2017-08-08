@@ -1,7 +1,14 @@
 html, body {
-  height: 95%;
+  height: 100%;
   width: 100%;
 }
+
+body {
+  position: relative;
+  width: calc(100% - 1em);
+  height: calc(100% - 3em);
+}
+
 ul {
   height: 100%;
   width: 100%;
