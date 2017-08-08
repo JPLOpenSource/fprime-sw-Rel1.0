@@ -7,13 +7,19 @@ body {
   position: relative;
   width: calc(100% - 1em);
   height: calc(100% - 3em);
+  font: Roboto;
 }
 
 ul {
-  height: 100%;
-  width: 100%;
+  width: calc(100% - 2em);
   position: absolute;
   overflow: auto;
+  list-style: none;
+  max-height: 90%;
+}
+
+li {
+  cursor: pointer;
 }
 
 #command {
@@ -26,10 +32,10 @@ ul {
 
 #cmdContainer {
   position: relative;
-  height: 50%;
+  height: 85%;
 }
 
-#input-search, #input-command {
+.user-input {
   width: 100%;
   font-size: 18px;
 }
@@ -44,6 +50,8 @@ ul {
 
 #cmd-search {
   z-index: 10;
-  /*position: relative;*/
+  background-color: white;
+  border-radius: 2px;
+  margin-top: 1px;
 }
 
