@@ -95,6 +95,7 @@ class ZmqKernel(object):
                                  
         # Setup command/status socket
         self.__command_socket = self.__context.socket(zmq.ROUTER)
+        self.__command_socket.setsockopt(zmq.IDENTITY, SERVER_CONFIG.SRV_CMD_ID)
         try:
             self.__command_socket.bind("tcp://*:{}".format(command_port))
         except zmq.ZMQError as e:
@@ -128,7 +129,7 @@ class ZmqKernel(object):
         Start main event loop of the zmq kernel
         """
         try:
-            self.__logger.debug("Kernel reactor starting.")
+            self.__logger.debug("Reactor starting.")
             
             self.__flight_sub_thread.start()
             self.__flight_pub_thread.start()

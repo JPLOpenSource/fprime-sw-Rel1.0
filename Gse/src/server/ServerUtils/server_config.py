@@ -57,7 +57,8 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.SUB_CMD     = "sub"
         self.USUB_CMD    = "usub"
         self.LIST_CMD    = "list"
-
+        
+        self.SRV_CMD_ID  = "server_cmd_socket"
 
         config_file_name = 'server.ini'
         files = list()
