@@ -82,7 +82,7 @@ class RefApp(TestObject):
 class ZmqServer(TestObject):
 
     def Setup(self, server_cmd_port):
-        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {}".format(server_cmd_port)
+        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {} -v".format(server_cmd_port)
 
         self._args = cmd
 
