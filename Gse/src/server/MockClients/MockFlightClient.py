@@ -83,7 +83,9 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
                 socks = dict(poller.poll())
 
                 if pub_socket in socks:
-                    pub_socket.send(client_name.encode() +b": "+ bytes(val))
+                    data = client_name.encode() +" " + bytes(val)
+                    logger.debug("Sending: {}".format(bytes(val)))
+                    pub_socket.send(data)
 
                 if sub_socket in socks:
                     msg = sub_socket.recv_multipart()
