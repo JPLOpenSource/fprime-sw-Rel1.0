@@ -29,6 +29,9 @@ def check_log(log_path, pass_through_dtime):
             #print split_s
             if(curr_dt >= pass_through_dtime):
                 client_name = split_s[4]
+                if(client_name == "Sending:"):
+                    continue
+                    
                 data        = int(split_s[5])
                 # If this first data entry, set the data expected to the current 
                 # value plus one.
@@ -59,8 +62,8 @@ def main():
     pass_through_dtime: The time the monte carlo test changed to the passthrough
                         phase.
     """
-    
-    pass_through_dtime = parser.parse("2017-08-07 14:13:23,556") 
+
+    pass_through_dtime = parser.parse("2017-08-07 23:32:55,068") 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    

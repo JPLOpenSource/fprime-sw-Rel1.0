@@ -59,9 +59,7 @@ class TestObject(object):
         """
         pid = self._object_process.pid
         os.kill(pid, signal.SIGKILL)
-
-
-
+   
 class RefApp(TestObject):
 
     def Setup(self, server_cmd_port, address, name):
@@ -213,7 +211,7 @@ class TestConnectivity:
 
         self.initialize_clients()
         time.sleep(4)
-        self.monte_carlo_disconnect(monte_carlo_time_s)
+        #self.monte_carlo_disconnect(monte_carlo_time_s)
         self.passthrough(passthrough_time_s)
 
         self.destory_clients()
@@ -223,7 +221,7 @@ class TestConnectivity:
         time.sleep(passthrough_time_s)    
 
     def monte_carlo_disconnect(self, monte_carlo_time_s):
-        action_limit_s = 10
+        action_limit_s = 600 # Max time before a connect or kill is performed
 
         run_test = Event()
         run_test.set()
