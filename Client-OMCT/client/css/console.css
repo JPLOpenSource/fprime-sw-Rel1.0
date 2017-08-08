@@ -1,14 +1,12 @@
-/*Command pannel*/
-#panel, #flip {
-  padding: 5px;
-  text-align: center;
-  background-color: #e5eecc;
-  border: solid 1px #c3c3c3;
+html, body {
+  height: 95%;
+  width: 100%;
 }
-
-#panel {
-  padding: 50px;
-  display: none;
+ul {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  overflow: auto;
 }
 
 #command {
@@ -16,21 +14,29 @@
   background-color: #EFEFEF;
   border: solid 1px #c3c3c3;
   position: relative;
-  height: 300px;
+  height: 100%;
 }
 
-#input {
-  width: 100%;
+#cmdContainer {
   position: relative;
+  height: 50%;
+}
+
+#input-search, #input-command {
+  width: 100%;
   font-size: 18px;
 }
 
-html, body {
-  height: 99%;
+#input-search {
+  left: 1em;
+  width: calc(100% - 2em);
+  bottom: 1em;
+  box-sizing: border-box;
+  position: absolute;
 }
 
-ul {
-  height: 70%;
-  position: relative;
-  overflow: auto;
+#cmd-search {
+  z-index: 10;
+  /*position: relative;*/
 }
+
