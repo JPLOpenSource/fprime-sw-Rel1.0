@@ -173,6 +173,8 @@ OTHER_MODULES := \
 	Os/Stubs \
 	Fw/Test \
 	fprime-zmq/ZmqGroundIf \
+	fprime-zmq/zmq-pub \
+	fprime-zmq/zmq-sub \
 	$(FW_GTEST_MODULES)
 
 # List deployments
