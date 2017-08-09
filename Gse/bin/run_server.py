@@ -14,6 +14,7 @@ def main():
 
     if(args.verbose):
     	file_lvl = console_lvl = logging.DEBUG
+        console_lvl = logging.ERROR
     else:
     	file_lvl = console_lvl = logging.INFO
 
