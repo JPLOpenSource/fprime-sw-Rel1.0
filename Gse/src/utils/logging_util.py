@@ -6,14 +6,14 @@
 #
 #    Author:  David Kooi 
 #    Created: April, 2017
-
+#####################################################
 
 import logging
 from logging import DEBUG, ERROR
 import os
 
 GLOBAL_LEVEL = False
-GLOBAL_LOG_LEVEL = ERROR
+GLOBAL_CONSOLE_LEVEL = ERROR
 GLOBAL_FILE_LEVEL = ERROR
 
 def SetGlobalLoggingLevel(consoleLevel, fileLevel, globalLevel=False):
@@ -21,11 +21,11 @@ def SetGlobalLoggingLevel(consoleLevel, fileLevel, globalLevel=False):
     Call to set a globally configured logging level. 
     """
     global GLOBAL_LEVEL
-    global GLOBAL_LOG_LEVEL
+    global GLOBAL_CONSOLE_LEVEL
     global GLOBAL_FILE_LEVEL
 
     GLOBAL_LEVEL = globalLevel # Let each GetLogger set their own level 
-    GLOBAL_LOG_LEVEL = consoleLevel
+    GLOBAL_CONSOLE_LEVEL = consoleLevel
     GLOBAL_FILE_LEVEL = fileLevel
 
 
@@ -34,11 +34,11 @@ def GetLogger(name, logPath, logLevel=DEBUG, fileLevel=DEBUG, chLevel=DEBUG):
     Factory Method
     """
     global GLOBAL_LEVEL
-    global GLOBAL_LOG_LEVEL
+    global GLOBAL_CONSOLE_LEVEL
     global GLOBAL_FILE_LEVEL
 
     if GLOBAL_LEVEL:
-        logLevel  = GLOBAL_LOG_LEVEL
+        chLevel   = GLOBAL_CONSOLE_LEVEL
         fileLevel = GLOBAL_FILE_LEVEL 
 
     logger = logging.getLogger(name)
