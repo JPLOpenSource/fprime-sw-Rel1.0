@@ -80,7 +80,7 @@
     openmct.install(DictionaryPlugin(site, staticPort));
     openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
     openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
-    openmct.install(LimitEval());
+    openmct.install(ChanLimitEval());
 
 
     openmct.start();

@@ -95,8 +95,7 @@ var objectProvider = {
               id_format,
             )  // Values already in default format
           },
-          location: 'isf.taxonomy:isf',
-          limits: measurement['limits']
+          location: 'isf.taxonomy:isf'
         }
 				if (measurement.name === 'Events') {
 					// Object provider for events
@@ -104,6 +103,7 @@ var objectProvider = {
 					return toReturn;
 				} else {
 					// Object provider for all channels
+					toReturn.limits = measurement['limits'];
 					return toReturn;
 				}
 			}
