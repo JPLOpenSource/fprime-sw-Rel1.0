@@ -7,7 +7,6 @@ body {
   position: relative;
   width: calc(100% - 1em);
   height: calc(100% - 3em);
-  font: Roboto;
 }
 
 ul {
@@ -22,6 +21,10 @@ li {
   cursor: pointer;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 #command {
   padding: 1em;
   background-color: #EFEFEF;
@@ -33,6 +36,7 @@ li {
 #cmdContainer {
   position: relative;
   height: 85%;
+  font-family: 'Roboto', sans-serif;
 }
 
 .user-input {
