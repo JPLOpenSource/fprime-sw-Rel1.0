@@ -21,6 +21,7 @@
   <!-- Create views from local storage json -->
   <script src="client/plugins/loc-storage-objects.js"></script>
   <script src="client/plugins/limit-eval.js"></script>
+  <!-- Stylesheet for limit evaluator -->
   <link href="client/css/limit.css" media="all" rel="stylesheet" type="text/css"/>
 
   <!-- console -->
@@ -69,7 +70,7 @@
         }
       ]
     }));
-    openmct.time.clock('local', {start: -1 * 60 * 1000, end: 0});
+    openmct.time.clock('local', {start: -5 * 60 * 1000, end: 0});
     openmct.time.timeSystem('utc');
 
     // Theme
