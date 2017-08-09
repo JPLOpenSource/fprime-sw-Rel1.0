@@ -66,8 +66,7 @@ SVC_MODULES := \
 	Svc/FileDownlink \
     Svc/AssertFatalAdapter \
     Svc/FatalHandler \
-	Svc/FileManager \
-	Svc/ZmqGroundIf
+	Svc/FileManager
 
 DRV_MODULES := \
 	Drv/DataTypes \
@@ -173,6 +172,7 @@ OTHER_MODULES := \
 	gtest \
 	Os/Stubs \
 	Fw/Test \
+	fprime-zmq/ZmqGroundIf \
 	$(FW_GTEST_MODULES)
 
 # List deployments
