@@ -81,6 +81,7 @@
     openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
     openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
     openmct.install(ChanLimitEval());
+    openmct.install(EventLimitEval());
 
 
     openmct.start();

@@ -1,7 +1,7 @@
 // Value formatters
 const value_format = {
 	'hints': {
-		'range': 1
+		'range': 2
 	}, 
 	'key': 'value', 
 	'max': 100, 
@@ -34,7 +34,7 @@ const id_format = {
 };
 const severity_format = {
 	'hints': {
-		'domain': 4
+		'range': 1
 	},
 	'key': 'severity',
 	'name': 'Severity'
@@ -63,7 +63,7 @@ var objectProvider = {
 				let measurement = dictionary.isf.channels[identifier.key];
 
 
-				value_formats = [value_format];
+				value_formats = [name_format, id_format, time_format, value_format];
 				let units = measurement['units'];
 				if (units != null) {
 					units.forEach(function (u, i) {
@@ -89,11 +89,7 @@ var objectProvider = {
           notes: measurement['description'],
           // type: typeStr,
           telemetry: {
-            values: value_formats.concat(
-              time_format,
-              name_format,
-              id_format,
-            )  // Values already in default format
+            values: value_formats  // Values already in default format
           },
           location: 'isf.taxonomy:isf'
         }

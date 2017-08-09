@@ -9,23 +9,3 @@ Registered client GUI_2
 Registration complete waiting for message.
 Registered client GUI_3
 Registration complete waiting for message.
-read data from socket is empty!read data from socket is empty!
-Header information is empty, client GUI_2 exiting.
-Closed GUI_2 connection.
-
-Header information is empty, client GUI_3 exiting.
-Closed GUI_3 connection.
-Registered client GUI_2
-Registration complete waiting for message.
-Registered client GUI_3
-Registration complete waiting for message.
-read data from socket is empty!read data from socket is empty!
-
-Header information is empty, client GUI_3 exiting.Header information is empty, client GUI_2 exiting.
-
-Closed GUI_3 connection.Closed GUI_2 connection.
-
-Registered client GUI_2Registered client GUI_3
-
-Registration complete waiting for message.Registration complete waiting for message.
-
