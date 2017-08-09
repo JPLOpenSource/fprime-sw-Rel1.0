@@ -1,4 +1,5 @@
 import zmq
+import struct
 
 from logging import DEBUG, INFO, ERROR 
 
@@ -37,24 +38,20 @@ class Adapter(object):
 
         self.__client_connections = {} # Save connections by client ID 
 
-        # Create one socket for sending, one socket for receiving commands(and responses)
-        # Two are needed because command_socket_recv is wrapped by a ZMQStream
-        #self.__command_socket_send = self.__context.socket(zmq.ROUTER)
-        #self.__command_socket_send.setsockopt(zmq.IDENTITY, self.__name)
-        #self.__command_socket_send.connect("tcp://localhost:{}".format(server_cmd_port))
-
-        self.__command_socket_recv = self.__context.socket(zmq.ROUTER) 
-        self.__command_socket_recv.setsockopt(zmq.IDENTITY, self.__name)
-        self.__command_socket_recv.connect("tcp://localhost:{}".format(server_cmd_port))
+        self.__command_socket = self.__context.socket(zmq.DEALER) 
+        self.__command_socket.setsockopt(zmq.IDENTITY, self.__name)
+        self.__command_socket.connect("tcp://localhost:{}".format(server_cmd_port))
 
         # Create Reactor 
         self.__loop = IOLoop.instance()
 
         # Wrap sockets in ZMQStreams for IOLoop handlers
-        #self.__command_socket_recv = ZMQStream(self.__command_socket_recv)
+        self.__command_socket = ZMQStream(self.__command_socket)
 
         # Register handlers
-        #self.__command_socket_recv.on_recv(self.__HandleCommand)
+        self.__command_socket.on_recv(self.__HandleCommand)
+
+        self.__registered = False
 
     def Start(self):
         try:
@@ -71,30 +68,33 @@ class Adapter(object):
     def Quit(self):
         self.__logger.info("Stopping adapter")
 
-        self.__command_socket_recv.close()
-        #self.__command_socket_send.close()
+        self.__command_socket.close()
         self.__context.term()
 
     def __HandleCommand(self, msg): 
         self.__logger.debug("Received Command {}".format(msg))
 
-        if msg[0] == "":
+        # Process commands normally if registered
+        if self.__registered:
             pass
 
-        # Setup pub/sub ports
-        self.__server_pub_port = struct.unpack("<I", msg[1])[0]
-        self.__server_sub_port = struct.unpack("<I", msg[2])[0]
-        self.__logger.debug("Pubishing to : {} Subscribed to: {}".format(self.__server_sub_port,\
-                                                                        self.__server_pub_port))
+
+        else: # Anticipate registration response
+
+            # Setup pub/sub ports
+            self.__server_pub_port = struct.unpack("<I", msg[1])[0]
+            self.__server_sub_port = struct.unpack("<I", msg[2])[0]
+            self.__logger.debug("Pubishing to : {} Subscribed to: {}".format(self.__server_sub_port,\
+                                                                            self.__server_pub_port))
 
 
     def __RegisterToServer(self):
         self.__logger.debug("Registering to server")
        
-        reg_cmd = [SERVER_CONFIG.SRV_CMD_ID, SERVER_CONFIG.REG_CMD, self.__client_type, self.__protocol]
+        reg_cmd = [SERVER_CONFIG.REG_CMD, self.__client_type, self.__protocol]
         self.__logger.debug(reg_cmd)
         
-        self.__command_socket_recv.send_multipart([SERVER_CONFIG.SRV_CMD_ID])
+        self.__command_socket.send_multipart(reg_cmd)
         
 
 
