@@ -96,6 +96,11 @@ var objectProvider = {
 				if (measurement.name === 'Events') {
 					// Object provider for events
 					toReturn.telemetry.values.push(severity_format);
+					toReturn.telemetry.values.forEach(function (v, i) {
+						v['hints'] = {
+							'range': i + 1
+						}
+					});
 					return toReturn;
 				} else {
 					// Object provider for all channels
