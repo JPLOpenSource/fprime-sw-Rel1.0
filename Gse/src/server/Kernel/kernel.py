@@ -194,6 +194,7 @@ class ZmqKernel(object):
         self.__command_socket.send_multipart([return_id, pickle.dumps(client_sub_dict)])
 
     def __RoutingCoreConfigurationResponse(self, return_id, status):
+        #TODO Add Routing config response
         pass#self.__command_socket.send_multipart([return_id, status])
 
     def __HandleRoutingCoreConfiguration(self, msg, option):

@@ -36,18 +36,25 @@ class Adapter(object):
         self.__context = zmq.Context()
 
         self.__client_connections = {} # Save connections by client ID 
-    
-        self.__command_socket = self.__context.socket(zmq.ROUTER) 
-        self.__command_socket.connect("tcp://localhost:{}".format(server_cmd_port))
+
+        # Create one socket for sending, one socket for receiving commands(and responses)
+        # Two are needed because command_socket_recv is wrapped by a ZMQStream
+        #self.__command_socket_send = self.__context.socket(zmq.ROUTER)
+        #self.__command_socket_send.setsockopt(zmq.IDENTITY, self.__name)
+        #self.__command_socket_send.connect("tcp://localhost:{}".format(server_cmd_port))
+
+        self.__command_socket_recv = self.__context.socket(zmq.ROUTER) 
+        self.__command_socket_recv.setsockopt(zmq.IDENTITY, self.__name)
+        self.__command_socket_recv.connect("tcp://localhost:{}".format(server_cmd_port))
 
         # Create Reactor 
         self.__loop = IOLoop.instance()
 
         # Wrap sockets in ZMQStreams for IOLoop handlers
-        self.__command_socket = ZMQStream(self.__command_socket)
+        #self.__command_socket_recv = ZMQStream(self.__command_socket_recv)
 
         # Register handlers
-        self.__command_socket.on_recv(self.__HandleCommand)
+        #self.__command_socket_recv.on_recv(self.__HandleCommand)
 
     def Start(self):
         try:
@@ -64,10 +71,12 @@ class Adapter(object):
     def Quit(self):
         self.__logger.info("Stopping adapter")
 
-        self.__command_socket.close()
+        self.__command_socket_recv.close()
+        #self.__command_socket_send.close()
         self.__context.term()
 
     def __HandleCommand(self, msg): 
+        self.__logger.debug("Received Command {}".format(msg))
 
         if msg[0] == "":
             pass
@@ -81,15 +90,17 @@ class Adapter(object):
 
     def __RegisterToServer(self):
         self.__logger.debug("Registering to server")
-
-        server_cmd_socket = SERVER_CONFIG.SRV_CMD_ID 
-
-        reg_cmd = SERVER_CONFIG.REG_CMD + self.__client_type + self.__protocol
-        self.__command_socket.send_multipart([server_cmd_socket.encode(), reg_cmd.encode()])
+       
+        reg_cmd = [SERVER_CONFIG.SRV_CMD_ID, SERVER_CONFIG.REG_CMD, self.__client_type, self.__protocol]
+        self.__logger.debug(reg_cmd)
+        
+        self.__command_socket_recv.send_multipart([SERVER_CONFIG.SRV_CMD_ID])
         
 
 
 
-
+if __name__ == "__main__":
+    a = Adapter("ps", "flight", 5555)
+    a.Start()
 
 
