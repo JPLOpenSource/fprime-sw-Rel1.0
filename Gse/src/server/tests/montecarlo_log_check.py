@@ -18,6 +18,7 @@ def check_log(log_path, pass_through_dtime):
     """
     MAX_VAL = 255
 
+    print("----------------------------------")
     with open(log_path, 'r') as the_file:
         data_expected = {}
         for line in the_file:
@@ -42,8 +43,10 @@ def check_log(log_path, pass_through_dtime):
                         # Assert data is increasing linearly
                         assert data == data_expected[client_name]
                     except AssertionError:
+                        print ("Data integrity error in {}".format(client_name))
                         print ("Expected: {} Received: {}".format(data_expected[client_name], data))
-                        return line
+                        print(line)
+    
                     
                     # Increment the expected value
                     if(data == MAX_VAL):
@@ -51,7 +54,7 @@ def check_log(log_path, pass_through_dtime):
                     else:
                         data_expected[client_name] = data + 1
 
-    return None 
+        print("----------------------------------")
 
 def main():
     """
@@ -63,7 +66,7 @@ def main():
                         phase.
     """
 
-    pass_through_dtime = parser.parse("2017-08-07 23:32:55,068") 
+    pass_through_dtime = parser.parse("2017-08-09 11:23:35,982") 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    
@@ -80,10 +83,10 @@ def main():
 
             log_path = os.path.join(server_log_path, client_name + ".log")
 
-            assertion = check_log(log_path, pass_through_dtime)
-            if(assertion):
-                print ("Data integrity error in {}".format(client_name))
-                print assertion
+            check_log(log_path, pass_through_dtime)
+    
+ 
+
 
     
 
