@@ -13,8 +13,10 @@ def main():
     args = parser.parse_args()	
 
     if(args.verbose):
-    	file_lvl = console_lvl = logging.DEBUG
-        console_lvl = logging.ERROR
+        print("Running server in verbose")
+    	#file_lvl = console_lvl = logging.DEBUG
+        file_lvl    = logging.DEBUG
+        console_lvl = logging.INFO
     else:
     	file_lvl = console_lvl = logging.INFO
 
