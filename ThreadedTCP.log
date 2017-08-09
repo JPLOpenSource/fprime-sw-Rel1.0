@@ -19,3 +19,16 @@ Registered client GUI_2
 Registration complete waiting for message.
 Registered client GUI_3
 Registration complete waiting for message.
+Quit received!
+read data from socket is empty!
+Header information is empty, client GUI_1 exiting.
+Closed GUI_0 connection.
+Closed GUI_1 connection.
+Closed FSW_0 connection.
+read data from socket is empty!read data from socket is empty!
+Header information is empty, client GUI_3 exiting.
+
+Header information is empty, client GUI_2 exiting.
+ Closed GUI_2 connection.Closed GUI_3 connection.
+
+Ctrl-C received, server shutting down.
