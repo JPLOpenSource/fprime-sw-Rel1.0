@@ -95,13 +95,14 @@ var objectProvider = {
         }
 				if (measurement.name === 'Events') {
 					// Object provider for events
-					toReturn.telemetry.values.push(severity_format);
-					toReturn.telemetry.values.forEach(function (v, i) {
-						v['hints'] = {
-							'range': i + 1
-						}
-					});
-					return toReturn;
+					let eventToReturn = Object.assign({}, toReturn);
+					eventToReturn.telemetry.values.push(severity_format);
+					// eventToReturn.telemetry.values.forEach(function (v, i) {
+					// 	v['hints'] = {
+					// 		'range': i + 1
+					// 	}
+					// });
+					return eventToReturn;
 				} else {
 					// Object provider for all channels
 					toReturn.limits = measurement['limits'];
