@@ -6,12 +6,12 @@ function RealtimeTelemetryPlugin(site, port) {
     return function (openmct) {
         // Define what to do in this plugin:
 
-        var socket = new WebSocket('ws://' + site + ':' + port.toString());
-        var listeners = {}; // Dictionary of listeners
+        let socket = new WebSocket('ws://' + site + ':' + port.toString());
+        let listeners = {}; // Dictionary of listeners
 
         // Get data
         socket.onmessage = function (event) {
-            var point = JSON.parse(event.data); // Parse json data
+            let point = JSON.parse(event.data); // Parse json data
 
             if (listeners[point.id]) {
                 // If subscribed to telemetry based on 'id':
@@ -21,7 +21,7 @@ function RealtimeTelemetryPlugin(site, port) {
             }
         };
 
-        var provider = {
+        let provider = {
             // Must add 'supportsSubscribe' for realtime
             supportsSubscribe: function (domainObject) {
                 // Subscribe to telemetry with given type
