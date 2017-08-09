@@ -207,7 +207,7 @@ class TestConnectivity:
 
     def test_server_integrity(self):
         monte_carlo_time_s = 21600 # Time to perform random disconnects
-        passthrough_time_s = 5400# Time to test unobsructed data path
+        passthrough_time_s = 21600# Time to test unobsructed data path
 
         self.initialize_clients()
         time.sleep(4)
