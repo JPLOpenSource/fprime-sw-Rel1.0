@@ -15,8 +15,8 @@ from nose import with_setup
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.kernel import ZmqKernel
-from server.MockClients.MockFlightClient import MockFlightClient
-from server.MockClients.MockGroundClient import MockGroundClient
+#from server.MockClients.MockClient import MockClient
+#from server.MockClients.MockGroundClient import MockGroundClient
 from server.tests.test_objects import *
 
 from utils.logging_util import GetLogger
@@ -82,14 +82,14 @@ class MontecarloIntegrity_Test:
         for i in range(num_flight):
             name   = "flight_{}".format(i)
             cls.mock_flight_list.append( MockClient() )
-            cls.mock_flight_list[i].Setup(cmd_port, name, "flight")
+            cls.mock_flight_list[i].Setup(cmd_port, name, "flight", 100)
 
         cls.mock_ground_list = []
         for i in range(num_ground):
             name = "ground_{}".format(i)
             cls.mock_ground_list.append( MockClient() )
-            cls.mock_ground_list[i].Setup(cmd_port, name, "ground")
-
+            cls.mock_ground_list[i].Setup(cmd_port, name, "ground", 100)
+            
 
     @classmethod
     def teardown_class(cls):

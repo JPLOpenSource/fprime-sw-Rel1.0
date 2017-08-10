@@ -78,10 +78,23 @@ class ThroughputAnalyzer(object):
         """
         return self.__throughput_inst
     def PrintReports(self):
+        # Get Averages
+        try:
+            avg_inst_throughput = sum(self.__throughput_inst) / float(len(self.__throughput_inst))
+        except ZeroDivisionError:
+            avg_inst_throughput = 0
+
+        try:
+            avg_inst_overhead   = sum(self.__overhead_inst) / float(len(self.__overhead_inst))
+        except ZeroDivisionError:
+            avg_inst_overhead = 0
+
         report_path = os.path.join(self.log_path, "report.txt")
         with open(report_path, 'w') as f:
             f.write(self.name + "\n")
-            f.write("Average_Throughput {}".format(self.__throughput_avg))
+            f.write("Application_Throughput {}\n".format(self.__throughput_avg))
+            f.write("Average_Instantaneous_Throughput {}\n".format(avg_inst_throughput))
+            f.write("Average_Instantaneous_Overhead {}\n".format(avg_inst_overhead))
 
         instant_path = os.path.join(self.log_path, "instant_tp_measurements.txt")
         with open(instant_path, 'w') as f:

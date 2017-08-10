@@ -80,16 +80,13 @@ class MockClient(TestObject):
     def __init__(self):
         super(MockClient, self).__init__()
 
-    def Setup(self, cmd_port, client_name, m_type):
+    def Setup(self, cmd_port, client_name, client_type, throughput=0):
         self.name = client_name
 
-        if m_type == "flight":
-            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockFlightClient.py {} {}"\
-                    .format(cmd_port, client_name)
-        else:
-            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockGroundClient.py {} {}"\
-                    .format(cmd_port, client_name)
-            
+
+        args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockClient.py {} {} {} {}"\
+                .format(cmd_port, client_name, client_type, throughput)
+
         self._args = args
         
     
