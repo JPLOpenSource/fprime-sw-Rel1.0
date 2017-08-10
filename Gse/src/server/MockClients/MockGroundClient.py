@@ -1,11 +1,13 @@
 import sys
 import zmq
 import time
+import datetime
 import threading
 import logging
 
 from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
+from utils.throughput_analyzer import ThroughputAnalyzer
 
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
@@ -68,32 +70,34 @@ def MockGroundClient(context, cmd_port, client_name):
     time.sleep(1)
 
 
-    while True:
-        try:
+    analyzer = ThroughputAnalyzer()
+    analyzer.Start()
+    try:
+        while True:
+                for val in ramp:
+                    socks = dict(poller.poll())
 
-            for val in ramp:
-                socks = dict(poller.poll())
+                    if pub_socket in socks:
+                        data = client_name.encode() +" " + bytes(val)
+                        logger.debug("Sending: {}".format(bytes(val))) 
+                        pub_socket.send(data)
+                        analyzer.Increment(1)
 
-                if pub_socket in socks:
-                    data = client_name.encode() +" " + bytes(val)
-                    logger.debug("Sending: {}".format(bytes(val)))
-                    pub_socket.send(data)
+                    if sub_socket in socks:
+                        msg = sub_socket.recv_multipart()
+                        logger.debug("{}".format(msg[1]))
+                    
 
+                    time.sleep(0.05)   
 
-                if sub_socket in socks:
-                    msg = sub_socket.recv_multipart()
-                    logger.debug("{}".format(msg[1]))
-                
-                time.sleep(0.1)   
-
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                break
-            else:
-                raise
+    except zmq.ZMQError as e:
+        if e.errno == zmq.ETERM:
+            pass
+        else:
+            raise
    
-
-    logger.debug("Closing")
+    analyzer.Stop()
+    logger.debug("Thoughput: {} msg/s".format(analyzer.Get()))
     command_socket.close()
     pub_socket.close()
     sub_socket.close()
