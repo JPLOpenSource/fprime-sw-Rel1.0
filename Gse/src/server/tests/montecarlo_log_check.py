@@ -32,6 +32,8 @@ def check_log(log_path, pass_through_dtime):
                 client_name = split_s[4]
                 if(client_name == "Sending:" or client_name == "Thoughput:"):
                     continue
+                if(client_name == "ETERM"):
+                    break
                     
                 data        = int(split_s[5])
                 # If this first data entry, set the data expected to the current 
@@ -66,7 +68,7 @@ def main():
                         phase.
     """
 
-    pass_through_dtime = parser.parse("2017-08-10 09:02:10,907") 
+    pass_through_dtime = parser.parse("2017-08-10 14:54:33,286") 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    

@@ -30,23 +30,29 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
         analyzer = ThroughputAnalyzer(name + "_analyzer")
         analyzer.StartAverage()
         while(True):
+
             # Read from serverIO subscriber 
             msg = input_socket.recv_multipart()
             logger.debug("Received: {}".format(msg))
 
+
             # Send to broker
+            analyzer.StartInstance()
             packet = msg[1] # Extract packet from zmq frame
             pub_socket.send_multipart([client_name, packet]) # Publish with client's name prefixed
+            
+            analyzer.SaveInstance()
             analyzer.Increment(1)
 
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
+            analyzer.SetAverageThroughput()
+            
             input_socket.close()
             pub_socket.close()
             logger.debug("Exiting Runnable")
-            analyzer.SetAverageThroughput()
-            logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
- 
+            
+            analyzer.PrintReports() 
 
 def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket):
     """
@@ -79,14 +85,19 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
             socks = dict(poller.poll(0))
         
             if sub_socket in socks:
+                
                 # Receive from broker
                 msg = sub_socket.recv_multipart()
                 logger.debug("Received: {}".format(msg))
 
+                # Send to server IO thread
+                analyzer.StartInstance()
                 packet = msg[1] # Extract packet
              
                 # Send to serverIO publisher 
                 output_socket.send_multipart([packet])
+
+                analyzer.SaveInstance()
                 analyzer.Increment(1)
 
             if cmd_socket in socks:
@@ -111,14 +122,16 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
                         
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
+            analyzer.SetAverageThroughput()
+            
             output_socket.close()
             sub_socket.close()
             cmd_socket.close()
             cmd_reply_socket.close()
             logger.debug("Exiting Runnable")
-            analyzer.SetAverageThroughput()
-            logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
-
+            
+            
+            analyzer.PrintReports()
 
 
 class PubSubPair(object):

@@ -51,9 +51,13 @@ class PacketBroker(object):
             while(True):
                 socks = dict(poller.poll(0))
                 if self.__xsub in socks: # XSUB receives packets
+                    analyzer.StartInstance()
+
                     msg = self.__xsub.recv_multipart()
                     self.__logger.debug("XSUB Received: {}".format(msg))
                     self.__xpub.send_multipart(msg) 
+
+                    analyzer.SaveInstance()
                     analyzer.Increment(1)
 
                 if self.__xpub in socks: # XPUB receives subscription messages and passes them through
@@ -63,12 +67,12 @@ class PacketBroker(object):
 
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
+                analyzer.SetAverageThroughput()
                 self.__xsub.close()
                 self.__xpub.close()
                 self.__logger.debug("Exiting Runnable")
-                analyzer.SetAverageThroughput()
-                self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
 
+                analyzer.PrintReports()
 
     def GetInputAddress(self):
         """

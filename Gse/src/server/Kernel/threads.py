@@ -77,12 +77,17 @@ class  GeneralServerIOThread(threading.Thread):
         while True:
             try:
                 
+                
+
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
+                analyzer.StartInstance()
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK)  
+                
+                analyzer.SaveInstance()
                 analyzer.Increment(1)
-
+                
 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
@@ -93,8 +98,9 @@ class  GeneralServerIOThread(threading.Thread):
                     raise
 
         self.__logger.debug("Exiting Runnable")
+
         analyzer.SetAverageThroughput()
-        self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput())) 
+        analyzer.PrintReports()
 
         self.__input_socket.close()
         self.__output_socket.close()

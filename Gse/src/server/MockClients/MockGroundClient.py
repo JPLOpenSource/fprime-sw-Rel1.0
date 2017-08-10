@@ -92,7 +92,7 @@ def MockGroundClient(context, cmd_port, client_name):
                         logger.debug("{}".format(msg[1]))
                     
 
-                    time.sleep(0.05)   
+                    time.sleep(0.025)   
 
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
