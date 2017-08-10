@@ -3,6 +3,7 @@ import threading
 from logging import DEBUG, INFO
 
 from utils.logging_util import GetLogger
+from utils.throughput_analyzer import ThroughputAnalyzer
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.interconnect import BindToRandomInprocEndpoint
@@ -44,12 +45,15 @@ class PacketBroker(object):
         poller.register(self.__xpub, zmq.POLLIN)
         poller.register(self.__xsub, zmq.POLLIN)
         try:
+            analyzer = ThroughputAnalyzer()
+            analyzer.Start()
             while(True):
                 socks = dict(poller.poll(0))
                 if self.__xsub in socks: # XSUB receives packets
                     msg = self.__xsub.recv_multipart()
                     self.__logger.debug("XSUB Received: {}".format(msg))
                     self.__xpub.send_multipart(msg) 
+                    analyzer.Increment(1)
 
                 if self.__xpub in socks: # XPUB receives subscription messages and passes them through
                     msg = self.__xpub.recv_multipart()
@@ -61,6 +65,8 @@ class PacketBroker(object):
                 self.__xsub.close()
                 self.__xpub.close()
                 self.__logger.debug("Exiting Runnable")
+                analyzer.Stop()
+                self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
 
 
     def GetInputAddress(self):

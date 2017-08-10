@@ -1,11 +1,13 @@
 import os
 import zmq
+import time
 import threading
 import logging
 
 from itertools import cycle
 from logging import DEBUG, INFO
 from utils.logging_util import GetLogger
+from utils.throughput_analyzer import ThroughputAnalyzer
 
 from server.ServerUtils.server_config import ServerConfig
 from RoutingCore.routing_table import RoutingTable 
@@ -69,13 +71,17 @@ class  GeneralServerIOThread(threading.Thread):
         """
         self.__logger.debug("Entering Runnable")
 
+        analyzer = ThroughputAnalyzer()
+        analyzer.Start()
         while True:
             try:
                 
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
-                self.__output_socket.send_multipart(msg, zmq.NOBLOCK) 
+                self.__output_socket.send_multipart(msg, zmq.NOBLOCK)  
+                analyzer.Increment(1)
+
 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
@@ -85,8 +91,10 @@ class  GeneralServerIOThread(threading.Thread):
                 else:
                     raise
 
-
         self.__logger.debug("Exiting Runnable")
+        analyzer.Stop()
+        self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.Get())) 
+
         self.__input_socket.close()
         self.__output_socket.close()
 

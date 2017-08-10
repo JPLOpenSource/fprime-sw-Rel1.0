@@ -2,6 +2,7 @@ import zmq
 import threading
 from logging import DEBUG, INFO
 from utils.logging_util import GetLogger
+from utils.throughput_analyzer import ThroughputAnalyzer
 
 from server.ServerUtils.server_config import ServerConfig
 
@@ -26,6 +27,8 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
     logger.debug("Entering Runnable")
 
     try:
+        analyzer = ThroughputAnalyzer()
+        analyzer.Start()
         while(True):
             # Read from serverIO subscriber 
             msg = input_socket.recv_multipart()
@@ -34,12 +37,15 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             # Send to broker
             packet = msg[1] # Extract packet from zmq frame
             pub_socket.send_multipart([client_name, packet]) # Publish with client's name prefixed
+            analyzer.Increment(1)
 
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
             input_socket.close()
             pub_socket.close()
             logger.debug("Exiting Runnable")
+            analyzer.Stop()
+            logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
  
 
 def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket):
@@ -66,6 +72,8 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
     poller.register(cmd_socket, zmq.POLLIN)
 
     try:
+        analyzer = ThroughputAnalyzer()
+        analyzer.Start()
         while(True):
 
             socks = dict(poller.poll(0))
@@ -79,6 +87,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
              
                 # Send to serverIO publisher 
                 output_socket.send_multipart([packet])
+                analyzer.Increment(1)
 
             if cmd_socket in socks:
                 cmd_list = cmd_socket.recv_multipart()
@@ -107,6 +116,8 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
             cmd_socket.close()
             cmd_reply_socket.close()
             logger.debug("Exiting Runnable")
+            analyzer.Stop()
+            logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
 
 
 
