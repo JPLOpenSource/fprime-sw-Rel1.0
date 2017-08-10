@@ -20,38 +20,41 @@
 
 
   <div id="console" class="command">
+    <!-- <div class="console-body"> -->
 
-    <input
-      class="user-input input-command"
-      type="text"
-      v-model="cmd"
-      @keyup.enter="sendCmd"
-      @keyup="searchCmd"
-      placeholder="Enter command">
+      <input
+        class="user-input input-command"
+        type="text"
+        v-model="cmd"
+        @keyup.enter="sendCmd"
+        @keyup="searchCmd"
+        placeholder="Enter command">
 
-    <div class="cmdContainer" v-cloak>
+      <div class="cmdContainer" v-cloak>
 
-      <ul class="cmd-search">
-        <li
-          v-for="command in cmdSearch">
-          <p v-on:click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
-        </li>
-      </ul>
+        <ul class="cmd-search">
+          <li
+            v-for="command in cmdSearch">
+            <p v-on:click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
+          </li>
+        </ul>
 
-      <ul class="cmd-hist" >
-        <li v-for="command in reverseCmd">
-          <button v-on:click="select(command.cmd, true)">{{ command.cmd }}</button>
-        </li>
-      </ul>
+        <ul class="cmd-hist" >
+          <li v-for="command in reverseCmd">
+            <button v-on:click="select(command.cmd, true)">{{ command.cmd }}</button>
+          </li>
+        </ul>
 
-    </div>
+      </div>
 
-    <input
-      class="user-input input-search" 
-      type="text"
-      v-model="cmdHistQuery"
-      v-on:keyup="searchHist"
-      placeholder="Search history">
+      <input
+        class="user-input input-search" 
+        type="text"
+        v-model="cmdHistQuery"
+        v-on:keyup="searchHist"
+        placeholder="Search history">
+        
+    <!-- </div> -->
   </div>
 
   <!-- vue -->

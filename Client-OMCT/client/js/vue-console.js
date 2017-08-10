@@ -1,7 +1,7 @@
-// const site = 'localhost';
-// const cmdPort = 1339;
+const site = 'localhost';
+const cmdPort = 1339;
 
-// var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
+var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
 new Vue({
 // var CommandView = Vue.extend({
   // template: $('#commandTemplate').text(),
@@ -46,7 +46,7 @@ new Vue({
     searchCmd: function (event) {
       if (this.cmd !== '') {
 
-        self = this;  // Avoid 'this' scoping issues
+        self = this;  // Avoid 'this' scoping issues inside .then of promise
         self.getCommands().then(function (vc) {
           self.cmdSearch = vc.filter((c) => c['name'].toLowerCase().indexOf(self.cmd.toLowerCase()) !== -1);
         });
