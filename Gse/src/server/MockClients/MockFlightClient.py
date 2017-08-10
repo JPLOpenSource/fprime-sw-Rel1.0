@@ -74,32 +74,32 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     ramp = test_utils.GetRamp()
     
     time.sleep(1)
+    try:
+        while True: 
+     
 
-    while True: 
-        try:
+                for val in ramp: 
 
-            for val in ramp: 
+                    socks = dict(poller.poll())
 
-                socks = dict(poller.poll())
+                    if pub_socket in socks:
+                        data = client_name.encode() +" " + bytes(val)
+                        logger.debug("Sending: {}".format(bytes(val)))
+                        pub_socket.send(data)
 
-                if pub_socket in socks:
-                    data = client_name.encode() +" " + bytes(val)
-                    logger.debug("Sending: {}".format(bytes(val)))
-                    pub_socket.send(data)
-
-                if sub_socket in socks:
-                    msg = sub_socket.recv_multipart()
-                    logger.debug("{}".format(msg[1]))
+                    if sub_socket in socks:
+                        msg = sub_socket.recv_multipart()
+                        logger.debug("{}".format(msg[1]))
 
 
-                time.sleep(0.1)        
+                    time.sleep(0.1)        
 
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                logger.debug("ETERM received") 
-                break
-            else:
-                raise
+    except zmq.ZMQError as e:
+        if e.errno == zmq.ETERM:
+            logger.debug("ETERM received") 
+            break
+        else:
+            raise
 
 
 
