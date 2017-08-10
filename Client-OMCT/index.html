@@ -26,8 +26,9 @@
       class="user-input"
       type="text"
       v-model="cmd"
-      v-on:keyup.enter="sendCmd"
-      v-on:keyup="searchCmd"
+      @keyup.enter="sendCmd"
+      @keyup="searchCmd"
+      @blur='cmdSearch = []'
       placeholder="Enter command">
 
     <div id="cmdContainer" v-cloak>
@@ -82,15 +83,23 @@
       });
     }
 
+    Vue.directive('focus', {
+      bind: function () {
+        Vue.nextTick(function() {
+          object.focus();
+        });
+      }
+    });
+
     var command = new Vue({
       el: '#command',
       data: {
         cmd: '',
-        cmdHighlight: '',
+        cmdSearch: [],
         cmdHist: [],
         cmdHistQuery: '',
-        cmdHistToShow: [],
-        cmdSearch: []
+        cmdHistToShow: []
+        
       },
       methods: {
         sendCmd: function (event) {
@@ -104,7 +113,7 @@
           this.cmdSearch = [];  // Clear search
         },
         searchCmd: function (event) {
-          console.log(event);
+          console.log(event.target);
           if (this.cmd !== '') {
 
             self = this;  // Avoid 'this' scoping issues
@@ -162,7 +171,7 @@
           if (this.cmdHistQuery !== '') {
             this.cmdHistToShow = this.cmdHist.filter((c) => c.cmd.indexOf(this.cmdHistQuery) !== -1);
           } else {
-            this.cmdHistToShow = this.cmdHist.slice();
+            this.cmdHistToShow = this.cmdHist.slice();  // Copy command history into buffer
           }
         }
       },
