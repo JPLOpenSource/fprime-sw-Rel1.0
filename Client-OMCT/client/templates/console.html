@@ -1,0 +1,36 @@
+<div id="command">
+
+  <input
+    id="input-command"
+    class="user-input"
+    type="text"
+    v-model="cmd"
+    @keyup.enter="sendCmd"
+    @keyup="searchCmd"
+    placeholder="Enter command">
+
+  <div id="cmdContainer" v-cloak>
+
+    <ul id="cmd-search">
+      <li
+        v-for="command in cmdSearch">
+        <p v-on:click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
+      </li>
+    </ul>
+
+    <ul id="cmd-hist" >
+      <li v-for="command in reverseCmd">
+        <button v-on:click="select(command.cmd, true)">{{ command.cmd }}</button>
+      </li>
+    </ul>
+
+  </div>
+
+  <input
+    id="input-search"
+    class="user-input" 
+    type="text"
+    v-model="cmdHistQuery"
+    v-on:keyup="searchHist"
+    placeholder="Search history">
+</div>
