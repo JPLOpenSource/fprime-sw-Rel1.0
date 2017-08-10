@@ -1,4 +1,6 @@
+import os
 import time
+import logging
 
 from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
@@ -10,10 +12,15 @@ class ThroughputAnalyzer(object):
     def __init__(self, name):
         # Setup Logger  
         self.name = name
-        self.log_path = SERVER_CONFIG.get("filepaths", "throughput_analysis_filepath") 
-        logger = GetLogger("{}".format(name),self.log_path, chLevel=logging.INFO) 
-        logger.debug("Logger Active") 
+        log_dir = SERVER_CONFIG.get("filepaths", "throughput_analysis_filepath") 
+        self.log_path = os.path.join(log_dir, name)
 
+        # If path exists wipe logs
+        if(os.path.exists(self.log_path)):
+            logs = os.path.join(self.log_path, "*.log")
+            os.system("rm {}".format(logs))
+        else:
+            os.mkdir(self.log_path)
 
         self.__start_time_avg = 0
         self.__delta_avg      = 0
@@ -22,8 +29,8 @@ class ThroughputAnalyzer(object):
 
         self.__start_time_inst = 0
         self.__delta_inst      = 0
-        self.__latency_inst    = []
-        self.__thrput_inst     = []
+        self.__overhead_inst    = []
+        self.__throughput_inst     = []
 
 
     def StartAverage(self):
@@ -36,12 +43,9 @@ class ThroughputAnalyzer(object):
         Increment the number of units that have passed through
         """
         self.__count += count
-    def SetTimeAverage(self):
-        """
-        Set current time.
-        """
-        self.__delta_avg = time.time() - self.__start_time_avg
+        
     def SetAverageThroughput(self):
+        self.__delta_avg = time.time() - self.__start_time_avg
         self.__throughput_avg = self.__count / self.__delta_avg
 
     def GetAverageThroughput(self):
@@ -61,7 +65,7 @@ class ThroughputAnalyzer(object):
         """
         overhead = time.time() - self.__start_time_inst
         self.__overhead_inst.append(overhead)
-        self.__thrput_inst.append(1/overhead)
+        self.__throughput_inst.append(1/overhead)
 
     def GetInstantOverheadArr(self):
         """
@@ -72,21 +76,21 @@ class ThroughputAnalyzer(object):
         """
         Return array of instant throughputs
         """
-        return self.__thrput_inst
+        return self.__throughput_inst
     def PrintReports(self):
         report_path = os.path.join(self.log_path, "report.txt")
-        with open(report_path) as f:
+        with open(report_path, 'w') as f:
             f.write(self.name + "\n")
             f.write("Average_Throughput {}".format(self.__throughput_avg))
 
         instant_path = os.path.join(self.log_path, "instant_tp_measurements.txt")
-        with open(instant_path) as f:
+        with open(instant_path, 'w') as f:
             f.write(self.name + "\n")
-            for val in self.__thrput_inst:
+            for val in self.__throughput_inst:
                 f.write("{}\n".format(val))
 
         instant_path = os.path.join(self.log_path, "instant_ov_measurements.txt")
-        with open(instant_path) as f:
+        with open(instant_path, 'w') as f:
             f.write(self.name + "\n")
             for val in self.__overhead_inst:
                 f.write("{}\n".format(val))

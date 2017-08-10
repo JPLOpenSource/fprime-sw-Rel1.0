@@ -30,7 +30,7 @@ def check_log(log_path, pass_through_dtime):
             #print split_s
             if(curr_dt >= pass_through_dtime):
                 client_name = split_s[4]
-                if(client_name == "Sending:"):
+                if(client_name == "Sending:" or client_name == "Thoughput:"):
                     continue
                     
                 data        = int(split_s[5])
@@ -66,14 +66,14 @@ def main():
                         phase.
     """
 
-    pass_through_dtime = parser.parse("2017-08-09 11:23:35,982") 
+    pass_through_dtime = parser.parse("2017-08-10 09:02:10,907") 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    
-    num_flight = 3
+    num_flight = 1
     flight_names = ["flight_{}".format(i) for i in range(num_flight)]
 
-    num_ground = 5
+    num_ground = 1
     ground_names = ["ground_{}".format(i) for i in range(num_ground)]
 
 

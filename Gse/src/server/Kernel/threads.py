@@ -34,6 +34,7 @@ class  GeneralServerIOThread(threading.Thread):
         
         # Setup Logger
         name = "{}_{}_IOThread".format(client_type, pubsub_type) 
+        self.__name = name
         log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
@@ -71,8 +72,8 @@ class  GeneralServerIOThread(threading.Thread):
         """
         self.__logger.debug("Entering Runnable")
 
-        analyzer = ThroughputAnalyzer()
-        analyzer.Start()
+        analyzer = ThroughputAnalyzer(self.__name + "_analyzer")
+        analyzer.StartAverage()
         while True:
             try:
                 
@@ -92,8 +93,8 @@ class  GeneralServerIOThread(threading.Thread):
                     raise
 
         self.__logger.debug("Exiting Runnable")
-        analyzer.Stop()
-        self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.Get())) 
+        analyzer.SetAverageThroughput()
+        self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput())) 
 
         self.__input_socket.close()
         self.__output_socket.close()

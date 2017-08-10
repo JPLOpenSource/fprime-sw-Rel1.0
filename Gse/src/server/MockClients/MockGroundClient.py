@@ -70,18 +70,22 @@ def MockGroundClient(context, cmd_port, client_name):
     time.sleep(1)
 
 
-    analyzer = ThroughputAnalyzer()
-    analyzer.Start()
+    analyzer = ThroughputAnalyzer(client_name+"_analyzer")
+    analyzer.StartAverage()
     try:
         while True:
                 for val in ramp:
                     socks = dict(poller.poll())
 
                     if pub_socket in socks:
+                        analyzer.StartInstance()
+
                         data = client_name.encode() +" " + bytes(val)
                         logger.debug("Sending: {}".format(bytes(val))) 
                         pub_socket.send(data)
+                        
                         analyzer.Increment(1)
+                        analyzer.SaveInstance()
 
                     if sub_socket in socks:
                         msg = sub_socket.recv_multipart()
@@ -96,8 +100,8 @@ def MockGroundClient(context, cmd_port, client_name):
         else:
             raise
    
-    analyzer.Stop()
-    logger.debug("Thoughput: {} msg/s".format(analyzer.Get()))
+    analyzer.SetAverageThroughput()
+    analyzer.PrintReports()
     command_socket.close()
     pub_socket.close()
     sub_socket.close()
@@ -120,10 +124,12 @@ if __name__ == "__main__":
         while True:
             pass
     except KeyboardInterrupt:
+        print("Closing MockGroundClient")
         context.term()
         
+        
 
-    print("Closing MockGroundClient")
+    
     
     
 

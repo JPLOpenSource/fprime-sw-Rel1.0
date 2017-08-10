@@ -16,6 +16,7 @@ class PacketBroker(object):
     def __init__(self, client_type, context):
         # Setup Logger
         name = "{}_PacketBroker".format(client_type)
+        self.name = name
         self.__log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, self.__log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
@@ -45,8 +46,8 @@ class PacketBroker(object):
         poller.register(self.__xpub, zmq.POLLIN)
         poller.register(self.__xsub, zmq.POLLIN)
         try:
-            analyzer = ThroughputAnalyzer()
-            analyzer.Start()
+            analyzer = ThroughputAnalyzer(self.name + "_analyzer")
+            analyzer.StartAverage()
             while(True):
                 socks = dict(poller.poll(0))
                 if self.__xsub in socks: # XSUB receives packets
@@ -65,8 +66,8 @@ class PacketBroker(object):
                 self.__xsub.close()
                 self.__xpub.close()
                 self.__logger.debug("Exiting Runnable")
-                analyzer.Stop()
-                self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
+                analyzer.SetAverageThroughput()
+                self.__logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
 
 
     def GetInputAddress(self):

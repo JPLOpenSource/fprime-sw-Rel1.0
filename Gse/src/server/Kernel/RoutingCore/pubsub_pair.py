@@ -27,8 +27,8 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
     logger.debug("Entering Runnable")
 
     try:
-        analyzer = ThroughputAnalyzer()
-        analyzer.Start()
+        analyzer = ThroughputAnalyzer(name + "_analyzer")
+        analyzer.StartAverage()
         while(True):
             # Read from serverIO subscriber 
             msg = input_socket.recv_multipart()
@@ -44,8 +44,8 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
             input_socket.close()
             pub_socket.close()
             logger.debug("Exiting Runnable")
-            analyzer.Stop()
-            logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
+            analyzer.SetAverageThroughput()
+            logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
  
 
 def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket):
@@ -72,8 +72,8 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
     poller.register(cmd_socket, zmq.POLLIN)
 
     try:
-        analyzer = ThroughputAnalyzer()
-        analyzer.Start()
+        analyzer = ThroughputAnalyzer(name + "_analyzer")
+        analyzer.StartAverage()
         while(True):
 
             socks = dict(poller.poll(0))
@@ -116,8 +116,8 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
             cmd_socket.close()
             cmd_reply_socket.close()
             logger.debug("Exiting Runnable")
-            analyzer.Stop()
-            logger.debug("Message Throughput: {} msg/s".format(analyzer.Get()))
+            analyzer.SetAverageThroughput()
+            logger.debug("Message Throughput: {} msg/s".format(analyzer.GetAverageThroughput()))
 
 
 

@@ -1,3 +1,10 @@
+import os
+import sys
+import time
+import logging
+import signal
+from subprocess import Popen
+
 class TestObject(object):
     """
     Base class provides a standard interface for
@@ -48,7 +55,7 @@ class RefApp(TestObject):
         pid = self._object_process.pid
         os.kill(pid, signal.SIGINT)
         print("RefApp {} closed.".format(self.name))
-        self._object_process.terminate()
+        #self._object_process.terminate()
 
 
 
@@ -89,7 +96,7 @@ class MockClient(TestObject):
     def Quit(self):
         pid = self._object_process.pid
         os.kill(pid, signal.SIGINT)
-        self._object_process.terminate()
+        #self._object_process.terminate()
         print("MockClient {} closed.".format(self.name))
 
 

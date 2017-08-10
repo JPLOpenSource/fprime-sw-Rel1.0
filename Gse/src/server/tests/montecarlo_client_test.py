@@ -25,8 +25,22 @@ from utils.logging_util import GetLogger
 SERVER_CONFIG = ServerConfig.getInstance()
 
 
+def WipeServerLogs():
+    # Wipe server logs
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
+    server_logs = os.path.join(log_path, "*.log")
+    os.system("rm {}".format(server_logs))
 
-class MontecarloIntegrityTest:
+    log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath")
+    internal_logs = os.path.join(log_path, "*.log")
+    os.system("rm {}".format(internal_logs))
+
+    log_path = SERVER_CONFIG.get("filepaths", "throughput_analysis_filepath")
+    all_folders = os.path.join(log_path, "*")
+    os.system("rm -r {}".format(all_folders))
+
+
+class MontecarloIntegrity_Test:
     """
     This test asserts the server remains stable
     in the face of random client disconnects at random times.
@@ -44,13 +58,18 @@ class MontecarloIntegrityTest:
         cls.logger = GetLogger("MontecarloIntegrityTest_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
         cls.logger.debug("Logger Active")
 
+        WipeServerLogs()
+
+        # Server cmd port
+        cmd_port   = 5551
+        address = "localhost"
+
         # Setup Ref App
         name = "flight_ref"
         cls.ref_app = RefApp()
         cls.ref_app.Setup(cmd_port, address, name)
 
         # Setup and start server
-        cmd_port   = 5551
         cls.server = ZmqServer()
         cls.server.Setup(cmd_port)
         cls.server.Start()
@@ -75,9 +94,11 @@ class MontecarloIntegrityTest:
     @classmethod
     def teardown_class(cls):
         #cls.flight_1.Quit()
+        cls.destory_clients()
+        time.sleep(2)
         cls.server.Quit()
 
-        cls.destory_clients()
+
 
     @classmethod
     def initialize_clients(cls):
@@ -99,14 +120,12 @@ class MontecarloIntegrityTest:
 
     def test_server_integrity(self):
         monte_carlo_time_s = 21600 # Time to perform random disconnects
-        passthrough_time_s = 3600 + 1800# Time to test unobsructed data path
+        passthrough_time_s = 20# Time to test unobsructed data path
 
         self.initialize_clients()
         time.sleep(4)
         #self.monte_carlo_disconnect(monte_carlo_time_s)
         self.passthrough(passthrough_time_s)
-
-        self.destory_clients()
         
     def passthrough(self, passthrough_time_s):
         self.logger.info("-------- Pass Through Started --------")
