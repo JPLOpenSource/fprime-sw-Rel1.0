@@ -17,6 +17,7 @@ from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.kernel import ZmqKernel
 from server.MockClients.MockFlightClient import MockFlightClient
 from server.MockClients.MockGroundClient import MockGroundClient
+from server.tests.test_objects import *
 
 from utils.logging_util import GetLogger
 
@@ -24,119 +25,12 @@ from utils.logging_util import GetLogger
 SERVER_CONFIG = ServerConfig.getInstance()
 
 
-class TestObject(object):
+
+class MontecarloIntegrityTest:
     """
-    Base class provides a standard interface for
-    starting, stopping, and force stopping a client process.
+    This test asserts the server remains stable
+    in the face of random client disconnects at random times.
     """
-    def __init__(self):
-        self._object_process = None
-        self._args = None
-        
-    def Setup(self, *args, **kwargs):
-        """
-        Override to set self._args.
-
-        self._args is a command line command called by Popen.
-        """
-        raise NotImplementedError
-
-    def Start(self):
-        """
-        Start a subprocess.
-        """
-        self._object_process = Popen(args=self._args, shell=True)
-
-    def Quit(self):
-        """
-        Handle the subprocess' graceful exit.
-        """
-        raise NotImplementedError
-
-    def ForceQuit(self):
-        """
-        SIGKILL the process.
-        """
-        pid = self._object_process.pid
-        os.kill(pid, signal.SIGKILL)
-   
-class RefApp(TestObject):
-
-    def Setup(self, server_cmd_port, address, name):
-            self.name = name
-
-            cmd  = os.environ['BUILD_ROOT'] + "/Ref/darwin-darwin-x86-debug-llvm-bin/Ref"
-            cmd += " -p {port} -a {addr} -n {nm}".format(port=server_cmd_port, addr=address, nm=name)
-
-            self._args = cmd
-
-    def Quit(self):
-        pid = self._object_process.pid
-        os.kill(pid, signal.SIGINT)
-        print("RefApp {} closed.".format(self.name))
-        self._object_process.terminate()
-
-
-
-
-class ZmqServer(TestObject):
-
-    def Setup(self, server_cmd_port):
-        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {} -v".format(server_cmd_port)
-
-        self._args = cmd
-
-    def Quit(self):
-        pid = self._object_process.pid
-        os.kill(pid, signal.SIGINT)
-        self._object_process.terminate()
-        print("ZmqServerClosed")
-        
-
-
-
-class MockClient(TestObject):
-    def __init__(self):
-        super(MockClient, self).__init__()
-
-    def Setup(self, cmd_port, client_name, m_type):
-        self.name = client_name
-
-        if m_type == "flight":
-            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockFlightClient.py {} {}"\
-                    .format(cmd_port, client_name)
-        else:
-            args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockGroundClient.py {} {}"\
-                    .format(cmd_port, client_name)
-            
-        self._args = args
-        
-    
-    def Quit(self):
-        pid = self._object_process.pid
-        os.kill(pid, signal.SIGINT)
-        self._object_process.terminate()
-        print("MockClient {} closed.".format(self.name))
-
-
-def StartGseGui(server_cmd_port, address, name, subscription_list):
-    cmd  = "python "
-    cmd += os.path.join(os.environ["BUILD_ROOT"], "Gse/bin/gse.py ")
-
-    dict_path = os.path.join(os.environ['BUILD_ROOT'], "Gse/generated/Ref")
-    cmd += "-d {dict_path} ".format(dict_path=dict_path)
-    cmd += "-p {port} -a {addr} -N {nm} ".format(port=server_cmd_port, addr=address, nm=name)
-
-    for target_name in subscription_list:
-        cmd += "-T {nm} ".format(nm=target_name)
-
-    print("Starting gse.py")
-    print("Running command")
-    print(cmd)
-    os.system(cmd)
-
-
-class TestConnectivity:
 
     @classmethod
     def setup_class(cls):
@@ -147,14 +41,8 @@ class TestConnectivity:
             sys.exit()
 
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
-        cls.logger = GetLogger("CONNECTIVITY_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        cls.logger = GetLogger("MontecarloIntegrityTest_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
         cls.logger.debug("Logger Active")
-
-
-        # Start Server
-        cmd_port   = 5551
-        address    = 'localhost'
-        timeout_s  = 10
 
         # Setup Ref App
         name = "flight_ref"
@@ -162,19 +50,23 @@ class TestConnectivity:
         cls.ref_app.Setup(cmd_port, address, name)
 
         # Setup and start server
+        cmd_port   = 5551
         cls.server = ZmqServer()
         cls.server.Setup(cmd_port)
         cls.server.Start()
 
         # Setup mock clients
+        num_ground = 1
+        num_flight = 1
+
         cls.mock_flight_list = []
-        for i in range(3):
+        for i in range(num_flight):
             name   = "flight_{}".format(i)
             cls.mock_flight_list.append( MockClient() )
             cls.mock_flight_list[i].Setup(cmd_port, name, "flight")
 
         cls.mock_ground_list = []
-        for i in range(5):
+        for i in range(num_ground):
             name = "ground_{}".format(i)
             cls.mock_ground_list.append( MockClient() )
             cls.mock_ground_list[i].Setup(cmd_port, name, "ground")
@@ -207,7 +99,7 @@ class TestConnectivity:
 
     def test_server_integrity(self):
         monte_carlo_time_s = 21600 # Time to perform random disconnects
-        passthrough_time_s = 21600# Time to test unobsructed data path
+        passthrough_time_s = 3600 + 1800# Time to test unobsructed data path
 
         self.initialize_clients()
         time.sleep(4)
