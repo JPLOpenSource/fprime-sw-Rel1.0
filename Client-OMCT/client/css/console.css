@@ -9,7 +9,7 @@ body {
   height: calc(100% - 3em);
 }
 
-ul {
+.command ul {
   width: calc(100% - 2em);
   position: absolute;
   overflow: auto;
@@ -17,34 +17,35 @@ ul {
   max-height: 90%;
 }
 
-li {
+.command li {
   cursor: pointer;
 }
 
-[v-cloak] {
+
+.command [v-cloak] {
   display: none;
 }
 
-#command {
+.command {
   padding: 1em;
   background-color: #EFEFEF;
   border: solid 1px #c3c3c3;
-  position: relative;
+  /*position: relative;*/
   height: 100%;
 }
 
-#cmdContainer {
+.command .cmdContainer {
   position: relative;
   height: 85%;
   font-family: 'Roboto', sans-serif;
 }
 
-.user-input {
+.command .user-input {
   width: 100%;
   font-size: 18px;
 }
 
-#input-search {
+.command .input-search {
   left: 1em;
   width: calc(100% - 2em);
   bottom: 1em;
@@ -52,7 +53,7 @@ li {
   position: absolute;
 }
 
-#cmd-search {
+.command .cmd-search {
   z-index: 10;
   background-color: white;
   border-radius: 2px;
