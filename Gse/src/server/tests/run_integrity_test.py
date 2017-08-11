@@ -12,7 +12,7 @@ def main():
     monte_time  = 0 # seconds 
     pass_time = 30 # seconds
 
-    cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt}"\
+    cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt} -v"\
            .format(nf = num_flight, ng = num_ground,\
                    ft = flight_throughput, fs = flight_size,\
                    gt = ground_throughput, gs = ground_size,\

@@ -75,7 +75,6 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
 
     sine_wave = test_utils.GetSineWave() 
-    ramp = test_utils.GetRamp()
     
     time.sleep(1)
     try:
@@ -83,26 +82,28 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
         analyzer = ThroughputAnalyzer(client_name + "_analyzer")
         analyzer.StartAverage()
         start_time = time.time()
+        val = 0 # Value for linearly increasing data
         while True: 
-     
 
-                for val in ramp: 
+                socks = dict(poller.poll())
 
-                    socks = dict(poller.poll())
+                if pub_socket in socks:
 
-                    if pub_socket in socks:
+                    if(throughput != 0):
+                        if( (time.time() - start_time) >= latency ):
+                            analyzer.StartInstance()
 
-                        if(throughput != 0):
-                            if( (time.time() - start_time) >= latency ):
-                                analyzer.StartInstance()
+                            start_time = time.time()
+                            data = client_name.encode() +" " + bytes(val)
+                            logger.debug("Sending: {}".format(bytes(val)))
+                            pub_socket.send(data)
 
-                                start_time = time.time()
-                                data = client_name.encode() +" " + bytes(val)
-                                logger.debug("Sending: {}".format(bytes(val)))
-                                pub_socket.send(data)
+                            analyzer.SaveInstance()
+                            analyzer.Increment(1)
 
-                                analyzer.SaveInstance()
-                                analyzer.Increment(1)
+                            val += 1
+                            if(val == 256):
+                                val = 0
 
 
 

@@ -1,4 +1,5 @@
 import os
+import sys
 
 from dateutil import parser
 from datetime import datetime
@@ -68,7 +69,10 @@ def main():
                         phase.
     """
 
-    pass_through_dtime = parser.parse("2017-08-10 18:04:33,556") 
+    date = sys.argv[1]
+    time = sys.argv[2]
+
+    pass_through_dtime = parser.parse(date+" "+time) 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    
@@ -88,7 +92,7 @@ def main():
             check_log(log_path, pass_through_dtime)
     
  
-
+    return 0
 
     
 
@@ -98,4 +102,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
