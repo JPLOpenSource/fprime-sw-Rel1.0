@@ -46,6 +46,13 @@ namespace Zmq{
 	    ZmqGroundIfComponentBase::init(queueDepth, instance);
 	}
 
+	void ZmqGroundIfComponentImpl::open(const char* port){
+	    strncpy(this->server_cmd_port, port, sizeof(port)); // Save command port
+
+	    this->m_context = zmq_ctx_new();
+
+	}
+
 	ZmqGroundIfComponentImpl::~ZmqGroundIfComponentImpl(void){
 	    // Object destruction
 	    DEBUG_PRINT("Destruct\n");

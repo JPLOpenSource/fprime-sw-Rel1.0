@@ -15,6 +15,7 @@ int main(int argc, char* argv[]){
 
     Zmq::ZmqGroundIfComponentImpl comp("flight");
     comp.init(100, 1);
+    comp.open("5555");
     comp.start(1, 90, 20*1024);
 
     while(not quit){

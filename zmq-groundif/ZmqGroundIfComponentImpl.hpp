@@ -21,7 +21,10 @@
 #ifndef ZMQGROUNDIFIMPL_HPP_
 #define ZMQGROUNDIFIMPL_HPP_
 
+#include <string.h>
+
 #include <fprime-zmq/zmq-groundif/ZmqGroundIfComponentAc.hpp>
+#include <fprime-zmq/zmq/include/zmq.h>
 
 namespace Zmq{
 
@@ -33,6 +36,7 @@ namespace Zmq{
 	    ZmqGroundIfComponentImpl(void);
 #endif
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
+	    void open(const char* port);
 
 	    virtual ~ZmqGroundIfComponentImpl();
 	
@@ -62,6 +66,8 @@ namespace Zmq{
 	    void* m_pubSocket; //!< zmq socket for outbound telemetry,events, and files
 	    void* m_subSocket; //!< zmq socket for inbound commands and files
 	    void* m_cmdSocket; //!< zmq socket for server registration
+
+	    char  server_cmd_port[256];
 
 
     };
