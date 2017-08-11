@@ -172,7 +172,7 @@ OTHER_MODULES := \
 	gtest \
 	Os/Stubs \
 	Fw/Test \
-	fprime-zmq/ZmqGroundIf \
+	fprime-zmq/zmq-groundif \
 	fprime-zmq/zmq-pub \
 	fprime-zmq/zmq-sub \
 	$(FW_GTEST_MODULES)
