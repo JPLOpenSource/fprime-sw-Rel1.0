@@ -3,12 +3,16 @@ var CommandView = Vue.extend({
   template: $('#commandTemplate').text(),
   data: function () {
     return {
-      searchActive: false,
-      cmd: '',
-      cmdSearch: [],
-      cmdHist: [],
-      cmdHistQuery: '',
-      cmdHistToShow: []
+      command_search: {
+        searchActive: true,
+        cmd: '',
+        results: []
+      },
+      command_hist: {
+        history: [],
+        query: '',
+        results: []
+      }
     }
   },
   methods: {
@@ -30,46 +34,61 @@ var CommandView = Vue.extend({
     },
     sendCmd: function (event) {
       // Add command and time
-      // socket.send(this.cmd);
-      this.cmdHist.push({
-        cmd: this.cmd,
+      // socket.send(this.command_search.cmd);
+      this.command_hist.history.push({
+        cmd: this.command_search.cmd,
         time: Date()
       });
-      this.cmdHistToShow = this.cmdHist.slice();
-      this.cmdSearch = [];  // Clear search
+      this.command_hist.results = this.command_hist.history.slice();
+      this.command_search.results = [];  // Clear search
     },
     searchCmd: function (event) {
-      if (this.cmd !== '') {
+      let keyPressed = event.key;
+      if (this.command_search.cmd !== '') {
+        console.log(event.key);
 
         self = this;  // Avoid 'this' scoping issues inside .then of promise
         self.getCommands().then(function (vc) {
-          self.cmdSearch = vc.filter((c) => c['name'].toLowerCase().indexOf(self.cmd.toLowerCase()) !== -1);
+          self.command_search.results = vc.filter((c) => c['name'].toLowerCase().indexOf(self.command_search.cmd.toLowerCase()) !== -1);
         });
 
       } else {
-        this.cmdSearch = [];
+        this.command_search.results = [];
+        if (keyPressed == 'ArrowDown') {
+          self = this;
+          self.getCommands().then(function (vc) {
+            self.command_search.results = vc;
+          });
+        }
+      }
+
+      switch(event.key) {
+        case 'Escape': 
+          this.command_search.searchActive = false;
+          break;
+        
       }
     },
     select: function (command, hist) {
       if (hist) {
         // If selection is from history, select entire command with arguments
-        this.cmd = command;
+        this.command_search.cmd = command;
       } else {
         // Otherwise, just select command
-        this.cmd = command['name'] + '(';
+        this.command_search.cmd = command['name'] + '(';
       }
     },
     searchHist: function () {
-      if (this.cmdHistQuery !== '') {
-        this.cmdHistToShow = this.cmdHist.filter((c) => c.cmd.toLowerCase().indexOf(this.cmdHistQuery.toLowerCase()) !== -1);
+      if (this.command_hist.query !== '') {
+        this.command_hist.results = this.command_hist.history.filter((c) => c.cmd.toLowerCase().indexOf(this.command_hist.query.toLowerCase()) !== -1);
       } else {
-        this.cmdHistToShow = this.cmdHist.slice();  // Copy command history into buffer
+        this.command_hist.results = this.command_hist.history.slice();  // Copy command history into buffer
       }
     },
   },
   computed: {
     reverseCmd: function () {
-      return this.cmdHistToShow.reverse()
+      return this.command_hist.results.reverse()
     }
   }
 });
