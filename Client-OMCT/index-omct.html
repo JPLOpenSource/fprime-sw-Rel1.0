@@ -11,6 +11,8 @@
   <!-- vue -->
   <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
 
+
+
   <!-- Open MCT Ditribution and plugins -->
   <!-- OMCT -->
   <script src="node_modules/openmct/dist/openmct.js"></script>
@@ -32,31 +34,33 @@
 
   <!-- Install console -->
   
-  <script> 
-      // $(function(){
-      //   $("#commandTemplate").load("client/templates/console.html"); 
-      // });
-  </script>
+  <!-- Jquery Load -->
+  <!-- <script> 
+      $(function(){
+        $("#commandTemplate").load("client/templates/console.html"); 
+      });
+  </script> -->
 
-
+  <!-- CSS for console -->
   <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
-  <!-- <script type="text/html" id="commandTemplate"><div id="commandTemplate"></div></script> -->
+  <!-- <script type="text/html" id="commandTemplate"></script> -->
   <script type="text/html" id="commandTemplate">
     <body>
     <div class="command">
         <input
           class="user-input input-command"
           type="text"
-          v-model="cmd"
+          v-model="command_search.cmd"
           @keyup.enter="sendCmd"
           @keyup="searchCmd"
           placeholder="Enter command">
 
         <div class="cmdContainer" v-cloak>
 
-          <ul class="cmd-search">
+          <ul class="cmd-search"
+              v-if="command_search.searchActive">
             <li
-              v-for="command in cmdSearch">
+              v-for="command in command_search.results">
               <p v-on:click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
             </li>
           </ul>
@@ -72,7 +76,7 @@
         <input
           class="user-input input-search" 
           type="text"
-          v-model="cmdHistQuery"
+          v-model="command_hist.query"
           v-on:keyup="searchHist"
           placeholder="Search history">
     </div>
@@ -80,11 +84,6 @@
   </script>
   <script src="client/js/vue-console.js"></script>
   <script src="client/js/plugins/command-console.js"></script>
-
-  <!-- console -->
-  <!-- <script src="client/js/vue-console.js" type="text/javascript"></script> -->
-  <!-- Console style -->
-  <!-- <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/> -->
 
 </head>
 <body>
@@ -97,6 +96,7 @@
     const staticPort = 8080;
     const realTelemPort = 1337;
     const histTelemPort = 1338;
+    const cmdPort = 1339;
 
     openmct.setAssetPath('node_modules/openmct/dist');
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
@@ -112,7 +112,7 @@
           name: "Fixed",
           timeSystem: 'utc',
           bounds: {
-            start: Date.now() - 5 * 60 * 1000,
+            start: Date.now() - 10 * 60 * 1000,
             end: Date.now()
           }
         },
@@ -127,24 +127,26 @@
         }
       ]
     }));
-    openmct.time.clock('local', {start: -5 * 60 * 1000, end: 0});
+    openmct.time.clock('local', {start: -10 * 60 * 1000, end: 0});
     openmct.time.timeSystem('utc');
 
     // Theme
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
-    openmct.install(DictionaryPlugin(site, staticPort));
-    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+    // openmct.install(DictionaryPlugin(site, staticPort));
+    // openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+    // openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
     openmct.install(ChanLimitEval());
     openmct.install(EventLimitEval());
-    openmct.install(CommandConsole());
+    openmct.install(CommandConsole(site, cmdPort));
 
 
     openmct.start();
   </script>
 
+  <!-- Theme edit -->
+  <link href="client/css/theme.css" media="all" rel="stylesheet" type="text/css"/>
   
 
   <!-- Bootstrap -->
