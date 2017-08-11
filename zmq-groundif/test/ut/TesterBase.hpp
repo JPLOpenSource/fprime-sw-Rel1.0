@@ -20,7 +20,7 @@
 #ifndef ZmqGroundIf_TESTER_BASE_HPP
 #define ZmqGroundIf_TESTER_BASE_HPP
 
-#include <fprime-zmq/ZmqGroundIf/ZmqGroundIfComponentAc.hpp>
+#include <fprime-zmq/zmq-groundif/ZmqGroundIfComponentAc.hpp>
 #include <Fw/Types/Assert.hpp>
 #include <Fw/Comp/PassiveComponentBase.hpp>
 #include <stdio.h>

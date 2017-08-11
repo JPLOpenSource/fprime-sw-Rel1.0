@@ -21,7 +21,7 @@
 #define TESTER_HPP
 
 #include "GTestBase.hpp"
-#include "fprime-zmq/ZmqGroundIf/ZmqGroundIfComponentImpl.hpp"
+#include "fprime-zmq/zmq-groundif/ZmqGroundIfComponentImpl.hpp"
 
 namespace Zmq {
 

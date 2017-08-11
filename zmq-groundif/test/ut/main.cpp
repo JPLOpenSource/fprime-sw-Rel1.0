@@ -1,6 +1,6 @@
 
-#include <fprime-zmq/ZmqGroundIf/ZmqGroundIfComponentImpl.hpp>
-#include <fprime-zmq/ZmqGroundIf/test/ut/Tester.hpp>
+#include <fprime-zmq/zmq-groundif/ZmqGroundIfComponentImpl.hpp>
+#include <fprime-zmq/zmq-groundif/test/ut/Tester.hpp>
 
 volatile bool quit = false;
 
@@ -14,8 +14,14 @@ int main(int argc, char* argv[]){
     signal(SIGTERM, sighandler);
 
     Zmq::ZmqGroundIfComponentImpl comp("flight");
-    //comp.init(100, 1);
-    //comp.start(1, 90, 20*1024);
+    comp.init(100, 1);
+    comp.start(1, 90, 20*1024);
+
+    while(not quit){
+    
+    }
+
+    comp.exit();
     
 
 }
