@@ -72,7 +72,7 @@ class ServerIntegrityTest:
 
         # Setup and start server
         self.server = ZmqServer()
-        self.server.Setup(cmd_port)
+        self.server.Setup(cmd_port, opts.verbose)
         self.server.Start()
 
         # Setup mock clients
@@ -229,6 +229,33 @@ class ServerIntegrityTest:
         #while(len(running_ground) != len(self.mock_ground_list)):
         #    pass
 
+
+def WriteAggregate(args):
+    analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
+
+    final_report_path = os.path.join(analysis_path, "aggregate.txt")
+    final_report = open(final_report_path, "w")
+    final_report.write("Number flight {}\n".format(args.num_flight))
+    final_report.write("Number ground {}\n".format(args.num_ground))
+    final_report.write("Flight throughput {} msg/s\n".format(args.flight_throughput))
+    final_report.write("Flight msg size {} bytes\n".format(args.flight_size))
+    final_report.write("Ground throughput {} msg/s\n".format(args.ground_throughput))
+    final_report.write("Ground msg size {} bytes\n".format(args.ground_size))
+    final_report.write("Montecarlo connect/disconnect time {} seconds\n".format(args.monte_time))
+    final_report.write("Passthrough time {} seconds\n".format(args.pass_time))
+    final_report.write("\n")
+
+    for (path, dirs, files) in os.walk(analysis_path):
+        for dir_name in dirs:
+            dir_path = os.path.join(analysis_path, dir_name)
+            report_path = os.path.join(dir_path, "report.txt")
+            with open(report_path, "r") as f:
+                for line in f:
+                    final_report.write(line)
+                final_report.write("\n")
+
+    final_report.close()
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="FPrime GSE Server Integrity Test")
@@ -256,38 +283,17 @@ if __name__ == "__main__":
 
     # Check logs
     datetime_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,%f')
-    cmd = "python continuity_log_check.py {}".format(datetime_str)
+    cmd = "python continuity_log_check.py {} {} {}".format(datetime_str, args.num_flight, args.num_ground)
     p   = Popen(args=cmd, shell=True)
     p.wait()
 
 
     time.sleep(2)
     # If verbose, aggregate throughput information
-    if(args.verbose):
-        analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
+    
+    WriteAggregate(args)
 
-        final_report_path = os.path.join(analysis_path, "aggregate.txt")
-        final_report = open(final_report_path, "w")
-        final_report.write("Number flight {}\n".format(args.num_flight))
-        final_report.write("Number ground {}\n".format(args.num_ground))
-        final_report.write("Flight throughput {} msg/s\n".format(args.flight_throughput))
-        final_report.write("Flight msg size {} bytes\n".format(args.flight_size))
-        final_report.write("Ground throughput {} msg/s\n".format(args.ground_throughput))
-        final_report.write("Ground msg size {} bytes\n".format(args.ground_size))
-        final_report.write("Montecarlo connect/disconnect time {} seconds\n".format(args.monte_time))
-        final_report.write("Passthrough time {} seconds\n".format(args.pass_time))
-        final_report.write("\n")
-
-        for (path, dirs, files) in os.walk(analysis_path):
-            for dir_name in dirs:
-                dir_path = os.path.join(analysis_path, dir_name)
-                report_path = os.path.join(dir_path, "report.txt")
-                with open(report_path, "r") as f:
-                    for line in f:
-                        final_report.write(line)
-                    final_report.write("\n")
-
-        final_report.close()
+    
 
 
 

@@ -4,15 +4,15 @@ from subprocess import Popen
 def main():
     # Test 1
     num_flight = 1
-    num_ground = 1
+    num_ground = 5
     flight_throughput =100 # msgs / second
     flight_size =  1 # byte
-    ground_throughput = 50 #  msgs / second
+    ground_throughput = 25 #  msgs / second
     ground_size  = 1 # byte
     monte_time  = 0 # seconds 
-    pass_time = 5 # seconds
+    pass_time = 3600*2 # seconds
 
-    cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt} -v"\
+    cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt}"\
            .format(nf = num_flight, ng = num_ground,\
                    ft = flight_throughput, fs = flight_size,\
                    gt = ground_throughput, gs = ground_size,\

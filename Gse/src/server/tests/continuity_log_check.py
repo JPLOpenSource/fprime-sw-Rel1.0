@@ -75,15 +75,16 @@ def main():
 
     date = sys.argv[1]
     time = sys.argv[2]
+    num_flight = int(sys.argv[3])
+    num_ground = int(sys.argv[4])
 
     pass_through_dtime = parser.parse(date+" "+time) 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    
-    num_flight = 1
+    
     flight_names = ["flight_{}".format(i) for i in range(num_flight)]
 
-    num_ground = 1
     ground_names = ["ground_{}".format(i) for i in range(num_ground)]
 
 

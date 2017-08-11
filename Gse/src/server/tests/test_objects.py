@@ -62,8 +62,11 @@ class RefApp(TestObject):
 
 class ZmqServer(TestObject):
 
-    def Setup(self, server_cmd_port):
-        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {} -v".format(server_cmd_port)
+    def Setup(self, server_cmd_port, verbose):
+        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/bin/run_server.py {} -t".format(server_cmd_port)
+
+        if verbose:
+            cmd = cmd + " -v"
 
         self._args = cmd
 
@@ -84,10 +87,10 @@ class MockClient(TestObject):
         self.name = client_name
 
 
-        args = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockClient.py {} {} {} {} {}"\
+        cmd = "python " + os.environ['BUILD_ROOT'] + "/Gse/src/server/MockClients/MockClient.py {} {} {} {} {}"\
                 .format(cmd_port, client_name, client_type, throughput, msg_size)
 
-        self._args = args
+        self._args = cmd
         
     
     def Quit(self):
