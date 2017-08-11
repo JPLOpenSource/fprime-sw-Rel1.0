@@ -1,11 +1,11 @@
-const site = 'localhost';
-const cmdPort = 1339;
+// const site = 'localhost';
+// const cmdPort = 1339;
 
-var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
-new Vue({
-// var CommandView = Vue.extend({
-  // template: $('#commandTemplate').text(),
-  el:'#console',
+// var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
+// new Vue({
+var CommandView = Vue.extend({
+  template: $('#commandTemplate').text(),
+  // el:'#console',
   data: function () {
     return {
       searchActive: false,
