@@ -8,7 +8,7 @@ function serialize(command) {
     let args = command.substring(argStartIndex, argEndIndex).split(',').map((a) => a.trim());
 
     // Turn to binary
-    // console.log(commandName, args);
+    console.log(commandName, args);
 }
 
 // Export
