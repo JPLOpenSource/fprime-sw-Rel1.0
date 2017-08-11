@@ -11,6 +11,8 @@
   <!-- vue -->
   <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
 
+
+
   <!-- Open MCT Ditribution and plugins -->
   <!-- OMCT -->
   <script src="node_modules/openmct/dist/openmct.js"></script>
@@ -32,13 +34,14 @@
 
   <!-- Install console -->
   
-  <script> 
-      // $(function(){
-      //   $("#commandTemplate").load("client/templates/console.html"); 
-      // });
-  </script>
+  <!-- Jquery Load -->
+  <!-- <script> 
+      $(function(){
+        $("#commandTemplate").load("client/templates/console.html"); 
+      });
+  </script> -->
 
-
+  <!-- CSS for console -->
   <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
   <!-- <script type="text/html" id="commandTemplate"></script> -->
   <script type="text/html" id="commandTemplate">
@@ -112,7 +115,7 @@
           name: "Fixed",
           timeSystem: 'utc',
           bounds: {
-            start: Date.now() - 5 * 60 * 1000,
+            start: Date.now() - 10 * 60 * 1000,
             end: Date.now()
           }
         },
@@ -127,7 +130,7 @@
         }
       ]
     }));
-    openmct.time.clock('local', {start: -5 * 60 * 1000, end: 0});
+    openmct.time.clock('local', {start: -10 * 60 * 1000, end: 0});
     openmct.time.timeSystem('utc');
 
     // Theme
@@ -144,7 +147,9 @@
 
     openmct.start();
   </script>
-
+  
+  <!-- Theme edit -->
+  <link href="client/css/theme.css" media="all" rel="stylesheet" type="text/css"/>
   
 
   <!-- Bootstrap -->

@@ -6,7 +6,7 @@ body {
 }
 
 body {
-  position: relative;
+  position: absolute;
   width: calc(100% - 1em);
   height: calc(100% - 3em);
 }
@@ -33,12 +33,12 @@ body {
   background-color: #EFEFEF;
   border: solid 1px #c3c3c3;
   /*position: relative;*/
-  height: 400px;
+  height: calc(100% - 2.5em);
 }
 
 .command .cmdContainer {
   position: relative;
-  height: 85%;
+  height: 90%;
   font-family: 'Roboto', sans-serif;
 }
 
