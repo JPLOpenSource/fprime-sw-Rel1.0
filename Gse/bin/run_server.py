@@ -9,6 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description="FPrime GSE Server")
     parser.add_argument('cmd_port', metavar='p', type=int, help="Server command port number.")
     parser.add_argument('-v', '--verbose', action="store_true", help="Set verbose logging level.")
+    parser.add_argument('-t', '--log_throughput', action="store_true", help="Log throughput data.")
 
     args = parser.parse_args()	
 
