@@ -74,18 +74,22 @@ class Adapter(object):
     def __HandleCommand(self, msg): 
         self.__logger.debug("Received Command {}".format(msg))
 
-        # Process commands normally if registered
-        if self.__registered:
-            pass
 
-
-        else: # Anticipate registration response
+        if self.__registered is False: # Anticipate registration response
 
             # Setup pub/sub ports
             self.__server_pub_port = struct.unpack("<I", msg[1])[0]
             self.__server_sub_port = struct.unpack("<I", msg[2])[0]
             self.__logger.debug("Pubishing to : {} Subscribed to: {}".format(self.__server_sub_port,\
                                                                             self.__server_pub_port))
+        else: # Process commands normally
+            return_id   = msg[0]
+            cmd         = msg[1] 
+
+            if cmd == SERVER_CONFIG.REG_CMD:
+                client_name = msg[2] 
+                thread = AdapterThread(client_name)
+
 
 
     def __RegisterToServer(self):
