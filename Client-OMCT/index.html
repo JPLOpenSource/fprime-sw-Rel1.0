@@ -50,17 +50,19 @@
         <input
           class="user-input input-command"
           type="text"
-          v-model="cmd"
+          v-model="command_search.cmd"
           @keyup.enter="sendCmd"
           @keyup="searchCmd"
           placeholder="Enter command">
 
         <div class="cmdContainer" v-cloak>
 
-          <ul class="cmd-search">
+          <ul class="cmd-search"
+              v-if="command_search.searchActive">
             <li
-              v-for="command in cmdSearch">
-              <p v-on:click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
+              v-for="command in command_search.results">
+              <p v-on:click="select(command, false)"
+                 v-on:click="searchCmd">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
             </li>
           </ul>
 
@@ -75,7 +77,7 @@
         <input
           class="user-input input-search" 
           type="text"
-          v-model="cmdHistQuery"
+          v-model="command_hist.query"
           v-on:keyup="searchHist"
           placeholder="Search history">
     </div>
@@ -137,9 +139,9 @@
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
-    openmct.install(DictionaryPlugin(site, staticPort));
-    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+    // openmct.install(DictionaryPlugin(site, staticPort));
+    // openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+    // openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
     openmct.install(ChanLimitEval());
     openmct.install(EventLimitEval());
     openmct.install(CommandConsole());
@@ -147,7 +149,7 @@
 
     openmct.start();
   </script>
-  
+
   <!-- Theme edit -->
   <link href="client/css/theme.css" media="all" rel="stylesheet" type="text/css"/>
   

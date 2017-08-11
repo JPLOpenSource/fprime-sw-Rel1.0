@@ -6,7 +6,9 @@ var CommandView = Vue.extend({
       command_search: {
         searchActive: true,
         cmd: '',
-        results: []
+        results: [],
+        saveCmd: '',
+        resultIndex: 0
       },
       command_hist: {
         history: [],
@@ -44,29 +46,39 @@ var CommandView = Vue.extend({
     },
     searchCmd: function (event) {
       let keyPressed = event.key;
-      if (this.command_search.cmd !== '') {
-        console.log(event.key);
+      if (this.command_search.searchActive) {
+        if (this.command_search.cmd !== '') {
+          console.log(event.key);
 
-        self = this;  // Avoid 'this' scoping issues inside .then of promise
-        self.getCommands().then(function (vc) {
-          self.command_search.results = vc.filter((c) => c['name'].toLowerCase().indexOf(self.command_search.cmd.toLowerCase()) !== -1);
-        });
-
-      } else {
-        this.command_search.results = [];
-        if (keyPressed == 'ArrowDown') {
-          self = this;
+          self = this;  // Avoid 'this' scoping issues inside .then of promise
           self.getCommands().then(function (vc) {
-            self.command_search.results = vc;
+            self.command_search.results = vc.filter(function (c) {
+              return c['name'].toLowerCase().indexOf(self.command_search.cmd.toLowerCase().split('(')[0]) !== -1
+            });
           });
+          this.command_search.saveCmd = this.command_search.cmd;  // Save command after search
+
+        } else {
+          this.command_search.results = [];
+          if (keyPressed == 'ArrowDown') {
+            self = this;
+            self.getCommands().then(function (vc) {
+              self.command_search.results = vc;
+            });
+          }
         }
       }
 
-      switch(event.key) {
-        case 'Escape': 
+      // this.command_search.searchActive = false;
+      switch(keyPressed) {
+        case 'Escape': {
           this.command_search.searchActive = false;
           break;
-        
+        }
+        default: {
+          this.command_search.searchActive = true;
+          break;
+        }
       }
     },
     select: function (command, hist) {

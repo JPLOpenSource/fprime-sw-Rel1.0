@@ -44,7 +44,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 		toMCT.forEach(function (packet) {
 			// Add to history dictionary
 			history[(packet.id).toString()].push(packet);
-			fs.writeFile('server/temp/telem-log.json', JSON.stringify(history), function (err) {
+			fs.writeFile('server/logs/telem-log.json', JSON.stringify(history), function (err) {
 				if (err) {
 					console.log(err);
 				}
