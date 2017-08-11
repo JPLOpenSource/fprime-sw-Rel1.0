@@ -40,7 +40,7 @@ class RoutingTable(object):
 
         # Set command reply socket
         self.__command_reply_socket = context.socket(zmq.ROUTER)
-        self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 300 ms
+        self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
         self.__command_reply_socket_adr = BindToRandomInprocEndpoint(self.__command_reply_socket)
 
     def Quit(self):
@@ -103,10 +103,9 @@ class RoutingTable(object):
         """
         self.__flight_publishers[client_name] = set()
 
-        publisher_set = self.__flight_publishers[client_name]
         sub_all_set   = self.__grounds_subscribed_to_all
-        self.SetNewClientSubscription(publisher_set, sub_all_set)
-        self.SyncOutstanding(client_name, publisher_set)
+        self.SetNewClientSubscription(client_name, self.__flight_publishers, sub_all_set)
+        self.SyncOutstanding(client_name, self.__flight_publishers)
 
     def AddGroundClient(self, client_name):
         """
@@ -114,23 +113,27 @@ class RoutingTable(object):
         """
         self.__ground_publishers[client_name] = set()
 
-        publisher_set = self.__ground_publishers[client_name] 
         sub_all_set   = self.__flights_subscribed_to_all
-        self.SetNewClientSubscription(publisher_set, sub_all_set)
-        self.SyncOutstanding(client_name, publisher_set)
+        self.SetNewClientSubscription(client_name, self.__ground_publishers, sub_all_set)
+        self.SyncOutstanding(client_name, self.__ground_publishers)
 
-    def SetNewClientSubscription(self, publisher_set, sub_all_set):
+    def SetNewClientSubscription(self, publisher_name, publisher_dict, sub_all_set):
         """
         Add to publisher_set any receiving client who is subscribed to all.
         """
+        self.__logger.debug("Adding sub-all-clients to {}".format(publisher_name))
+        publisher_set = publisher_dict[publisher_name]
         for receiving_client in sub_all_set:
             publisher_set.add(receiving_client)
+            self.ConfigureClientPublishers( SERVER_CONFIG.SUB_OPTION, receiving_client, [publisher_name], publisher_dict)
     
-    def SyncOutstanding(self, publishing_client_name, publisher_set):
+    def SyncOutstanding(self, publishing_client_name, publisher_dict):
         """
         Check if publishing_client name is in outstanding_subscriptions.
         If yes, add recv_client to publisher_set.
         """
+        self.__logger.debug("Syncing Outstanding")
+        publisher_set = publisher_dict[publishing_client_name]
         for recv_client, pub_client in self.__outstanding_subscriptions:
             if pub_client == publishing_client_name:
                 publisher_set.add(recv_client)
@@ -199,7 +202,7 @@ class RoutingTable(object):
         """
         Add ground_client's name to all flight publisher's sets. 
         """
-        self.__logger.info("{} {} from all Flight-Clients".format(option, ground_client_name))
+        self.__logger.info("{} {} to all Flight-Clients".format(option, ground_client_name))
 
         pub_dict = self.__flight_publishers
         self.ConfigureAll(option, ground_client_name, pub_dict)
@@ -213,7 +216,7 @@ class RoutingTable(object):
         """
         Add flight_client's name to all ground publisher's sets.
         """
-        self.__logger.info("{} {} from all Ground-Clients".format(option, flight_client_name))
+        self.__logger.info("{} {} to all Ground-Clients".format(option, flight_client_name))
 
         pub_dict = self.__ground_publishers
         self.ConfigureAll(option, flight_client_name, pub_dict)
