@@ -91,11 +91,16 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
                     if(throughput != 0):
                         if( (time.time() - start_time) >= latency ):
+                            
+                            #byte_list = [1 for i in range(msg_size-1)]
+                            #byte_list.append(val)
+                            #packed = struct.pack("{}B".format(msg_size), *byte_list)
+
                             analyzer.StartInstance()
 
                             start_time = time.time()
                             data = client_name.encode() +" " + bytes(val)
-                            logger.debug("Sending: {}".format(bytes(val)))
+                            logger.debug("Sending: {}".format(val))
                             pub_socket.send(data)
 
                             analyzer.SaveInstance()

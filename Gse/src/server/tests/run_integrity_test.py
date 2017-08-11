@@ -10,7 +10,7 @@ def main():
     ground_throughput = 50 #  msgs / second
     ground_size  = 1 # byte
     monte_time  = 0 # seconds 
-    pass_time = 30 # seconds
+    pass_time = 5 # seconds
 
     cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt} -v"\
            .format(nf = num_flight, ng = num_ground,\
