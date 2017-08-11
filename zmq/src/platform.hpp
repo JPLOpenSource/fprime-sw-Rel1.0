@@ -19,7 +19,7 @@
 
 /* Define to 1 if you have the declaration of `SO_PEERCRED', and to 0 if you
    don't. */
-#define HAVE_DECL_SO_PEERCRED 1
+#define HAVE_DECL_SO_PEERCRED 0
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -54,6 +54,9 @@
 /* Define to 1 if you have the `dl' library (-ldl). */
 /* #undef HAVE_LIBDL */
 
+/* Enabled GSSAPI security */
+/* #undef HAVE_LIBGSSAPI_KRB5 */
+
 /* Define to 1 if you have the `iphlpapi' library (-liphlpapi). */
 /* #undef HAVE_LIBIPHLPAPI */
 
@@ -67,7 +70,7 @@
 /* #undef HAVE_LIBRPCRT4 */
 
 /* Define to 1 if you have the `rt' library (-lrt). */
-#define HAVE_LIBRT 1
+/* #undef HAVE_LIBRT */
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
@@ -106,7 +109,7 @@
 #define HAVE_SOCKET 1
 
 /* Define to 1 if stdbool.h conforms to C99. */
-/* #undef HAVE_STDBOOL_H */
+#define HAVE_STDBOOL_H 1
 
 /* Define to 1 if you have the <stddef.h> header file. */
 #define HAVE_STDDEF_H 1
@@ -124,7 +127,7 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/eventfd.h> header file. */
-#define HAVE_SYS_EVENTFD_H 1
+/* #undef HAVE_SYS_EVENTFD_H */
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #define HAVE_SYS_SOCKET_H 1
@@ -153,8 +156,7 @@
 /* Define to 1 if the system has the type `_Bool'. */
 /* #undef HAVE__BOOL */
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
 
 /* Name of package */
@@ -167,7 +169,7 @@
 #define PACKAGE_NAME "zeromq"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "zeromq 4.2.1"
+#define PACKAGE_STRING "zeromq 4.2.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "zeromq"
@@ -176,7 +178,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.2.1"
+#define PACKAGE_VERSION "4.2.3"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -188,13 +190,13 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "4.2.1"
+#define VERSION "4.2.3"
 
 /* Enable militant API assertions */
 /* #undef ZMQ_ACT_MILITANT */
 
 /* Provide draft classes and methods */
-/* #undef ZMQ_BUILD_DRAFT_API */
+#define ZMQ_BUILD_DRAFT_API 1
 
 /* Force to use mutexes */
 /* #undef ZMQ_FORCE_MUTEXES */
@@ -218,10 +220,10 @@
 /* #undef ZMQ_HAVE_DRAGONFLY */
 
 /* Have eventfd extension */
-#define ZMQ_HAVE_EVENTFD 1
+/* #undef ZMQ_HAVE_EVENTFD */
 
 /* Whether EFD_CLOEXEC is defined and functioning. */
-#define ZMQ_HAVE_EVENTFD_CLOEXEC 1
+/* #undef ZMQ_HAVE_EVENTFD_CLOEXEC */
 
 /* Have FreeBSD OS */
 /* #undef ZMQ_HAVE_FREEBSD */
@@ -236,7 +238,7 @@
 #define ZMQ_HAVE_IFADDRS 1
 
 /* Have Linux OS */
-#define ZMQ_HAVE_LINUX 1
+/* #undef ZMQ_HAVE_LINUX */
 
 /* Have LOCAL_PEERCRED socket option */
 /* #undef ZMQ_HAVE_LOCAL_PEERCRED */
@@ -257,13 +259,25 @@
 /* #undef ZMQ_HAVE_OPENPGM */
 
 /* Have DarwinOSX OS */
-/* #undef ZMQ_HAVE_OSX */
+#define ZMQ_HAVE_OSX 1
+
+/* Whether pthread_setname_np() has 1 argument */
+#define ZMQ_HAVE_PTHREAD_SETNAME_1 1
+
+/* Whether pthread_setname_np() has 2 arguments */
+/* #undef ZMQ_HAVE_PTHREAD_SETNAME_2 */
+
+/* Whether pthread_setname_np() has 3 arguments */
+/* #undef ZMQ_HAVE_PTHREAD_SETNAME_3 */
+
+/* Whether pthread_set_name_np() exists */
+/* #undef ZMQ_HAVE_PTHREAD_SET_NAME */
 
 /* Have QNX Neutrino OS */
 /* #undef ZMQ_HAVE_QNXNTO */
 
 /* Whether SOCK_CLOEXEC is defined and functioning. */
-#define ZMQ_HAVE_SOCK_CLOEXEC 1
+/* #undef ZMQ_HAVE_SOCK_CLOEXEC */
 
 /* Have Solaris OS */
 /* #undef ZMQ_HAVE_SOLARIS */
@@ -272,16 +286,16 @@
 #define ZMQ_HAVE_SO_KEEPALIVE 1
 
 /* Have SO_PEERCRED socket option */
-#define ZMQ_HAVE_SO_PEERCRED 1
+/* #undef ZMQ_HAVE_SO_PEERCRED */
 
 /* Whether TCP_KEEPALIVE is supported. */
-/* #undef ZMQ_HAVE_TCP_KEEPALIVE */
+#define ZMQ_HAVE_TCP_KEEPALIVE 1
 
 /* Whether TCP_KEEPCNT is supported. */
 #define ZMQ_HAVE_TCP_KEEPCNT 1
 
 /* Whether TCP_KEEPIDLE is supported. */
-#define ZMQ_HAVE_TCP_KEEPIDLE 1
+/* #undef ZMQ_HAVE_TCP_KEEPIDLE */
 
 /* Whether TCP_KEEPINTVL is supported. */
 #define ZMQ_HAVE_TCP_KEEPINTVL 1
@@ -302,13 +316,13 @@
 /* #undef ZMQ_USE_DEVPOLL */
 
 /* Use 'epoll' polling system */
-#define ZMQ_USE_EPOLL 1
+/* #undef ZMQ_USE_EPOLL */
 
 /* Use 'epoll' polling system with CLOEXEC */
-#define ZMQ_USE_EPOLL_CLOEXEC 1
+/* #undef ZMQ_USE_EPOLL_CLOEXEC */
 
 /* Use 'kqueue' polling system */
-/* #undef ZMQ_USE_KQUEUE */
+#define ZMQ_USE_KQUEUE 1
 
 /* Using libsodium for curve encryption */
 /* #undef ZMQ_USE_LIBSODIUM */
