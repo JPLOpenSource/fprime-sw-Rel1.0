@@ -4,8 +4,8 @@
   "description": "Client for ISF server",
   "main": "client/app.js",
   "scripts": {
-    "start": "rm -f server/temp/* && node server/app.js",
-    "postinstall": "python ../Gse/bin/json_dict.py && node ./node_modules/bower/bin/bower install && cd node_modules/openmct && export NODE_ENV=development && npm install"
+    "start": "rm -rf server/logs && node server/app.js",
+    "postinstall": "python ../Gse/bin/json_dict.py && cd node_modules/openmct && export NODE_ENV=development && npm install"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",

@@ -1,11 +1,6 @@
-// const site = 'localhost';
-// const cmdPort = 1339;
 
-// var socket = new WebSocket('ws://' + site + ':' + cmdPort.toString());
-// new Vue({
 var CommandView = Vue.extend({
   template: $('#commandTemplate').text(),
-  // el:'#console',
   data: function () {
     return {
       searchActive: false,
@@ -35,7 +30,7 @@ var CommandView = Vue.extend({
     },
     sendCmd: function (event) {
       // Add command and time
-      socket.send(this.cmd);
+      // socket.send(this.cmd);
       this.cmdHist.push({
         cmd: this.cmd,
         time: Date()

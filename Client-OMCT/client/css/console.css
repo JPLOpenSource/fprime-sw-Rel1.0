@@ -1,6 +1,8 @@
-/*html, body {
+body {
   height: 100%;
   width: 100%;
+  background-color: white;
+
 }
 
 body {
@@ -8,7 +10,7 @@ body {
   width: calc(100% - 1em);
   height: calc(100% - 3em);
 }
-*/
+
 .command ul {
   width: calc(100% - 2em);
   position: absolute;
@@ -31,7 +33,7 @@ body {
   background-color: #EFEFEF;
   border: solid 1px #c3c3c3;
   /*position: relative;*/
-  height: 100%;
+  height: 400px;
 }
 
 .command .cmdContainer {

@@ -20,7 +20,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 	client.connect(gsePort, site, function() {
 		console.log('Connected! Realtime server on port: ' + realMctPort);
 
-		fs.closeSync(fs.openSync('server/temp/log.json', 'w'));	// Create log json
+		fs.closeSync(fs.openSync('server/logs/telem-log.json', 'w'));	// Create log json
 
 		// Register client
 		client.write('Register GUI\n');
@@ -44,7 +44,7 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 		toMCT.forEach(function (packet) {
 			// Add to history dictionary
 			history[(packet.id).toString()].push(packet);
-			fs.writeFile('server/temp/log.json', JSON.stringify(history), function (err) {
+			fs.writeFile('server/temp/telem-log.json', JSON.stringify(history), function (err) {
 				if (err) {
 					console.log(err);
 				}
