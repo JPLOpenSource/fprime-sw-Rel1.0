@@ -65,8 +65,10 @@ class ThroughputAnalyzer(object):
         """
         overhead = time.time() - self.__start_time_inst
         self.__overhead_inst.append(overhead)
-        self.__throughput_inst.append(1/overhead)
-
+        try:
+            self.__throughput_inst.append(1/overhead)
+        except ZeroDivisionError:
+            pass
     def GetInstantOverheadArr(self):
         """
         Return array of instant overheads.

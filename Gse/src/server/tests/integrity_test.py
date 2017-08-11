@@ -5,6 +5,7 @@ import time
 import struct
 import signal
 import random
+import argparse
 
 from threading import Timer, Event
 from subprocess import Popen
@@ -40,14 +41,13 @@ def WipeServerLogs():
     os.system("rm -r {}".format(all_folders))
 
 
-class MontecarloIntegrity_Test:
+class ServerIntegrityTest:
     """
     This test asserts the server remains stable
     in the face of random client disconnects at random times.
     """
 
-    @classmethod
-    def setup_class(cls):
+    def __init__(self, opts):
         ## Must have build root set
         if os.environ['BUILD_ROOT'] is None:
             print("Must have BUILD_ROOT set.")
@@ -55,8 +55,8 @@ class MontecarloIntegrity_Test:
             sys.exit()
 
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
-        cls.logger = GetLogger("MontecarloIntegrityTest_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
-        cls.logger.debug("Logger Active")
+        self.logger = GetLogger("MontecarloIntegrityTest_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        self.logger.debug("Logger Active")
 
         WipeServerLogs()
 
@@ -66,69 +66,55 @@ class MontecarloIntegrity_Test:
 
         # Setup Ref App
         name = "flight_ref"
-        cls.ref_app = RefApp()
-        cls.ref_app.Setup(cmd_port, address, name)
+        self.ref_app = RefApp()
+        self.ref_app.Setup(cmd_port, address, name)
 
         # Setup and start server
-        cls.server = ZmqServer()
-        cls.server.Setup(cmd_port)
-        cls.server.Start()
+        self.server = ZmqServer()
+        self.server.Setup(cmd_port)
+        self.server.Start()
 
         # Setup mock clients
-        num_ground = 1
-        num_flight = 1
 
-        cls.mock_flight_list = []
-        for i in range(num_flight):
+        self.mock_flight_list = []
+        for i in range(opts.num_flight):
             name   = "flight_{}".format(i)
-            cls.mock_flight_list.append( MockClient() )
-            cls.mock_flight_list[i].Setup(cmd_port, name, "flight", 100)
+            self.mock_flight_list.append( MockClient() )
+            self.mock_flight_list[i].Setup(cmd_port, name, "flight", opts.flight_throughput, opts.flight_size)
 
-        cls.mock_ground_list = []
-        for i in range(num_ground):
+        self.mock_ground_list = []
+        for i in range(opts.num_ground):
             name = "ground_{}".format(i)
-            cls.mock_ground_list.append( MockClient() )
-            cls.mock_ground_list[i].Setup(cmd_port, name, "ground", 100)
+            self.mock_ground_list.append( MockClient() )
+            self.mock_ground_list[i].Setup(cmd_port, name, "ground", opts.ground_throughput, opts.ground_size)
             
 
-    @classmethod
-    def teardown_class(cls):
-        #cls.flight_1.Quit()
-        cls.destory_clients()
+    def teardown_class(self):
+        #self.flight_1.Quit()
+        self.destory_clients()
         time.sleep(2)
-        cls.server.Quit()
+        self.server.Quit()
 
 
+    def start_clients(self):
+        self.logger.info("Starting Clients")
 
-    @classmethod
-    def initialize_clients(cls):
-        cls.logger.info("Initializing Clients")
-
-        for client in cls.mock_flight_list:
+        for client in self.mock_flight_list:
             client.Start()
-        for client in cls.mock_ground_list:
+        for client in self.mock_ground_list:
             client.Start()
 
-    @classmethod
-    def destory_clients(cls):
-        cls.logger.info("Destroying Clients")
+    def destory_clients(self):
+        self.logger.info("Destroying Clients")
 
-        for client in cls.mock_flight_list:
+        for client in self.mock_flight_list:
             client.Quit()
-        for client in cls.mock_ground_list:
+        for client in self.mock_ground_list:
             client.Quit()
-
-    def test_server_integrity(self):
-        monte_carlo_time_s = 21600 # Time to perform random disconnects
-        passthrough_time_s = 20# Time to test unobsructed data path
-
-        self.initialize_clients()
-        time.sleep(4)
-        #self.monte_carlo_disconnect(monte_carlo_time_s)
-        self.passthrough(passthrough_time_s)
         
     def passthrough(self, passthrough_time_s):
         self.logger.info("-------- Pass Through Started --------")
+        self.passthrough_time = time.time()
         time.sleep(passthrough_time_s)    
 
     def monte_carlo_disconnect(self, monte_carlo_time_s):
@@ -239,7 +225,27 @@ class MontecarloIntegrity_Test:
         #while(len(running_ground) != len(self.mock_ground_list)):
         #    pass
 
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="FPrime GSE Server Integrity Test")
+    parser.add_argument('num_flight', metavar='num_flight', type=int, help="Number of flight clients")
+    parser.add_argument('num_ground', metavar='num_ground', type=int, help="Number of ground clients")
+    parser.add_argument('flight_throughput', metavar='flight_tp', type=int, help="Messages/second")
+    parser.add_argument('flight_size', metavar='flight_msg_size', type=int, help="Bytes/message")
+    parser.add_argument('ground_throughput', metavar='ground_tp', type=int, help="Messages/second")
+    parser.add_argument('ground_size', metavar='ground_msg_size', type=int, help="Bytes/message")
+    parser.add_argument('monte_time', metavar='monte_time', type=int, help="Seconds for montecarlo test")
+    parser.add_argument('pass_time', metavar='pass_time', type=int, help="Seconds for data pass through")
+    parser.add_argument('-v', '--verbose', action="store_true", help="Set verbose logging level.")
+
+    args = parser.parse_args()  
 
 
+    test = ServerIntegrityTest(args)
+    test.start_clients()
 
+    test.monte_carlo_disconnect(args.monte_time)
+    test.passthrough(args.pass_time)
+
+    test.teardown_class()
 

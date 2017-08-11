@@ -68,7 +68,7 @@ def main():
                         phase.
     """
 
-    pass_through_dtime = parser.parse("2017-08-10 14:54:33,286") 
+    pass_through_dtime = parser.parse("2017-08-10 18:04:33,556") 
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    

@@ -21,14 +21,14 @@ import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()
 
-def MockClient(context, cmd_port, client_name, client_type, throughput): 
+def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size): 
     latency = 1 / float(throughput)
-    print("LATENCY: {}".format(latency))
 
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
     logger = GetLogger("{}".format(client_name),log_path, chLevel=INFO) 
     logger.debug("Logger Active") 
+    logger.debug("Latency: {}".format(latency))
  
     command_socket = context.socket(zmq.DEALER) 
     command_socket.setsockopt(zmq.IDENTITY, client_name)
@@ -59,7 +59,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput):
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
     sub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
-    sub_socket.setsockopt(zmq.RCVHWM, 100)
+    #sub_socket.setsockopt(zmq.RCVHWM, 100)
 
     pub_socket.connect("tcp://localhost:{}".format(server_sub_port))
     sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
@@ -203,12 +203,13 @@ if __name__ == "__main__":
     client_name = sys.argv[2]
     client_type = sys.argv[3]
     throughput  = int(sys.argv[4])
+    msg_size    = int(sys.argv[5])
 
     
     context = zmq.Context()
 
     mock_flight_client = threading.Thread(target=MockClient,\
-                                           args=(context, cmd_port, client_name, client_type, throughput))
+                                           args=(context, cmd_port, client_name, client_type, throughput, msg_size))
     mock_flight_client.start() 
     
     try:
