@@ -36,7 +36,7 @@ var CommandView = Vue.extend({
     },
     sendCmd: function (event) {
       // Add command and time
-      // socket.send(this.command_search.cmd);
+      this.socket.send(this.command_search.cmd);
       this.command_hist.history.push({
         cmd: this.command_search.cmd,
         time: Date()
@@ -53,7 +53,9 @@ var CommandView = Vue.extend({
           self = this;  // Avoid 'this' scoping issues inside .then of promise
           self.getCommands().then(function (vc) {
             self.command_search.results = vc.filter(function (c) {
-              return c['name'].toLowerCase().indexOf(self.command_search.cmd.toLowerCase().split('(')[0]) !== -1
+              return c['name'].toLowerCase()  // Case insensitive search
+                              .indexOf(self.command_search.cmd.toLowerCase()  // Case insensitive query
+                                                              .split('(')[0]) !== -1  // Check only name of query
             });
           });
           this.command_search.saveCmd = this.command_search.cmd;  // Save command after search

@@ -1,4 +1,4 @@
-function CommandConsole() {
+function CommandConsole(site, port) {
 
     return function install(openmct) {
 
@@ -26,7 +26,11 @@ function CommandConsole() {
                 return d.type === 'isf.command';
             },
             view: function (domainObject) {
-                var commandView = new CommandView();
+                var commandView = new CommandView({
+                    data: {
+                        socket: new WebSocket('ws://' + site + ':' + port.toString())
+                    }
+                });
 
                 return {
                     show: function (container) {

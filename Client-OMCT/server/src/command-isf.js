@@ -20,7 +20,7 @@ function CommandServer(site, gsePort, commandPort) {
 		ws.on('message', function incoming(message) {
 			// Serialize message
 			serialize(message);
-			// console.log(message);
+			console.log(message);
 			// client.write(message);
 		});
 	});
