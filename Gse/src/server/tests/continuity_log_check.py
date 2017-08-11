@@ -18,6 +18,7 @@ def check_log(log_path, pass_through_dtime):
     Returns The log line if data is incomplete.
     """
     MAX_VAL = 255
+    PASSED  = True
 
     print("----------------------------------")
     with open(log_path, 'r') as the_file:
@@ -46,6 +47,7 @@ def check_log(log_path, pass_through_dtime):
                         # Assert data is increasing linearly
                         assert data == data_expected[client_name]
                     except AssertionError:
+                        PASSED = False
                         print ("Data integrity error in {}".format(client_name))
                         print ("Expected: {} Received: {}".format(data_expected[client_name], data))
                         print(line)
@@ -57,6 +59,8 @@ def check_log(log_path, pass_through_dtime):
                     else:
                         data_expected[client_name] = data + 1
 
+        if(PASSED):
+            print("Passed")
         print("----------------------------------")
 
 def main():
