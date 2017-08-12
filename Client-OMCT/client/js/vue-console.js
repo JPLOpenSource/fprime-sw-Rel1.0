@@ -8,7 +8,7 @@ var CommandView = Vue.extend({
         cmd: '',
         results: [],
         saveCmd: '',
-        resultIndex: 0
+        resultIndex: -1
       },
       command_hist: {
         history: [],
@@ -71,17 +71,29 @@ var CommandView = Vue.extend({
         }
       }
 
-      // this.command_search.searchActive = false;
+      let i = this.command_search.resultIndex;
+      let max = this.command_search.results.length;
+      this.command_search.searchActive = false;
       switch(keyPressed) {
         case 'Escape': {
           this.command_search.searchActive = false;
           break;
+        }
+        case 'ArrowDown': {
+          i = (i + 1) % max;
+          this.command_search.cmd = this.command_search.results[i];
+        }
+        case 'ArrowUp': {
+          i -= 1;
+          this.command_search.cmd = this.command_search.results[i];
         }
         default: {
           this.command_search.searchActive = true;
           break;
         }
       }
+
+      this.command_search.resultIndex = i;
     },
     select: function (command, hist) {
       if (hist) {
