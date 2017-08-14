@@ -1,0 +1,7 @@
+<telemetry>
+    <channel id="0" name="ZR_PacketsSent" data_type="U32">
+        <comment>
+        Number of packets sent
+        </comment>
+    </channel>
+</telemetry>

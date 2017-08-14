@@ -11,9 +11,10 @@
 #   or an ITAR exemption prior to the export or transfer.
 #
 
-SRC = ZmqGroundIfComponentAi.xml\
-      ZmqGroundIfComponentImpl.cpp
+SRC = ZmqRadioComponentAi.xml\
+      ZmqRadioComponentImpl.cpp
 
-HDR = ZmqGroundIfComponentImpl.hpp
+HDR = ZmqRadioComponentImpl.hpp\
+      ZmqRadioCfg.hpp
 
 SUBDIRS = test		

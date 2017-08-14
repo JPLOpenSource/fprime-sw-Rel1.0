@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-model href="../../Autocoders/schema/ISF/component_schema.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
 
-<component name="ZmqGroundIf" kind="active" namespace="Zmq" modeler="true">
+<component name="ZmqRadio" kind="active" namespace="Zmq" modeler="true">
 
     <import_port_type>Fw/Buffer/BufferSendPortAi.xml</import_port_type>
     <import_port_type>Fw/Log/LogPortAi.xml</import_port_type>
@@ -9,6 +9,9 @@
     <import_port_type>Fw/Com/ComPortAi.xml</import_port_type>
     <import_port_type>Fw/Time/TimePortAi.xml</import_port_type>
     <import_port_type>Fw/Buffer/BufferGetPortAi.xml</import_port_type>
+    <import_port_type>Fw/Tlm/TlmPortAi.xml</import_port_type>
+    <import_dictionary>fprime-zmq/zmq-radio/telemetry.xml</import_dictionary>
+    <import_dictionary>fprime-zmq/zmq-radio/events.xml</import_dictionary>
     <ports>
     
 
@@ -37,6 +40,9 @@
         </port>
 
         <port name="fileUplinkBufferGet" data_type="Fw::BufferGet"  kind="output"    max_number="1">
+        </port>
+
+        <port name="tlmOut" data_type="Fw::Tlm"  kind="output" role="Telemetry"    max_number="1">
         </port>
     </ports>
 

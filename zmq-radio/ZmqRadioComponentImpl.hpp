@@ -1,7 +1,7 @@
 // ====================================================================== 
-// \title  ZmqGroundIfComponentImpl.hpp
+// \title  ZmqRadioComponentImpl.hpp
 // \author dkooi
-// \brief  hpp file for ZmqGroundIf implementation class.
+// \brief  hpp file for ZmqRadio implementation class.
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -18,30 +18,34 @@
 // ====================================================================== 
 
 
-#ifndef ZMQGROUNDIFIMPL_HPP_
-#define ZMQGROUNDIFIMPL_HPP_
+#ifndef ZMQRADIOIMPL_HPP_
+#define ZMQRADIOIMPL_HPP_
 
 #include <string.h>
 
-#include <fprime-zmq/zmq-groundif/ZmqGroundIfComponentAc.hpp>
+#include <fprime-zmq/zmq-radio/ZmqRadioComponentAc.hpp>
+#include <fprime-zmq/zmq-radio/ZmqRadioCfg.hpp>
 #include <fprime-zmq/zmq/include/zmq.h>
 
 namespace Zmq{
 
-    class ZmqGroundIfComponentImpl : public ZmqGroundIfComponentBase{
+    class ZmqRadioComponentImpl : public ZmqRadioComponentBase{
 	public:
 #if FW_OBJECT_NAMES == 1
-	    ZmqGroundIfComponentImpl(const char* name);
+	    ZmqRadioComponentImpl(const char* name); 
 #else
-	    ZmqGroundIfComponentImpl(void);
+	    ZmqRadioComponentImpl(void);
 #endif
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
-	    void open(const char* port);
 
-	    virtual ~ZmqGroundIfComponentImpl();
+	    /* Initiate a connection to <port> using socket identity <zmqId> */
+	    void open(const char* port, const char* zmqId); 
+
+	    virtual ~ZmqRadioComponentImpl();
 	
 	PROTECTED:
 	PRIVATE:
+	    void connect(void); // Setup zmq context and attempt server connection
 	    void preamble(void);
 	    void finalizer(void);
 
@@ -67,7 +71,10 @@ namespace Zmq{
 	    void* m_subSocket; //!< zmq socket for inbound commands and files
 	    void* m_cmdSocket; //!< zmq socket for server registration
 
-	    char  server_cmd_port[256];
+	    char  m_zmqId[ZMQ_RADIO_ENDPOINT_NAME_SIZE]; //!< zmq socket identity 
+	    char  server_cmd_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
+	    char  server_pub_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
+	    char  server_sub_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
 
 
     };
@@ -78,4 +85,4 @@ namespace Zmq{
 
 
 
-#endif // ZMQGROUNDIFIMPL_HPP_
+#endif // ZMQRADIOIMPL_HPP_

@@ -1,0 +1,39 @@
+<events>
+    <event id="0" name="ZR_PublishConnectionOpened" severity="ACTIVITY_HI" format_string = "ZeroMQ publish connection opened">
+        <comment>
+        Connection opened
+        </comment>
+    </event>
+    <event id="1" name="ZR_ContextError" severity="WARNING_HI" format_string = "ZeroMQ publisher context error: %s">
+        <comment>
+        Zmq publisher context open error
+        </comment>
+        <args>
+            <arg name = "error" type = "string" size="80"/>
+        </args>
+    </event>
+    <event id="2" name="ZR_SocketError" severity="WARNING_HI" format_string = "ZeroMQ publisher socket error: %s">
+        <comment>
+        Zmq publisher socket error
+        </comment>
+        <args>
+            <arg name = "error" type = "string" size="80"/>
+        </args>
+    </event>
+    <event id="3" name="ZR_BindError" severity="WARNING_HI" format_string = "ZeroMQ publisher bind error: %s">
+        <comment>
+        Zmq publisher bind error
+        </comment>
+        <args>
+            <arg name = "error" type = "string" size="80"/>
+        </args>
+    </event>
+    <event id="4" name="ZR_SendError" severity="WARNING_HI" format_string = "ZeroMQ publisher send error: %s" throttle="10">
+        <comment>
+        Zmq publisher send error
+        </comment>
+        <args>
+            <arg name = "error" type = "string" size="80"/>
+        </args>
+    </event>
+</events>
