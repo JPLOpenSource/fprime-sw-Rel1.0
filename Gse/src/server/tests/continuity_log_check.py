@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 
 from dateutil import parser
 from datetime import datetime
@@ -72,13 +73,20 @@ def main():
     pass_through_dtime: The time the monte carlo test changed to the passthrough
                         phase.
     """
+    arg_parser = argparse.ArgumentParser(description="FPrime GSE Server Integrity Test Log Check")
+    arg_parser.add_argument('date', metavar='date', type=str, help="Date string")
+    arg_parser.add_argument('time', metavar='time', type=str, help="Time string")
+    arg_parser.add_argument('num_flight', metavar='num_flight', type=int, help="Number of flight clients")
+    arg_parser.add_argument('num_ground', metavar='num_ground', type=int, help="Number of ground clients")
 
-    date = sys.argv[1]
-    time = sys.argv[2]
-    num_flight = int(sys.argv[3])
-    num_ground = int(sys.argv[4])
+    args = arg_parser.parse_args()
 
-    pass_through_dtime = parser.parse(date+" "+time) 
+    date = args.date
+    time = args.time
+    num_flight = int(args.num_flight)
+    num_ground = int(args.num_ground)
+
+    pass_through_dtime = parser.parse(date+" "+time)
     
     server_log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
    
