@@ -134,9 +134,9 @@
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
-    // openmct.install(DictionaryPlugin(site, staticPort));
-    // openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-    // openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+    openmct.install(DictionaryPlugin(site, staticPort));
+    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
     openmct.install(ChanLimitEval());
     openmct.install(EventLimitEval());
     openmct.install(CommandConsole(site, cmdPort));
