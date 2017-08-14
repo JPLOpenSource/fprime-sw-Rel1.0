@@ -64,6 +64,7 @@ Client-OMCT/server/temp/*
 # TCP Log
 ThreadedTCP.log
 Ref.log
+lib/python2.7
 
 
 # Python base folder
