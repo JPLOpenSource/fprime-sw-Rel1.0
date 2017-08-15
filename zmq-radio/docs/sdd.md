@@ -31,7 +31,9 @@ Requirement | Description | Verification Method
 1 | All input handlers shall drop incoming messages while in `ZMQ_RADIO_DISCONNECTED`. |
 2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
 3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | 
-4 | The 'Zmq::ZmqRadio' component shall transition to `ZMQ_RADIO_DISCONNECTED` state if any ZMQ is experienced. |
+4 | The 'Zmq::ZmqRadio' component shall transition to `ZMQ_RADIO_DISCONNECTED` state if any ZMQ error is experienced. |
+5 | `Zmq::ZmqRadio::reconnect_internalInterfaceHandler` shall be called if an ZMQ error is experienced. |
+ 
 5 | ZMQ shall be configured with the options below. |
 
 ZMQ Option | Description | ZmqRadio Value 
@@ -55,7 +57,7 @@ ZMQ_SNDTIMEO | How long before a zmq_msg_send call returns an EAGAIN error. | 20
 
 ## 4. Functional Description
 
-### 4.1 Zmq::ZmqRadio::downlinkPort_handler 
+### 4.1 downlinkPort_handler 
 If `ZMQ_RADIO_CONNECTED`:     This handler invokes the helper function 'zmqSocketWriteComBuffer'.<br>
 If `ZMQ_RADIO_DISCONNECTED`:  No action.
 
@@ -75,6 +77,13 @@ If `ZMQ_RADIO_DISCONNECTED`:  Set state to `ZMQ_RADIO_CONNECTED`
 ### 4.5 transitionDisconnected
 If `ZMQ_RADIO_CONNECTED`:     Set state to `ZMQ_RADIO_DISCONNECTED` and release ZMQ resources. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  No action. 
+
+### 4.6 reconnect_internalInterfaceHandler
+If `ZMQ_RADIO_CONNECTED`:     No action. <br> 
+If `ZMQ_RADIO_DISCONNECTED`:  Invokes itself for repeated reconnection attempts. 
+
+
+
  
 ## Telemetry Channel List
 TODO
