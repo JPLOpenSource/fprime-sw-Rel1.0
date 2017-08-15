@@ -76,3 +76,8 @@ If `ZMQ_RADIO_DISCONNECTED`:  Set state to `ZMQ_RADIO_CONNECTED`
 If `ZMQ_RADIO_CONNECTED`:     Set state to `ZMQ_RADIO_DISCONNECTED` and release ZMQ resources. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  No action. 
  
+## Telemetry Channel List
+TODO
+
+## Event List
+TODO
