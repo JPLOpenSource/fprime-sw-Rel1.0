@@ -49,7 +49,7 @@ namespace Zmq{
 	void ZmqRadioComponentImpl::open(const char* hostname, U32 port, const char* zmqId){
 		DEBUG_PRINT("Opening Connection\n");
 
-	    strncpy(this->m_hostname, hostname, strlen(hostname));
+	    strncpy(this->m_hostname, hostname, strlen(hostname)); // Save hostname
 	    this->m_hostname[strlen(hostname)] = 0; // Null terminate
 
 	    strncpy(this->m_zmqId, zmqId, strlen(zmqId));  // Save id for socket identification	
@@ -63,7 +63,7 @@ namespace Zmq{
 	void ZmqRadioComponentImpl::connect(void){
 	    int rc = 0; // Return code
 
-	    // Setup Zmq
+	    // Setup context
 	    this->m_context   = zmq_ctx_new();
 	    if(not this->m_context){
 	    	zmqError("ZmqRadioComponentImpl::connect Error creating context.");
@@ -125,7 +125,7 @@ namespace Zmq{
 			const char *msg = reg_msgArr[i];
 			size_t len = strlen(msg);
 
-			zmq_msg_t z_msg;
+			zmq_msg_t z_msg; // Declare zmq msg struct
 			int rc = zmq_msg_init_size(&z_msg, len); // Allocate msg_t 
 			FW_ASSERT(rc == 0);
 
@@ -143,20 +143,21 @@ namespace Zmq{
 
 
 		// Receive server response
-		const U8 regRespSize = ZMQ_RADIO_REG_RESP_MSG_SIZE;
+		const U8 regRespSize = ZMQ_RADIO_REG_RESP_MSG_SIZE; // How many response messages to expect
 		U32 regStatus = 0;
 		for(i = 0; i < regRespSize; i++){
 			zmq_msg_t msg;
 			zmq_msg_init(&msg);
 			int size = zmq_msg_recv(&msg, this->m_cmdSocket, 0);
 			if(size == -1){
-				zmqError("ZmqRadioComponentImpl::registerToServer Error Receiving server registration response.");
+				zmqError("ZmqRadioComponentImpl::registerToServer Error receiving server registration response.");
 			}
 
 			// Receive the various msg parts
 			switch(i){
 				case 0:
 					memcpy(&regStatus, zmq_msg_data(&msg), size);
+					DEBUG_PRINT("status: %d\n", regStatus);
 					break;
 				case 1:
 					memcpy(&this->m_serverPubPort, zmq_msg_data(&msg), size);
@@ -240,7 +241,7 @@ namespace Zmq{
 	bool ZmqRadioComponentImpl::zmqError(const char* from) {
 		switch (zmq_errno()) {
 			case EAGAIN:
-			    printf("%s: ZMQ EAGAIN", from);
+			    printf("%s: ZMQ EAGAIN\n", from);
 			    return true;
 			case EFSM:
 			     printf("%s: ZMQ EFSM", from);
@@ -264,6 +265,7 @@ namespace Zmq{
 				printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
 				return true;
 		}
+
 	}
 
 

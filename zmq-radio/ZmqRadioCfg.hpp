@@ -14,8 +14,8 @@ namespace Zmq{
     static const NATIVE_UINT_TYPE ZMQ_RADIO_MSG_SIZE = 256;
 
     static const NATIVE_UINT_TYPE ZMQ_RADIO_LINGER = 0;
-    static const NATIVE_UINT_TYPE ZMQ_RADIO_RCVTIMEO = 1;
-    static const NATIVE_UINT_TYPE ZMQ_RADIO_SNDTIMEO = 1;
+    static const NATIVE_UINT_TYPE ZMQ_RADIO_RCVTIMEO = 500; // ms
+    static const NATIVE_UINT_TYPE ZMQ_RADIO_SNDTIMEO = 500; // ms
 
     static const NATIVE_UINT_TYPE ZMQ_RADIO_REG_MSG_SIZE = 3;
     static const NATIVE_UINT_TYPE ZMQ_RADIO_REG_RESP_MSG_SIZE = 3;
