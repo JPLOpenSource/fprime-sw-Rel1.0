@@ -30,7 +30,8 @@ Requirement | Description | Verification Method
 ----------- | ----------- | -------------------
 1 | All input handlers shall drop incoming messages while in ZMQ_RADIO_DISCONNECTED. |
 2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in ZMQ_RADIO_DISCONNECTED. |
-3 | All ZMQ resources shall be released upon transitioning from ZMQ_RADIO_CONNECTED to ZMQ_RADIO_DISCONNECTED. | 
+3 | All ZMQ resources shall be released upon transitioning from ZMQ_RADIO_CONNECTED to 
+ZMQ_RADIO_DISCONNECTED. | 
 4 | The 'Zmq::ZmqRadio' component shall transition to ZMQ_RADIO_DISCONNECTED state if any ZMQ is experienced. |
 5 | ZMQ shall be configured with the options below. |
 
