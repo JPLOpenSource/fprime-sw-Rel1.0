@@ -1,8 +1,3 @@
-Vue.component('instant-search', {
-  
-})
-
-
 var CommandView = Vue.extend({
   template: $('#commandTemplate').text(),
   data: function () {
@@ -40,15 +35,8 @@ var CommandView = Vue.extend({
     },
     sendCmd: function (event) {
       // Add command and time
-      checkCmd(command) {
-        if (command_search.results.length == 0) {
-          return false;
-        } else {
-          return true;
-        }
-      }
 
-      // this.socket.send(this.command_search.cmd);
+      this.socket.send(this.command_search.cmd);
       this.command_hist.history.push({
         cmd: this.command_search.cmd,
         time: Date()
@@ -56,10 +44,8 @@ var CommandView = Vue.extend({
       this.command_hist.results = this.command_hist.history.slice();
       this.command_search.results = [];  // Clear search
     },
-    navSearch: function (event, query, results, index) {
-      let keyPressed = event.key;
-    },
     searchCmd: function (event) {
+      let keyPressed = event.key;
       if (this.command_search.searchActive) {
         if (this.command_search.cmd !== '') {
           console.log(event.key);

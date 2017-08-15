@@ -19,8 +19,7 @@ function CommandServer(site, gsePort, commandPort) {
 	wssc.on('connection', function connection(ws) {
 		ws.on('message', function incoming(message) {
 			// Serialize message
-			let commandPacket = (serialize(message));
-			console.log(message);
+			let commandPacket = serialize(message);
 			console.log(commandPacket);
 			client.write(commandPacket);
 		});

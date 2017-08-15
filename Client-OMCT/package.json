@@ -12,7 +12,6 @@
     "express": "^4.15.3",
     "jsonfile": "^3.0.1",
     "openmct": "github:nasa/openmct#etch-lad-table",
-    "socket.io": "^2.0.3",
     "sprintf-js": "^1.1.1",
     "vue": "^2.4.2",
     "ws": "^3.0.0"
