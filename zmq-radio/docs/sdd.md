@@ -10,7 +10,7 @@ The component takes input from a `Fw::Com` and `Fw:BufferSend` port.
 These inputs are serviced by the `Zmq::ZmqRadio::downlinkPort_handler` and 
 `Zmq::ZmqRadio::filedownlinkbuffersendin_handler`, respectively. 
 
-An `Os::Task` listener thread, groundSubscriptionListener, runs in parallel with the ZmqRadio's 
+An `Os::Task` listener thread, `Zmq::ZmqRadio::groundSubscriptionListener`, runs in parallel with the ZmqRadio's 
 main thread. This listener thread blocks and listens for packets coming
 from the ground system. 
 
