@@ -56,7 +56,7 @@ ZMQ_SNDTIMEO | How long before a zmq_msg_send call returns an EAGAIN error. | 20
 ## 4. Functional Description
 
 ### 4.1 Zmq::ZmqRadio::downlinkPort_handler 
-If ZMQ_RADIO_CONNECTED:     This handler invokes the helper function 'zmqSocketWriteComBuffer'.
+If ZMQ_RADIO_CONNECTED:     This handler invokes the helper function 'zmqSocketWriteComBuffer'.<br>
 If ZMQ_RADIO_DISCONNECTED:  No action.
 
 ### 4.2 filedownlinkbuffersendin_handler 
