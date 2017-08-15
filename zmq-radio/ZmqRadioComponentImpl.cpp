@@ -320,12 +320,14 @@ namespace Zmq{
 			case ZMQ_RADIO_CONNECTED_STATE:
 				// Nothing to do
 				break;
+
+				
 			case ZMQ_RADIO_RECONNECT_TRANSITION_STATE:
 				// Close zmq structures
 				
 				// And drop down to reconnect state
 				this->m_state = ZMQ_RADIO_RECONNECT_STATE;
-				
+
 			case ZMQ_RADIO_RECONNECT_STATE:
 				this->connect()
 
