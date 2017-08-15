@@ -60,19 +60,19 @@ If ZMQ_RADIO_CONNECTED:     This handler invokes the helper function 'zmqSocketW
 If ZMQ_RADIO_DISCONNECTED:  No action.
 
 ### 4.2 filedownlinkbuffersendin_handler 
-If ZMQ_RADIO_CONNECTED:     This handler invokes the helper function 'zmqSocketWriteFwBuffer'.
+If ZMQ_RADIO_CONNECTED:     This handler invokes the helper function 'zmqSocketWriteFwBuffer'.<br>
 If ZMQ_RADIO_DISCONNECTED:  No action.
 
 ### 4.3 groundSubscriptionListener 
 If ZMQ_RADIO_CONNECTED:     This handler polls for uplinked packets and delivers the packets to their
-                            destination component.  
+                            destination component. <br> 
 If ZMQ_RADIO_DISCONNECTED:  No action.
 
 ### 4.4 transitionConnected
-If ZMQ_RADIO_CONNECTED:     No action.                           
+If ZMQ_RADIO_CONNECTED:     No action. <br>                           
 If ZMQ_RADIO_DISCONNECTED:  Set state to ZMQ_RADIO_CONNECTED 
 
 ### 4.5 transitionDisconnected
-If ZMQ_RADIO_CONNECTED:     Set state to ZMQ_RADIO__DISCONNECTED and release ZMQ resources.  
+If ZMQ_RADIO_CONNECTED:     Set state to ZMQ_RADIO__DISCONNECTED and release ZMQ resources. <br> 
 If ZMQ_RADIO_DISCONNECTED:  No action. 
  
