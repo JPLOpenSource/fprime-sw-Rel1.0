@@ -114,8 +114,9 @@ class ServerIntegrityTest:
             client.Quit()
         
     def passthrough(self, passthrough_time_s):
+        time.sleep(3) # Wait in case clients are still connecting
         self.logger.info("-------- Pass Through Started --------")
-        self.passthrough_time = time.time()
+        self.passthrough_time = time.time() # Save time of start
         time.sleep(passthrough_time_s)    
 
     def monte_carlo_disconnect(self, monte_carlo_time_s):
@@ -282,7 +283,7 @@ if __name__ == "__main__":
 
 
     # Check logs
-    datetime_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,%f')
+    datetime_str = test.passthrough_time.strftime('%Y-%m-%d %H:%M:%S,%f') # Get the time of passthrough start
     cmd = "python continuity_log_check.py {} {} {}".format(datetime_str, args.num_flight, args.num_ground)
     p   = Popen(args=cmd, shell=True)
     p.wait()
