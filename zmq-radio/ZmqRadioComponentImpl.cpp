@@ -26,18 +26,108 @@
 
 namespace Zmq{
 
-	ZmqRadioComponentImpl ::
+
+
+	/* Helper Functions */
+	namespace { 
+
+		bool zmqError(const char* from) {
+			switch (zmq_errno()) {
+				case EAGAIN:
+				    printf("%s: ZMQ EAGAIN\n", from);
+				    return true;
+				case EFSM:
+				     printf("%s: ZMQ EFSM", from);
+				     return true;
+				case ETERM:
+					printf("%s: ZMQ terminate\n",from);
+					return true;
+				case ENOTSOCK:
+					printf("%s: ZMQ ENOTSOCK\n",from);
+					return true;
+				case EINTR:
+					printf("%s: ZMQ EINTR\n",from);
+					return false;
+				case EFAULT:
+					printf("%s: ZMQ EFAULT\n",from);
+					return false;
+				case ENOMEM:
+					printf("%s: ZMQ ENOMEM\n", from);
+					return false;
+				default:
+					printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
+					return true;
+			}
+		}
+
+
+
+        NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
+        	//printf("Data Size: 0x%04x\n", data.getBuffLength());
+        	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
+
+
+        	U32 data_net_size = htonl(data.getBuffLength());
+        	U8 buf[sizeof(data_net_size) + data.getBuffLength()];
+        	memcpy(buf, &data_net_size, sizeof(data_net_size));
+        	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
+
+        	zmq_msg_t fPrimePacket;
+        	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
+        	memcpy(zmq_msg_data(&fPrimePacket), buf, sizeof(buf));
+
+        	int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
+        	zmq_msg_close(&fPrimePacket);
+        	if(rc == -1){
+        		zmqError("zmqSocketWriteComBuffer\n");
+        	}
+        	return 1;
+
+        }
+
+        NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
+            NATIVE_INT_TYPE total=0;
+
+            // Ignore the zmq identifier
+			zmq_msg_t zmqID;
+	    	zmq_msg_init(&zmqID);
+	    	zmq_msg_recv(&zmqID, zmqSocket, 0);
+	    	zmq_msg_close(&zmqID);
+
+	    	// Receive FPrime packet
+	    	zmq_msg_t fPrimePacket;
+	    	zmq_msg_init(&fPrimePacket);
+	    	total = zmq_msg_recv(&fPrimePacket, zmqSocket, 0);
+
+	    	if(total == -1){
+				zmqError("zmqSocketRead");
+	    	}
+
+	    	memcpy(buf, zmq_msg_data(&fPrimePacket), total);
+	    	zmq_msg_close(&fPrimePacket);
+
+            return total;
+        }
+
+	} // namespace
+
+
+
+
+
+
+	
 #if FW_OBJECT_NAMES == 1
-	ZmqRadioComponentImpl(const char* name): 
-	ZmqRadioComponentBase(name)
+	ZmqRadioComponentImpl :: ZmqRadioComponentImpl(const char* name): ZmqRadioComponentBase(name)
 #else
-	ZmqRadioComponentImpl(void)
+	ZmqRadioComponentImpl :: ZmqRadioComponentImpl(void)
 #endif
 	,m_packetsSent(0)
 	,m_context(0)
 	,m_pubSocket(0)
 	,m_subSocket(0)
 	,m_cmdSocket(0)
+	,m_state(ZMQ_RADIO_RECONNECT_STATE)
 	{
 
 	}
@@ -100,7 +190,12 @@ namespace Zmq{
 
 	    // Attempt registration
 	    rc = this->registerToServer();
-	    if(rc == 0){  }
+	    if(rc == -1){
+	    	this->m_state = ZMQ_RADIO_RECONNECT_STATE;
+	    }else{
+	    	// Set state to CONNECTED
+	    	this->m_state = ZMQ_RADIO_CONNECTED_STATE;
+	    }
 
 	}
 
@@ -151,6 +246,7 @@ namespace Zmq{
 			int size = zmq_msg_recv(&msg, this->m_cmdSocket, 0);
 			if(size == -1){
 				zmqError("ZmqRadioComponentImpl::registerToServer Error receiving server registration response.");
+				return -1;
 			}
 
 			// Receive the various msg parts
@@ -186,8 +282,8 @@ namespace Zmq{
         endpoint[ZMQ_RADIO_ENDPOINT_NAME_SIZE-1] = 0;
 		rc = zmq_connect(this->m_pubSocket,endpoint);
 		if (-1 == rc) {
-		  	zmqError("ZmqRadioComponentImpl::registerToServer Error connecting publish socket.");
-		  return -1;
+			zmqError("ZmqRadioComponentImpl::registerToServer Error connecting publish socket.");
+			return -1;
 		} 
 
 		// Create subscribe socket
@@ -198,9 +294,7 @@ namespace Zmq{
 		  return -1;
 		} 
 
-
-
-	    return 1;
+	    return 0;
 
 	}
 
@@ -220,12 +314,43 @@ namespace Zmq{
 	    DEBUG_PRINT("Finalizer\n");
 	}
 
+	void reconnect_internalInterfaceHandler(void){
+		switch(this->m_state){
+			
+			case ZMQ_RADIO_CONNECTED_STATE:
+				// Nothing to do
+				break;
+			case ZMQ_RADIO_RECONNECT_TRANSITION_STATE:
+				// Close zmq structures
+				
+				// And drop down to reconnect state
+				this->m_state = ZMQ_RADIO_RECONNECT_STATE;
+				
+			case ZMQ_RADIO_RECONNECT_STATE:
+				this->connect()
+
+				break;
+
+	}
+
 	void ZmqRadioComponentImpl::downlinkPort_handler(
 				    NATIVE_INT_TYPE portNum,
 				    Fw::ComBuffer &data,
 				    U32 context
-				)
+	)
 	{
+		switch(this->m_state){
+
+			case ZMQ_RADIO_RECONNECT_STATE:
+				// Drop packets
+
+				break;
+			case ZMQ_RADIO_CONNECTED_STATE:
+				zmqSocketWriteComBuffer(this->m_pubSocket, data);
+				break;
+
+		}
+		
 
 	}
 
@@ -234,39 +359,23 @@ namespace Zmq{
 	    Fw::Buffer fwBuffer 
 	)
 	{
+		switch(this->m_state){
+			
+			case ZMQ_RADIO_RECONNECT_STATE:
+				// Drop packets
+
+				break;
+			case ZMQ_RADIO_CONNECTED_STATE:
+				// Write files down
+
+				break;
+
+		}
+		
 
 
 	}	
 
-	bool ZmqRadioComponentImpl::zmqError(const char* from) {
-		switch (zmq_errno()) {
-			case EAGAIN:
-			    printf("%s: ZMQ EAGAIN\n", from);
-			    return true;
-			case EFSM:
-			     printf("%s: ZMQ EFSM", from);
-			     return true;
-			case ETERM:
-				printf("%s: ZMQ terminate\n",from);
-				return true;
-			case ENOTSOCK:
-				printf("%s: ZMQ ENOTSOCK\n",from);
-				return true;
-			case EINTR:
-				printf("%s: ZMQ EINTR\n",from);
-				return false;
-			case EFAULT:
-				printf("%s: ZMQ EFAULT\n",from);
-				return false;
-			case ENOMEM:
-				printf("%s: ZMQ ENOMEM\n", from);
-				return false;
-			default:
-				printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
-				return true;
-		}
-
-	}
 
 
 } // namespace Zmq 

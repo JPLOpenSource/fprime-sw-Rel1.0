@@ -1,5 +1,5 @@
 <internal_interfaces>
-    <internal_interface name="connect" priority="1">
+    <internal_interface name="reconnect" priority="1">
         <comment>
         Internal interface to call the zmq-radio connect handler
         </comment>

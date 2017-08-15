@@ -20,6 +20,11 @@ namespace Zmq{
     static const NATIVE_UINT_TYPE ZMQ_RADIO_REG_MSG_SIZE = 3;
     static const NATIVE_UINT_TYPE ZMQ_RADIO_REG_RESP_MSG_SIZE = 3;
 
+    /* Component States */
+    static const U8 ZMQ_RADIO_RECONNECT_STATE            = 0x01;
+    static const U8 ZMQ_RADIO_RECONNECT_TRANSITION_STATE = 0x02;
+    static const U8 ZMQ_RADIO_CONNECTED_STATE            = 0x04;
+
 
 }
 

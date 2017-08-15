@@ -22,6 +22,7 @@
 #define ZMQRADIOIMPL_HPP_
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <fprime-zmq/zmq-radio/ZmqRadioComponentAc.hpp>
 #include <fprime-zmq/zmq-radio/ZmqRadioCfg.hpp>
@@ -47,9 +48,16 @@ namespace Zmq{
 	
 	PROTECTED:
 	PRIVATE:
-		bool zmqError(const char* from);
-	    void connect(void); // Setup zmq context and attempt server connection
-	    NATIVE_INT_TYPE registerToServer(void); // Send a registration call to server
+
+		/* Setup zmq context and attempt server connection 
+		 * */
+	    void connect(void);
+
+	    /* Send a registration call to server.
+	     * Returns 0  if successful.
+	     * Returns -1 if unsuccessful. 
+	     * */
+	    NATIVE_INT_TYPE registerToServer(void);
 	    void preamble(void);
 	    void finalizer(void);
 
@@ -70,6 +78,9 @@ namespace Zmq{
 		Fw::Buffer fwBuffer 
 	    );
 
+
+	    void reconnect_internalInterfaceHandler(void);
+
 	    U32   m_packetsSent;
 	    void* m_context; //!< zmq context
 	    void* m_pubSocket; //!< zmq socket for outbound telemetry,events, and files
@@ -81,6 +92,8 @@ namespace Zmq{
 	    U32  m_serverCmdPort;
 	    U32  m_serverPubPort;
 	    U32  m_serverSubPort;
+
+	    U8 m_state; //!< This component's state
 
 
     };

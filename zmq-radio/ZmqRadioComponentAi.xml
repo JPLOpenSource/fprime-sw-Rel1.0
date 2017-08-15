@@ -12,6 +12,7 @@
     <import_port_type>Fw/Tlm/TlmPortAi.xml</import_port_type>
     <import_dictionary>fprime-zmq/zmq-radio/telemetry.xml</import_dictionary>
     <import_dictionary>fprime-zmq/zmq-radio/events.xml</import_dictionary>
+    <import_dictionary>fprime-zmq/zmq-radio/internal.xml</import_dictionary>
     <ports>
     
 
