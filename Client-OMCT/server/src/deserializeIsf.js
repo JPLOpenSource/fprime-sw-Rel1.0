@@ -84,19 +84,23 @@ const packDescrSize = 38;
 
 function deserialize(data) {
 	let res = [];
+	let dataHexRep = data.toString('hex');
+	// console.log(JSON.stringify(data));
 
-	let packetLength = data.toString('hex').length;
+	let packetLength = dataHexRep.length;
 	let ptr = 0;
 	while (ptr < packetLength) {
 
+
+
 		// Ptr is incremented in nibbles since each character is a hex representation
-		let size         = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		let descriptor   = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		let	id           = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		let timeBase     = parseInt(data.toString('hex').substring(ptr, ptr += 4), 16);
-		let timeContext  = parseInt(data.toString('hex').substring(ptr, ptr += 2), 16);
-		let timeSeconds  = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
-		let timeUSeconds = parseInt(data.toString('hex').substring(ptr, ptr += 8), 16);
+		let size         = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
+		let descriptor   = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
+		let	id           = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
+		let timeBase     = parseInt(dataHexRep.substring(ptr, ptr += 4), 16);
+		let timeContext  = parseInt(dataHexRep.substring(ptr, ptr += 2), 16);
+		let timeSeconds  = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
+		let timeUSeconds = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
 
 		// Find telemetry format specifiers
 		let telemData;
@@ -111,7 +115,7 @@ function deserialize(data) {
 		// Get size of value in nibbles
 		let valueSize = (size * 2) - packDescrSize;
 		// Get hexvalue
-		let hexValue = data.toString('hex').substring(ptr, ptr += valueSize);
+		let hexValue = dataHexRep.substring(ptr, ptr += valueSize);
 
 		let value;
 		if (telemData) {

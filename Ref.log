@@ -61,3 +61,5 @@ EVENT: (241) (2:1502732668,175814) DIAGNOSTIC: (RG3) RateGroupStarted : Rate gro
 EVENT: (381) (2:1502732668,176042) WARNING_LO: (SGIF) NoConnectionToServer : Unable to connect to the socket server on port 50000
 EVENT: (382) (2:1502732668,177384) ACTIVITY_HI: (SGIF) ConnectedToServer : Connection made to the socket server on port 50000
 Sent register FSW string to ground
+write error on port 50000 
+Delim read error: Connection reset by peerwrite error on port 50000 
