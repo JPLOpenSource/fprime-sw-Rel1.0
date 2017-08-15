@@ -1,7 +1,7 @@
 // ====================================================================== 
-// \title  ZmqGroundIf/test/ut/Tester.hpp
+// \title  ZmqRadio/test/ut/Tester.hpp
 // \author dkooi
-// \brief  hpp file for ZmqGroundIf test harness implementation class
+// \brief  hpp file for ZmqRadio test harness implementation class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -21,12 +21,12 @@
 #define TESTER_HPP
 
 #include "GTestBase.hpp"
-#include "fprime-zmq/zmq-groundif/ZmqGroundIfComponentImpl.hpp"
+#include "fprime-zmq/zmq-radio/ZmqRadioComponentImpl.hpp"
 
 namespace Zmq {
 
   class Tester :
-    public ZmqGroundIfGTestBase
+    public ZmqRadioGTestBase
   {
 
       // ----------------------------------------------------------------------
@@ -110,7 +110,7 @@ namespace Zmq {
 
       //! The component under test
       //!
-      ZmqGroundIfComponentImpl component;
+      ZmqRadioComponentImpl component;
 
   };
 

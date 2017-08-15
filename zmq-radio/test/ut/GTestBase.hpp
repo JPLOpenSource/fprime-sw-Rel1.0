@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqGroundIf/test/ut/GTestBase.hpp
+// \title  ZmqRadio/test/ut/GTestBase.hpp
 // \author Auto-generated
-// \brief  hpp file for ZmqGroundIf component Google Test harness base class
+// \brief  hpp file for ZmqRadio component Google Test harness base class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -17,11 +17,58 @@
 // countries or providing access to foreign persons.
 // ======================================================================
 
-#ifndef ZmqGroundIf_GTEST_BASE_HPP
-#define ZmqGroundIf_GTEST_BASE_HPP
+#ifndef ZmqRadio_GTEST_BASE_HPP
+#define ZmqRadio_GTEST_BASE_HPP
 
 #include "TesterBase.hpp"
 #include "gtest/gtest.h"
+
+// ----------------------------------------------------------------------
+// Macros for telemetry history assertions
+// ----------------------------------------------------------------------
+
+#define ASSERT_TLM_SIZE(size) \
+  this->assertTlm_size(__FILE__, __LINE__, size)
+
+#define ASSERT_TLM_ZR_PacketsSent_SIZE(size) \
+  this->assertTlm_ZR_PacketsSent_size(__FILE__, __LINE__, size)
+
+#define ASSERT_TLM_ZR_PacketsSent(index, value) \
+  this->assertTlm_ZR_PacketsSent(__FILE__, __LINE__, index, value)
+
+// ----------------------------------------------------------------------
+// Macros for event history assertions 
+// ----------------------------------------------------------------------
+
+#define ASSERT_EVENTS_SIZE(size) \
+  this->assertEvents_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_PublishConnectionOpened_SIZE(size) \
+  this->assertEvents_ZR_PublishConnectionOpened_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_ContextError_SIZE(size) \
+  this->assertEvents_ZR_ContextError_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_ContextError(index, _error) \
+  this->assertEvents_ZR_ContextError(__FILE__, __LINE__, index, _error)
+
+#define ASSERT_EVENTS_ZR_SocketError_SIZE(size) \
+  this->assertEvents_ZR_SocketError_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_SocketError(index, _error) \
+  this->assertEvents_ZR_SocketError(__FILE__, __LINE__, index, _error)
+
+#define ASSERT_EVENTS_ZR_BindError_SIZE(size) \
+  this->assertEvents_ZR_BindError_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_BindError(index, _error) \
+  this->assertEvents_ZR_BindError(__FILE__, __LINE__, index, _error)
+
+#define ASSERT_EVENTS_ZR_SendError_SIZE(size) \
+  this->assertEvents_ZR_SendError_size(__FILE__, __LINE__, size)
+
+#define ASSERT_EVENTS_ZR_SendError(index, _error) \
+  this->assertEvents_ZR_SendError(__FILE__, __LINE__, index, _error)
 
 // ----------------------------------------------------------------------
 // Macros for typed user from port history assertions
@@ -145,11 +192,11 @@
 
 namespace Zmq {
 
-  //! \class ZmqGroundIfGTestBase
-  //! \brief Auto-generated base class for ZmqGroundIf component Google Test harness
+  //! \class ZmqRadioGTestBase
+  //! \brief Auto-generated base class for ZmqRadio component Google Test harness
   //!
-  class ZmqGroundIfGTestBase :
-    public ZmqGroundIfTesterBase
+  class ZmqRadioGTestBase :
+    public ZmqRadioTesterBase
   {
 
     protected:
@@ -158,9 +205,9 @@ namespace Zmq {
       // Construction and destruction
       // ----------------------------------------------------------------------
 
-      //! Construct object ZmqGroundIfGTestBase
+      //! Construct object ZmqRadioGTestBase
       //!
-      ZmqGroundIfGTestBase(
+      ZmqRadioGTestBase(
 #if FW_OBJECT_NAMES == 1
           const char *const compName, /*!< The component name*/
           const U32 maxHistorySize /*!< The maximum size of each history*/
@@ -169,9 +216,144 @@ namespace Zmq {
 #endif
       );
 
-      //! Destroy object ZmqGroundIfGTestBase
+      //! Destroy object ZmqRadioGTestBase
       //!
-      virtual ~ZmqGroundIfGTestBase(void);
+      virtual ~ZmqRadioGTestBase(void);
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Telemetry
+      // ----------------------------------------------------------------------
+
+      //! Assert size of telemetry history
+      //!
+      void assertTlm_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_PacketsSent
+      // ----------------------------------------------------------------------
+
+      //! Assert telemetry value in history at index
+      //!
+      void assertTlm_ZR_PacketsSent_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+      void assertTlm_ZR_PacketsSent(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 index, /*!< The index*/
+          const U32& val /*!< The channel value*/
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Events
+      // ----------------------------------------------------------------------
+
+      void assertEvents_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_PublishConnectionOpened
+      // ----------------------------------------------------------------------
+
+      void assertEvents_ZR_PublishConnectionOpened_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_ContextError
+      // ----------------------------------------------------------------------
+
+      void assertEvents_ZR_ContextError_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+      void assertEvents_ZR_ContextError(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 index, /*!< The index*/
+          const char *const error 
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_SocketError
+      // ----------------------------------------------------------------------
+
+      void assertEvents_ZR_SocketError_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+      void assertEvents_ZR_SocketError(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 index, /*!< The index*/
+          const char *const error 
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_BindError
+      // ----------------------------------------------------------------------
+
+      void assertEvents_ZR_BindError_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+      void assertEvents_ZR_BindError(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 index, /*!< The index*/
+          const char *const error 
+      ) const;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_SendError
+      // ----------------------------------------------------------------------
+
+      void assertEvents_ZR_SendError_size(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 size /*!< The asserted size*/
+      ) const;
+
+      void assertEvents_ZR_SendError(
+          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
+          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
+          const U32 index, /*!< The index*/
+          const char *const error 
+      ) const;
 
     protected:
 

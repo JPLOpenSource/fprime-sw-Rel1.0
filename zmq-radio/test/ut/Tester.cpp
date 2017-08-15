@@ -1,7 +1,7 @@
 // ====================================================================== 
-// \title  ZmqGroundIf.hpp
+// \title  ZmqRadio.hpp
 // \author dkooi
-// \brief  cpp file for ZmqGroundIf test harness implementation class
+// \brief  cpp file for ZmqRadio test harness implementation class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -32,10 +32,10 @@ namespace Zmq {
   Tester ::
     Tester(void) : 
 #if FW_OBJECT_NAMES == 1
-      ZmqGroundIfGTestBase("Tester", MAX_HISTORY_SIZE),
-      component("ZmqGroundIf")
+      ZmqRadioGTestBase("Tester", MAX_HISTORY_SIZE),
+      component("ZmqRadio")
 #else
-      ZmqGroundIfGTestBase(MAX_HISTORY_SIZE),
+      ZmqRadioGTestBase(MAX_HISTORY_SIZE),
       component()
 #endif
   {
@@ -161,6 +161,12 @@ namespace Zmq {
     this->component.set_fileUplinkBufferGet_OutputPort(
         0, 
         this->get_from_fileUplinkBufferGet(0)
+    );
+
+    // tlmOut
+    this->component.set_tlmOut_OutputPort(
+        0, 
+        this->get_from_tlmOut(0)
     );
 
   }

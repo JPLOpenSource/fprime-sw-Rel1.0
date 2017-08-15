@@ -38,16 +38,21 @@ namespace Zmq{
 #endif
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
 
-	    /* Initiate a connection to <port> using socket identity <zmqId> */
-	    void open(const char* port, const char* zmqId); 
+	    /* Initiate a connection to <port> using socket identity <zmqId> 
+	     * by transitioning to ZMQ_RADIO_RECONNECT state 
+	     * */
+	    void open(const char* hostname, U32 port, const char* zmqId); 
 
 	    virtual ~ZmqRadioComponentImpl();
 	
 	PROTECTED:
 	PRIVATE:
+		bool zmqError(const char* from);
 	    void connect(void); // Setup zmq context and attempt server connection
+	    NATIVE_INT_TYPE registerToServer(void); // Send a registration call to server
 	    void preamble(void);
 	    void finalizer(void);
+
 
 	    //! Handler for input port downlinkPort
 	    //
@@ -71,10 +76,11 @@ namespace Zmq{
 	    void* m_subSocket; //!< zmq socket for inbound commands and files
 	    void* m_cmdSocket; //!< zmq socket for server registration
 
-	    char  m_zmqId[ZMQ_RADIO_ENDPOINT_NAME_SIZE]; //!< zmq socket identity 
-	    char  server_cmd_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
-	    char  server_pub_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
-	    char  server_sub_port[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
+	    char m_zmqId[ZMQ_RADIO_ENDPOINT_NAME_SIZE]; //!< zmq socket identity 
+	    char m_hostname[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
+	    U32  m_serverCmdPort;
+	    U32  m_serverPubPort;
+	    U32  m_serverSubPort;
 
 
     };

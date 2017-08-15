@@ -3,7 +3,7 @@ TEST_SRC = 	main.cpp \
 			TesterBase.cpp \
 			GTestBase.cpp
 
-TEST_MODS = fprime-zmq/zmq-groundif\
+TEST_MODS = fprime-zmq/zmq-radio\
 	    fprime-zmq/zmq \
 	    		Fw/Buffer \
 			Fw/Tlm \

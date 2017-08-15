@@ -1,7 +1,7 @@
 // ======================================================================
-// \title  ZmqGroundIf/test/ut/TesterBase.hpp
+// \title  ZmqRadio/test/ut/TesterBase.hpp
 // \author Auto-generated
-// \brief  hpp file for ZmqGroundIf component test harness base class
+// \brief  hpp file for ZmqRadio component test harness base class
 //
 // \copyright
 // Copyright 2009-2015, by the California Institute of Technology.
@@ -17,10 +17,10 @@
 // countries or providing access to foreign persons.
 // ======================================================================
 
-#ifndef ZmqGroundIf_TESTER_BASE_HPP
-#define ZmqGroundIf_TESTER_BASE_HPP
+#ifndef ZmqRadio_TESTER_BASE_HPP
+#define ZmqRadio_TESTER_BASE_HPP
 
-#include <fprime-zmq/zmq-groundif/ZmqGroundIfComponentAc.hpp>
+#include <fprime-zmq/zmq-radio/ZmqRadioComponentAc.hpp>
 #include <Fw/Types/Assert.hpp>
 #include <Fw/Comp/PassiveComponentBase.hpp>
 #include <stdio.h>
@@ -28,10 +28,10 @@
 
 namespace Zmq {
 
-  //! \class ZmqGroundIfTesterBase
-  //! \brief Auto-generated base class for ZmqGroundIf component test harness
+  //! \class ZmqRadioTesterBase
+  //! \brief Auto-generated base class for ZmqRadio component test harness
   //!
-  class ZmqGroundIfTesterBase :
+  class ZmqRadioTesterBase :
     public Fw::PassiveComponentBase
   {
 
@@ -41,7 +41,7 @@ namespace Zmq {
       // Initialization
       // ----------------------------------------------------------------------
 
-      //! Initialize object ZmqGroundIfTesterBase
+      //! Initialize object ZmqRadioTesterBase
       //!
       virtual void init(
           const NATIVE_INT_TYPE instance = 0 /*!< The instance number*/
@@ -133,15 +133,23 @@ namespace Zmq {
           const NATIVE_INT_TYPE portNum /*!< The port number*/
       );
 
+      //! Get the port that receives input from tlmOut
+      //!
+      //! \return from_tlmOut[portNum]
+      //!
+      Fw::InputTlmPort* get_from_tlmOut(
+          const NATIVE_INT_TYPE portNum /*!< The port number*/
+      );
+
     protected:
 
       // ----------------------------------------------------------------------
       // Construction and destruction
       // ----------------------------------------------------------------------
 
-      //! Construct object ZmqGroundIfTesterBase
+      //! Construct object ZmqRadioTesterBase
       //!
-      ZmqGroundIfTesterBase(
+      ZmqRadioTesterBase(
 #if FW_OBJECT_NAMES == 1
           const char *const compName, /*!< The component name*/
           const U32 maxHistorySize /*!< The maximum size of each history*/
@@ -150,9 +158,9 @@ namespace Zmq {
 #endif
       );
 
-      //! Destroy object ZmqGroundIfTesterBase
+      //! Destroy object ZmqRadioTesterBase
       //!
-      virtual ~ZmqGroundIfTesterBase(void);
+      virtual ~ZmqRadioTesterBase(void);
 
       // ----------------------------------------------------------------------
       // Test history
@@ -461,6 +469,12 @@ namespace Zmq {
       //!
       NATIVE_INT_TYPE getNum_from_fileUplinkBufferGet(void) const;
 
+      //! Get the number of from_tlmOut ports
+      //!
+      //! \return The number of from_tlmOut ports
+      //!
+      NATIVE_INT_TYPE getNum_from_tlmOut(void) const;
+
     protected:
 
       // ----------------------------------------------------------------------
@@ -481,6 +495,239 @@ namespace Zmq {
       //!
       bool isConnected_to_fileDownlinkBufferSendIn(
           const NATIVE_INT_TYPE portNum /*!< The port number*/
+      );
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event dispatch
+      // ----------------------------------------------------------------------
+
+      //! Dispatch an event
+      //!
+      void dispatchEvents(
+          const FwEventIdType id, /*!< The event ID*/
+          Fw::Time& timeTag, /*!< The time*/
+          const Fw::LogSeverity severity, /*!< The severity*/
+          Fw::LogBuffer& args /*!< The serialized arguments*/
+      );
+
+      //! Clear event history
+      //!
+      void clearEvents(void);
+
+      //! The total number of events seen
+      //!
+      U32 eventsSize;
+
+#if FW_ENABLE_TEXT_LOGGING
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Text events
+      // ----------------------------------------------------------------------
+
+      //! Handle a text event
+      //!
+      virtual void textLogIn(
+          const FwEventIdType id, /*!< The event ID*/
+          Fw::Time& timeTag, /*!< The time*/
+          const Fw::TextLogSeverity severity, /*!< The severity*/
+          const Fw::TextLogString& text /*!< The event string*/
+      );
+
+      //! A history entry for the text log
+      //!
+      typedef struct {
+        U32 id;
+        Fw::Time timeTag;
+        Fw::TextLogSeverity severity;
+        Fw::TextLogString text;
+      } TextLogEntry;
+
+      //! The history of text log events
+      //!
+      History<TextLogEntry> *textLogHistory;
+
+      //! Print a text log history entry
+      //!
+      static void printTextLogHistoryEntry(
+          const TextLogEntry& e,
+          FILE* file
+      );
+
+      //! Print the text log history
+      //!
+      void printTextLogHistory(FILE *const file);
+
+#endif
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_PublishConnectionOpened
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_PublishConnectionOpened
+      //!
+      virtual void logIn_ACTIVITY_HI_ZR_PublishConnectionOpened(
+          void
+      );
+
+      //! Size of history for event ZR_PublishConnectionOpened
+      //!
+      U32 eventsSize_ZR_PublishConnectionOpened;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_ContextError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_ContextError
+      //!
+      virtual void logIn_WARNING_HI_ZR_ContextError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_ContextError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_ContextError;
+
+      //! The history of ZR_ContextError events
+      //!
+      History<EventEntry_ZR_ContextError> 
+        *eventHistory_ZR_ContextError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_SocketError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_SocketError
+      //!
+      virtual void logIn_WARNING_HI_ZR_SocketError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_SocketError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_SocketError;
+
+      //! The history of ZR_SocketError events
+      //!
+      History<EventEntry_ZR_SocketError> 
+        *eventHistory_ZR_SocketError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_BindError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_BindError
+      //!
+      virtual void logIn_WARNING_HI_ZR_BindError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_BindError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_BindError;
+
+      //! The history of ZR_BindError events
+      //!
+      History<EventEntry_ZR_BindError> 
+        *eventHistory_ZR_BindError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_SendError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_SendError
+      //!
+      virtual void logIn_WARNING_HI_ZR_SendError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_SendError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_SendError;
+
+      //! The history of ZR_SendError events
+      //!
+      History<EventEntry_ZR_SendError> 
+        *eventHistory_ZR_SendError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Telemetry dispatch
+      // ----------------------------------------------------------------------
+
+      //! Dispatch telemetry
+      //!
+      void dispatchTlm(
+          const FwChanIdType id, /*!< The channel ID*/
+          const Fw::Time& timeTag, /*!< The time*/
+          Fw::TlmBuffer& val /*!< The channel value*/
+      );
+
+      //! Clear telemetry history
+      //!
+      void clearTlm(void);
+
+      //! The total number of telemetry inputs seen
+      //!
+      U32 tlmSize;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_PacketsSent
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_PacketsSent
+      //!
+      virtual void tlmInput_ZR_PacketsSent(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_PacketsSent
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_PacketsSent;
+
+      //! The history of ZR_PacketsSent values
+      //!
+      History<TlmEntry_ZR_PacketsSent> 
+        *tlmHistory_ZR_PacketsSent;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Test time
+      // ----------------------------------------------------------------------
+
+      //! Set the test time for events and telemetry
+      //!
+      void setTestTime(
+          const Fw::Time& timeTag /*!< The time*/
       );
 
     private:
@@ -532,6 +779,10 @@ namespace Zmq {
       //! From port connected to fileUplinkBufferGet
       //!
       Fw::InputBufferGetPort m_from_fileUplinkBufferGet[1];
+
+      //! From port connected to tlmOut
+      //!
+      Fw::InputTlmPort m_from_tlmOut[1];
 
     private:
 
@@ -603,6 +854,26 @@ namespace Zmq {
           const NATIVE_INT_TYPE portNum, /*!< The port number*/
           U32 size 
       );
+
+      //! Static function for port from_tlmOut
+      //!
+      static void from_tlmOut_static(
+          Fw::PassiveComponentBase *const callComp, /*!< The component instance*/
+          const NATIVE_INT_TYPE portNum, /*!< The port number*/
+          FwChanIdType id, /*!< Telemetry Channel ID*/
+          Fw::Time &timeTag, /*!< Time Tag*/
+          Fw::TlmBuffer &val /*!< Buffer containing serialized telemetry value*/
+      );
+
+    private:
+
+      // ----------------------------------------------------------------------
+      // Test time
+      // ----------------------------------------------------------------------
+
+      //! Test time stamp
+      //!
+      Fw::Time m_testTime;
 
   };
 
