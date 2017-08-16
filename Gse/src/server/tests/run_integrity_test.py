@@ -5,7 +5,7 @@ def main():
     # Test 1
     num_flight = 1
     num_ground = 4
-    flight_throughput = 100 # msgs / second
+    flight_throughput = 500 # msgs / second
     flight_size =  100 # byte
     ground_throughput = 100 #  msgs / second
     ground_size  = 100 # byte
