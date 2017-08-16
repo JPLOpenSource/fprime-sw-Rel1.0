@@ -37,6 +37,7 @@ namespace Zmq{
 #else
 	    ZmqRadioComponentImpl(void);
 #endif
+
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
 
 	    /* Initiate a connection to <port> using socket identity <zmqId> 

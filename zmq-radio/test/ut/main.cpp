@@ -12,16 +12,22 @@ int main(int argc, char* argv[]){
     signal(SIGINT, sighandler);
     signal(SIGTERM, sighandler);
 
-    Zmq::ZmqRadioComponentImpl comp("flight");
-    comp.init(100, 1);
-    comp.open("localhost", 5555, "flight_1");
+    Zmq::Tester tester;
+    tester.testConnection();
+
+    //Zmq::ZmqRadioComponentImpl comp("flight");
+    //comp.init(100, 1);
+    //comp.open("localhost", 5555, "flight_1");
+    
+
+
     //comp.start(1, 90, 20*1024);
 
     while(not quit){
     
     }
 
-    comp.exit();
+    //comp.exit();
     
 
 }

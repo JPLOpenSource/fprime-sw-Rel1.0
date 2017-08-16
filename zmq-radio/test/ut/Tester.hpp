@@ -20,19 +20,22 @@
 #ifndef TESTER_HPP
 #define TESTER_HPP
 
-#include "GTestBase.hpp"
+#include <stdio.h>
+
+//#include "GTestBase.hpp"
+#include "TesterBase.hpp"
 #include "fprime-zmq/zmq-radio/ZmqRadioComponentImpl.hpp"
 
 namespace Zmq {
 
   class Tester :
-    public ZmqRadioGTestBase
+    public ZmqRadioTesterBase
   {
 
       // ----------------------------------------------------------------------
       // Construction and destruction
       // ----------------------------------------------------------------------
-
+    friend class ZmqRadioComponentImpl;
     public:
 
       //! Construct object Tester
@@ -49,9 +52,9 @@ namespace Zmq {
       // Tests
       // ---------------------------------------------------------------------- 
 
-      //! To do
+      //! Init and open component.
       //!
-      void toDo(void);
+      void testConnection(void);
 
     private:
 

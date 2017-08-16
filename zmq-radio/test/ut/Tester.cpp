@@ -32,10 +32,10 @@ namespace Zmq {
   Tester ::
     Tester(void) : 
 #if FW_OBJECT_NAMES == 1
-      ZmqRadioGTestBase("Tester", MAX_HISTORY_SIZE),
+      ZmqRadioTesterBase("Tester", MAX_HISTORY_SIZE),
       component("ZmqRadio")
 #else
-      ZmqRadioGTestBase(MAX_HISTORY_SIZE),
+      ZmqRadioTesterBase(MAX_HISTORY_SIZE),
       component()
 #endif
   {
@@ -54,9 +54,13 @@ namespace Zmq {
   // ----------------------------------------------------------------------
 
   void Tester ::
-    toDo(void) 
+    testConnection(void)
+
   {
-    // TODO
+    this->component.init(100, 1);
+    this->component.open("localhost", 5555, "flight_1");
+    printf("State: %d\n", this->component.m_state.get());
+    
   }
 
   // ----------------------------------------------------------------------
@@ -108,6 +112,12 @@ namespace Zmq {
   void Tester ::
     connectPorts(void) 
   {
+
+    // reconnect
+    this->connect_to_reconnect(
+        0,
+        this->component.get_reconnect_InputPort(0)
+    );
 
     // downlinkPort
     this->connect_to_downlinkPort(

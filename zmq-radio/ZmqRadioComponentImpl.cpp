@@ -123,9 +123,8 @@ namespace Zmq{
 	,m_pubSocket(0)
 	,m_subSocket(0)
 	,m_cmdSocket(0)
-	,m_state(0)
+	,m_state(this)
 	{
-		this->m_state = State(this);
 	}
 
 	void ZmqRadioComponentImpl::init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance){

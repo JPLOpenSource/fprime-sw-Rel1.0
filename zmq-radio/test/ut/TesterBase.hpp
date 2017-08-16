@@ -54,6 +54,13 @@ namespace Zmq {
       // Connect these output ports to the input ports under test
       // ----------------------------------------------------------------------
 
+      //! Connect reconnect to to_reconnect[portNum]
+      //!
+      void connect_to_reconnect(
+          const NATIVE_INT_TYPE portNum, /*!< The port number*/
+          Svc::InputSchedPort *const reconnect /*!< The port*/
+      );
+
       //! Connect downlinkPort to to_downlinkPort[portNum]
       //!
       void connect_to_downlinkPort(
@@ -392,6 +399,13 @@ namespace Zmq {
       // Invocation functions for to ports
       // ----------------------------------------------------------------------
 
+      //! Invoke the to port connected to reconnect
+      //!
+      void invoke_to_reconnect(
+          const NATIVE_INT_TYPE portNum, /*!< The port number*/
+          NATIVE_UINT_TYPE context /*!< The call order*/
+      );
+
       //! Invoke the to port connected to downlinkPort
       //!
       void invoke_to_downlinkPort(
@@ -418,6 +432,12 @@ namespace Zmq {
       //! \return The number of from_fileUplinkBufferSendOut ports
       //!
       NATIVE_INT_TYPE getNum_from_fileUplinkBufferSendOut(void) const;
+
+      //! Get the number of to_reconnect ports
+      //!
+      //! \return The number of to_reconnect ports
+      //!
+      NATIVE_INT_TYPE getNum_to_reconnect(void) const;
 
       //! Get the number of from_Log ports
       //!
@@ -480,6 +500,14 @@ namespace Zmq {
       // ----------------------------------------------------------------------
       // Connection status for to ports
       // ----------------------------------------------------------------------
+
+      //! Check whether port is connected
+      //!
+      //! Whether to_reconnect[portNum] is connected
+      //!
+      bool isConnected_to_reconnect(
+          const NATIVE_INT_TYPE portNum /*!< The port number*/
+      );
 
       //! Check whether port is connected
       //!
@@ -562,22 +590,6 @@ namespace Zmq {
       void printTextLogHistory(FILE *const file);
 
 #endif
-
-    protected:
-
-      // ----------------------------------------------------------------------
-      // Event: ZR_PublishConnectionOpened
-      // ----------------------------------------------------------------------
-
-      //! Handle event ZR_PublishConnectionOpened
-      //!
-      virtual void logIn_ACTIVITY_HI_ZR_PublishConnectionOpened(
-          void
-      );
-
-      //! Size of history for event ZR_PublishConnectionOpened
-      //!
-      U32 eventsSize_ZR_PublishConnectionOpened;
 
     protected:
 
@@ -674,6 +686,54 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
+      // Event: ZR_Disconnection
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_Disconnection
+      //!
+      virtual void logIn_WARNING_HI_ZR_Disconnection(
+          void
+      );
+
+      //! Size of history for event ZR_Disconnection
+      //!
+      U32 eventsSize_ZR_Disconnection;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_Connection
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_Connection
+      //!
+      virtual void logIn_ACTIVITY_HI_ZR_Connection(
+          void
+      );
+
+      //! Size of history for event ZR_Connection
+      //!
+      U32 eventsSize_ZR_Connection;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_RecvTimeout
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_RecvTimeout
+      //!
+      virtual void logIn_WARNING_HI_ZR_RecvTimeout(
+          void
+      );
+
+      //! Size of history for event ZR_RecvTimeout
+      //!
+      U32 eventsSize_ZR_RecvTimeout;
+
+    protected:
+
+      // ----------------------------------------------------------------------
       // Telemetry dispatch
       // ----------------------------------------------------------------------
 
@@ -721,6 +781,131 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
+      // Channel: ZR_NumDisconnects
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_NumDisconnects
+      //!
+      virtual void tlmInput_ZR_NumDisconnects(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_NumDisconnects
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_NumDisconnects;
+
+      //! The history of ZR_NumDisconnects values
+      //!
+      History<TlmEntry_ZR_NumDisconnects> 
+        *tlmHistory_ZR_NumDisconnects;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_NumConnects
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_NumConnects
+      //!
+      virtual void tlmInput_ZR_NumConnects(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_NumConnects
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_NumConnects;
+
+      //! The history of ZR_NumConnects values
+      //!
+      History<TlmEntry_ZR_NumConnects> 
+        *tlmHistory_ZR_NumConnects;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_NumRecvTimeouts
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_NumRecvTimeouts
+      //!
+      virtual void tlmInput_ZR_NumRecvTimeouts(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_NumRecvTimeouts
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_NumRecvTimeouts;
+
+      //! The history of ZR_NumRecvTimeouts values
+      //!
+      History<TlmEntry_ZR_NumRecvTimeouts> 
+        *tlmHistory_ZR_NumRecvTimeouts;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_PktsSent
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_PktsSent
+      //!
+      virtual void tlmInput_ZR_PktsSent(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_PktsSent
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_PktsSent;
+
+      //! The history of ZR_PktsSent values
+      //!
+      History<TlmEntry_ZR_PktsSent> 
+        *tlmHistory_ZR_PktsSent;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_PktsRecv
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_PktsRecv
+      //!
+      virtual void tlmInput_ZR_PktsRecv(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_PktsRecv
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_PktsRecv;
+
+      //! The history of ZR_PktsRecv values
+      //!
+      History<TlmEntry_ZR_PktsRecv> 
+        *tlmHistory_ZR_PktsRecv;
+
+    protected:
+
+      // ----------------------------------------------------------------------
       // Test time
       // ----------------------------------------------------------------------
 
@@ -735,6 +920,10 @@ namespace Zmq {
       // ----------------------------------------------------------------------
       // To ports
       // ----------------------------------------------------------------------
+
+      //! To port connected to reconnect
+      //!
+      Svc::OutputSchedPort m_to_reconnect[1];
 
       //! To port connected to downlinkPort
       //!
