@@ -1,3 +1,77 @@
+Vue.component('command-search', {
+  template: ' \
+      <div class="command-search"> \
+        <input \
+          class="cmd-input" \
+          type="text" \
+          v-model="commandQuery" \
+          @focus="toggleResults(true)" \
+          @blur="toggleResults(false)" \
+          @keyup="navigateResults" \
+          placeholder="Enter command"> \
+        <ul class="cmd-results"\
+            v-if="showResults"> \
+          <li \
+            v-for="command in results"> \
+            <p>{{ command["name"] }}</p> \
+          </li> \
+        </ul> \
+      </div> \
+    ',
+  data: function () {
+    return {
+      commandQuery: '',
+      results: [],
+      showResults: false
+    }
+  },
+  methods: {
+    toggleResults: function (show) {
+      if (show) {
+        this.showResults = true;
+      } else {
+        this.showResults = false;
+      }
+    },
+    getCommands: function () {
+      // Returns promise of array of all commands
+      return getDictionary().then(function (dict) {
+        let commandDict = dict['isf']['commands'];       
+        let validCommands = [];
+        for (id in commandDict) {
+          let args = commandDict[id]['arguments'];
+          let argFormat = args.map((a) => a['name'] + ' (' + a['type'] + ') ');
+          validCommands.push({
+            'name': commandDict[id]['name'],
+            'args': argFormat
+          });
+        }
+        return validCommands;
+      });
+    },
+    searchCommand: function(query) {
+      self = this;  // Avoid 'this' scoping issues inside .then of promise
+      self.getCommands().then(function (vc) {
+        self.results = vc.filter((c) => c['name'].toLowerCase()  // Make cmds case insensitive
+                                                 .indexOf(query.toLowerCase()  // Make query case insensitive
+                                                               .split('(')[0]) !== -1);  // Only search name
+      })
+    },
+    navigateResults: function (event) {
+      // Always search
+      this.searchCommand(this.commandQuery);
+      let keyPressed = event.key;
+      // alert(keyPressed);
+      switch (keyPressed) {
+        case 'Escape': {
+          this.showResults = false;
+          break;
+        }
+      }
+    }
+  }
+})
+
 var CommandView = Vue.extend({
   template: $('#commandTemplate').text(),
   data: function () {

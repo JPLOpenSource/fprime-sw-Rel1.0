@@ -48,25 +48,7 @@
     <body>
     <div class="command-console">
 
-      <div class='command-search'>
-
-        <input
-          class="cmd-input"
-          type="text"
-          v-model="command_search.cmd"
-          @keyup.enter="sendCmd"
-          @keyup="searchCmd"
-          placeholder="Enter command">
-
-        <ul class="cmd-results"
-            v-show="command_search.searchActive">
-          <li
-            v-for="command in command_search.results">
-            <p @click="select(command, false)">{{ command['name'] + '( ' + command['args'] + ')' }}</p>
-          </li>
-        </ul>
-
-      </div>
+      <command-search></command-search>
       
       <div class='history-search'>
 
