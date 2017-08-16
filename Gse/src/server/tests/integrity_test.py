@@ -116,7 +116,7 @@ class ServerIntegrityTest:
     def passthrough(self, passthrough_time_s):
         time.sleep(3) # Wait in case clients are still connecting
         self.logger.info("-------- Pass Through Started --------")
-        self.passthrough_time = time.time() # Save time of start
+        self.passthrough_time = datetime.datetime.now() # Save time of start
         time.sleep(passthrough_time_s)    
 
     def monte_carlo_disconnect(self, monte_carlo_time_s):
