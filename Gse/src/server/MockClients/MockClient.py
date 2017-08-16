@@ -92,15 +92,15 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
                     if(throughput != 0):
                         if( (time.time() - start_time) >= latency ):
                             
-                            #byte_list = [1 for i in range(msg_size-1)]
-                            #byte_list.append(val)
-                            #packed = struct.pack("{}B".format(msg_size), *byte_list)
+                            byte_list = [1 for i in range(msg_size-1)]
+                            byte_list.append(val)
+                            packed = struct.pack("{}B".format(msg_size), *byte_list)
 
                             analyzer.StartInstance()
 
                             start_time = time.time()
-                            data = client_name.encode() +" " + bytes(val)
-                            logger.debug("Sending: {}".format(val))
+                            data = client_name.encode() +" " + packed
+                            #logger.debug("Sending: {}".format([packed]))
                             pub_socket.send(data)
 
                             analyzer.SaveInstance()
@@ -114,7 +114,17 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
                     if sub_socket in socks:
                         msg = sub_socket.recv_multipart()
-                        logger.debug("{}".format(msg[1]))
+                        data = msg[1].split(" ")[-1]
+                        source = msg[1].split(" ")[0]
+
+                        if(data == ''): 
+                            byte_list = [1 for i in range(msg_size-1)]
+                            byte_list.append(32)
+                            data = struct.pack("{}B".format(msg_size), *byte_list)
+
+                        #print [data]
+                        unpacked = struct.unpack("{}B".format(msg_size), data)
+                        logger.debug("{} {}".format(source, unpacked[-1]))
 
                      
 
