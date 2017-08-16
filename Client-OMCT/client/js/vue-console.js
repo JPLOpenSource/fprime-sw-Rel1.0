@@ -65,7 +65,7 @@ var command = {
     cleanCommand: function(cmd) {
       cmd.split(',').filter((char) => char != '').join(','); // Remove extra commas
     },
-    validateCommand: function(cmd) {
+    parseCmd: function(cmd) {
       if (this.results.length != 1) {
         this.warning = 'Invalid command name!'
         return false;
@@ -75,22 +75,43 @@ var command = {
         return false;
       }
       cmd = cleanCommand(cmd);
+      let cmdName = cmd.substring(0, cmd.indexOf(':'));
 
       let argsInput = cmd.substring(cmd.indexOf(':') + 1).split(',').filter((c) => c != '');
-      let argsReq = this.results.length[0];
+      let argsReq = this.results[0]['args'];
 
       if (argsReq.length != argsInput.length) {
         this.warning = 'Not enough Args!';
         return false;
       }
 
+      userArgs = [];
       argsReq.forEach(function (aR, i) {
+        let typeReq = aR['type'];
 
-      })
+        let userA;
+        if (typeReq != 'String') {
+          userA = parseInt(argsInput[i]);
+          if (userA == NaN) {
+            this.warning = 'Expected a numerical number for argument ' + i.toString();
+            return false;
+          }
+        }
+        // DEV More checks
+        userArgs.push(userA);
+      });
 
-    }.
+      return {
+        'name': cmdName,
+        'args': userArgs
+      };
+    },
     sendCommand: function(cmd) {
-      this.socket.send(cmd);
+      commandToSend = this.parseCmd(cmd);
+
+      if (commandToSend) {
+        this.socket.send(cmd);
+      }
     },
     navigateResults: function (event) {
       // Always search
