@@ -28,7 +28,8 @@ function CommandConsole(site, port) {
             view: function (domainObject) {
                 var commandView = new CommandView({
                     data: {
-                        socket: new WebSocket('ws://' + site + ':' + port.toString())
+                        socket: new WebSocket('ws://' + site + ':' + port.toString()),
+                        showCmdSearchResults: true
                     }
                 });
 

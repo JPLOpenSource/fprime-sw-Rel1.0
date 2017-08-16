@@ -30,7 +30,7 @@ body {
 
 .command-console .cmd-results {
   width: 100%;
-  height: calc(100% - 32px);
+  max-height: calc(100% - 32px);
   overflow: auto;
   position: relative;
 
@@ -60,11 +60,11 @@ body {
 .command-console .hist-input {
   width: 100%;
   position: absolute;
-  bottom: 0;
+  bottom: 16px;
 }
 
 .command-console .hist-results {
-  width: 100%;
+  right: calc(100% - 16px - 16px);
   overflow: auto;
   height: calc(100% - 16px - 16px);
   position: relative;

@@ -48,23 +48,11 @@
     <body>
     <div class="command-console">
 
-      <command-search></command-search>
+      <command :showResults=showCmdSearchResults
+               :socket=socket
+               @click.native="toggleSearch(true)"></command>
       
-      <div class='history-search'>
-
-        <ul class="hist-results" >
-          <li v-for="command in reverseCmd">
-            <button @click="select(command.cmd, true)">{{ command.cmd }}</button>
-          </li>
-        </ul>
-
-        <input
-          class="hist-input" 
-          type="text"
-          v-model="command_hist.query"
-          @keyup="searchHist"
-          placeholder="Search history">
-      </div>
+      <history @click.native="toggleSearch(false)"></history>
 
     </div>
     </body>
