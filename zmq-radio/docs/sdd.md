@@ -32,15 +32,15 @@ Requirement | Description | Verification Method
 2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
 3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | 
 4 | The 'Zmq::ZmqRadio' component shall transition to `ZMQ_RADIO_DISCONNECTED` state if any ZMQ error is experienced. |
-5 | `Zmq::ZmqRadio::reconnect_internalInterfaceHandler` shall be called if an ZMQ error is experienced. |
- 
-5 | ZMQ shall be configured with the options below. |
+5 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called if an ZMQ error is experienced. |
+6 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if component successfully registers to the server. | 
+7 | ZMQ shall be configured with the options below. |
 
 ZMQ Option | Description | ZmqRadio Value 
 ---------- | ----------- | --------------
-ZMQ_LINGER | How long to keep socket alive after a socket close call. | 0 seconds
-ZMQ_RCVTIMEO | How long before a zmq_msg_recv call returns an EAGAIN error. | 200 ms 
-ZMQ_SNDTIMEO | How long before a zmq_msg_send call returns an EAGAIN error. | 200 ms
+`ZMQ_LINGER` | How long to keep socket alive after a socket close call. | 0 seconds
+`ZMQ_RCVTIMEO` | How long before a `zmq_msg_recv` call returns an EAGAIN error. | 200 ms 
+`ZMQ_SNDTIMEO` | How long before a `zmq_msg_send` call returns an EAGAIN error. | 200 ms
 
 
 ## 3. Design

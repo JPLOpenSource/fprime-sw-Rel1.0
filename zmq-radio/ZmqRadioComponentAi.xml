@@ -4,6 +4,7 @@
 <component name="ZmqRadio" kind="active" namespace="Zmq" modeler="true">
 
     <import_port_type>Fw/Buffer/BufferSendPortAi.xml</import_port_type>
+    <import_port_type>Svc/Sched/SchedPortAi.xml</import_port_type>
     <import_port_type>Fw/Log/LogPortAi.xml</import_port_type>
     <import_port_type>Fw/Log/LogTextPortAi.xml</import_port_type>
     <import_port_type>Fw/Com/ComPortAi.xml</import_port_type>
@@ -12,11 +13,13 @@
     <import_port_type>Fw/Tlm/TlmPortAi.xml</import_port_type>
     <import_dictionary>fprime-zmq/zmq-radio/telemetry.xml</import_dictionary>
     <import_dictionary>fprime-zmq/zmq-radio/events.xml</import_dictionary>
-    <import_dictionary>fprime-zmq/zmq-radio/internal.xml</import_dictionary>
     <ports>
     
 
         <port name="fileUplinkBufferSendOut" data_type="Fw::BufferSend"  kind="output"    max_number="1">
+        </port>
+
+        <port name="reconnect" data_type="Svc::Sched"  kind="async_input"    max_number="1">
         </port>
 
         <port name="Log" data_type="Fw::Log"  kind="output" role="LogEvent"    max_number="1">

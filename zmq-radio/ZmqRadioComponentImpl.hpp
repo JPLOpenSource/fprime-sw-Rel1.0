@@ -78,8 +78,8 @@ namespace Zmq{
 		Fw::Buffer fwBuffer 
 	    );
 
-
-	    void reconnect_internalInterfaceHandler(void);
+	    /* Scheduled reconnect input */
+	    void reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context );
 
 	    U32   m_packetsSent;
 	    void* m_context; //!< zmq context
@@ -93,7 +93,21 @@ namespace Zmq{
 	    U32  m_serverPubPort;
 	    U32  m_serverSubPort;
 
-	    U8 m_state; //!< This component's state
+
+	    /* Private Internal State class*/
+	    class State{
+              public:
+              	State(ZmqRadioComponentImpl* parent); 
+              	U8 get();                     // Return current state
+              	void transitionConnected();    // Transition to connected state
+              	void transitionDisconnected(); // Transition to disconnected state
+        
+              private:
+              	U8 state;
+              	ZmqRadioComponentImpl* m_parent;
+        };
+
+        State m_state; //!< This component's state
 
 
     };
