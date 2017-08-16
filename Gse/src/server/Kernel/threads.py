@@ -41,6 +41,8 @@ class  GeneralServerIOThread(threading.Thread):
 
         # Setup socket to receive all target messages
         self.__input_socket = context.socket(zmq.ROUTER)
+        self.__input_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
+
         try:
             input_endpoint = BindInputEndpoint(self.__input_socket) 
         except zmq.ZMQError as e: 
@@ -51,6 +53,7 @@ class  GeneralServerIOThread(threading.Thread):
         # Setup socket to publish to clients
         self.__output_socket = context.socket(zmq.ROUTER)
         self.__output_socket.setsockopt(zmq.ROUTER_HANDOVER, 1) # Needed to handle reconnections
+        self.__output_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
 
         try:
             output_endpoint = BindOutputEndpoint(self.__output_socket) 
@@ -77,12 +80,10 @@ class  GeneralServerIOThread(threading.Thread):
         while True:
             try:
                 
-                
-
+                analyzer.StartInstance()
                 msg = self.__input_socket.recv_multipart() 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
-                analyzer.StartInstance()
                 self.__output_socket.send_multipart(msg, zmq.NOBLOCK)  
                 
                 analyzer.SaveInstance()

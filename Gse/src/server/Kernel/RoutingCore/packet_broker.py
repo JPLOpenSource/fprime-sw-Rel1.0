@@ -22,6 +22,7 @@ class PacketBroker(object):
         self.__logger.debug("Logger Active") 
    
         self.__xsub = context.socket(zmq.XSUB) 
+        self.__xsub.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
         self.__xsub_address = BindToRandomInprocEndpoint(self.__xsub)
 
         self.__xpub = context.socket(zmq.XPUB)

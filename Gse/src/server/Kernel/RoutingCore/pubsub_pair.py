@@ -32,12 +32,12 @@ def ForwardToBroker(client_name, input_socket, pub_socket):
         while(True):
 
             # Read from serverIO subscriber 
+            analyzer.StartInstance()
             msg = input_socket.recv_multipart()
             logger.debug("Received: {}".format(msg))
 
 
             # Send to broker
-            analyzer.StartInstance()
             packet = msg[1] # Extract packet from zmq frame
             pub_socket.send_multipart([client_name, packet]) # Publish with client's name prefixed
             
@@ -86,12 +86,12 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
         
             if sub_socket in socks:
                 
+                analyzer.StartInstance()
                 # Receive from broker
                 msg = sub_socket.recv_multipart()
                 logger.debug("Received: {}".format(msg))
 
                 # Send to server IO thread
-                analyzer.StartInstance()
                 packet = msg[1] # Extract packet
              
                 # Send to serverIO publisher 
@@ -174,11 +174,13 @@ class PubSubPair(object):
         # Setup input socket to consume subcriber thread output
         input_socket = context.socket(zmq.ROUTER)
         input_socket.setsockopt(zmq.IDENTITY, client_name)
+        input_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
         input_socket.connect(serverIO_subscriber_output_address)
 
         # Setup output socket to produce for publisher thread input
         output_socket = context.socket(zmq.DEALER)
         output_socket.setsockopt(zmq.IDENTITY, client_name)
+        output_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
         output_socket.connect(serverIO_publisher_input_address)
 
         # Setup publishing socket to produce for broker subscription 
@@ -188,6 +190,7 @@ class PubSubPair(object):
 
         # Setup subscribing socket to consume from broker publishing
         sub_socket = context.socket(zmq.SUB)
+        sub_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
         sub_socket.connect(broker_publisher_output_address)
 
         # Setup command socket to receive subscription commands from the router

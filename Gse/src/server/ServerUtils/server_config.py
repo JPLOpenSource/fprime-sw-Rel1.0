@@ -92,7 +92,7 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         ################################################################
         # Default file paths here.
         ################################################################
-        self.__prop['filepaths'] = dict()
+        
 
         # Log file save path
         # Default: Current Directory
@@ -105,6 +105,7 @@ class ServerConfig(ConfigParser.SafeConfigParser):
 
         server_filepath = os.path.join(build_root, 'Gse/src/server')
         log_filepath = os.path.join("logs", "server_logs")
+        self.__prop['filepaths'] = dict()
         self.__prop['filepaths']['server_filepath'] = server_filepath 
         self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
                                                   server_filepath, log_filepath)
@@ -112,11 +113,14 @@ class ServerConfig(ConfigParser.SafeConfigParser):
                                         self.__prop['filepaths']['server_log_filepath'], 'internals')
         self.__prop['filepaths']['throughput_analysis_filepath'] = os.path.join(\
                                                     server_filepath, "logs/throughput")
+
+        self.__prop['settings'] = dict()
+        self.__prop['settings']['server_socket_hwm'] = 10000
                                                     
 
         # This sets the defaults within a section. 
         self._setSectionDefaults('filepaths')
-               
+        self._setSectionDefaults('settings')   
 
     def _setSectionDefaults(self, section):
         """
