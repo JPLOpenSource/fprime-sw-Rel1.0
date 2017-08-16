@@ -314,14 +314,14 @@ namespace Zmq{
 	    DEBUG_PRINT("Finalizer\n");
 	}
 
-	void reconnect_internalInterfaceHandler(void){
+	void ZmqRadioComponentImpl::reconnect_internalInterfaceHandler(void){
 		switch(this->m_state){
 			
 			case ZMQ_RADIO_CONNECTED_STATE:
 				// Nothing to do
 				break;
 
-				
+
 			case ZMQ_RADIO_RECONNECT_TRANSITION_STATE:
 				// Close zmq structures
 				
