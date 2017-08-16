@@ -153,7 +153,8 @@ namespace Zmq{
 	    this->m_context   = zmq_ctx_new();
 	    if(not this->m_context){
 	    	zmqError("ZmqRadioComponentImpl::connect Error creating context.");
-	    	this->log_WARNING_HI_ZR_ContextError("Context failed to create.");
+	    	Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+	    	this->log_WARNING_HI_ZR_ContextError(errArg);
 	    	this->m_state.transitionDisconnected();
 	    	return;
 	    }
@@ -162,7 +163,8 @@ namespace Zmq{
 	    this->m_cmdSocket = zmq_socket(this->m_context, ZMQ_DEALER);
 	    if(not this->m_cmdSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating cmd socket");
-			this->log_WARNING_HI_ZR_SocketError("Could not create cmd socket.");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_SocketError(errArg);
 			this->m_state.transitionDisconnected();
 			return;
 	    }	
@@ -174,7 +176,8 @@ namespace Zmq{
 	    this->m_pubSocket = zmq_socket(this->m_context, ZMQ_DEALER);
 	    if(not this->m_pubSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating pub socket");
-			this->log_WARNING_HI_ZR_SocketError("Could not create pub socket.");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_SocketError(errArg);
 			this->m_state.transitionDisconnected();
 			return;
 	    }
@@ -187,7 +190,8 @@ namespace Zmq{
 	    this->m_subSocket = zmq_socket(this->m_context, ZMQ_ROUTER); 
 	    if(not this->m_subSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating sub socket");
-			this->log_WARNING_HI_ZR_SocketError("Could not create sub socket.");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_SocketError(errArg);
 			this->m_state.transitionDisconnected();
 			return;
 	    }
@@ -325,16 +329,17 @@ namespace Zmq{
 	void ZmqRadioComponentImpl::reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context ){
 		switch(this->m_state.get()){
 
-			case ZMQ_RADIO_CONNECTED_STATE:
+			case State::ZMQ_RADIO_CONNECTED_STATE:
 				// We are connected, do nothing
 				break;
-			case ZMQ_RADIO_DISCONNECTED_STATE:
+			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// We are disconnected, attempt reconnection
 				this->connect();
 				break;
 
 		}
 	}
+
 
 	void ZmqRadioComponentImpl::downlinkPort_handler(
 				    NATIVE_INT_TYPE portNum,
@@ -344,10 +349,10 @@ namespace Zmq{
 	{
 		switch(this->m_state.get()){
 
-			case ZMQ_RADIO_CONNECTED_STATE:
+			case State::ZMQ_RADIO_CONNECTED_STATE:
 				zmqSocketWriteComBuffer(this->m_pubSocket, data);
 				break;
-			case ZMQ_RADIO_DISCONNECTED_STATE:
+			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
 				break;
 
@@ -364,10 +369,10 @@ namespace Zmq{
 	{
 		switch(this->m_state.get()){
 
-			case ZMQ_RADIO_CONNECTED_STATE:
+			case State::ZMQ_RADIO_CONNECTED_STATE:
 				// Write files down
 				break;
-			case ZMQ_RADIO_DISCONNECTED_STATE:
+			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
 
 				break;
@@ -406,10 +411,10 @@ namespace Zmq{
 
 	void ZmqRadioComponentImpl::State::transitionDisconnected(){
 		// Release ZMQ resources to prepare for reconnect attempts
-		zmq_close(this->m_pubSocket);
-		zmq_close(this->m_subSocket);
-		zmq_close(this->m_cmdSocket);
-		zmq_term(this->m_context);
+		zmq_close(this->m_parent->m_pubSocket);
+		zmq_close(this->m_parent->m_subSocket);
+		zmq_close(this->m_parent->m_cmdSocket);
+		zmq_term(this->m_parent->m_context);
 
 
 		switch(this->state){

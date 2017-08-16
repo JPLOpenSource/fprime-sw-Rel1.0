@@ -17,14 +17,13 @@
 
 |Event Name|ID|Description|Arg Name|Arg Type|Arg Size|Description
 |---|---|---|---|---|---|---|
-|ZR_PublishConnectionOpened|0 (0x0)|Connection opened| | | | |
-|ZR_ContextError|1 (0x1)|Zmq publisher context open error| | | | |
+|ZR_ContextError|1 (0x1)|ZmqRadio context open error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
-|ZR_SocketError|2 (0x2)|Zmq publisher socket error| | | | |
+|ZR_SocketError|2 (0x2)|ZmqRadio socket error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
-|ZR_BindError|3 (0x3)|Zmq publisher bind error| | | | |
+|ZR_BindError|3 (0x3)|ZmqRadio bind error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
-|ZR_SendError|4 (0x4)|Zmq publisher send error| | | | |
+|ZR_SendError|4 (0x4)|ZmqRadio send error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
 |ZR_Disconnection|5 (0x5)|ZmqRadio component disconneted| | | | |
 |ZR_Connection|6 (0x6)|ZmqRadio component connected to server| | | | |

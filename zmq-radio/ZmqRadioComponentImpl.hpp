@@ -96,15 +96,22 @@ namespace Zmq{
 
 	    /* Private Internal State class*/
 	    class State{
-              public:
-              	State(ZmqRadioComponentImpl* parent); 
-              	U8 get();                     // Return current state
-              	void transitionConnected();    // Transition to connected state
-              	void transitionDisconnected(); // Transition to disconnected state
-        
-              private:
-              	U8 state;
-              	ZmqRadioComponentImpl* m_parent;
+
+
+			public:
+				/* Component States */
+				static const U8 ZMQ_RADIO_DISCONNECTED_STATE   = 0x01;
+				static const U8 ZMQ_RADIO_CONNECTED_STATE      = 0x02;
+
+				State(ZmqRadioComponentImpl* parent); 
+				U8 get();                     // Return current state
+				void transitionConnected();    // Transition to connected state
+				void transitionDisconnected(); // Transition to disconnected state
+
+			private:
+				U8 state;
+				ZmqRadioComponentImpl* m_parent;
+
         };
 
         State m_state; //!< This component's state

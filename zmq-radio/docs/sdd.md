@@ -28,20 +28,25 @@ attempts.
 ## 2. Requirements
 Requirement | Description | Verification Method
 ----------- | ----------- | -------------------
-1 | All input handlers shall drop incoming messages while in `ZMQ_RADIO_DISCONNECTED`. |
+1 | All input handlers shall drop incoming messages while in `ZMQ_RADIO_DISCONNECTED`. | 
 2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
-3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | 
+3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | Unit Test
 4 | The 'Zmq::ZmqRadio' component shall transition to `ZMQ_RADIO_DISCONNECTED` state if any ZMQ error is experienced. |
 5 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called if an ZMQ error is experienced. |
 6 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if component successfully registers to the server. | 
-7 | ZMQ shall be configured with the options below. |
+7 | The `Zmq::ZmqRadio` component shall timeout ZMQ_RADIO_NUM_RECV_TRIES times before calling `Zmq::ZmqRadio::transitionDisconnected`.
+8 | ZMQ library shall be configured with the options below. |
+9 | The `Zmq::ZmqRadio` component shall be configured with the options below. |
 
-ZMQ Option | Description | ZmqRadio Value 
+ZMQ Option | Description |  Value 
 ---------- | ----------- | --------------
 `ZMQ_LINGER` | How long to keep socket alive after a socket close call. | 0 seconds
 `ZMQ_RCVTIMEO` | How long before a `zmq_msg_recv` call returns an EAGAIN error. | 200 ms 
 `ZMQ_SNDTIMEO` | How long before a `zmq_msg_send` call returns an EAGAIN error. | 200 ms
 
+`Zmq::ZmqRadio` Option | Description |  Value 
+---------- | ----------- | --------------
+`ZMQ_RADIO_NUM_RECV_TRIES` | Number of times the component retries receiving an uplinked packet. | 5
 
 ## 3. Design
 
