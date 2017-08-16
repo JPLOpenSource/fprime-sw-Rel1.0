@@ -46,18 +46,19 @@
   <!-- <script type="text/html" id="commandTemplate"></script> -->
   <script type="text/html" id="commandTemplate">
     <body>
-    <div class="command">
-      <input
-        class="user-input input-command"
-        type="text"
-        v-model="command_search.cmd"
-        @keyup.enter="sendCmd"
-        @keyup="searchCmd"
-        placeholder="Enter command">
+    <div class="command-console">
 
-      <div class="cmdContainer" v-cloak>
+      <div class='command-search'>
 
-        <ul class="cmd-search"
+        <input
+          class="cmd-input"
+          type="text"
+          v-model="command_search.cmd"
+          @keyup.enter="sendCmd"
+          @keyup="searchCmd"
+          placeholder="Enter command">
+
+        <ul class="cmd-results"
             v-show="command_search.searchActive">
           <li
             v-for="command in command_search.results">
@@ -65,20 +66,24 @@
           </li>
         </ul>
 
-        <ul class="cmd-hist" >
+      </div>
+      
+      <div class='history-search'>
+
+        <ul class="hist-results" >
           <li v-for="command in reverseCmd">
             <button @click="select(command.cmd, true)">{{ command.cmd }}</button>
           </li>
         </ul>
 
+        <input
+          class="hist-input" 
+          type="text"
+          v-model="command_hist.query"
+          @keyup="searchHist"
+          placeholder="Search history">
       </div>
 
-      <input
-        class="user-input input-search" 
-        type="text"
-        v-model="command_hist.query"
-        @keyup="searchHist"
-        placeholder="Search history">
     </div>
     </body>
   </script>
@@ -135,8 +140,8 @@
 
     // User plugin installs
     openmct.install(DictionaryPlugin(site, staticPort));
-    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
+    // openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
+    // openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
     openmct.install(CommandConsole(site, cmdPort));
     openmct.install(ChanLimitEval());
     openmct.install(EventLimitEval());

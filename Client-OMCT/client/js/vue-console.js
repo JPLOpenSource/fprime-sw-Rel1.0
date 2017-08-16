@@ -36,13 +36,47 @@ var CommandView = Vue.extend({
     sendCmd: function (event) {
       // Add command and time
 
-      this.socket.send(this.command_search.cmd);
-      this.command_hist.history.push({
-        cmd: this.command_search.cmd,
-        time: Date()
-      });
-      this.command_hist.results = this.command_hist.history.slice();
-      this.command_search.results = [];  // Clear search
+      let cmdToSend = this.command_search.cmd;
+
+      // function validCheck(cmdToCheck) {
+      //   // Command won't leave client unless this is true
+      //   if (this.command_search.results.length != 1) {
+      //     // Either no commands found or name matches too many commands
+      //     return false;
+      //   } else if (cmdToCheck.indexOf('(') == -1) {
+      //     return false;
+      //   }
+
+      //   return true;
+      // }
+
+      // function cleanCmd(cmdToClean) {
+      //   // Command can leave client after formatted for server
+      //   cmdToClean = cmdToClean.trim();
+      //   let endParenthIndex = cmd.indexOf(')');
+      //   if (endParenthIndex == -1) {
+      //     // Tag on end parentheses 
+      //     cmdToClean += ')';
+      //   } else {
+      //     // If end parentheses are found, then cut off command afterwards
+      //     cmdToClean = cmdToClean.substring(0, endParenthIndex + 1);
+      //   }
+
+      //   cmdToClean.split(',').filter((c) => c != '').join(',');
+
+      //   return cmdToClean
+      // }
+
+      // if (validCheck(cmdToSend)) {
+        this.command_search.cmd = cmdToSend;
+        // this.socket.send(this.command_search.cmd);
+        this.command_hist.history.push({
+          cmd: this.command_search.cmd,
+          time: Date()
+        });
+        this.command_hist.results = this.command_hist.history.slice();
+        this.command_search.results = [];  // Clear search
+      // }
     },
     searchCmd: function (event) {
       let keyPressed = event.key;
