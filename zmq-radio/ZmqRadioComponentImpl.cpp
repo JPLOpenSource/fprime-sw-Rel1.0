@@ -60,55 +60,6 @@ namespace Zmq{
 			}
 		}
 
-
-
-        NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
-        	//printf("Data Size: 0x%04x\n", data.getBuffLength());
-        	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
-
-
-        	U32 data_net_size = htonl(data.getBuffLength());
-        	U8 buf[sizeof(data_net_size) + data.getBuffLength()];
-        	memcpy(buf, &data_net_size, sizeof(data_net_size));
-        	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
-
-        	zmq_msg_t fPrimePacket;
-        	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
-        	memcpy(zmq_msg_data(&fPrimePacket), buf, sizeof(buf));
-
-        	int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
-        	zmq_msg_close(&fPrimePacket);
-        	if(rc == -1){
-        		zmqError("zmqSocketWriteComBuffer\n");
-        	}
-        	return 1;
-
-        }
-
-        NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
-            NATIVE_INT_TYPE total=0;
-
-            // Ignore the zmq identifier
-			zmq_msg_t zmqID;
-	    	zmq_msg_init(&zmqID);
-	    	zmq_msg_recv(&zmqID, zmqSocket, 0);
-	    	zmq_msg_close(&zmqID);
-
-	    	// Receive FPrime packet
-	    	zmq_msg_t fPrimePacket;
-	    	zmq_msg_init(&fPrimePacket);
-	    	total = zmq_msg_recv(&fPrimePacket, zmqSocket, 0);
-
-	    	if(total == -1){
-				zmqError("zmqSocketRead");
-	    	}
-
-	    	memcpy(buf, zmq_msg_data(&fPrimePacket), total);
-	    	zmq_msg_close(&fPrimePacket);
-
-            return total;
-        }
-
 	} // namespace
 
 
@@ -118,11 +69,19 @@ namespace Zmq{
 #else
 	ZmqRadioComponentImpl :: ZmqRadioComponentImpl(void)
 #endif
-	,m_packetsSent(0)
+	// ZMQ Components
 	,m_context(0)
 	,m_pubSocket(0)
 	,m_subSocket(0)
 	,m_cmdSocket(0)
+
+	// Telemetry
+	,m_packetsSent(0)
+	,m_packetsRecv(0)
+	,m_numListenerRecvTimeouts(0)
+	,m_numDisconnectRetries(0)
+	,m_numConnects(0)
+	,m_numDisconnects(0)
 	,m_state(this)
 	{
 	}
@@ -301,8 +260,8 @@ namespace Zmq{
 		(void)snprintf(endpoint, ZMQ_RADIO_ENDPOINT_NAME_SIZE, "tcp://%s:%d", this->m_hostname, this->m_serverPubPort);
 		rc = zmq_connect(this->m_subSocket,endpoint);
 		if (-1 == rc) {
-		  	zmqError("ZmqRadioComponentImpl::registerToServer Error connecting subscribe socket.");
-		  return -1;
+			zmqError("ZmqRadioComponentImpl::registerToServer Error connecting subscribe socket.");
+			return -1;
 		} 
 
 	    return 0;
@@ -325,18 +284,34 @@ namespace Zmq{
 	    DEBUG_PRINT("Finalizer\n");
 	}
 
+	/* Handlers */
+
 	void ZmqRadioComponentImpl::reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context ){
+		DEBUG_PRINT("reconnect_handler\n");
+
 		switch(this->m_state.get()){
 
 			case State::ZMQ_RADIO_CONNECTED_STATE:
 				// We are connected, do nothing
+				DEBUG_PRINT("reconnect_handler: Is connected. Do nothing.\n");
+
 				break;
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// We are disconnected, attempt reconnection
+				DEBUG_PRINT("reconnect_handler: Not connected. Reconnect.\n");
 				this->connect();
 				break;
 
 		}
+		
+		// Send out telemetry
+		this->tlmWrite_ZR_NumDisconnects(this->m_numDisconnects);
+		this->tlmWrite_ZR_NumConnects(this->m_numConnects);
+		this->tlmWrite_ZR_NumDisconnectRetries(this->m_numDisconnectRetries);
+		this->tlmWrite_ZR_NumListenerRecvTimeouts(this->m_numListenerRecvTimeouts);
+		this->tlmWrite_ZR_PktsSent(this->m_packetsSent);
+		this->tlmWrite_ZR_PktsRecv(this->m_packetsRecv);
+
 	}
 
 
@@ -345,11 +320,13 @@ namespace Zmq{
 				    Fw::ComBuffer &data,
 				    U32 context
 	)
-	{
+	{	
+		int rc = 0;
 		switch(this->m_state.get()){
 
 			case State::ZMQ_RADIO_CONNECTED_STATE:
-				zmqSocketWriteComBuffer(this->m_pubSocket, data);
+				rc = zmqSocketWriteComBuffer(this->m_pubSocket, data);
+
 				break;
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
@@ -373,7 +350,6 @@ namespace Zmq{
 				break;
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
-
 				break;
 
 		}
@@ -382,11 +358,74 @@ namespace Zmq{
 
 	}
 
+	/* FPrime ZMQ Wrapper functions */
+
+    NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
+    	//printf("Data Size: 0x%04x\n", data.getBuffLength());
+    	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
+
+
+    	U32 data_net_size = htonl(data.getBuffLength());
+    	U8 buf[sizeof(data_net_size) + data.getBuffLength()];
+    	memcpy(buf, &data_net_size, sizeof(data_net_size));
+    	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
+
+    	zmq_msg_t fPrimePacket;
+    	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
+    	memcpy(zmq_msg_data(&fPrimePacket), buf, sizeof(buf));
+
+    	int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
+    	zmq_msg_close(&fPrimePacket);
+    	if(rc == -1){
+    		zmqError("zmqSocketWriteComBuffer\n");
+    		Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+    		this->log_WARNING_HI_ZR_SendError(errArg);
+    		return -1;
+    	}else{
+    		// Increase packets sent
+    		this->m_packetsSent++;
+    	}
+
+    	return 1;
+
+    }
+
+    NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
+        NATIVE_INT_TYPE total=0;
+
+        // Ignore the zmq identifier
+		zmq_msg_t zmqID;
+    	zmq_msg_init(&zmqID);
+    	zmq_msg_recv(&zmqID, zmqSocket, 0);
+    	zmq_msg_close(&zmqID);
+
+    	// Receive FPrime packet
+    	zmq_msg_t fPrimePacket;
+    	zmq_msg_init(&fPrimePacket);
+    	total = zmq_msg_recv(&fPrimePacket, zmqSocket, 0);
+
+    	if(total == -1){
+			zmqError("zmqSocketRead");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_ReceiveError(errArg);
+			return -1;
+    	}else{ // Copy packet data into buf, close message, and increase number packets received
+    		memcpy(buf, zmq_msg_data(&fPrimePacket), total);
+    		zmq_msg_close(&fPrimePacket);
+    		this->m_packetsRecv++;
+    	}
+
+
+        return total;
+    }
+
 	/* State Class Implementation */	
+
 	ZmqRadioComponentImpl::State::State(ZmqRadioComponentImpl* parent):
-		state(ZMQ_RADIO_DISCONNECTED_STATE)
+		state(ZMQ_RADIO_DISCONNECTED_STATE),
+		m_parent(parent)
 	{
-		this->m_parent = parent;
+		
 	}
 
 	U8 ZmqRadioComponentImpl::State::get(){
@@ -395,15 +434,18 @@ namespace Zmq{
 
 	void ZmqRadioComponentImpl::State::transitionConnected(){
 		switch(this->state){
+
 			case ZMQ_RADIO_CONNECTED_STATE:
 				// Already connected
 				break;
+
 			case ZMQ_RADIO_DISCONNECTED_STATE:
+				// Successful reconnection
 				this->state = ZMQ_RADIO_CONNECTED_STATE;
 				this->m_parent->log_ACTIVITY_HI_ZR_Connection();
+
+				this->m_parent->m_numConnects++;
 				break;
-
-
 		}
 
 	}
@@ -417,19 +459,21 @@ namespace Zmq{
 
 
 		switch(this->state){
-			case ZMQ_RADIO_CONNECTED_STATE:
 
+			case ZMQ_RADIO_CONNECTED_STATE:
+				// Disconnection experienced
 				this->m_parent->log_WARNING_HI_ZR_Disconnection();
+				this->m_parent->m_numDisconnects++;
 				break;
 			case ZMQ_RADIO_DISCONNECTED_STATE:
+				// Reconnection failed
+				this->m_parent->m_numDisconnectRetries++;
 				break;
 
 		}
 
 
 	}
-
-
 
 
 } // namespace Zmq 

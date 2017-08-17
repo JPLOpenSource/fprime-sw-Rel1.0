@@ -60,6 +60,7 @@ namespace Zmq {
     this->component.init(100, 1);
     this->component.open("localhost", 5555, "flight_1");
     printf("State: %d\n", this->component.m_state.get());
+    this->component.reconnect_handler(0,0);
     
   }
 

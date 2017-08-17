@@ -82,17 +82,33 @@ namespace Zmq{
 	    /* Scheduled reconnect input */
 	    void reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context );
 
-	    U32   m_packetsSent;
+
+	    /* FPrime ZMQ Wrapper functions */
+	    NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data);
+		NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size);
+
+
+	    /* ZMQ Components */
 	    void* m_context; //!< zmq context
 	    void* m_pubSocket; //!< zmq socket for outbound telemetry,events, and files
 	    void* m_subSocket; //!< zmq socket for inbound commands and files
 	    void* m_cmdSocket; //!< zmq socket for server registration
 
+	    /* Network Info */
 	    char m_zmqId[ZMQ_RADIO_ENDPOINT_NAME_SIZE]; //!< zmq socket identity 
 	    char m_hostname[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
 	    U32  m_serverCmdPort;
 	    U32  m_serverPubPort;
 	    U32  m_serverSubPort;
+
+	    /* Telemetry */
+	    U32 m_packetsSent;
+	    U32 m_packetsRecv;
+	    U32 m_numListenerRecvTimeouts;
+	    U32 m_numDisconnectRetries;
+	    U32 m_numConnects;
+	    U32 m_numDisconnects;
+	    
 
 
 	    /* Private Internal State class*/
