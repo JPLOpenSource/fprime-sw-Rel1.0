@@ -35,12 +35,7 @@ function strSerBuff(str) {
   return serializedString;
 }
 
-// function serString(str) {
-//     let length = str.length;
-//     let strBuff = str.split('').map((c) => c.charCodeAt(0))
-// }
-
-function serialize(command) {
+function serialize(usrCommand) {
   /*
   // Commands follow the following format\
   // header + (32-bit)(32-bit)Descriptor + 
@@ -48,39 +43,18 @@ function serialize(command) {
   const header = 'A5A5 FSW ZZZZ';
   const desc = 0;
 
-  let argStartIndex = command.indexOf('(') + 1;
-  let argEndIndex = command.indexOf(')');
+  let length = 8;
+  let opcode = usrCommand['id'];
+  let types = commandDict[opcode]['arguments'].map((a) => a['type']);
 
-  let commandName = command.substring(0, command.indexOf('('));
-  let args = command.substring(argStartIndex, argEndIndex).split(',') // Create array with args after each comma
-             .map((a) => a.trim())  // Remove whitespace
-             .filter((a) => a != '');  // Remove empty strings
-
-  let opcode;
-  let packetArgs = '';
-  let length = 8; // Length of packet in bytes starting with descriptor(4) and opcode(4).
-  for (id in commandDict) {
-    if (commandDict[id]['name'] === commandName) {
-      opcode = parseInt(id);
-
-      // Run Checks
-      let cmd = commandDict[id];
-
-      cmd['arguments'].forEach(function (a, i) {
-        cmdType = a['type'];
-        if (cmdType == 'String') {
-
-        } else if (cmdType == 'Enum')  {
-
-        } else {
-          // Number type
-          let argSize = parseInt(cmdType.substring(1)) / 8; // Size of argument in bytes
-          length += argSize;
-          packetArgs += numSerBuff(args[i], argSize);
-        }
-      });
+  let packetArgs = usrCommand['arguments'].map(function (a, i) {
+    if (types[i] != 'String') {
+      let bytes = parseInt(types[i].substring(1)) / 8;
+      return numSerBuff(a, bytes);
+    } else {
+      return strSerBuff(a);
     }
-  }
+  }).join('');
 
   let commandPacket = header + numSerBuff(length, 4) + numSerBuff(desc, 4) + numSerBuff(opcode, 4) + packetArgs;
 

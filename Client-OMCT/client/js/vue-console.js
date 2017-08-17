@@ -1,5 +1,5 @@
 var command = {
-  props: ['showResults', 'socket']
+  props: ['showResults', 'socket'],
   template: `
     <div class="command-search">
       <input type="text"
@@ -32,6 +32,7 @@ var command = {
     showResults: function() {
       this.searchCommand(this.commandQuery);
     },
+  },
   methods: {
     getCommands: function () {
       // Returns promise of array of all commands
@@ -39,11 +40,7 @@ var command = {
         let commandDict = dict['isf']['commands'];       
         let validCommands = [];
         for (id in commandDict) {
-          let args = commandDict[id]['arguments'];
-          validCommands.push({
-            'name': commandDict[id]['name'],
-            'args': args
-          });
+          validCommands.push(commandDict[id]);
         }
         return validCommands;
       });
@@ -57,36 +54,34 @@ var command = {
       self = this;  // Avoid 'this' scoping issues inside .then of promise
       self.getCommands().then(function (vc) {
         self.results = vc.filter((c) => c['name'].toLowerCase()  // Make cmds case insensitive
-                                                 .trim()  // Remove whitespace
                                                  .indexOf(query.toLowerCase()  // Make query case insensitive
-                                                               .split('(')[0]) !== -1);  // Only search name
-      })
+                                                               .split(':')[0]) !== -1);  // Only search name
+      });
     },
     cleanCommand: function(cmd) {
-      cmd.split(',').filter((char) => char != '').join(','); // Remove extra commas
+      cmd.split(',').filter((char) => char != '').join(','); // Remove extra commas and whitespace
     },
     parseCmd: function(cmd) {
       if (this.results.length != 1) {
-        this.warning = 'Invalid command name!'
+        this.warning = 'Invalid command name!';
         return false;
       }
       if (cmd.indexOf(':') == -1) {
-        this.warning = 'Please add colon ( : ) to the end of the command name!'
+        this.warning = 'Please add colon ( : ) to the end of the command name!';
         return false;
       }
-      cmd = cleanCommand(cmd);
-      let cmdName = cmd.substring(0, cmd.indexOf(':'));
 
-      let argsInput = cmd.substring(cmd.indexOf(':') + 1).split(',').filter((c) => c != '');
-      let argsReq = this.results[0]['args'];
+      let argsInput = cmd.substring(cmd.indexOf(':') + 1).split(',').filter((c) => c != '');  // Get arguments
 
-      if (argsReq.length != argsInput.length) {
+      let commandReq = this.results[0]; // Get command info to check arguments with
+
+      if (commandReq['arguments'].length != argsInput.length) {
         this.warning = 'Not enough Args!';
         return false;
       }
 
       userArgs = [];
-      argsReq.forEach(function (aR, i) {
+      commandReq['arguments'].forEach(function (aR, i) {
         let typeReq = aR['type'];
 
         let userA;
@@ -102,15 +97,17 @@ var command = {
       });
 
       return {
-        'name': cmdName,
-        'args': userArgs
+        'id': commandReq['id'],
+        'arguments': userArgs,
+        'timestamp': Date.now()
       };
     },
     sendCommand: function(cmd) {
       commandToSend = this.parseCmd(cmd);
-
+      alert(this.warning);
       if (commandToSend) {
-        this.socket.send(cmd);
+
+        this.socket.send(commandToSend);
       }
     },
     navigateResults: function (event) {
@@ -121,6 +118,10 @@ var command = {
       switch (keyPressed) {
         case 'Escape': {
           this.showResults = false;
+          break;
+        }
+        case 'Enter': {
+          this.sendCommand(this.commandQuery);
           break;
         }
       }
@@ -150,7 +151,7 @@ var hist = {
       historyQuery: ''
     }
   }
-}
+};
 
 var CommandView = Vue.extend({
   template: $('#commandTemplate').text(),
