@@ -45,7 +45,7 @@ function serialize(usrCommand) {
 
   let length = 8;
   let opcode = usrCommand['id'];
-  let types = commandDict[opcode]['arguments'].map((a) => a['type']);
+  let types = commandDict[opcode.toString()]['arguments'].map((a) => a['type']);
 
   let packetArgs = usrCommand['arguments'].map(function (a, i) {
     if (types[i] != 'String') {

@@ -76,7 +76,7 @@ var command = {
         return false;
       }
 
-      let argsInput = cmd.substring(cmd.indexOf(':') + 1).split(',').filter((c) => c != '');  // Get arguments
+      let argsInput = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
 
       let commandReq = this.results[0]; // Get command info to check arguments with
 
@@ -109,10 +109,10 @@ var command = {
     },
     sendCommand: function(cmd) {
       commandToSend = this.parseCmd(cmd);
-      alert(this.warning);
       if (commandToSend) {
 
-        this.socket.send(commandToSend);
+        this.socket.send(JSON.stringify(commandToSend));
+        alert(JSON.stringify(commandToSend));
       }
     },
     navigateResults: function (event) {
