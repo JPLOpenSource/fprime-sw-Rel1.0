@@ -53,10 +53,15 @@ var command = {
     searchCommand: function(query) {
       self = this;  // Avoid 'this' scoping issues inside .then of promise
       self.getCommands().then(function (vc) {
-        self.results = vc.filter((c) => c['name'].toLowerCase()  // Make cmds case insensitive
-                                                 .indexOf(query.toLowerCase()  // Make query case insensitive
-                                                               .split(':')[0]) !== -1);  // Only search name
-      });
+        self.results = vc.filter(function (c) {
+          let colonIndex = query.indexOf(':');
+          if (colonIndex != -1) {
+            return c['name'].toLowerCase() === query.toLowerCase().split(':')[0];
+          } else {
+            return c['name'].toLowerCase().indexOf(query.toLowerCase()) != -1;
+          }
+        })
+      })
     },
     cleanCommand: function(cmd) {
       cmd.split(',').filter((char) => char != '').join(','); // Remove extra commas and whitespace
