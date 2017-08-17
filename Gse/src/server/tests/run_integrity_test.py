@@ -6,9 +6,9 @@ def main():
     num_flight = 1
     num_ground = 4
     flight_throughput = 500 # msgs / second
-    flight_size =  50 # byte
+    flight_size =  100 # byte
     ground_throughput = 100 #  msgs / second
-    ground_size  = 50 # byte
+    ground_size  = 100 # byte
     monte_time  = 0 # seconds 
     pass_time = 3600*1 # seconds
 
