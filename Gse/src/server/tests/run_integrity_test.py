@@ -4,7 +4,7 @@ from subprocess import Popen
 def main():
     # Test 1
     num_flight = 1
-    num_ground = 4
+    num_ground = 2
     flight_throughput = 500 # msgs / second
     flight_size =  100 # byte
     ground_throughput = 100 #  msgs / second
