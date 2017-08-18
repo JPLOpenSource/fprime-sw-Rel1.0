@@ -129,8 +129,6 @@ function numBuff(num, bits, type) {
 
 function concatBuffs(buffArr) {
   let totalLength = buffArr.reduce((total, b) => total + b.length, 0);
-
-  console.log(buffArr, totalLength);
   return Buffer.concat(buffArr, totalLength);
 }
 
@@ -146,47 +144,19 @@ function serialize(usrCommand) {
   let opcode = usrCommand['id'];
   let types = commandDict[opcode.toString()]['arguments'].map((a) => a['type']);
 
-  let packetArgs = usrCommand['arguments'].map(function (a, i) {
+  let argBufferArr = usrCommand['arguments'].map(function (a, i) {
     if (types[i] != 'String') {
-      let bytes = parseInt(types[i].substring(1)) / 8;
-      length += bytes;
-      return numSerBuff(a, bytes);
-    } else {
-      return strSerBuff(a);
+      let bits = parseInt(types[i].substring(1));
+      length += (bits / 8);
+      return numBuff(a, bits, types[i]);
     }
-  }).join('');
+  });
+
+  let commandBufferArgs = concatBuffs(argBufferArr);
 
   console.log('opcode: ', opcode + '\n');
 
-  let commandBuffArray = [Buffer.from(header) , numBuff(length, 32, 'U') , numBuff(desc, 32, 'U') , numBuff(opcode, 32, 'U')];
-
-  let example = [
-                parseInt('41', 16),
-                parseInt('35', 16),
-                parseInt('41', 16),
-                parseInt('35', 16),
-                parseInt('20', 16),
-                parseInt('46', 16),
-                parseInt('53', 16),
-                parseInt('57', 16),
-                parseInt('20', 16),
-                parseInt('5a', 16),
-                parseInt('5a', 16),
-                parseInt('5a', 16),
-                parseInt('5a', 16),
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('8', 16),
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('0', 16), 
-                parseInt('b6', 16)
-                ]
+  let commandBuffArray = [Buffer.from(header), numBuff(length, 32, 'U'), numBuff(desc, 32, 'U'), numBuff(opcode, 32, 'U'), commandBufferArgs];
   
 
   return concatBuffs(commandBuffArray);
