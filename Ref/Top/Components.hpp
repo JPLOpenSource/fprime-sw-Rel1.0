@@ -18,8 +18,8 @@ void exitTasks(void);
 #include <Svc/FileDownlink/FileDownlink.hpp>
 #include <Svc/BufferManager/BufferManager.hpp>
 #include <Svc/Health/HealthComponentImpl.hpp>
+#include <Svc/SocketGndIf/SvcSocketGndIfImpl.hpp>
 
-#include <Ref/ZmqSockIf/ZmqSocketIfImpl.hpp>
 #include <Ref/RecvBuffApp/RecvBuffComponentImpl.hpp>
 #include <Ref/SendBuffApp/SendBuffComponentImpl.hpp>
 #include <Ref/PingReceiver/PingReceiverComponentImpl.hpp>
@@ -28,6 +28,8 @@ void exitTasks(void);
 #include <Svc/AssertFatalAdapter/AssertFatalAdapterComponentImpl.hpp>
 #include <Svc/FatalHandler/FatalHandlerComponentImpl.hpp>
 #include <Drv/BlockDriver/BlockDriverImpl.hpp>
+
+#include <fprime-zmq/zmq-radio/ZmqRadioComponentImpl.hpp>
 
 extern Svc::RateGroupDriverImpl rateGroupDriverComp;
 extern Svc::ActiveRateGroupImpl rateGroup1Comp, rateGroup2Comp, rateGroup3Comp;
@@ -48,10 +50,13 @@ extern Svc::HealthImpl health;
 
 extern Drv::BlockDriverImpl blockDrv;
 
-extern Ref::ZmqSocketIfImpl sockGndIf;
 extern Ref::RecvBuffImpl recvBuffComp;
 extern Ref::SendBuffImpl sendBuffComp;
 extern Ref::SignalGen SG1 , SG2, SG3, SG4, SG5;
 extern Ref::PingReceiverComponentImpl pingRcvr;
+
+extern Svc::SocketGndIfImpl sockGndIf;
+extern Zmq::ZmqRadioComponentImpl zmqRadio;
+
 
 #endif

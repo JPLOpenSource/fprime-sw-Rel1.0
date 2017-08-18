@@ -82,9 +82,15 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 ;
 
 // Command Components
-Ref::ZmqSocketIfImpl sockGndIf
+Svc::SocketGndIfImpl sockGndIf
 #if FW_OBJECT_NAMES == 1
                     ("SGIF")
+#endif
+;
+
+Zmq::ZmqRadioComponentImpl zmqRadio
+#if FW_OBJECT_NAMES == 1
+                    ("ZRAD")
 #endif
 ;
 
@@ -262,7 +268,8 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     prmDb.init(10,0);
 
-    sockGndIf.init(0, targetname);
+    sockGndIf.init(0);
+    zmqRadio.init(100,1);
 
     fileUplink.init(30, 0);
     fileDownlink.init(30, 0);
@@ -342,7 +349,9 @@ void constructApp(int port_number, char* hostname, char* targetname) {
     pingRcvr.start(ACTIVE_COMP_PING_RECEIVER, 100, 10*1024);
 
     // Initialize socket server
-    sockGndIf.startSocketTask(100, port_number, hostname);
+    sockGndIf.startSocketTask(100, port_number+1, hostname);
+    zmqRadio.open(hostname, port_number, targetname);
+
 
 #if FW_OBJECT_REGISTRATION == 1
     //simpleReg.dump();
@@ -391,13 +400,14 @@ void exitTasks(void) {
     fileUplink.exit();
     fileDownlink.exit();
     cmdSeq.exit();
+    zmqRadio.exit();
 }
 
 void print_usage() {
 	(void) printf("Usage: ./Ref [options]\n"
-                  "-p\tport_number [ REQUIRED ]\n"
+                  "-p\tport_number         [ REQUIRED ]\n"
                   "-a\thostname/IP address [ REQUIRED ]\n"
-                  "-n\ttargetname [ REQUIRED ]\n\n");
+                  "-n\ttargetname          [ REQUIRED ]\n\n");
 }
 
 #if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
@@ -420,7 +430,7 @@ int main(int argc, char* argv[]) {
 	option = 0;
 	hostname = NULL;
 
-	while ((option = getopt(argc, argv, "h:p:n:a:")) != -1){
+	while ((option = getopt(argc, argv, "h::p:n:a:")) != -1){
 		switch(option) {
 			case 'h':
 				print_usage();

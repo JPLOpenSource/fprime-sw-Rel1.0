@@ -27,3 +27,4 @@ BlockDriver,blockDrv,481,20
 FileDownlink,fileDownlink,501,20
 PassiveTextLogger,textLogger,521,20
 CmdSequencer,cmdSeq,541,23
+ZmqRadio,zmqRadio,564,20
