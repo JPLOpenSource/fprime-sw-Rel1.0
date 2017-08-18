@@ -21,10 +21,6 @@ function CommandServer(site, gsePort, commandPort) {
 			// Serialize message
 			let commandPacket = serialize(JSON.parse(message));
 
-			// commandPacket.split('').forEach(function (c, i) {
-			//   console.log('Byte ' + i + ': ' + c.charCodeAt(0).toString(16));
-			// });
-
 			console.log(commandPacket);
 			client.write(commandPacket);	// Send
 		});

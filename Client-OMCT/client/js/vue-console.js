@@ -32,6 +32,10 @@ var command = {
     showResults: function() {
       this.searchCommand(this.commandQuery);
     },
+    warning: function(val) {
+      // dev
+      alert(val);
+    } 
   },
   methods: {
     getCommands: function () {
@@ -76,7 +80,7 @@ var command = {
         return false;
       }
 
-      let argsInput = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
+      let argsString = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
 
       let commandReq = this.results[0]; // Get command info to check arguments with
 
