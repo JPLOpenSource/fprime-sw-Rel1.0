@@ -82,7 +82,7 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 ;
 
 // Command Components
-Ref::ZmqSocketIfImpl sockGndIf
+Svc::SocketGndIfImpl sockGndIf
 #if FW_OBJECT_NAMES == 1
                     ("SGIF")
 #endif
@@ -262,7 +262,7 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     prmDb.init(10,0);
 
-    sockGndIf.init(0, targetname);
+    sockGndIf.init(0);
 
     fileUplink.init(30, 0);
     fileDownlink.init(30, 0);

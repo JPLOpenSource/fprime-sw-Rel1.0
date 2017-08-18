@@ -146,6 +146,7 @@ class TcpPublisherSocket(__PublisherSocket):
         Sends one FPrime packet to the server
         """
         try:
+            packet = "A5A5 FSW " + packet # Add destination 
             self._socket.sendall(packet)
         except IOError:
             print "EXCEPTION: Could not send message (%s) to socket" % msg

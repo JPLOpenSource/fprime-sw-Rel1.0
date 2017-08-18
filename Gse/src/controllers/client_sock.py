@@ -108,7 +108,8 @@ class TcpClientSocket(ClientSocket):
         self._subscriber_socket  = client_sock_plugins.TcpSubscriberSocket(self.__tcp_sock)
         
         # Register with server
-        self._publisher_socket.publishToServer("Register GUI\n")
+        self.__tcp_sock.sendall("Register GUI\n")
+        #self._publisher_socket.publishToServer("Register GUI\n")
 
 
     def disconnect(self):

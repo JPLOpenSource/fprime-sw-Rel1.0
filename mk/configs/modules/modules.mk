@@ -78,9 +78,8 @@ REF_MODULES := \
 	Ref/RecvBuffApp \
 	Ref/SendBuffApp \
 	Ref/SignalGen \
-	Ref/PingReceiver\
-	Ref/ZmqSockIf\
-	Ref/zmq
+	Ref/PingReceiver
+
 	
 Ref_MODULES := \
 	\
