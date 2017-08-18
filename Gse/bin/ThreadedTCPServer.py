@@ -229,6 +229,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         or just read the "List\n" command.
         """
         header = self.recv(5)
+        #showBytes(header)
 
         if len(header) == 0:
             print "Header information is empty, client " + self.name + " exiting."
@@ -270,6 +271,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 
         else:
             raise RuntimeError("unrecognized client")
+
+        #showBytes(data)
         return data
 
 
