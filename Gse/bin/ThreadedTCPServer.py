@@ -196,6 +196,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             # Got the header data so read the data of the message here...
             data = self.readData(header)
 
+
             # Process and send the packet of the message here...
             self.processNewPkt(header, data)
 
@@ -304,12 +305,15 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 dest_list = GUI_clients
             elif 'FSW' in dst:
                 dest_list = FSW_clients
+                showBytes(header)
+                showBytes(data)
+                
+
             for dest_elem in dest_list:
                 LOCK.acquire()
                 if dest_elem in SERVER.dest_obj.keys():
                     # Send the message here....
                     #print "Sending msg to ", dest_elem
-
                     SERVER.dest_obj[dest_elem].put(data)
                 LOCK.release()
         else:

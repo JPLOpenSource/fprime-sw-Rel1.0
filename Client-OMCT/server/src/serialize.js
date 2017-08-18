@@ -1,38 +1,137 @@
 // Serializes command
 var commandDict = require('./../res/dictionary.json').isf.commands;
 
-function numSerBuff(num, bytes) {
-  let intNum;
-  let hexNum;
-  if (typeof num == 'string') {
-    // Presumed hex
-    intNum = parseInt(num, 16);
-    hexNum = num.split('x').pop();
-  } else if (typeof num == 'number') {
-    intNum = num;
-    hexNum = num.toString(16);
-  } else {
-    // Not hex nor a string
-    return num;
+// function numSerBuff(num, bytes) {
+//   let intNum;
+//   let hexNum;
+//   if (typeof num == 'string') {
+//     // Presumed hex
+//     intNum = parseInt(num, 16);
+//     hexNum = num.split('x').pop();
+//   } else if (typeof num == 'number') {
+//     intNum = num;
+//     hexNum = num.toString(16);
+//   } else {
+//     // Not hex nor a string
+//     return num;
+//   }
+
+//   let zeroBuffAmount = (bytes * 2) - hexNum.length;
+//   if (bytes == 0) {
+//     zeroBuffAmount = 0;
+//   }
+
+//   let buffHex = '0'.repeat(zeroBuffAmount) + hexNum;
+
+//   let serialized = buffHex.match(/.{1,2}/g).map((h) => String.fromCharCode(parseInt(h, 16))).join('');
+
+//   return serialized;
+// }
+
+// function strSerBuff(str) {
+//   let length = numSerBuff(str.length, 2);
+//   let serializedString = length + str;
+//   return serializedString;
+// }
+
+function numBuff(num, bits, type) {
+  let buff = Buffer.alloc(bits / 8);
+  switch (type) {
+    case 'U': {
+      // Unsigned Int
+      switch(bits) {
+        case 8: {
+          buff.writeUInt8BE(num);
+          break;
+        }
+        case 16: {
+          buff.writeUInt16BE(num);
+          break;
+        }
+        case 32: {
+          buff.writeUInt32BE(num);
+          break;
+        }
+        default: {
+          // Invalid bits
+          break;
+        }
+      }
+
+      break;
+    }
+
+    case 'F': {
+      // Floating Point
+      switch(bits) {
+        case 32: {
+          buff.writeFloatBE(num);
+          break;
+        }
+        default: {
+          // Invalid bits
+          break;
+        }
+      }
+
+      break;
+    }
+
+    case 'I': {
+      // Integer
+      switch(bits) {
+        case 8: {
+          buff.writeInt8BE(num);
+          break;
+        }
+        case 16: {
+          buff.writeInt16BE(num);
+          break;
+        }
+        case 32: {
+          buff.writeInt32BE(num);
+          break;
+        }
+        default: {
+          // Invalid bits
+          break;
+        }
+      }
+
+      break;
+    }
+
+    case 'D': {
+      // Double
+      switch(bits) {
+        case 64: {
+          buff.writeDoubleBE(num);
+          break;
+        }
+
+        default: {
+          // Invalid bits
+          break;
+        }
+      }
+
+      break;
+    }
+
+    default: {
+      // Invalid type
+      break;
+    }
   }
 
-  let zeroBuffAmount = (bytes * 2) - hexNum.length;
-  if (bytes == 0) {
-    zeroBuffAmount = 0;
-  }
-
-  let buffHex = '0'.repeat(zeroBuffAmount) + hexNum;
-
-  let serialized = buffHex.match(/.{1,2}/g).map((h) => String.fromCharCode(parseInt(h, 16))).join('');
-  console.log(serialized);
-
-  return serialized;
+  return buff;
 }
 
-function strSerBuff(str) {
-  let length = numSerBuff(str.length, 2);
-  let serializedString = length + str;
-  return serializedString;
+function concatBuffs(buffArr) {
+  let totalLength = buffArr.reduce((total, b) => total + b.length, 0);
+
+  console.log(buffArr, totalLength);
+  return Buffer.concat(buffArr, totalLength);
 }
 
 function serialize(usrCommand) {
@@ -50,16 +149,48 @@ function serialize(usrCommand) {
   let packetArgs = usrCommand['arguments'].map(function (a, i) {
     if (types[i] != 'String') {
       let bytes = parseInt(types[i].substring(1)) / 8;
+      length += bytes;
       return numSerBuff(a, bytes);
     } else {
       return strSerBuff(a);
     }
   }).join('');
 
-  let commandPacket = header + numSerBuff(length, 4) + numSerBuff(desc, 4) + numSerBuff(opcode, 4) + packetArgs;
+  console.log('opcode: ', opcode + '\n');
 
-  console.log('command packet: ' + commandPacket, typeof commandPacket);
-  return commandPacket;
+  let commandBuffArray = [Buffer.from(header) , numBuff(length, 32, 'U') , numBuff(desc, 32, 'U') , numBuff(opcode, 32, 'U')];
+
+  let example = [
+                parseInt('41', 16),
+                parseInt('35', 16),
+                parseInt('41', 16),
+                parseInt('35', 16),
+                parseInt('20', 16),
+                parseInt('46', 16),
+                parseInt('53', 16),
+                parseInt('57', 16),
+                parseInt('20', 16),
+                parseInt('5a', 16),
+                parseInt('5a', 16),
+                parseInt('5a', 16),
+                parseInt('5a', 16),
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('8', 16),
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('0', 16), 
+                parseInt('b6', 16)
+                ]
+  
+
+  return concatBuffs(commandBuffArray);
+  // return Buffer.from(example);
 }
 
 // Export

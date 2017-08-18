@@ -20,8 +20,13 @@ function CommandServer(site, gsePort, commandPort) {
 		ws.on('message', function incoming(message) {
 			// Serialize message
 			let commandPacket = serialize(JSON.parse(message));
+
+			// commandPacket.split('').forEach(function (c, i) {
+			//   console.log('Byte ' + i + ': ' + c.charCodeAt(0).toString(16));
+			// });
+
 			console.log(commandPacket);
-			client.write(commandPacket);
+			client.write(commandPacket);	// Send
 		});
 	});
 }
