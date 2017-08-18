@@ -178,14 +178,14 @@ class ZmqPublisherSocket(__PublisherSocket):
 
     def publishToServer(self, packet):
         """
-        Sends msg to the server's subscribe port.
+        Sends packet to the server's subscribe port.
         """
         try:
             
-            if(type(msg) is list):
-                self._socket.send_multipart(msg)
+            if(type(packet) is list):
+                self._socket.send_multipart(packet)
             else:
-                self._socket.send_multipart([msg])
+                self._socket.send_multipart([packet])
 
         except zmq.ZMQError as e:
             raise ServerSendError("Unable to send message.")
