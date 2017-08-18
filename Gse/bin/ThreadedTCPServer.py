@@ -305,10 +305,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 dest_list = GUI_clients
             elif 'FSW' in dst:
                 dest_list = FSW_clients
-                showBytes(header)
-                showBytes(data)
-                
-
+                # showBytes(header)
+                # showBytes(data)
             for dest_elem in dest_list:
                 LOCK.acquire()
                 if dest_elem in SERVER.dest_obj.keys():
