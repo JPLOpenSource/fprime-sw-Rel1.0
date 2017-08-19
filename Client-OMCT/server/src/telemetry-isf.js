@@ -72,7 +72,9 @@ function RealtimeIsfServer(site, gsePort, realMctPort) {
 
 				// Send to realtime server
 				if (subscribed[packet.id]) {
+
 					ws.send(JSON.stringify(packet), function ack(error) {
+						// console.log(JSON.stringify(packet));
 						if (error) {
 							// If unable to send (ie. client disconnection) 
 							// then subscription is reset

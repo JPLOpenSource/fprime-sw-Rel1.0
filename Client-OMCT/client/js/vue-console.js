@@ -80,7 +80,7 @@ var command = {
         return false;
       }
 
-      let argsString = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
+      let argsInput = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
 
       let commandReq = this.results[0]; // Get command info to check arguments with
 
@@ -114,6 +114,7 @@ var command = {
     sendCommand: function(cmd) {
       commandToSend = this.parseCmd(cmd);
       if (commandToSend) {
+        alert('sent');
 
         this.socket.send(JSON.stringify(commandToSend));
         alert(JSON.stringify(commandToSend));
@@ -131,6 +132,11 @@ var command = {
         }
         case 'Enter': {
           this.sendCommand(this.commandQuery);
+          break;
+        }
+
+        default: {
+          // Nothing
           break;
         }
       }
