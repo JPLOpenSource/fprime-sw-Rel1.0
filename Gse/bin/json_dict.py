@@ -89,11 +89,14 @@ for name in co.getOpCodeDict():
     co_cd[co.getOpCodeDict()[name]]["name"]        = name
     co_cd[co.getOpCodeDict()[name]]["arguments"]   = []
     for arg in co.getArgsDict()[name]:
-        co_cd[co.getOpCodeDict()[name]]["arguments"].append({
+        toAppend = {
             "name": arg[0],
             "description": arg[1],
-            "type": arg[2].__repr__()
-        })
+            "type": arg[2].__repr__(),
+        }
+        if toAppend["type"] == "Enum":
+            toAppend["enum_dict"] = arg[2].enum_dict()
+        co_cd[co.getOpCodeDict()[name]]["arguments"].append(toAppend)
 
 final_dict = {
     "isf": {

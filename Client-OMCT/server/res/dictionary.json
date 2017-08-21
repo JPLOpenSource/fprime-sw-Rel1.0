@@ -1231,6 +1231,10 @@
                 "arguments": [
                     {
                         "description": "whether or not health checks are enabled", 
+                        "enum_dict": {
+                            "HLTH_CHK_DISABLED": 0, 
+                            "HLTH_CHK_ENABLED": 1
+                        }, 
                         "name": "enable", 
                         "type": "Enum"
                     }
@@ -1249,6 +1253,10 @@
                     }, 
                     {
                         "description": "whether or not a port is pinged", 
+                        "enum_dict": {
+                            "HLTH_PING_DISABLED": 0, 
+                            "HLTH_PING_ENABLED": 1
+                        }, 
                         "name": "enable", 
                         "type": "Enum"
                     }
@@ -1285,11 +1293,23 @@
                 "arguments": [
                     {
                         "description": "Filter level", 
+                        "enum_dict": {
+                            "INPUT_ACTIVITY_HI": 3, 
+                            "INPUT_ACTIVITY_LO": 4, 
+                            "INPUT_COMMAND": 2, 
+                            "INPUT_DIAGNOSTIC": 5, 
+                            "INPUT_WARNING_HI": 0, 
+                            "INPUT_WARNING_LO": 1
+                        }, 
                         "name": "FilterLevel", 
                         "type": "Enum"
                     }, 
                     {
                         "description": "Filter state", 
+                        "enum_dict": {
+                            "INPUT_DISABLED": 1, 
+                            "INPUT_ENABLED": 0
+                        }, 
                         "name": "FilterEnable", 
                         "type": "Enum"
                     }
@@ -1303,11 +1323,23 @@
                 "arguments": [
                     {
                         "description": "Filter level", 
+                        "enum_dict": {
+                            "SEND_ACTIVITY_HI": 3, 
+                            "SEND_ACTIVITY_LO": 4, 
+                            "SEND_COMMAND": 2, 
+                            "SEND_DIAGNOSTIC": 5, 
+                            "SEND_WARNING_HI": 0, 
+                            "SEND_WARNING_LO": 1
+                        }, 
                         "name": "FilterLevel", 
                         "type": "Enum"
                     }, 
                     {
                         "description": "Severity filter state", 
+                        "enum_dict": {
+                            "SEND_DISABLED": 1, 
+                            "SEND_ENABLED": 0
+                        }, 
                         "name": "FilterEnable", 
                         "type": "Enum"
                     }
@@ -1339,6 +1371,10 @@
                     }, 
                     {
                         "description": "ID filter state", 
+                        "enum_dict": {
+                            "ID_DISABLED": 1, 
+                            "ID_ENABLED": 0
+                        }, 
                         "name": "IdFilterEnable", 
                         "type": "Enum"
                     }
