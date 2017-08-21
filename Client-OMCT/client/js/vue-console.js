@@ -160,6 +160,7 @@ var command = {
 }
 
 var hist = {
+  props: ['socket'],
   template: `
     <div class="command-hist">
       <ul class="hist-results">
@@ -177,8 +178,30 @@ var hist = {
   `,
   data: function () {
     return {
-      commandHistory: 'sdjsijdisadiasjdasdsadsadsasadasdasdsadsadsadsadsadsadsadsadsadsadsadsadsa'.split(''),
+      commandHistory: [],
       historyQuery: ''
+    }
+  },
+  beforeMount() {
+    // Load command history from server log
+    self = this;
+    self.getCommandHistory().then(function (commandHist) {
+      console.log('COmmand hist: ' + commandHist);
+      self.commandHistory = commandHist;
+    });
+  },
+  mounted() {
+    self = this;
+    self.socket.onmessage = function (event) {
+      self.commandHistory.push(event.data);
+    }
+  },
+  methods: {
+    getCommandHistory: function () {
+      // Needs directory from root of application
+      return http.get('/server/logs/command-log.json').then(function (result) {
+        return result.data;
+      });
     }
   }
 };

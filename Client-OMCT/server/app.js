@@ -15,10 +15,6 @@ if (!fs.existsSync('server/logs')) {
     fs.mkdirSync('server/logs');
 }
 
-if (!fs.existsSync('server/command-log')) {
-    fs.mkdirSync('server/command-log');
-}
-
 const OMCTPort = 8080;
 // Create static server for client
 var staticServer = new StaticServer(OMCTPort);

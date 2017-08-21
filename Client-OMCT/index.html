@@ -25,7 +25,7 @@
   <!-- Realtime telemetry plugin -->
   <script src="client/js/plugins/realtime-telem-plugin.js"></script>
   <!-- Historical telemetry plugin -->
-  <script src="client/js/plugins/historical-telem-plugin-local.js"></script>
+  <script src="client/js/plugins/historical-telem-plugin.js"></script>
   <!-- Create views from local storage json -->
   <script src="client/js/plugins/loc-storage-objects.js"></script>
   <script src="client/js/plugins/limit-eval.js"></script>
@@ -52,7 +52,8 @@
                :socket=socket
                @click.native="toggleSearch(true)"></command>
       
-      <history @click.native="toggleSearch(false)"></history>
+      <history :socket=socket
+               @click.native="toggleSearch(false)"></history>
 
     </div>
     </body>

@@ -1,5 +1,5 @@
 /**
- * Basic historical telemetry plugin.
+ * Basic historical telemetry plugin. Local storage
  */
 
 function HistoricalTelemetryPlugin(site, port) {
@@ -9,17 +9,13 @@ function HistoricalTelemetryPlugin(site, port) {
                 return domainObject.identifier.namespace === 'isf.taxonomy';
             },
             request: function (domainObject, options) {
-                // Query historical data point
-                var url = 'http://' + site + ':' + port.toString() + 
-                    '/telemetry/' +
-                    domainObject.identifier.key +
-                    '?start=' + options.start +
-                    '&end=' + options.end;
-
-                return http.get(url)
-                    .then(function (resp) {
-                        return resp.data;
-                    });
+                // Get log file
+                return http.get('/server/logs/telem-log.json')
+                    .then(function (result) {
+                        return result.data[domainObject.identifier.key].filter(function (d) {
+                            return d["timestamp"] > options.start && d["timestamp"] < options.end;
+                        });
+                });
             }
         };
 
