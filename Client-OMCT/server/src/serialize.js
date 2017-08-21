@@ -1,39 +1,6 @@
 // Serializes command
 var commandDict = require('./../res/dictionary.json').isf.commands;
 
-// function numSerBuff(num, bytes) {
-//   let intNum;
-//   let hexNum;
-//   if (typeof num == 'string') {
-//     // Presumed hex
-//     intNum = parseInt(num, 16);
-//     hexNum = num.split('x').pop();
-//   } else if (typeof num == 'number') {
-//     intNum = num;
-//     hexNum = num.toString(16);
-//   } else {
-//     // Not hex nor a string
-//     return num;
-//   }
-
-//   let zeroBuffAmount = (bytes * 2) - hexNum.length;
-//   if (bytes == 0) {
-//     zeroBuffAmount = 0;
-//   }
-
-//   let buffHex = '0'.repeat(zeroBuffAmount) + hexNum;
-
-//   let serialized = buffHex.match(/.{1,2}/g).map((h) => String.fromCharCode(parseInt(h, 16))).join('');
-
-//   return serialized;
-// }
-
-// function strSerBuff(str) {
-//   let length = numSerBuff(str.length, 2);
-//   let serializedString = length + str;
-//   return serializedString;
-// }
-
 function numBuff(num, bits, type) {
   let buff = Buffer.alloc(bits / 8);
   switch (type) {
@@ -41,7 +8,7 @@ function numBuff(num, bits, type) {
       // Unsigned Int
       switch(bits) {
         case 8: {
-          buff.writeUInt8BE(num);
+          buff.writeUInt8(num);
           break;
         }
         case 16: {
@@ -127,9 +94,18 @@ function numBuff(num, bits, type) {
   return buff;
 }
 
+
+
 function concatBuffs(buffArr) {
   let totalLength = buffArr.reduce((total, b) => total + b.length, 0);
   return Buffer.concat(buffArr, totalLength);
+}
+
+function strBuff(str) {
+  let lenBuff = numBuff(str.length, 16, 'U');
+  let strBuff = Buffer.from(str);
+  return concatBuffs([lenBuff, strBuff]);
+  
 }
 
 function serialize(usrCommand) {
@@ -140,7 +116,7 @@ function serialize(usrCommand) {
   const header = 'A5A5 FSW ZZZZ';
   const desc = 0;
 
-  let length = 8;
+  let length = 8; // Length in bytes
   let opcode = usrCommand['id'];
   let types = commandDict[opcode.toString()]['arguments'].map((a) => a['type']);
 
@@ -149,6 +125,10 @@ function serialize(usrCommand) {
       let bits = parseInt(types[i].substring(1));
       length += (bits / 8);
       return numBuff(a, bits, types[i]);
+    } else {
+      let stringBuffed = strBuff(a);
+      length += stringBuffed.length;
+      return stringBuffed;
     }
   });
 

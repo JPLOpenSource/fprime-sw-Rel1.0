@@ -6,7 +6,7 @@ var command = {
              class="cmd-input"
              v-model="commandQuery"
              @keyup="navigateResults"
-             placeholder="Enter command"
+             placeholder="<command name>: <arg>, <arg>, ..."
              ref="input">
       <ul class="cmd-results"
           v-show="showResults">
@@ -80,12 +80,27 @@ var command = {
         return false;
       }
 
-      let argsInput = cmd.substring(cmd.indexOf(':') + 1).trim().split(',').filter((c) => c != '');  // Get arguments
+      // Comma Deliminted arguments. Does not account for commas in a string argument
+
+      let checkColon = cmd.split(':');
+      if (checkColon.length > 2) {
+        this.warning = 'Too many colons!';
+        return false;
+      }
+
+      let argString = checkColon.pop();
+
+      let argsInput = argString.split(',').filter((a) => a != '' && a != ' ');
+
+      alert(JSON.stringify(argsInput));
 
       let commandReq = this.results[0]; // Get command info to check arguments with
 
-      if (commandReq['arguments'].length != argsInput.length) {
-        this.warning = 'Not enough Args!';
+      if (commandReq['arguments'].length < argsInput.length) {
+        this.warning = 'Too many args!';
+        return false;
+      } else if (commandReq['arguments'].length > argsInput.length) {
+        this.warning = 'Not enough Args!'
         return false;
       }
 
@@ -97,11 +112,15 @@ var command = {
         if (typeReq != 'String') {
           userA = parseInt(argsInput[i]);
           if (userA == NaN) {
-            this.warning = 'Expected a numerical number for argument ' + i.toString();
+            this.warning = 'Expected a number for argument ' + i.toString();
             return false;
           }
+        } else {
+          // If user argument should be string
+          userA = argsInput[i];
         }
         // DEV More checks
+        alert(userA);
         userArgs.push(userA);
       });
 
@@ -114,7 +133,6 @@ var command = {
     sendCommand: function(cmd) {
       commandToSend = this.parseCmd(cmd);
       if (commandToSend) {
-        alert('sent');
 
         this.socket.send(JSON.stringify(commandToSend));
         alert(JSON.stringify(commandToSend));
