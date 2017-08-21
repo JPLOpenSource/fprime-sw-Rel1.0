@@ -180,24 +180,39 @@ var hist = {
   `,
   data: function () {
     return {
+      commandResults: [],
       commandHistory: [],
+      showResults: false,
       historyQuery: ''
     }
   },
+  watch: {
+    historyQuery: function (query) {
+      if (query.trim() == '') {
+        this.showResults = false;
+      } else {
+        this.showResults = true;
+      }
+    }
+
+  },
   beforeMount() {
-    // Load command history from server log
-    let self = this;
-    self.getCommandHistory().then(function (commandHist) {
-      self.commandHistory = commandHist['commands'];
-    });
+    this.populateWithHist();
   },
   mounted() {
     let self = this;
     self.socket.onmessage = function (event) {
-      self.commandHistory.push(JSON.parse(event.data));
+      self.commandHistory.unshift(JSON.parse(event.data));
     }
   },
   methods: {
+    populateWithHist: function () {
+      // Load command history from server log
+      let self = this;
+      self.getCommandHistory().then(function (commandHist) {
+        self.commandHistory = commandHist['commands'];
+      });
+    },
     getCommandHistory: function () {
       // Needs directory from root of application
       return http.get('/server/logs/command-log.json').then(function (result) {
@@ -217,6 +232,9 @@ var hist = {
     },
     formatHistString: function (histObj) {
       return histObj['name'] + ': ' + histObj['arguments'].join(', ');
+    },
+    searchHist: function (query) {
+
     }
   }
 };

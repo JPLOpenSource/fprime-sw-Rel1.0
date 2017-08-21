@@ -33,7 +33,7 @@ function CommandServer(site, gsePort, commandPort) {
 			let commandPacket = serialize(clientCommand);
 
 			// Save command to log
-			commandHistory['commands'].push(clientCommand);
+			commandHistory['commands'].unshift(clientCommand);
 			fs.writeFileSync('server/logs/command-log.json', JSON.stringify(commandHistory), function (err) {
 				console.log(JSON.stringify(commandHistory));
 				if (err) {
