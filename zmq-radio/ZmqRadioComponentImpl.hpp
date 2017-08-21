@@ -24,6 +24,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <Os/Mutex.hpp>
+#include <Fw/Com/ComPacket.hpp>
+#include <Fw/Types/EightyCharString.hpp>
+
 #include <fprime-zmq/zmq-radio/ZmqRadioComponentAc.hpp>
 #include <fprime-zmq/zmq-radio/ZmqRadioCfg.hpp>
 #include <fprime-zmq/zmq/include/zmq.h>
@@ -82,6 +86,10 @@ namespace Zmq{
 	    /* Scheduled reconnect input */
 	    void reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context );
 
+	    /* Setup the subscription task */
+	    void startSubscriptionTask(I32 priority);
+	    static void subscriptionTaskRunnable(void* comp);
+
 
 	    /* FPrime ZMQ Wrapper functions */
 	    NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data);
@@ -114,7 +122,6 @@ namespace Zmq{
 	    /* Private Internal State class*/
 	    class State{
 
-
 			public:
 				/* Component States */
 				static const U8 ZMQ_RADIO_DISCONNECTED_STATE   = 0x01;
@@ -132,6 +139,7 @@ namespace Zmq{
         };
 
         State m_state; //!< This component's state
+        Os::Task subscriptionTask; //!< Listen for incoming packets
 
 
     };

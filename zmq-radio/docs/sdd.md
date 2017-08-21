@@ -31,12 +31,11 @@ Requirement | Description | Verification Method
 1 | All input handlers shall drop incoming messages while in `ZMQ_RADIO_DISCONNECTED`. | 
 2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
 3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | Unit Test
-4 | The 'Zmq::ZmqRadio' component shall transition to `ZMQ_RADIO_DISCONNECTED` state if any ZMQ error is experienced. |
-5 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called if an ZMQ error is experienced. |
-6 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if component successfully registers to the server. | 
-7 | The `Zmq::ZmqRadio` component shall timeout ZMQ_RADIO_NUM_RECV_TRIES times before calling `Zmq::ZmqRadio::transitionDisconnected`.
-8 | ZMQ library shall be configured with the options below. |
-9 | The `Zmq::ZmqRadio` component shall be configured with the options below. |
+4 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called if, apart from EAGAIN, a ZMQ error is experienced anywhere. |
+5 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if `Zmq::ZmqRadio` successfully registers to the server. | 
+6 | The `Zmq::ZmqRadio::subscriptionTaskRunnable` thread shall continuously try to receive. Even if `Zmq::ZmqRadio::zmqReadSocket` times out.
+7 | ZMQ library shall be configured with the options below. |
+8 | The `Zmq::ZmqRadio` component shall be configured with the options below. |
 
 ZMQ Option | Description |  Value 
 ---------- | ----------- | --------------

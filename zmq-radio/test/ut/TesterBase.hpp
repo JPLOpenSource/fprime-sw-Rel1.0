@@ -663,29 +663,6 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Event: ZR_SendError
-      // ----------------------------------------------------------------------
-
-      //! Handle event ZR_SendError
-      //!
-      virtual void logIn_WARNING_HI_ZR_SendError(
-          Fw::LogStringArg& error 
-      );
-
-      //! A history entry for event ZR_SendError
-      //!
-      typedef struct {
-        Fw::LogStringArg error;
-      } EventEntry_ZR_SendError;
-
-      //! The history of ZR_SendError events
-      //!
-      History<EventEntry_ZR_SendError> 
-        *eventHistory_ZR_SendError;
-
-    protected:
-
-      // ----------------------------------------------------------------------
       // Event: ZR_Disconnection
       // ----------------------------------------------------------------------
 
@@ -734,6 +711,52 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
+      // Event: ZR_SendError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_SendError
+      //!
+      virtual void logIn_WARNING_HI_ZR_SendError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_SendError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_SendError;
+
+      //! The history of ZR_SendError events
+      //!
+      History<EventEntry_ZR_SendError> 
+        *eventHistory_ZR_SendError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Event: ZR_ReceiveError
+      // ----------------------------------------------------------------------
+
+      //! Handle event ZR_ReceiveError
+      //!
+      virtual void logIn_WARNING_HI_ZR_ReceiveError(
+          Fw::LogStringArg& error 
+      );
+
+      //! A history entry for event ZR_ReceiveError
+      //!
+      typedef struct {
+        Fw::LogStringArg error;
+      } EventEntry_ZR_ReceiveError;
+
+      //! The history of ZR_ReceiveError events
+      //!
+      History<EventEntry_ZR_ReceiveError> 
+        *eventHistory_ZR_ReceiveError;
+
+    protected:
+
+      // ----------------------------------------------------------------------
       // Telemetry dispatch
       // ----------------------------------------------------------------------
 
@@ -752,31 +775,6 @@ namespace Zmq {
       //! The total number of telemetry inputs seen
       //!
       U32 tlmSize;
-
-    protected:
-
-      // ----------------------------------------------------------------------
-      // Channel: ZR_PacketsSent
-      // ----------------------------------------------------------------------
-
-      //! Handle channel ZR_PacketsSent
-      //!
-      virtual void tlmInput_ZR_PacketsSent(
-          const Fw::Time& timeTag, /*!< The time*/
-          const U32& val /*!< The channel value*/
-      );
-
-      //! A telemetry entry for channel ZR_PacketsSent
-      //!
-      typedef struct {
-        Fw::Time timeTag;
-        U32 arg;
-      } TlmEntry_ZR_PacketsSent;
-
-      //! The history of ZR_PacketsSent values
-      //!
-      History<TlmEntry_ZR_PacketsSent> 
-        *tlmHistory_ZR_PacketsSent;
 
     protected:
 
@@ -831,27 +829,52 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_NumRecvTimeouts
+      // Channel: ZR_NumDisconnectRetries
       // ----------------------------------------------------------------------
 
-      //! Handle channel ZR_NumRecvTimeouts
+      //! Handle channel ZR_NumDisconnectRetries
       //!
-      virtual void tlmInput_ZR_NumRecvTimeouts(
+      virtual void tlmInput_ZR_NumDisconnectRetries(
           const Fw::Time& timeTag, /*!< The time*/
           const U32& val /*!< The channel value*/
       );
 
-      //! A telemetry entry for channel ZR_NumRecvTimeouts
+      //! A telemetry entry for channel ZR_NumDisconnectRetries
       //!
       typedef struct {
         Fw::Time timeTag;
         U32 arg;
-      } TlmEntry_ZR_NumRecvTimeouts;
+      } TlmEntry_ZR_NumDisconnectRetries;
 
-      //! The history of ZR_NumRecvTimeouts values
+      //! The history of ZR_NumDisconnectRetries values
       //!
-      History<TlmEntry_ZR_NumRecvTimeouts> 
-        *tlmHistory_ZR_NumRecvTimeouts;
+      History<TlmEntry_ZR_NumDisconnectRetries> 
+        *tlmHistory_ZR_NumDisconnectRetries;
+
+    protected:
+
+      // ----------------------------------------------------------------------
+      // Channel: ZR_NumListenerRecvTimeouts
+      // ----------------------------------------------------------------------
+
+      //! Handle channel ZR_NumListenerRecvTimeouts
+      //!
+      virtual void tlmInput_ZR_NumListenerRecvTimeouts(
+          const Fw::Time& timeTag, /*!< The time*/
+          const U32& val /*!< The channel value*/
+      );
+
+      //! A telemetry entry for channel ZR_NumListenerRecvTimeouts
+      //!
+      typedef struct {
+        Fw::Time timeTag;
+        U32 arg;
+      } TlmEntry_ZR_NumListenerRecvTimeouts;
+
+      //! The history of ZR_NumListenerRecvTimeouts values
+      //!
+      History<TlmEntry_ZR_NumListenerRecvTimeouts> 
+        *tlmHistory_ZR_NumListenerRecvTimeouts;
 
     protected:
 

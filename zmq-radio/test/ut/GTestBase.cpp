@@ -71,56 +71,6 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Channel: ZR_PacketsSent
-  // ----------------------------------------------------------------------
-
-  void ZmqRadioGTestBase ::
-    assertTlm_ZR_PacketsSent_size(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 size
-    ) const
-  {
-    ASSERT_EQ(this->tlmHistory_ZR_PacketsSent->size(), size)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Size of history for telemetry channel ZR_PacketsSent\n"
-      << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->tlmHistory_ZR_PacketsSent->size() << "\n";
-  }
-
-  void ZmqRadioGTestBase ::
-    assertTlm_ZR_PacketsSent(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 index,
-        const U32& val
-    )
-    const
-  {
-    ASSERT_LT(index, this->tlmHistory_ZR_PacketsSent->size())
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Index into history of telemetry channel ZR_PacketsSent\n"
-      << "  Expected: Less than size of history (" 
-      << this->tlmHistory_ZR_PacketsSent->size() << ")\n"
-      << "  Actual:   " << index << "\n";
-    const TlmEntry_ZR_PacketsSent& e =
-      this->tlmHistory_ZR_PacketsSent->at(index);
-    ASSERT_EQ(val, e.arg)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Value at index "
-      << index
-      << " on telmetry channel ZR_PacketsSent\n"
-      << "  Expected: " << val << "\n"
-      << "  Actual:   " << e.arg << "\n";
-  }
-
-  // ----------------------------------------------------------------------
   // Channel: ZR_NumDisconnects
   // ----------------------------------------------------------------------
 
@@ -221,27 +171,27 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Channel: ZR_NumRecvTimeouts
+  // Channel: ZR_NumDisconnectRetries
   // ----------------------------------------------------------------------
 
   void ZmqRadioGTestBase ::
-    assertTlm_ZR_NumRecvTimeouts_size(
+    assertTlm_ZR_NumDisconnectRetries_size(
         const char *const __callSiteFileName,
         const U32 __callSiteLineNumber,
         const U32 size
     ) const
   {
-    ASSERT_EQ(this->tlmHistory_ZR_NumRecvTimeouts->size(), size)
+    ASSERT_EQ(this->tlmHistory_ZR_NumDisconnectRetries->size(), size)
       << "\n"
       << "  File:     " << __callSiteFileName << "\n"
       << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Size of history for telemetry channel ZR_NumRecvTimeouts\n"
+      << "  Value:    Size of history for telemetry channel ZR_NumDisconnectRetries\n"
       << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->tlmHistory_ZR_NumRecvTimeouts->size() << "\n";
+      << "  Actual:   " << this->tlmHistory_ZR_NumDisconnectRetries->size() << "\n";
   }
 
   void ZmqRadioGTestBase ::
-    assertTlm_ZR_NumRecvTimeouts(
+    assertTlm_ZR_NumDisconnectRetries(
         const char *const __callSiteFileName,
         const U32 __callSiteLineNumber,
         const U32 index,
@@ -249,23 +199,73 @@ namespace Zmq {
     )
     const
   {
-    ASSERT_LT(index, this->tlmHistory_ZR_NumRecvTimeouts->size())
+    ASSERT_LT(index, this->tlmHistory_ZR_NumDisconnectRetries->size())
       << "\n"
       << "  File:     " << __callSiteFileName << "\n"
       << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Index into history of telemetry channel ZR_NumRecvTimeouts\n"
+      << "  Value:    Index into history of telemetry channel ZR_NumDisconnectRetries\n"
       << "  Expected: Less than size of history (" 
-      << this->tlmHistory_ZR_NumRecvTimeouts->size() << ")\n"
+      << this->tlmHistory_ZR_NumDisconnectRetries->size() << ")\n"
       << "  Actual:   " << index << "\n";
-    const TlmEntry_ZR_NumRecvTimeouts& e =
-      this->tlmHistory_ZR_NumRecvTimeouts->at(index);
+    const TlmEntry_ZR_NumDisconnectRetries& e =
+      this->tlmHistory_ZR_NumDisconnectRetries->at(index);
     ASSERT_EQ(val, e.arg)
       << "\n"
       << "  File:     " << __callSiteFileName << "\n"
       << "  Line:     " << __callSiteLineNumber << "\n"
       << "  Value:    Value at index "
       << index
-      << " on telmetry channel ZR_NumRecvTimeouts\n"
+      << " on telmetry channel ZR_NumDisconnectRetries\n"
+      << "  Expected: " << val << "\n"
+      << "  Actual:   " << e.arg << "\n";
+  }
+
+  // ----------------------------------------------------------------------
+  // Channel: ZR_NumListenerRecvTimeouts
+  // ----------------------------------------------------------------------
+
+  void ZmqRadioGTestBase ::
+    assertTlm_ZR_NumListenerRecvTimeouts_size(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 size
+    ) const
+  {
+    ASSERT_EQ(this->tlmHistory_ZR_NumListenerRecvTimeouts->size(), size)
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Size of history for telemetry channel ZR_NumListenerRecvTimeouts\n"
+      << "  Expected: " << size << "\n"
+      << "  Actual:   " << this->tlmHistory_ZR_NumListenerRecvTimeouts->size() << "\n";
+  }
+
+  void ZmqRadioGTestBase ::
+    assertTlm_ZR_NumListenerRecvTimeouts(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 index,
+        const U32& val
+    )
+    const
+  {
+    ASSERT_LT(index, this->tlmHistory_ZR_NumListenerRecvTimeouts->size())
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Index into history of telemetry channel ZR_NumListenerRecvTimeouts\n"
+      << "  Expected: Less than size of history (" 
+      << this->tlmHistory_ZR_NumListenerRecvTimeouts->size() << ")\n"
+      << "  Actual:   " << index << "\n";
+    const TlmEntry_ZR_NumListenerRecvTimeouts& e =
+      this->tlmHistory_ZR_NumListenerRecvTimeouts->at(index);
+    ASSERT_EQ(val, e.arg)
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Value at index "
+      << index
+      << " on telmetry channel ZR_NumListenerRecvTimeouts\n"
       << "  Expected: " << val << "\n"
       << "  Actual:   " << e.arg << "\n";
   }
@@ -538,55 +538,6 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Event: ZR_SendError
-  // ----------------------------------------------------------------------
-
-  void ZmqRadioGTestBase ::
-    assertEvents_ZR_SendError_size(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 size
-    ) const
-  {
-    ASSERT_EQ(size, this->eventHistory_ZR_SendError->size())
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Size of history for event ZR_SendError\n"
-      << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->eventHistory_ZR_SendError->size() << "\n";
-  }
-
-  void ZmqRadioGTestBase ::
-    assertEvents_ZR_SendError(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 index,
-        const char *const error
-    ) const
-  {
-    ASSERT_GT(this->eventHistory_ZR_SendError->size(), index)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Index into history of event ZR_SendError\n"
-      << "  Expected: Less than size of history (" 
-      << this->eventHistory_ZR_SendError->size() << ")\n"
-      << "  Actual:   " << index << "\n";
-    const EventEntry_ZR_SendError& e =
-      this->eventHistory_ZR_SendError->at(index);
-    ASSERT_STREQ(error, e.error.toChar())
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Value of argument error at index "
-      << index
-      << " in history of event ZR_SendError\n"
-      << "  Expected: " << error << "\n"
-      << "  Actual:   " << e.error.toChar() << "\n";
-  }
-
-  // ----------------------------------------------------------------------
   // Event: ZR_Disconnection
   // ----------------------------------------------------------------------
 
@@ -644,6 +595,104 @@ namespace Zmq {
       << "  Value:    Size of history for event ZR_RecvTimeout\n"
       << "  Expected: " << size << "\n"
       << "  Actual:   " << this->eventsSize_ZR_RecvTimeout << "\n";
+  }
+
+  // ----------------------------------------------------------------------
+  // Event: ZR_SendError
+  // ----------------------------------------------------------------------
+
+  void ZmqRadioGTestBase ::
+    assertEvents_ZR_SendError_size(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 size
+    ) const
+  {
+    ASSERT_EQ(size, this->eventHistory_ZR_SendError->size())
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Size of history for event ZR_SendError\n"
+      << "  Expected: " << size << "\n"
+      << "  Actual:   " << this->eventHistory_ZR_SendError->size() << "\n";
+  }
+
+  void ZmqRadioGTestBase ::
+    assertEvents_ZR_SendError(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 index,
+        const char *const error
+    ) const
+  {
+    ASSERT_GT(this->eventHistory_ZR_SendError->size(), index)
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Index into history of event ZR_SendError\n"
+      << "  Expected: Less than size of history (" 
+      << this->eventHistory_ZR_SendError->size() << ")\n"
+      << "  Actual:   " << index << "\n";
+    const EventEntry_ZR_SendError& e =
+      this->eventHistory_ZR_SendError->at(index);
+    ASSERT_STREQ(error, e.error.toChar())
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Value of argument error at index "
+      << index
+      << " in history of event ZR_SendError\n"
+      << "  Expected: " << error << "\n"
+      << "  Actual:   " << e.error.toChar() << "\n";
+  }
+
+  // ----------------------------------------------------------------------
+  // Event: ZR_ReceiveError
+  // ----------------------------------------------------------------------
+
+  void ZmqRadioGTestBase ::
+    assertEvents_ZR_ReceiveError_size(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 size
+    ) const
+  {
+    ASSERT_EQ(size, this->eventHistory_ZR_ReceiveError->size())
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Size of history for event ZR_ReceiveError\n"
+      << "  Expected: " << size << "\n"
+      << "  Actual:   " << this->eventHistory_ZR_ReceiveError->size() << "\n";
+  }
+
+  void ZmqRadioGTestBase ::
+    assertEvents_ZR_ReceiveError(
+        const char *const __callSiteFileName,
+        const U32 __callSiteLineNumber,
+        const U32 index,
+        const char *const error
+    ) const
+  {
+    ASSERT_GT(this->eventHistory_ZR_ReceiveError->size(), index)
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Index into history of event ZR_ReceiveError\n"
+      << "  Expected: Less than size of history (" 
+      << this->eventHistory_ZR_ReceiveError->size() << ")\n"
+      << "  Actual:   " << index << "\n";
+    const EventEntry_ZR_ReceiveError& e =
+      this->eventHistory_ZR_ReceiveError->at(index);
+    ASSERT_STREQ(error, e.error.toChar())
+      << "\n"
+      << "  File:     " << __callSiteFileName << "\n"
+      << "  Line:     " << __callSiteLineNumber << "\n"
+      << "  Value:    Value of argument error at index "
+      << index
+      << " in history of event ZR_ReceiveError\n"
+      << "  Expected: " << error << "\n"
+      << "  Actual:   " << e.error.toChar() << "\n";
   }
 
   // ----------------------------------------------------------------------

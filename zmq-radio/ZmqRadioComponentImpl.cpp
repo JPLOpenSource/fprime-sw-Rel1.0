@@ -102,6 +102,7 @@ namespace Zmq{
 	    this->m_serverCmdPort = port; // Save server command port 
 	
 	    this->connect();
+	    this->startSubscriptionTask(100);
 	}
 
 	void ZmqRadioComponentImpl::connect(void){
@@ -246,7 +247,7 @@ namespace Zmq{
 		}
 		
 
-		// Create publish socket
+		// Connect publish socket
 		(void)snprintf(endpoint,ZMQ_RADIO_ENDPOINT_NAME_SIZE,"tcp://%s:%d",this->m_hostname, this->m_serverSubPort);
 		// null terminate
         endpoint[ZMQ_RADIO_ENDPOINT_NAME_SIZE-1] = 0;
@@ -256,7 +257,7 @@ namespace Zmq{
 			return -1;
 		} 
 
-		// Create subscribe socket
+		// Connect subscribe socket
 		(void)snprintf(endpoint, ZMQ_RADIO_ENDPOINT_NAME_SIZE, "tcp://%s:%d", this->m_hostname, this->m_serverPubPort);
 		rc = zmq_connect(this->m_subSocket,endpoint);
 		if (-1 == rc) {
@@ -288,7 +289,7 @@ namespace Zmq{
 
 	void ZmqRadioComponentImpl::reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context ){
 		DEBUG_PRINT("reconnect_handler\n");
-
+		return;
 		switch(this->m_state.get()){
 
 			case State::ZMQ_RADIO_CONNECTED_STATE:
@@ -353,14 +354,15 @@ namespace Zmq{
 				break;
 
 		}
-		
-
 
 	}
 
 	/* FPrime ZMQ Wrapper functions */
 
     NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
+    	// Ensure write calls are atomic
+		static Os::Mutex mutex;
+		mutex.lock();
     	//printf("Data Size: 0x%04x\n", data.getBuffLength());
     	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
 
@@ -386,18 +388,37 @@ namespace Zmq{
     		this->m_packetsSent++;
     	}
 
+    	mutex.unLock();
     	return 1;
 
     }
 
     NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
+		// Ensure read calls are atomic
+		static Os::Mutex mutex;
+		mutex.lock();
+
+		NATIVE_INT_TYPE rc = 0; // return code
         NATIVE_INT_TYPE total=0;
 
         // Ignore the zmq identifier
 		zmq_msg_t zmqID;
     	zmq_msg_init(&zmqID);
-    	zmq_msg_recv(&zmqID, zmqSocket, 0);
+    	rc = zmq_msg_recv(&zmqID, zmqSocket, 0);
     	zmq_msg_close(&zmqID);
+    	if(rc == -1){
+    		if(zmq_errno() == EAGAIN){ // Recv timed out so keep retrying
+    			mutex.unLock();
+    			return -1;
+    		}else{ // A more serious error has occured
+	    		zmqError("ZmqRadioComponentImpl::zmqSocketRead: zmq_msg_recv error.");
+		    	Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+		    	this->log_WARNING_HI_ZR_ReceiveError(errArg);
+		    	this->m_state.transitionDisconnected();
+		    	mutex.unLock();
+		    	return -1;
+	    	}
+    	}
 
     	// Receive FPrime packet
     	zmq_msg_t fPrimePacket;
@@ -405,19 +426,178 @@ namespace Zmq{
     	total = zmq_msg_recv(&fPrimePacket, zmqSocket, 0);
 
     	if(total == -1){
-			zmqError("zmqSocketRead");
-			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-			this->log_WARNING_HI_ZR_ReceiveError(errArg);
-			return -1;
-    	}else{ // Copy packet data into buf, close message, and increase number packets received
+    		if(zmq_errno() == EAGAIN){ // Recv timed out so keep retrying
+    			mutex.unLock();
+    			return -1;
+    		}else{
+
+	    		zmqError("ZmqRadioComponentImpl::zmqSocketRead: zmq_msg_recv error.");
+		    	Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+		    	this->log_WARNING_HI_ZR_ReceiveError(errArg);
+		    	this->m_state.transitionDisconnected();
+		    	mutex.unLock();
+		    	return -1;
+		    }
+
+    	}else{ // Success. Copy packet data into buf, close message, and increase number packets received
     		memcpy(buf, zmq_msg_data(&fPrimePacket), total);
     		zmq_msg_close(&fPrimePacket);
     		this->m_packetsRecv++;
     	}
 
-
+    	mutex.unLock();
         return total;
     }
+
+    void ZmqRadioComponentImpl::startSubscriptionTask(I32 priority){
+		Fw::EightyCharString name("ScktRead");
+
+        // Spawn read task
+    	Os::Task::TaskStatus stat = this->subscriptionTask.start(name,0, priority,10*1024, ZmqRadioComponentImpl::subscriptionTaskRunnable, this);
+    	FW_ASSERT(Os::Task::TASK_OK == stat,static_cast<NATIVE_INT_TYPE>(stat));
+    
+    }
+
+    void ZmqRadioComponentImpl::subscriptionTaskRunnable(void* ptr){
+    	printf("Entering subscriptionTask\n");
+    	fflush(stderr);
+
+		// Get reference to component
+		ZmqRadioComponentImpl* comp = (ZmqRadioComponentImpl*) ptr;
+    	
+    	while(1){
+	        U32 packetDelimiter;
+	        U32 packetSize;
+	        U32 packetDesc;
+	        U8 buf[FW_COM_BUFFER_MAX_SIZE];
+	        U16 buf_ptr = 0;
+
+
+	        switch(comp->m_state.get()){
+	        	case State::ZMQ_RADIO_DISCONNECTED_STATE:
+	        		// Idle
+	        		break;
+
+
+		        case State::ZMQ_RADIO_CONNECTED_STATE:
+		    		// Read incoming zmq message
+		    		I32 msgSize = 0;
+					msgSize = comp->zmqSocketRead(comp->m_subSocket, buf, (NATIVE_INT_TYPE)FW_COM_BUFFER_MAX_SIZE);
+					if(msgSize == -1){ // An error occured
+						break;
+					}
+
+
+					// Extract packet delimiter
+					packetDelimiter = *(U32*)(buf+buf_ptr);
+					packetDelimiter = ntohl(packetDelimiter);
+
+		            // correct for network order
+		            packetDelimiter = ntohl(packetDelimiter);
+		            //printf("Packet delimiter: 0x%04x\n",packetDelimiter);
+
+		            // if magic number to quit, exit loop
+		            if (packetDelimiter == 0xA5A5A5A5) {
+		                (void) printf("packetDelimiter = 0x%x\n", packetDelimiter);
+		                //break;
+		            } else if (packetDelimiter != 0x5A5A5A5A) {
+		                (void) printf("Unexpected delimiter 0x%08X\n",packetDelimiter);
+		                // just keep reading until a delimiter is found
+		                continue;
+		            }
+
+		            // Increment buffer pointer
+		            buf_ptr += sizeof(packetDelimiter);
+
+
+		            // Extract FPrime packet size
+		            packetSize = *(U32*)(buf + buf_ptr);
+		            packetSize = ntohl(packetSize);
+		            //printf("Packet Size: 0x%04x\n", packetSize);
+
+		            // Increment buffer pointer
+		            buf_ptr += sizeof(packetSize);
+
+		            // Extract FPrime packet description
+		            packetDesc = *(U32*)(buf + buf_ptr);
+		            packetDesc = ntohl(packetDesc);
+
+		            // Increment buffer pointer
+		            buf_ptr += sizeof(packetDesc);
+
+		            switch(packetDesc) {
+
+		                case Fw::ComPacket::FW_PACKET_COMMAND:
+		                {
+		                	U8 cmdPacket[FW_COM_BUFFER_MAX_SIZE];
+
+		                    // check size of command
+		                    if (packetSize > FW_COM_BUFFER_MAX_SIZE) {
+		                        (void) printf("Packet to large! :%d\n",packetSize);
+		                        // might as well wait for the next packet
+		                        break;
+		                    }
+
+
+		                    /*
+		                    cmdBuffer[3] = packetDesc & 0xff;
+		                    cmdBuffer[2] = (packetDesc & 0xff00) >> 8;
+		                    cmdBuffer[1] = (packetDesc & 0xff0000) >> 16;
+		                    cmdBuffer[0] = (packetDesc & 0xff000000) >> 24;
+							*/
+				    		
+				    		// Add description
+		                    packetDesc = ntohl(packetDesc); // Is this the same as above?
+		                    memcpy(cmdPacket, &packetDesc, sizeof(packetDesc));
+
+				    		// Add command data [ Size of cmd data is packet size - packetDesc size ]
+		                    memcpy(cmdPacket + sizeof(packetDesc), buf + buf_ptr, packetSize - sizeof(packetDesc));
+
+
+		                    if (comp->isConnected_uplinkPort_OutputPort(0)) {
+		                         Fw::ComBuffer cmdBuffer(cmdPacket, packetSize);
+		                         comp->uplinkPort_out(0,cmdBuffer,0);
+		                    }
+		                    break;
+		                }
+		            
+
+		                case Fw::ComPacket::FW_PACKET_FILE:
+		                {
+		                
+		                    // Get Buffer
+		                    Fw::Buffer packet_buffer = comp->fileUplinkBufferGet_out(0, packetSize - sizeof(packetDesc));
+		                    U8* data_ptr = (U8*)packet_buffer.getdata();
+
+							/*
+		                     for(uint32_t i =0; i < bytesRead; i++){
+		                         (void) printf("IN_DATA:%02x\n", data_ptr[i]);
+		                     }
+							*/
+
+							// Read file packet minus description. Same as above?
+		                    memcpy(data_ptr, buf + buf_ptr, packetSize - sizeof(packetDesc));
+
+		                    if (comp->isConnected_fileUplinkBufferSendOut_OutputPort(0)) {
+		                        comp->fileUplinkBufferSendOut_out(0, packet_buffer);
+		                    }
+
+		                    break;
+		                }
+
+		                default:
+		                    FW_ASSERT(0);
+		            }
+
+		            break;
+	        
+
+	        } // State switch
+
+        } // while 1
+
+    }
+
 
 	/* State Class Implementation */	
 
@@ -433,6 +613,10 @@ namespace Zmq{
 	}
 
 	void ZmqRadioComponentImpl::State::transitionConnected(){
+		// Ensure transition calls are atomic
+		static Os::Mutex mutex;
+		mutex.lock();
+
 		switch(this->state){
 
 			case ZMQ_RADIO_CONNECTED_STATE:
@@ -442,15 +626,21 @@ namespace Zmq{
 			case ZMQ_RADIO_DISCONNECTED_STATE:
 				// Successful reconnection
 				this->state = ZMQ_RADIO_CONNECTED_STATE;
+
 				this->m_parent->log_ACTIVITY_HI_ZR_Connection();
 
 				this->m_parent->m_numConnects++;
 				break;
 		}
+		mutex.unLock();
 
 	}
 
 	void ZmqRadioComponentImpl::State::transitionDisconnected(){
+		// Ensure transition calls are atomic
+		static Os::Mutex mutex;
+		mutex.lock();
+
 		// Release ZMQ resources to prepare for reconnect attempts
 		zmq_close(this->m_parent->m_pubSocket);
 		zmq_close(this->m_parent->m_subSocket);
@@ -462,15 +652,20 @@ namespace Zmq{
 
 			case ZMQ_RADIO_CONNECTED_STATE:
 				// Disconnection experienced
+				this->state = ZMQ_RADIO_DISCONNECTED_STATE;
+
 				this->m_parent->log_WARNING_HI_ZR_Disconnection();
 				this->m_parent->m_numDisconnects++;
+
 				break;
 			case ZMQ_RADIO_DISCONNECTED_STATE:
 				// Reconnection failed
+
 				this->m_parent->m_numDisconnectRetries++;
 				break;
 
 		}
+		mutex.unLock();
 
 
 	}

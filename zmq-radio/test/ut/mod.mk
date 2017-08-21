@@ -1,7 +1,8 @@
 TEST_SRC = 	main.cpp \
+			GTestBase.cpp \
 			Tester.cpp \
-			TesterBase.cpp \
-			GTestBase.cpp
+			TesterBase.cpp
+
 
 TEST_MODS = fprime-zmq/zmq-radio\
 	    fprime-zmq/zmq \
@@ -17,4 +18,5 @@ TEST_MODS = fprime-zmq/zmq-radio\
 			Fw/Com \
 			Svc/Sched \
 			Svc/Ping \
-			Os
+			Os \
+			gtest

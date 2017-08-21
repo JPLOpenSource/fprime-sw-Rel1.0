@@ -33,11 +33,6 @@
 	ZmqRadio component connected to server 
         </comment>
     </event>
-    <event id="7" name="ZR_RecvTimeout" severity="WARNING_HI" format_string = "ZmqRadio timed out during a zmq recv call..">
-        <comment>
-	ZmqRadio component connected to server 
-        </comment>
-    </event>
     <event id="8" name="ZR_SendError" severity="WARNING_HI" format_string = "ZmqRadio send error: %s" throttle="10">
         <comment>
         ZmqRadio send error

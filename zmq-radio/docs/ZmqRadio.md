@@ -25,7 +25,6 @@
 | | | |error|Fw::LogStringArg&|80||    
 |ZR_Disconnection|5 (0x5)|ZmqRadio component disconneted| | | | |
 |ZR_Connection|6 (0x6)|ZmqRadio component connected to server| | | | |
-|ZR_RecvTimeout|7 (0x7)|ZmqRadio component connected to server| | | | |
 |ZR_SendError|8 (0x8)|ZmqRadio send error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
 |ZR_ReceiveError|9 (0x9)|ZmqRadio receive error| | | | |

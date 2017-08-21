@@ -32,10 +32,10 @@ namespace Zmq {
   Tester ::
     Tester(void) : 
 #if FW_OBJECT_NAMES == 1
-      ZmqRadioTesterBase("Tester", MAX_HISTORY_SIZE),
+      ZmqRadioGTestBase("Tester", MAX_HISTORY_SIZE),
       component("ZmqRadio")
 #else
-      ZmqRadioTesterBase(MAX_HISTORY_SIZE),
+      ZmqRadioGTestBase(MAX_HISTORY_SIZE),
       component()
 #endif
   {
@@ -60,10 +60,22 @@ namespace Zmq {
     this->component.init(100, 1);
     this->component.open("localhost", 5555, "flight_1");
     printf("State: %d\n", this->component.m_state.get());
-    this->component.reconnect_handler(0,0);
     
-  }
+    this->component.reconnect_handler(0,0);
+    ASSERT_TLM_ZR_NumConnects(0,1);
+    ASSERT_EVENTS_ZR_Connection_SIZE(1);
 
+    this->component.m_state.transitionDisconnected();
+    this->component.reconnect_handler(0,0);
+    ASSERT_EVENTS_ZR_Disconnection_SIZE(1);
+    ASSERT_TLM_ZR_NumDisconnects(1,1);
+    
+    // reconnect handler should have made a reconenction attempt
+    ASSERT_EVENTS_ZR_Connection_SIZE(2);
+    ASSERT_TLM_ZR_NumConnects(1,2);
+
+
+  }
   // ----------------------------------------------------------------------
   // Handlers for typed from ports
   // ----------------------------------------------------------------------
