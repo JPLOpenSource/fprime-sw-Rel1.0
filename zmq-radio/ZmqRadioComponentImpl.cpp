@@ -119,6 +119,8 @@ namespace Zmq{
 	    }
 
 	    // Create sockets and set options 
+
+	    /* Cmd Socket */
 	    this->m_cmdSocket = zmq_socket(this->m_context, ZMQ_DEALER);
 	    if(not this->m_cmdSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating cmd socket");
@@ -132,6 +134,7 @@ namespace Zmq{
 	    zmq_setsockopt(this->m_cmdSocket, ZMQ_RCVTIMEO, &ZMQ_RADIO_RCVTIMEO, sizeof(ZMQ_RADIO_RCVTIMEO));
 	    zmq_setsockopt(this->m_cmdSocket, ZMQ_SNDTIMEO, &ZMQ_RADIO_SNDTIMEO, sizeof(ZMQ_RADIO_SNDTIMEO));
 	    
+	    /* Pub Socket */
 	    this->m_pubSocket = zmq_socket(this->m_context, ZMQ_DEALER);
 	    if(not this->m_pubSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating pub socket");
@@ -142,10 +145,11 @@ namespace Zmq{
 	    }
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_IDENTITY, &this->m_zmqId, strlen(this->m_zmqId));
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_LINGER, &ZMQ_RADIO_LINGER, sizeof(ZMQ_RADIO_LINGER));
+	    zmq_setsockopt(this->m_pubSocket, ZMQ_SNDHWM, &ZMQ_RADIO_SNDHWM, sizeof(ZMQ_RADIO_SNDHWM));
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_RCVTIMEO, &ZMQ_RADIO_RCVTIMEO, sizeof(ZMQ_RADIO_RCVTIMEO));
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_SNDTIMEO, &ZMQ_RADIO_SNDTIMEO, sizeof(ZMQ_RADIO_SNDTIMEO));
 
-
+	    /* Sub Socket */
 	    this->m_subSocket = zmq_socket(this->m_context, ZMQ_ROUTER); 
 	    if(not this->m_subSocket){ 
 			zmqError("ZmqRadioComponentImpl::connect Error creating sub socket");
@@ -220,7 +224,7 @@ namespace Zmq{
 			if(size == -1){
 				zmqError("ZmqRadioComponentImpl::registerToServer Error receiving server registration response.");
 				Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-				this->log_WARNING_HI_ZR_RecvError(errArg);
+				this->log_WARNING_HI_ZR_ReceiveError(errArg);
 				return -1;
 			}
 
@@ -244,6 +248,7 @@ namespace Zmq{
 		}
 
 		// Check registration status
+		// TODO
 		if(regStatus != 0){
 			
 		}else{
@@ -296,7 +301,6 @@ namespace Zmq{
 	/* Handlers */
 
 	void ZmqRadioComponentImpl::reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context ){
-		DEBUG_PRINT("reconnect_handler\n");
 
 		switch(this->m_state.get()){
 
@@ -339,11 +343,8 @@ namespace Zmq{
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
 				break;
-
-
 		}
 		
-
 	}
 
 	void ZmqRadioComponentImpl::fileDownlinkBufferSendIn_handler(
@@ -375,9 +376,9 @@ namespace Zmq{
 
 
     	U32 data_net_size = htonl(data.getBuffLength());
-    	U8 buf[sizeof(data_net_size) + data.getBuffLength()];
-    	memcpy(buf, &data_net_size, sizeof(data_net_size));
-    	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength());
+    	U8 buf[sizeof(data_net_size) + data.getBuffLength()]; // Create a buffer to hold entire packet
+    	memcpy(buf, &data_net_size, sizeof(data_net_size)); // Copy size
+    	memcpy(buf + sizeof(data_net_size),  (U8*)data.getBuffAddr(), data.getBuffLength()); // Copy packet
 
     	zmq_msg_t fPrimePacket;
     	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
@@ -387,11 +388,15 @@ namespace Zmq{
     	zmq_msg_close(&fPrimePacket);
     	if(rc == -1){
     		zmqError("zmqSocketWriteComBuffer\n");
-    		Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-    		this->log_WARNING_HI_ZR_SendError(errArg);
-    		return -1;
+    		if(zmq_errno() == EAGAIN){ // HWM reached and timed out. Assume connection down.
+    			this->m_state.transitionDisconnected();
+    		}else{
+	    		Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+	    		this->log_WARNING_HI_ZR_SendError(errArg);
+	    		return -1;
+    		}
     	}else{
-    		// Increase packets sent
+    		// Success. Increase packets sent
     		this->m_packetsSent++;
     	}
 
@@ -485,7 +490,6 @@ namespace Zmq{
 	        		// Idle
 	        		break;
 
-
 		        case State::ZMQ_RADIO_CONNECTED_STATE:
 		    		// Read incoming zmq message
 		    		I32 msgSize = 0;
@@ -493,7 +497,6 @@ namespace Zmq{
 					if(msgSize == -1){ // An error occured
 						break;
 					}
-
 
 					// Extract packet delimiter
 					packetDelimiter = *(U32*)(buf+buf_ptr);
@@ -598,7 +601,6 @@ namespace Zmq{
 
 		            break;
 	        
-
 	        } // State switch
 
         } // while 1
@@ -678,8 +680,6 @@ namespace Zmq{
 		}
 		mutex.unLock();
 
-
 	}
-
 
 } // namespace Zmq 
