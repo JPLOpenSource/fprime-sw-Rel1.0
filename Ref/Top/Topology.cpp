@@ -38,6 +38,7 @@ enum {
         ACTIVE_COMP_PING_RECEIVER,
 
         CYCLER_TASK,
+        ACTIVE_ZMQ_RADIO,
         NUM_ACTIVE_COMPS
 };
 
@@ -81,12 +82,6 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 #endif
 ;
 
-// Command Components
-Svc::SocketGndIfImpl sockGndIf
-#if FW_OBJECT_NAMES == 1
-                    ("SGIF")
-#endif
-;
 
 Zmq::ZmqRadioComponentImpl zmqRadio
 #if FW_OBJECT_NAMES == 1
@@ -268,7 +263,6 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     prmDb.init(10,0);
 
-    sockGndIf.init(0);
     zmqRadio.init(100,1);
 
     fileUplink.init(30, 0);
@@ -348,9 +342,8 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     pingRcvr.start(ACTIVE_COMP_PING_RECEIVER, 100, 10*1024);
 
-    // Initialize socket server
-    sockGndIf.startSocketTask(100, port_number+1, hostname);
     zmqRadio.open(hostname, port_number, targetname);
+    zmqRadio.start(ACTIVE_ZMQ_RADIO, 90, 20*1024);
 
 
 #if FW_OBJECT_REGISTRATION == 1
