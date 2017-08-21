@@ -64,6 +64,8 @@ class RoutingCore(object):
            
         self.__logger.debug("Creating PubSubPair")
         self.__logger.debug("Client Type: {}".format(client_type))
+        self.__logger.debug("IO publisher: {}".format(serverIO_publisher_input_address))
+        self.__logger.debug("IO subscriber: {}".format(serverIO_subscriber_output_address))
         self.__logger.debug("Broker Input: {}".format(broker_subscriber_input_address))
         self.__logger.debug("Broker Output: {}".format(broker_publisher_output_address))
 
@@ -78,7 +80,7 @@ class RoutingCore(object):
                                     broker_subscriber_input_address,\
                                     broker_publisher_output_address)
 
-        psp.Start()
+        psp.start()
         self.__pubsub_pair_dict[client_name] = psp
                                     
 

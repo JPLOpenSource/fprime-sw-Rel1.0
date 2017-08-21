@@ -6,7 +6,7 @@ from utils.logging_util import GetLogger
 from utils.throughput_analyzer import ThroughputAnalyzer
 
 from server.ServerUtils.server_config import ServerConfig
-from server.Kernel.interconnect import BindToRandomInprocEndpoint
+from server.Kernel.interconnect import BindToRandomIpcEndpoint
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -23,10 +23,10 @@ class PacketBroker(object):
    
         self.__xsub = context.socket(zmq.XSUB) 
         self.__xsub.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-        self.__xsub_address = BindToRandomInprocEndpoint(self.__xsub)
+        self.__xsub_address = BindToRandomIpcEndpoint(self.__xsub)
 
         self.__xpub = context.socket(zmq.XPUB)
-        self.__xpub_address = BindToRandomInprocEndpoint(self.__xpub)
+        self.__xpub_address = BindToRandomIpcEndpoint(self.__xpub)
 
         self.__ProxyThread = threading.Thread(target=self.__HandleProxy)
 

@@ -7,7 +7,7 @@ from zmq.eventloop.zmqstream import ZMQStream
 from utils.logging_util import GetLogger
 from server.ServerUtils.server_config import ServerConfig
 from server.ServerUtils.zhelpers import zpipe
-from server.Kernel.interconnect import BindToRandomInprocEndpoint
+from server.Kernel.interconnect import BindToRandomIpcEndpoint
 
 SERVER_CONFIG = ServerConfig.getInstance()
 
@@ -36,12 +36,12 @@ class RoutingTable(object):
 
         # Setup command socket
         self.__command_socket     = context.socket(zmq.PUB)
-        self.__command_socket_adr = BindToRandomInprocEndpoint(self.__command_socket)
+        self.__command_socket_adr = BindToRandomIpcEndpoint(self.__command_socket)
 
         # Set command reply socket
         self.__command_reply_socket = context.socket(zmq.ROUTER)
         self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
-        self.__command_reply_socket_adr = BindToRandomInprocEndpoint(self.__command_reply_socket)
+        self.__command_reply_socket_adr = BindToRandomIpcEndpoint(self.__command_reply_socket)
 
     def Quit(self):
         self.__command_socket.close()

@@ -9,10 +9,17 @@ import binascii
 def BindToRandomTcpEndpoint(socket):
     port = socket.bind_to_random_port("tcp://*")
     return port
-
 def BindToRandomInprocEndpoint(socket):
     address = "inproc://%s" % binascii.hexlify(os.urandom(8))
     socket.bind(address)
+    return address
+def BindToRandomIpcEndpoint(socket):
+    address = "ipc:///tmp/pipe_%s" % binascii.hexlify(os.urandom(8))
+    try:
+        socket.bind(address)
+    except zmq.ZMQError as e:
+        print e
+        raise e
     return address
 
 class SubscriberThreadEndpoints(object):
@@ -27,7 +34,7 @@ class SubscriberThreadEndpoints(object):
     def GetOutputAddress(self):
         return self.__output_address
     def GetOutputBinder(self):
-        return BindToRandomInprocEndpoint
+        return BindToRandomIpcEndpoint
     def GetInputBinder(self):
         return BindToRandomTcpEndpoint
     def GetEndpointSetter(self):
@@ -47,7 +54,7 @@ class PublisherThreadEndpoints(object):
     def GetOutputBinder(self):
         return BindToRandomTcpEndpoint
     def GetInputBinder(self):
-        return BindToRandomInprocEndpoint
+        return BindToRandomIpcEndpoint
     def GetEndpointSetter(self):
         return self.SetEndpoints
 

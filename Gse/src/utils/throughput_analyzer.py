@@ -17,7 +17,7 @@ class ThroughputAnalyzer(object):
 
         # If path exists wipe logs
         if(os.path.exists(self.log_path)):
-            logs = os.path.join(self.log_path, "*.log")
+            logs = os.path.join(self.log_path, "*")
             os.system("rm {}".format(logs))
         else:
             os.mkdir(self.log_path)

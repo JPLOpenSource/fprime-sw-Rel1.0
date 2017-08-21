@@ -1,6 +1,8 @@
 import zmq
 import threading
 from logging import DEBUG, INFO
+from multiprocessing import Process
+
 from utils.logging_util import GetLogger
 from utils.throughput_analyzer import ThroughputAnalyzer
 
@@ -134,7 +136,7 @@ def ReceiveFromBroker(client_name, output_socket, sub_socket, cmd_socket, cmd_re
             analyzer.PrintReports()
 
 
-class PubSubPair(object):
+class PubSubPair(Process):
     """
     A 'shadow' representation of a client.
     
@@ -156,6 +158,7 @@ class PubSubPair(object):
                                       serverIO_publisher_input_address,\
                                       broker_subscriber_input_address,\
                                       broker_publisher_output_address):
+        Process.__init__(self)
 
         # Make addresses available for testing purposes
         self.routing_table_command_address = routing_table_command_address 
@@ -209,8 +212,12 @@ class PubSubPair(object):
         self.__PacketReceiver  = threading.Thread(target=ReceiveFromBroker,\
                       args=(client_name, output_socket, sub_socket, cmd_socket, cmd_reply_socket))
         
-        
-    def Start(self):
+    def run(self):
+
         self.__PacketForwarder.start()
         self.__PacketReceiver.start()
 
+        self.__PacketReceiver.join()
+        self.__PacketReceiver.join()
+
+        exit(0)
