@@ -11,8 +11,6 @@
   <!-- vue -->
   <script src="node_modules/vue/dist/vue.js" type="text/javascript"></script>
 
-
-
   <!-- Open MCT Ditribution and plugins -->
   <!-- OMCT -->
   <script src="node_modules/openmct/dist/openmct.js"></script>
@@ -33,17 +31,10 @@
   <link href="client/css/limit.css" media="all" rel="stylesheet" type="text/css"/>
 
   <!-- Install console -->
-  
-  <!-- Jquery Load -->
-  <!-- <script> 
-      $(function(){
-        $("#commandTemplate").load("client/templates/console.html"); 
-      });
-  </script> -->
 
   <!-- CSS for console -->
   <link href="client/css/console.css" media="all" rel="stylesheet" type="text/css"/>
-  <!-- <script type="text/html" id="commandTemplate"></script> -->
+  <!-- Command Console html -->
   <script type="text/html" id="commandTemplate">
     <body>
     <div class="command-console">
@@ -58,13 +49,15 @@
     </div>
     </body>
   </script>
+  <!-- Vue mount -->
   <script src="client/js/vue-console.js"></script>
+  <!-- OpenMCT command console plugin -->
   <script src="client/js/plugins/command-console.js"></script>
 
 </head>
 <body>
   <script type="text/javascript">
-    // Load views
+    // Load views for demo
     LoadViews();
 
     // OpenMCT
@@ -116,8 +109,6 @@
     openmct.install(CommandConsole(site, cmdPort));
     openmct.install(ChanLimitEval());
     openmct.install(EventLimitEval());
-    
-
 
     openmct.start();
   </script>

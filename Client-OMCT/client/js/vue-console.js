@@ -124,6 +124,7 @@ var command = {
       return {
         'id': commandReq['id'],
         'arguments': userArgs,
+        'name': commandReq['name'],
         'timestamp': Date.now()
       };
     },
@@ -132,7 +133,7 @@ var command = {
       if (commandToSend) {
 
         this.socket.send(JSON.stringify(commandToSend));
-        alert(JSON.stringify(commandToSend)); // Dev
+        // alert(JSON.stringify(commandToSend)); // Dev
       }
     },
     navigateResults: function (event) {
@@ -159,13 +160,14 @@ var command = {
   }
 }
 
+var historySocket;
 var hist = {
   props: ['socket'],
   template: `
     <div class="command-hist">
       <ul class="hist-results">
         <li v-for="command in commandHistory">
-          <p>{{ command }}</p>
+          <p>{{ formatHistString(command) }}</p>
         </li>
       </ul>
 
@@ -186,8 +188,7 @@ var hist = {
     // Load command history from server log
     self = this;
     self.getCommandHistory().then(function (commandHist) {
-      console.log('COmmand hist: ' + commandHist);
-      self.commandHistory = commandHist;
+      self.commandHistory = commandHist['commands'];
     });
   },
   mounted() {
@@ -202,6 +203,21 @@ var hist = {
       return http.get('/server/logs/command-log.json').then(function (result) {
         return result.data;
       });
+    },
+    getCommands: function () {
+      // Returns promise of array of all commands
+      return getDictionary().then(function (dict) {
+        let commandDict = dict['isf']['commands'];       
+        let validCommands = [];
+        for (id in commandDict) {
+          validCommands.push(commandDict[id]);
+        }
+        return validCommands;
+      });
+    },
+    formatHistString: function (histObj) {
+      console.log(histObj);
+      return histObj['name'] + ': ' + histObj['arguments'].join(', ');
     }
   }
 };
