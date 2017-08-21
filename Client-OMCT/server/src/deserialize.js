@@ -57,7 +57,7 @@ function stringFormatter(hexValue, strBase, argTypes) {
 				let bits = parseInt(type.substring(1), 10);
 				let rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
 				if (numType === 'F') {
-					argToPush = numConverter(rawNumStr);
+					argToPush = numConverter(rawNumStr, type);
 				} else {
 					argToPush = parseInt(rawNumStr, 16);
 				}
@@ -75,7 +75,7 @@ function stringFormatter(hexValue, strBase, argTypes) {
 }
 
 function gainOffsetConv(value, gain, offset) {
-	return value * gain + offset;
+	return gain * value + offset;
 }
 // Get telem list for format lookup
 
@@ -90,8 +90,6 @@ function deserialize(data) {
 	let packetLength = dataHexRep.length;
 	let ptr = 0;
 	while (ptr < packetLength) {
-
-
 
 		// Ptr is incremented in nibbles since each character is a hex representation
 		let size         = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);

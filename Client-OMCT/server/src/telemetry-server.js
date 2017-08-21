@@ -37,6 +37,7 @@ function RealtimeTelemServer(site, gsePort, realMctPort) {
 
 	// Get net server data and save to history
 	client.on('data', function (data) {
+		console.log(JSON.stringify(data));
 		// Deserialize data into list of packets
 		var toMCT = deserialize(data);
 
