@@ -92,8 +92,6 @@ var command = {
 
       let argsInput = argString.split(',').filter((a) => a != '' && a != ' ');
 
-      alert(JSON.stringify(argsInput));
-
       let commandReq = this.results[0]; // Get command info to check arguments with
 
       if (commandReq['arguments'].length < argsInput.length) {
@@ -120,7 +118,6 @@ var command = {
           userA = argsInput[i];
         }
         // DEV More checks
-        alert(userA);
         userArgs.push(userA);
       });
 
