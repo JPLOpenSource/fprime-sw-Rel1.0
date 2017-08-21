@@ -62,7 +62,6 @@ var objectProvider = {
 				// Measurement = measurement object with same key as 'identifier.key'
 				let measurement = dictionary.isf.channels[identifier.key];
 
-
 				value_formats = [name_format, id_format, time_format, value_format];
 				let units = measurement['units'];
 				if (units != null) {
@@ -75,7 +74,6 @@ var objectProvider = {
 						value_formats.push(value_format_save);
 					});
 				}
-
 				// Object provider for each object in measurments. 
 				// Does not populate tree
 
@@ -97,11 +95,6 @@ var objectProvider = {
 					// Object provider for events
 					let eventToReturn = Object.assign({}, toReturn);
 					eventToReturn.telemetry.values.push(severity_format);
-					// eventToReturn.telemetry.values.forEach(function (v, i) {
-					// 	v['hints'] = {
-					// 		'range': i + 1
-					// 	}
-					// });
 					return eventToReturn;
 				} else {
 					// Object provider for all channels

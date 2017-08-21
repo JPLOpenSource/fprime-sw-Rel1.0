@@ -5,9 +5,9 @@
 var fs = require('fs');
 
 var StaticServer = require('./src/static-server');
-var RealtimeServer = require('./src/telemetry-isf');
+var RealtimeTelemServer = require('./src/telemetry-server');
 var HistoryServer = require('./src/history-server');
-var CommandServer = require('./src/command-isf');
+var CommandServer = require('./src/command-server');
 var CreateFixed = require('./src/create-fixed');
 
 // Create temp directory
@@ -30,6 +30,6 @@ const commandPort = 1339;
 const gsePort = 50000;
 const site = '127.0.0.1';
 
-RealtimeServer(site, gsePort, realMctPort);
+RealtimeTelemServer(site, gsePort, realMctPort);
 HistoryServer(site, histMctPort);
 CommandServer(site, gsePort, commandPort);

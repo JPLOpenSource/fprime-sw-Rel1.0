@@ -132,7 +132,7 @@ var command = {
       if (commandToSend) {
 
         this.socket.send(JSON.stringify(commandToSend));
-        alert(JSON.stringify(commandToSend));
+        alert(JSON.stringify(commandToSend)); // Dev
       }
     },
     navigateResults: function (event) {

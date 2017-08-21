@@ -1,6 +1,6 @@
 // Create fixed display of all channels
 
-var getIds = require('./deserializeIsf').getIds;
+var getIds = require('./deserialize').getIds;
 var fs = require('fs');
 
 function CreateFixed() {
