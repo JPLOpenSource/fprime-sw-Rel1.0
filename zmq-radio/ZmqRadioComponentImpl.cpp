@@ -34,7 +34,7 @@ namespace Zmq{
 		bool zmqError(const char* from) {
 			switch (zmq_errno()) {
 				case EAGAIN:
-				    printf("%s: ZMQ EAGAIN\n", from);
+				    //printf("%s: ZMQ EAGAIN\n", from);
 				    return true;
 				case EFSM:
 				     printf("%s: ZMQ EFSM", from);
@@ -200,6 +200,8 @@ namespace Zmq{
 		
 			if (-1 == rc) {
 				zmqError("ZmqRadioComponentImpl::registerToServer Error sending registration message."); 
+				Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+				this->log_WARNING_HI_ZR_SendError(errArg);
 				return -1;
 			}
 
@@ -217,6 +219,8 @@ namespace Zmq{
 			int size = zmq_msg_recv(&msg, this->m_cmdSocket, 0);
 			if(size == -1){
 				zmqError("ZmqRadioComponentImpl::registerToServer Error receiving server registration response.");
+				Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+				this->log_WARNING_HI_ZR_RecvError(errArg);
 				return -1;
 			}
 
@@ -254,6 +258,8 @@ namespace Zmq{
 		rc = zmq_connect(this->m_pubSocket,endpoint);
 		if (-1 == rc) {
 			zmqError("ZmqRadioComponentImpl::registerToServer Error connecting publish socket.");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_SocketError(errArg);
 			return -1;
 		} 
 
@@ -262,6 +268,8 @@ namespace Zmq{
 		rc = zmq_connect(this->m_subSocket,endpoint);
 		if (-1 == rc) {
 			zmqError("ZmqRadioComponentImpl::registerToServer Error connecting subscribe socket.");
+			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+			this->log_WARNING_HI_ZR_SocketError(errArg);
 			return -1;
 		} 
 
@@ -289,13 +297,12 @@ namespace Zmq{
 
 	void ZmqRadioComponentImpl::reconnect_handler(NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context ){
 		DEBUG_PRINT("reconnect_handler\n");
-		return;
+
 		switch(this->m_state.get()){
 
 			case State::ZMQ_RADIO_CONNECTED_STATE:
 				// We are connected, do nothing
 				DEBUG_PRINT("reconnect_handler: Is connected. Do nothing.\n");
-
 				break;
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// We are disconnected, attempt reconnection
@@ -628,6 +635,10 @@ namespace Zmq{
 				this->state = ZMQ_RADIO_CONNECTED_STATE;
 
 				this->m_parent->log_ACTIVITY_HI_ZR_Connection();
+
+				// Clear throttled logs
+				this->m_parent->log_WARNING_HI_ZR_ReceiveError_ThrottleClear();
+				this->m_parent->log_WARNING_HI_ZR_SendError_ThrottleClear();
 
 				this->m_parent->m_numConnects++;
 				break;
