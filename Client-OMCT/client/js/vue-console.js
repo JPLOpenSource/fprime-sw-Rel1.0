@@ -125,7 +125,7 @@ var command = {
         'id': commandReq['id'],
         'arguments': userArgs,
         'name': commandReq['name'],
-        'timestamp': Date.now()
+        'timestamp': Date()
       };
     },
     sendCommand: function(cmd) {
@@ -192,9 +192,9 @@ var hist = {
     });
   },
   mounted() {
-    self = this;
+    let self = this;
     self.socket.onmessage = function (event) {
-      self.commandHistory.push(event.data);
+      self.commandHistory.push(JSON.parse(event.data));
     }
   },
   methods: {
@@ -216,7 +216,6 @@ var hist = {
       });
     },
     formatHistString: function (histObj) {
-      console.log(histObj);
       return histObj['name'] + ': ' + histObj['arguments'].join(', ');
     }
   }
