@@ -55,7 +55,7 @@ var command = {
       this.$refs.input.focus();
     },
     searchCommand: function(query) {
-      self = this;  // Avoid 'this' scoping issues inside .then of promise
+      let self = this;  // Avoid 'this' scoping issues inside .then of promise
       self.getCommands().then(function (vc) {
         self.results = vc.filter(function (c) {
           let colonIndex = query.indexOf(':');
@@ -186,7 +186,7 @@ var hist = {
   },
   beforeMount() {
     // Load command history from server log
-    self = this;
+    let self = this;
     self.getCommandHistory().then(function (commandHist) {
       self.commandHistory = commandHist['commands'];
     });
