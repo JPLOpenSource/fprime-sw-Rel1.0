@@ -4,6 +4,14 @@ var telem = require('./../res/dictionary.json').isf;  // Get format dictionary
 // Utils
 var vsprintf = require('sprintf-js').vsprintf;
 
+/* 
+ * This function reads a buffer using the specified parameters
+ * @param: {Buffer} buff - Node Buffer to read from
+ * @param: {number} bits - Number of bits to read
+ * @param: {string} type - 'U'nsigned, 'I'nteger, or 'F'loat
+ * @param: {number} offset - Byte to start reading from
+ * @returns: {number} - Number read
+*/
 function readBuff(buff, bits, type, offset) {
   if (typeof offset == "undefined") {
       offset = 0;
