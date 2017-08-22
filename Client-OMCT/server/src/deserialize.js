@@ -89,6 +89,8 @@ function deserialize(data) {
 
 	let packetLength = dataHexRep.length;
 	let ptr = 0;
+
+	let offset = 0;
 	while (ptr < packetLength) {
 
 		// Ptr is incremented in nibbles since each character is a hex representation
