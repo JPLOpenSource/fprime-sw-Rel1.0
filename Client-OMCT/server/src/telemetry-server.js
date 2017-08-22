@@ -8,8 +8,8 @@ var net = require('net');	// Net server
 const WebSocket = require('ws');	// Websocket server
 
 // User modules
-var deserialize = require('./deserialize-dev').deserialize;	// Decode packets
-var getIds = require('./deserialize-dev').getIds;	// Get ids for history
+var deserialize = require('./deserialize').deserialize;	// Decode packets
+var getIds = require('./deserialize').getIds;	// Get ids for history
 
 var ws_number = 0;
 var history = {};

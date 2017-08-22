@@ -18,6 +18,7 @@ function readBuff(buff, bits, type, offset) {
   }
   switch(type.substring(0,1)) {
     case 'U': {
+      // Unsigned Int
       switch(bits) {
         case 32: {
           return buff.readUInt32BE(offset);
@@ -37,6 +38,7 @@ function readBuff(buff, bits, type, offset) {
     }
 
     case 'I': {
+      // Int
       switch(bits) {
         case 32: {
           return buff.readInt32BE(offset);
@@ -56,6 +58,7 @@ function readBuff(buff, bits, type, offset) {
     }
 
     case 'F': {
+      // Float
       switch(bits) {
         case 32: {
           return buff.readFloatBE(offset);
