@@ -108,16 +108,24 @@ function serialize(usrCommand) {
   let types = commandDict[opcode.toString()]['arguments'].map((a) => a['type']);
 
   let argBufferArr = usrCommand['arguments'].map(function (a, i) {
-    if (types[i] != 'String') {
-      let bits = parseInt(types[i].substring(1));
-      length += (bits / 8);
-      return numBuff(a, bits, types[i]);
-    } else {
+    if (types[i] == 'String') {
       let stringBuffed = strBuff(a);
       length += stringBuffed.length;
       return stringBuffed;
+    } else if (types[i] == 'Enum') {
+      let enumKey = a.toString();
+      let enumVal = commandDict[opcode.toString()]['arguments'][i]['enum_dict'][enumKey];
+      length += 32 / 8;
+      return numBuff(enumVal, 32, 'I');
+    } else {
+      // Number type
+      let bits = parseInt(types[i].substring(1));
+      length += (bits / 8);
+      return numBuff(a, bits, types[i]);
     }
   });
+
+
 
   let commandBufferArgs = concatBuffs(argBufferArr);
 
