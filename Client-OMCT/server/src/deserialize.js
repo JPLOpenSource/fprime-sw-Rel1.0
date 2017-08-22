@@ -1,200 +1,253 @@
-/* Used to deserialize incoming packets
-// Size is in bytes
-// In the format of:
-// (4) Size of packet in bytes (Excluding the size of the size of packet information)
-// (4) Descriptor
-// (4) ID
-// (2) Time base
-// (1) Time context
-// (4) Time in seconds
-// (4) Microseconds
-// (Size of packet - 19) Value
-*/
-
 // Dependencies
-var telem = require('./../res/dictionary.json').isf;	// Get format dictionary
+var telem = require('./../res/dictionary.json').isf;  // Get format dictionary
 
 // Utils
 var vsprintf = require('sprintf-js').vsprintf;
 
-function numConverter(hexValue, type) {
-	if (type.substring(0,1) === 'F') {
-		let dv = new DataView(new ArrayBuffer(8));
-		dv.setUint32(0, parseInt('0x' + hexValue));
-		return dv.getFloat32(0);
-	} else {
-		return parseInt(hexValue, 16);
-	}
+function readBuff(buff, bits, type, offset) {
+  if (typeof offset == "undefined") {
+      offset = 0;
+  }
+  switch(type.substring(0,1)) {
+    case 'U': {
+      switch(bits) {
+        case 32: {
+          return buff.readUInt32BE(offset);
+        }
+        case 16: {
+          return buff.readUInt16BE(offset);
+        }
+        case 8: {
+          return buff.readUInt8(offset);
+        }
+        default: {
+          // Invalid bit size
+          console.log("[ERROR] Invalid UInt size!: " + bits);
+          return null;
+        }
+      }
+    }
+
+    case 'I': {
+      switch(bits) {
+        case 32: {
+          return buff.readInt32BE(offset);
+        }
+        case 16: {
+          return buff.readInt16BE(offset);
+        }
+        case 8: {
+          return buff.readInt8(offset);
+        }
+        default: {
+          // Invalid bit size
+          console.log("[ERROR] Invalid Int size!");
+          return null;
+        }
+      }
+    }
+
+    case 'F': {
+      switch(bits) {
+        case 32: {
+          return buff.readFloatBE(offset);
+        }
+        default: {
+          // Invalid bit size
+          console.log("[ERROR] Invalid Float size!");
+          return null;
+        }
+      }
+    }
+
+    default: {
+      // Invalid type
+      console.log("[ERROR] Invalid type! " + type);
+      return null;
+    }
+  }
 }
 
-function stringFormatter(hexValue, strBase, argTypes) {
-	// In case of non number value:
+function stringFormatter(buff, strBase, argTypes) {
+  let offset = 0;
+  let args = argTypes.map(function (type) {
+    if (typeof type === 'string') {
+      // Non-enum type
+      if (type === 'String') {
+        // String type
+        const stringLengthLen = 2;
+        let stringLength = readBuff(buff, stringLengthLen * 8, 'U', offset);
+        offset += stringLengthLen;
 
-	hexValue = hexValue.toString();	// Reinforce string type
-	let args = [];	// Arg array
+        return buff.slice(offset, offset += stringLength).toString();
+      } else {
 
-	// Pointer to keep track of values
-	let ptr = 0;
-	argTypes.forEach(function (type) {
-		// Arg type used to decode each value
-		let argToPush;
-		if (typeof type === 'string') {
-			// Non Enum type
-			if (type === 'String') {
-				// If string type
+        let bits = parseInt(type.substring(1), 10);
+        let num = readBuff(buff, bits, type, offset);
+        offset += bits / 8;
 
-				// Get limit for pointer
-				let charLimit = (2 * parseInt(hexValue.substring(ptr, ptr += 4), 16)) + ptr;
+        return num;
+      }
+    } else {
+      // Enum type
+      let index = readBuff(buff, 32, 'I', offset);
+      return type[index.toString()];
+    }
+  });
 
-				// Create string through conversion of hex to char
-				argToPush = '';
-				while (ptr < charLimit) {
-					argToPush += String.fromCharCode(parseInt(hexValue.substring(ptr, ptr += 2), 16));
-				}
-			} else {
-				// Number type
-				let numType = type.substring(0,1);
-				let bits = parseInt(type.substring(1), 10);
-				let rawNumStr = hexValue.substring(ptr, ptr += (bits / 4));
-				if (numType === 'F') {
-					argToPush = numConverter(rawNumStr, type);
-				} else {
-					argToPush = parseInt(rawNumStr, 16);
-				}
-			}
-		} else {
-			// Enum type
-			let index = parseInt(hexValue.substring(ptr, ptr += 2), 16);
-			argToPush = type[index.toString()];
-		}
-		args.push(argToPush);
-	});
-
-	// Sprintf with arg array as arguments
-	return vsprintf(strBase, args);
+  return vsprintf(strBase, args); 
 }
 
 function gainOffsetConv(value, gain, offset) {
-	return gain * value + offset;
+  return gain * value + offset;
 }
-// Get telem list for format lookup
 
-// Size of packet besides the value and packet size (Descriptor, ID...Time USec) in nibbles
-const packDescrSize = 38;
+// Packet sizes in bytes
+const sizeLen = 4;
+const descriptorLen = 4;
+const idLen = 4;
+const timeBaseLen = 2;
+const timeContextLen = 1;
+const secondsLen = 4;
+const uSecLen = 4;
+// Size of all packet descriptions except size. Used to calculate size of value
+const packetDescriptionLen = 19;
 
 function deserialize(data) {
-	let res = [];
-	let dataHexRep = data.toString('hex');
-	// console.log(JSON.stringify(data));
+  let packetArr = [];
+  let packetLength = data.length;
 
-	let packetLength = dataHexRep.length;
-	let ptr = 0;
+  let offset = 0;
+  while (offset < packetLength) {
+    let size = readBuff(data, sizeLen * 8, 'U', offset);
+    offset += sizeLen;
+    // console.log(size);
 
-	let offset = 0;
-	while (ptr < packetLength) {
+    let descriptor = readBuff(data, descriptorLen * 8, 'U', offset);
+    offset += descriptorLen;
+    // console.log(descriptor);
 
-		// Ptr is incremented in nibbles since each character is a hex representation
-		let size         = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
-		let descriptor   = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
-		let	id           = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
-		let timeBase     = parseInt(dataHexRep.substring(ptr, ptr += 4), 16);
-		let timeContext  = parseInt(dataHexRep.substring(ptr, ptr += 2), 16);
-		let timeSeconds  = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
-		let timeUSeconds = parseInt(dataHexRep.substring(ptr, ptr += 8), 16);
+    let id = readBuff(data, idLen * 8, 'U', offset);
+    offset += idLen;
+    // console.log(id);
 
-		// Find telemetry format specifiers
-		let telemData;
-		if (descriptor === 1) {
-			// If channel
-			telemData = telem['channels'][id.toString()];
-		} else if (descriptor === 2) {
-			// If event
-			telemData = telem['events'][id.toString()];
-		}
+    let timeBase = readBuff(data, timeBaseLen * 8, 'U', offset);
+    offset += timeBaseLen;
+    // console.log(timeBase);
 
-		// Get size of value in nibbles
-		let valueSize = (size * 2) - packDescrSize;
-		// Get hexvalue
-		let hexValue = dataHexRep.substring(ptr, ptr += valueSize);
+    let timeContext = readBuff(data, timeContextLen * 8, 'U', offset);
+    offset += timeContextLen;
+    // console.log(timeContext);
 
-		let value;
-		if (telemData) {
-			// If found in dictionary
-			switch(telemData['telem_type']) {
-				case 'channel':
-					// If channel type
-					if (telemData['format_string']) {
-						value = vsprintf(telemData['format_string'], [numConverter(hexValue, telemData['type'])]);
-					} else {
-						value = numConverter(hexValue, telemData['type']);
-					}
-					break;
+    let seconds = readBuff(data, secondsLen * 8, 'U', offset);
+    offset += secondsLen;
+    // console.log(seconds);
 
-				case 'event':
-					// If event type
-					let strBase = telemData['format_string'];
-					let argTypes = telemData['arguments'];
-					value = stringFormatter(hexValue, strBase, argTypes);
-					break;
+    let uSec = readBuff(data, uSecLen * 8, 'U', offset);
+    offset += uSecLen;
+    // console.log(uSec);
 
-				default:
-					// None
-					break;
-			}
-		} else {
-			console.log('[ERROR] No matching found in format dictionary')
-		}
+    // Find telemetry format specifiers
+    let telemData;
+    if (descriptor == 1) {
+      // If channel
+      telemData = telem['channels'][id.toString()];
+    } else if (descriptor == 2) {
+      // If event
+      telemData = telem['events'][id.toString()];
+    } else {
+      console.log("[ERROR] Invalid descriptor: " + descriptor);
+      return null;
+    }
 
-		// Create timestamp by concatenating the microseconds value onto the seconds value.
-		let timestamp = parseInt((timeSeconds.toString().concat(timeUSeconds.toString())).substring(0, 13), 10);
+    let valueLen = size - packetDescriptionLen;
+    let valueBuff = data.slice(offset, offset += valueLen);
 
-		let toMCT = {
-			'timestamp':timestamp,
-			'value':value,
-			'name': telemData['name'],
-			'identifier': id.toString(),
-			'id': id.toString(),
-			'type': telemData['telem_type']
-		};
+    // If found in dictionary
+    let value;
+    switch(telemData['telem_type']) {
+      case 'channel': {
+        // If channel type
+        let type = telemData['type'];
+        let bits = parseInt(telemData['type'].substring(1), 10);
+        if (telemData['format_string']) {
+          let modifierArg;
+          if (type === 'Enum') {
+            let index = readBuff(valueBuff, 32, 'I', 0);
+            modifierArg = telemData["enum_dict"][index.toString()];
+          } else {
+            modifierArg = readBuff(valueBuff, bits, type, 0);
+          }
+          value = vsprintf(telemData['format_string'], [modifierArg]);
+        } else {
+          value = readBuff(valueBuff, bits, type, 0);
+        }
+        break;
+      }
 
-		// Create datum in openMCT format
-		if (telemData['telem_type'] === 'event') {
-			// Put event in channel id '-1'
-			toMCT['id'] = '-1';
-			// Add severity
-			toMCT['severity'] = telemData['severity'];
-		}
+      case 'event':
+        // If event type
+        let strBase = telemData['format_string'];
+        let argTypes = telemData['arguments'];
+        console.log(valueBuff, strBase, argTypes);
+        value = stringFormatter(valueBuff, strBase, argTypes);
+        break;
 
-		// Create datums for eac unit type
-		let units = telemData['units'];
-		if (units != null) {
-			units.forEach(function (u) {
-				let keyForm = 'value:' + u['Label'];
-				let valueForm = gainOffsetConv(value, parseInt(u['Gain'], 10), parseInt(u['Offset'], 10));
-				toMCT[keyForm] = valueForm;
-			});
-		}
+      default:
+        // None
+        break;
+    }
 
-		// Push packet into queue
-		res.push(toMCT);
+    let timestamp = parseInt((seconds.toString().concat(uSec.toString())).substring(0, 13), 10);
 
-	}
-	return res;
+    let toMCT = {
+      'timestamp':timestamp,
+      'value':value,
+      'name': telemData['name'],
+      'identifier': id.toString(),
+      'id': id.toString(),
+      'type': telemData['telem_type']
+    };
+
+    // Create datum in openMCT format
+    if (telemData['telem_type'] === 'event') {
+      // Put event in channel id '-1'
+      toMCT['id'] = '-1';
+      // Add severity
+      toMCT['severity'] = telemData['severity'];
+    }
+
+    // Create datums for eac unit type
+    let units = telemData['units'];
+    if (units != null) {
+      units.forEach(function (u) {
+        let keyForm = 'value:' + u['Label'];
+        let valueForm = gainOffsetConv(value, parseInt(u['Gain'], 10), parseInt(u['Offset'], 10));
+        toMCT[keyForm] = valueForm;
+      });
+    }
+
+    // Push packet into queue
+    packetArr.push(toMCT);
+
+  }
+
+  // console.log(JSON.stringify(packetArr));
+  return packetArr;
 }
 
 // Returns an array of channel ids
 function getIds() {
-	let ids = [];
-	let channels = telem['channels'];
-	for (let id in channels) {
-		ids.push(id);
-	}
-	return ids;
+  let ids = [];
+  let channels = telem['channels'];
+  for (let id in channels) {
+    ids.push(id);
+  }
+  return ids;
 }
 
 // Export
 module.exports = {
-	deserialize: deserialize,
-	getIds: getIds
+  deserialize: deserialize,
+  getIds: getIds
 };
-

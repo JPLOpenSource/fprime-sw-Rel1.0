@@ -47,6 +47,9 @@ for id in ch_cd:
                                     "high_orange": cl.getHighOrangeDict()[id],
                                     "high_red": cl.getHighRedDict()[id]
                                  }
+    if ch_cd[id]["type"] == "Enum":
+        enum_dict = {v:k for k,v in cl.getTypesDict()[id].enum_dict().iteritems()}
+        ch_cd[id]["enum_dict"] = enum_dict
 
 # Add events channel
 ch_cd[-1] = {

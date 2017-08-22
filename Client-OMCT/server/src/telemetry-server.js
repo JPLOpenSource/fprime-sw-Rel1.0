@@ -8,8 +8,8 @@ var net = require('net');	// Net server
 const WebSocket = require('ws');	// Websocket server
 
 // User modules
-var deserialize = require('./deserialize').deserialize;	// Decode packets
-var getIds = require('./deserialize').getIds;	// Get ids for history
+var deserialize = require('./deserialize-dev').deserialize;	// Decode packets
+var getIds = require('./deserialize-dev').getIds;	// Get ids for history
 
 var ws_number = 0;
 var history = {};
@@ -37,7 +37,6 @@ function RealtimeTelemServer(site, gsePort, realMctPort) {
 
 	// Get net server data and save to history
 	client.on('data', function (data) {
-		console.log(JSON.stringify(data));
 		// Deserialize data into list of packets
 		var toMCT = deserialize(data);
 

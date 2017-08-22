@@ -139,6 +139,10 @@
             "85": {
                 "component": "Ref::SendBuff", 
                 "description": "Readback of Parameter4", 
+                "enum_dict": {
+                    "0": "SEND_IDLE", 
+                    "1": "SEND_ACTIVE"
+                }, 
                 "format_string": "%s", 
                 "id": 85, 
                 "limits": {
