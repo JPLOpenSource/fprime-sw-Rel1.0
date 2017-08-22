@@ -3,7 +3,7 @@ var commandDict = require('./../res/dictionary.json').isf.commands;
 
 function numBuff(num, bits, type) {
   let buff = Buffer.alloc(bits / 8);
-  switch (type) {
+  switch (type.substring(0,1)) {
     case 'U': {
       // Unsigned Int
       switch(bits) {
@@ -21,6 +21,7 @@ function numBuff(num, bits, type) {
         }
         default: {
           // Invalid bits
+          console.log('[ERROR] Invalid number of bits: ' + bits);
           break;
         }
       }
@@ -37,6 +38,7 @@ function numBuff(num, bits, type) {
         }
         default: {
           // Invalid bits
+          console.log('[ERROR] Invalid number of bits: ' + bits);
           break;
         }
       }
@@ -61,23 +63,7 @@ function numBuff(num, bits, type) {
         }
         default: {
           // Invalid bits
-          break;
-        }
-      }
-
-      break;
-    }
-
-    case 'D': {
-      // Double
-      switch(bits) {
-        case 64: {
-          buff.writeDoubleBE(num);
-          break;
-        }
-
-        default: {
-          // Invalid bits
+          console.log('[ERROR] Invalid number of bits: ' + bits);
           break;
         }
       }
@@ -87,6 +73,7 @@ function numBuff(num, bits, type) {
 
     default: {
       // Invalid type
+      console.log('[ERROR] Invalid Type: ' + type);
       break;
     }
   }
@@ -134,10 +121,7 @@ function serialize(usrCommand) {
 
   let commandBufferArgs = concatBuffs(argBufferArr);
 
-  console.log('opcode: ', opcode + '\n');
-
   let commandBuffArray = [Buffer.from(header), numBuff(length, 32, 'U'), numBuff(desc, 32, 'U'), numBuff(opcode, 32, 'U'), commandBufferArgs];
-  
 
   return concatBuffs(commandBuffArray);
   // return Buffer.from(example);

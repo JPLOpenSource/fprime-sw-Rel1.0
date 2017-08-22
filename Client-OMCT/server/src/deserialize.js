@@ -93,16 +93,21 @@ function stringFormatter(buff, strBase, argTypes) {
         return buff.slice(offset, offset += stringLength).toString();
       } else {
 
+
         let bits = parseInt(type.substring(1), 10);
         let num = readBuff(buff, bits, type, offset);
         offset += bits / 8;
+        // console.log(buff, bits, type, offset, num);
 
         return num;
       }
-    } else {
+    } else if (typeof type === 'object') {
       // Enum type
       let index = readBuff(buff, 32, 'I', offset);
       return type[index.toString()];
+    } else {
+      // Invalid type
+      console.log('[ERROR] Invalid argument type in string formatter!: ' + type);
     }
   });
 
@@ -132,31 +137,24 @@ function deserialize(data) {
   while (offset < packetLength) {
     let size = readBuff(data, sizeLen * 8, 'U', offset);
     offset += sizeLen;
-    // console.log(size);
-
+    
     let descriptor = readBuff(data, descriptorLen * 8, 'U', offset);
     offset += descriptorLen;
-    // console.log(descriptor);
 
     let id = readBuff(data, idLen * 8, 'U', offset);
     offset += idLen;
-    // console.log(id);
 
     let timeBase = readBuff(data, timeBaseLen * 8, 'U', offset);
     offset += timeBaseLen;
-    // console.log(timeBase);
 
     let timeContext = readBuff(data, timeContextLen * 8, 'U', offset);
     offset += timeContextLen;
-    // console.log(timeContext);
 
     let seconds = readBuff(data, secondsLen * 8, 'U', offset);
     offset += secondsLen;
-    // console.log(seconds);
 
     let uSec = readBuff(data, uSecLen * 8, 'U', offset);
     offset += uSecLen;
-    // console.log(uSec);
 
     // Find telemetry format specifiers
     let telemData;
@@ -197,10 +195,10 @@ function deserialize(data) {
       }
 
       case 'event':
-        // If event type
+        // If event typeß
         let strBase = telemData['format_string'];
         let argTypes = telemData['arguments'];
-        console.log(valueBuff, strBase, argTypes);
+        // console.log(valueBuff, strBase, argTypes);
         value = stringFormatter(valueBuff, strBase, argTypes);
         break;
 
@@ -208,7 +206,7 @@ function deserialize(data) {
         // None
         break;
     }
-
+    
     let timestamp = parseInt((seconds.toString().concat(uSec.toString())).substring(0, 13), 10);
 
     let toMCT = {
