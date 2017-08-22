@@ -124,7 +124,6 @@ function serialize(usrCommand) {
   let commandBuffArray = [Buffer.from(header), numBuff(length, 32, 'U'), numBuff(desc, 32, 'U'), numBuff(opcode, 32, 'U'), commandBufferArgs];
 
   return concatBuffs(commandBuffArray);
-  // return Buffer.from(example);
 }
 
 // Export
