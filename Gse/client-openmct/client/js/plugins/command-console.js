@@ -4,18 +4,18 @@ function CommandConsole(site, port) {
 
         openmct.objects.addRoot({
             key: 'console',
-            namespace: 'isf.command'
+            namespace: 'ref.command'
         });
 
-        openmct.objects.addProvider('isf.command', {
+        openmct.objects.addProvider('ref.command', {
             get: function () {
                 return Promise.resolve({
                     name: 'Command Console',
                     identifier: {
                         key: 'console',
-                        namespace: 'isf.command'
+                        namespace: 'ref.command'
                     },
-                    type: 'isf.command'
+                    type: 'ref.command'
                 });
             }
         });
@@ -23,7 +23,7 @@ function CommandConsole(site, port) {
         openmct.mainViews.addProvider({
             name: 'Command Console',
             canView: function (d) {
-                return d.type === 'isf.command';
+                return d.type === 'ref.command';
             },
             view: function (domainObject) {
                 var commandView = new CommandView({

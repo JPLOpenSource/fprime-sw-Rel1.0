@@ -45,8 +45,8 @@ function ChanLimitEval() {
     }
 
     LimitEvaluator.appliesTo = function(domainObject) {
-        // Applies to isf telemetry iff there are no null values in the limits
-        return domainObject.type === 'isf.telemetry' && domainObject.name !== 'Events' && !hasNull(domainObject.limits);
+        // Applies to ref telemetry iff there are no null values in the limits
+        return domainObject.type === 'ref.telemetry' && domainObject.name !== 'Events' && !hasNull(domainObject.limits);
     }
 
     return function install(openmct) {
@@ -87,8 +87,8 @@ function EventLimitEval() {
     }
 
     LimitEvaluator.appliesTo = function(domainObject) {
-        // Applies to isf telemetry iff there are no null values in the limits
-        return domainObject.type === 'isf.telemetry' && domainObject.name === 'Events';
+        // Applies to ref telemetry iff there are no null values in the limits
+        return domainObject.type === 'ref.telemetry' && domainObject.name === 'Events';
     }
 
     return function install(openmct) {

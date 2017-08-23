@@ -47,20 +47,20 @@ var objectProvider = {
 		return getDictionary().then(function (dictionary) {
 			// Create and describe domain object from root
 			// Indentifier contians key and namespace
-			if (identifier.key === 'isf') {
+			if (identifier.key === 'ref') {
 				return {
-					// Provider if isf root
+					// Provider if ref root
 					identifier: identifier, // Domain object 'identifier' is same as root
-					name: 'ISF',  // Name of toplevel dictionary object ('ISF')
+					name: 'REF',  // Name of toplevel dictionary object ('REF')
 					type: 'folder', 
 					location: 'ROOT'
 				};
 			} else {
-				// Provider if not isf root
+				// Provider if not ref root
 				
 
 				// Measurement = measurement object with same key as 'identifier.key'
-				let measurement = dictionary.isf.channels[identifier.key];
+				let measurement = dictionary.ref.channels[identifier.key];
 
 				value_formats = [name_format, id_format, time_format, value_format];
 				let units = measurement['units'];
@@ -77,7 +77,7 @@ var objectProvider = {
 				// Object provider for each object in measurments. 
 				// Does not populate tree
 
-				let typeStr = 'isf.telemetry';
+				let typeStr = 'ref.telemetry';
 				// console.log('type' + typeStr);
 
         let toReturn = {
@@ -89,7 +89,7 @@ var objectProvider = {
           telemetry: {
             values: value_formats  // Values already in default format
           },
-          location: 'isf.taxonomy:isf'
+          location: 'ref.taxonomy:ref'
         }
 				if (measurement.name === 'Events') {
 					// Object provider for events
@@ -109,8 +109,8 @@ var objectProvider = {
 var compositionProvider = {
 	appliesTo: function (domainObject) {
 		// Determines what object this composition provider will provide
-		// In this case, the isf.taxonomy domain object with a type of folder.
-		return domainObject.identifier.namespace === 'isf.taxonomy' &&
+		// In this case, the ref.taxonomy domain object with a type of folder.
+		return domainObject.identifier.namespace === 'ref.taxonomy' &&
 			   domainObject.type === 'folder';
 	},
 	load: function (domainObject) {
@@ -118,10 +118,10 @@ var compositionProvider = {
 		return getDictionary().then(function (dictionary) {
 			// 'dictionary.measurements' is a list of telemetry objects
 			let channels = [];
-			let chanDict = dictionary['isf']['channels'];
+			let chanDict = dictionary['ref']['channels'];
 			for (id in chanDict) {
 				channels.push({
-					namespace: 'isf.taxonomy',
+					namespace: 'ref.taxonomy',
 					key: id
 				});
 			}
@@ -142,19 +142,19 @@ function DictionaryPlugin(site, port) {
 
 			// Namespace used to identify which root 
 			// to provide telemetry objects for
-			namespace: 'isf.taxonomy',  
-			key: 'isf'
+			namespace: 'ref.taxonomy',  
+			key: 'ref'
 		});
 
-		// Create domain object ('isf' folder) under the root namespace 'isf.taxonomy'
-		openmct.objects.addProvider('isf.taxonomy', objectProvider);
+		// Create domain object ('ref' folder) under the root namespace 'ref.taxonomy'
+		openmct.objects.addProvider('ref.taxonomy', objectProvider);
 
 		// Composition provider will define structure of the tree and populate it.
 		openmct.composition.addProvider(compositionProvider);
 
-		openmct.types.addType('isf.telemetry', {
-			name: 'Isf Telemetry Point',
-			description: 'Isf telemetry point from Ref App.',
+		openmct.types.addType('ref.telemetry', {
+			name: 'Ref Telemetry Point',
+			description: 'Ref telemetry point from Ref App.',
 			cssClass: 'icon-telemetry'
 		});
 	};

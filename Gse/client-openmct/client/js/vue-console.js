@@ -41,7 +41,7 @@ var command = {
     getCommands: function () {
       // Returns promise of array of all commands
       return getDictionary().then(function (dict) {
-        let commandDict = dict['isf']['commands'];       
+        let commandDict = dict['ref']['commands'];       
         let validCommands = [];
         for (id in commandDict) {
           validCommands.push(commandDict[id]);
@@ -225,7 +225,7 @@ var hist = {
     getCommands: function () {
       // Returns promise of array of all commands
       return getDictionary().then(function (dict) {
-        let commandDict = dict['isf']['commands'];       
+        let commandDict = dict['ref']['commands'];       
         let validCommands = [];
         for (id in commandDict) {
           validCommands.push(commandDict[id]);

@@ -55,12 +55,12 @@ core
 
 # Ignoring files for node client view:
 # Modules
-Client-OMCT/node_modules
-Client-OMCT/bower_components
+Gse/client-openmct/node_modules
+Gse/client-openmct/bower_components
 # Npm
-Client-OMCT/package-lock.json
+Gse/client-openmct/package-lock.json
 # Server temp files
-Client-OMCT/server/temp/*
+Gse/client-openmct/server/temp/*
 # TCP Log
 ThreadedTCP.log
 Ref.log

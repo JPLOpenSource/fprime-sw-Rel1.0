@@ -6,7 +6,7 @@ function HistoricalTelemetryPlugin(site, port) {
     return function install (openmct) {
         var provider = {
             supportsRequest: function (domainObject) {
-                return domainObject.identifier.namespace === 'isf.taxonomy';
+                return domainObject.identifier.namespace === 'ref.taxonomy';
             },
             request: function (domainObject, options) {
                 // Get log file
