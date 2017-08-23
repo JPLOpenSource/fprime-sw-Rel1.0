@@ -12,7 +12,7 @@ var command = {
           v-show="showResults">
         <li v-for="command in results"
             @click="select(command)">
-          <p>{{ command["name"] }}</p>
+          <p>{{ command["name"] + ": " + command["argString"]}}</p>
         </li>
       </ul>
     </div>
@@ -64,7 +64,15 @@ var command = {
           } else {
             return c['name'].toLowerCase().indexOf(query.toLowerCase()) != -1;
           }
-        })
+        });
+        self.results.forEach(function (c) {
+          if (c['arguments'].length != 0) {
+            c['argString'] = c['arguments'].map( (a) => a['name'] + ' (' + a['type'] + ')');
+            c['argString'] = c['argString'].join(', ');
+          } else {
+            c['argString'] = '<no arguments>';
+          }
+        });
       })
     },
     cleanCommand: function(cmd) {
