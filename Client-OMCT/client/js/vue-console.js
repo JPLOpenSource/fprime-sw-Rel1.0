@@ -141,7 +141,7 @@ var command = {
       if (commandToSend) {
 
         this.socket.send(JSON.stringify(commandToSend));
-        alert(JSON.stringify(commandToSend)); // Dev
+        // alert(JSON.stringify(commandToSend)); // Dev
       }
     },
     navigateResults: function (event) {
@@ -190,17 +190,12 @@ var hist = {
     return {
       commandResults: [],
       commandHistory: [],
-      showResults: false,
       historyQuery: ''
     }
   },
   watch: {
     historyQuery: function (query) {
-      if (query.trim() == '') {
-        this.showResults = false;
-      } else {
-        this.showResults = true;
-      }
+      this.searchHist(query);
     }
 
   },
@@ -242,7 +237,16 @@ var hist = {
       return histObj['name'] + ': ' + histObj['arguments'].join(', ');
     },
     searchHist: function (query) {
-
+      if (query == '') {
+        this.populateWithHist();
+      } else {
+        let self = this;
+        self.getCommandHistory().then(function (hist) {
+          self.commandHistory = hist['commands'].filter(function (h) {
+            return self.formatHistString(h).toLowerCase().indexOf(query.toLowerCase()) != -1;
+          });
+        });
+      }
     }
   }
 };
