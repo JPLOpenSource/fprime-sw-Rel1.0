@@ -19,10 +19,13 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from utils.logging_util import SetGlobalLoggingLevel, GetLogger
 from server.ServerUtils.server_config import ServerConfig
+from server.AdapterLayer import adapter_utility
+from server.AdapterLayer.adapter_process import AdapterProcess
 
-from threads import GeneralServerIOThread 
-from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
-from RoutingCore.core import RoutingCore
+from server.Kernel.threads import GeneralServerIOThread 
+from server.Kernel import interconnect
+from server.Kernel.interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
+from server.Kernel.RoutingCore.core import RoutingCore
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance()
@@ -104,6 +107,12 @@ class ZmqKernel(object):
                              .format(command_port))
                 raise e
 
+        # Setup adapter and adapter booking
+
+        self.__reference_adapter_dict    = adapter_utility.LoadAdapters()
+        self.__adapter_process_dict      = dict()
+
+
         # Create Reactor 
         self.__loop = IOLoop.instance()
 
@@ -149,7 +158,8 @@ class ZmqKernel(object):
         Shut down server
         """
         self.__logger.info("Initiating server shutdown") 
-    
+        
+        self.__TerminateAdapters()
         self.__RoutingCore.Quit()
 
         # Must close all sockets before context terminate
@@ -167,20 +177,24 @@ class ZmqKernel(object):
         return_id = msg[0]
         cmd       = msg[1].lower()
 
+        # Register
         if   cmd == SERVER_CONFIG.REG_CMD: 
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
             self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
 
+        # Subscribe
         elif cmd == SERVER_CONFIG.SUB_CMD: 
             option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(return_id, status)
 
+        # Unsubscribe
         elif cmd == SERVER_CONFIG.USUB_CMD:
             option = SERVER_CONFIG.USUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(return_id, status)
 
+        # List subscriptions
         elif cmd == SERVER_CONFIG.LIST_CMD:
             client_sub_dict = self.__HandleListSubscription()
             self.__ListSubscriptionResponse(return_id, client_sub_dict)
@@ -198,6 +212,10 @@ class ZmqKernel(object):
         pass#self.__command_socket.send_multipart([return_id, status])
 
     def __HandleRoutingCoreConfiguration(self, msg, option):
+        """
+        Handle subscription or unsubscription.
+        """
+
         client_name         = msg[2]
         client_type         = msg[3]
         subscriptions       = msg[4:]
@@ -224,7 +242,7 @@ class ZmqKernel(object):
             return -1
 
 
-        return 1
+        return 0
 
 
     def __HandleRegistration(self, msg):
@@ -245,19 +263,61 @@ class ZmqKernel(object):
 
         try:
             self.__AddClientToRoutingCore(client_name, client_type)
-         
+
+            # Get server IO ports
             server_pub_port = self.__GetServerPubPort(client_type) 
             server_sub_port = self.__GetServerSubPort(client_type) 
+   
+            if(proto.lower() in self.__reference_adapter_dict):
+                # Return adapter ports for the client
+                server_pub_port, server_sub_port = self.__CreateAdapter(client_type,\
+                                                                        client_name,\
+                                                                        proto.lower())
+         
+            elif proto.lower() == "zmq":
+                # No adapter needed, use plain server ports
+                server_pub_port = self.__GetServerPubPort(client_type) 
+                server_sub_port = self.__GetServerSubPort(client_type) 
+            else:
+                raise TypeError
+
         except TypeError:
             traceback.print_exc()
+            self.__logger.error("Registration Error. Either:")
             self.__logger.error("Client type: {} not recognized.".format(client_type))
+            self.__logger.error("Protocol type: {} not recognized".format(proto))
 
             status = -1
-            server_pub_port = -1
-            server_sub_port = -1
+            server_pub_port = 0
+            server_sub_port = 0
 
         return (status, server_pub_port, server_sub_port)
 
+    def __CreateAdapter(self, client_type, client_name, proto):
+        # Get ports for the adapter to connect to
+        from_server_pub_port = self.__GetServerPubPort(client_type) # Server port publishing to adapter
+        to_server_sub_port   = self.__GetServerSubPort(client_type)   # Server port subscribed to adapter
+        
+        from_client_sub_port = interconnect.GetRandomPort() # Adapter port subscribed to client
+        to_client_pub_port   = interconnect.GetRandomPort() # Adapter port publishing to client
+
+        # Get uninstantiated adapter object 
+        Adapter = self.__reference_adapter_dict[proto] 
+        # Then create an instance 
+        adapter = Adapter(proto, client_name, to_server_sub_port, from_server_pub_port,\
+                                              to_client_pub_port, from_client_sub_port)
+        # Create a process
+        process = AdapterProcess(adapter)
+        # Save a reference to the process
+        self.__adapter_process_dict[proto] = process
+        # Now start
+        process.start()
+
+        return to_client_pub_port, from_client_sub_port
+
+    def __TerminateAdapters(self):
+        for proto in self.__adapter_process_dict:
+            self.__adapter_process_dict[proto].terminate()
 
     def __RegistrationResponse(self, return_name, status, server_pub_port,\
                                                         server_sub_port):
@@ -305,7 +365,6 @@ class ZmqKernel(object):
         a PubSubPair. 
         """
         if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
-
             serverIO_subscriber_output_address = self.__flight_sub_thread_endpoints.GetOutputAddress()
             serverIO_publisher_input_address = self.__flight_pub_thread_endpoints.GetInputAddress()
 
@@ -329,5 +388,3 @@ class ZmqKernel(object):
 
 
         
-
-

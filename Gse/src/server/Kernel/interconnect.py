@@ -1,10 +1,15 @@
 import os
 import zmq
+import random
 import binascii
 
 ###################################################################
 ## Wrapper classes for Publisher and Subscriber Thread Endpoints ##
 ###################################################################
+
+def GetRandomPort():
+    port = random.randint(50000,60000)
+    return port
 
 def BindToRandomTcpEndpoint(socket):
     port = socket.bind_to_random_port("tcp://*")
