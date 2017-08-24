@@ -58,8 +58,10 @@ Incoming telemetry is handled by the [telemetry-server.js](../server/src/telemet
 
 | Component | Function |
 | :-------: | :------- |
+|[app.js](../server/app.js)| The Node.js server instance is ran off of this module. Values must be set here for setup. See the [User Guide](#User Guide) for more info. |
+|[index.html](../index.html)| The html file of the [SPA](https://en.wikipedia.org/wiki/Single-page_application) that Node.js serves to the user. OpenMCT is imported referenced in this file and is also configured. Also, the fragment of html used for the command widget is written since no web loader, such as [require.js](http://requirejs.org/) is used. Values must also be set here to configure OpenMCT. |
 |[telemetry-server.js](../server/src/telemetry-server.js)| Handles incoming telemetry. A netsocket recieves data from the TCP server | 
-|[deserialize.js](../server/src/deserialize.js)| Parses data in buffer array into OpenMCT readable javascript object format. |
+|[deserialize.js](../server/src/deserialize.js)| Parses data in buffer array into OpenMCT readable javascript object format. See the [User Guide](#User Guide) for more info. |
 |./server/logs/telem-log.js| Saves parsed datums for historical telemetry views in OpenMCT. Directory and files created during start of Node.js server. |
 |[historical-telem-plugin.js](../client/js/plugins/historical-telem-plugin.js)| Sends http requests to the server for OpenMCT to server historical telemetry data in its views. All http requests from client use [http.js](../client/js/http.js)|
 |./server/src/res/dictionary.json | USed to store attributes for all channels, events, and commands. The backbone of argument parsing for all types of telemetry. Created on `npm start` using [json_dict.py](../bin/json_dict.py). |
@@ -67,32 +69,26 @@ Incoming telemetry is handled by the [telemetry-server.js](../server/src/telemet
 |[command-console.js](../client/js/plugins/command-console.js) | Uses [Vue.js](Vuejs.org) webwrapper to send commands over a socket server. |
 |[command-server.js](../server/src/command-server.js)| Handles incoming commands from client using a listener. The commands are serialized into binary buffers and are sent to the TCP server.|
 |[serialize.js](../server/src/serialize.js)| Uses the dictionary.json file to turn the command object into a binary buffer for the TCP server. |
-|[index.html](../index.html)| The html file of the [SPA](https://en.wikipedia.org/wiki/Single-page_application) that Node.js serves to the user. OpenMCT is imported referenced in this file and is also configured. Also, the fragment of html used for the command widget is written since no web loader, such as [require.js](http://requirejs.org/) is used. |
+
 
 ## <a name="User Guide"></a>4. User Guide
 
-You must first set the following values in both 
+You must first set the following values in 
 
-[index.html](../index.html):
-
-```
-// Set following:
-const site = 'localhost'; // Site to load single page application
-const staticPort = 8080;  // Port of single page application
-const realTelemPort = 1337; // Port to recieve and subscribe to telemetry
-const cmdPort = 1339; // Port to send commands
-const target = 'ref'; // target name
-```
-and [app.js](../server/app.js):
+[config.js](../config.js):
 
 ```
-// Set following
+// Configure values for webapp
+
+// Required
 const target = 'ref';   // Target Name
 const nodeSite = '127.0.0.1';   // Host to serve the single page application
-const OMCTPort = 8080;  // Port for single page application
 const tcpSite = '127.0.0.1';    // Host of the TCP server
 const tcpPort = 50000;  // Port for the TCP server
-const realMctPort = 1337;   // Port streaming live telemetry datums to client
+
+// Can keep as default
+const staticPort = 8080;  // Port for single page application
+const realTelemPort = 1337;   // Port streaming live telemetry datums to client
 const commandPort = 1339;   // Port to listen for commands from client
 ```
 

@@ -58,18 +58,14 @@
 
 </head>
 <body>
+  <script src="./config.js"></script>
   <script type="text/javascript">
     // Load views for demo
     // LoadViews();
 
     // OpenMCT
 
-    // Set following:
-    const site = 'localhost'; // Site to load single page application
-    const staticPort = 8080;  // Port of single page application
-    const realTelemPort = 1337; // Port to recieve and subscribe to telemetry
-    const cmdPort = 1339; // Port to send commands
-    const target = 'ref'; // target name
+    let configured = config.values();
 
     openmct.setAssetPath('node_modules/openmct/dist');
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
@@ -106,12 +102,12 @@
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
-    openmct.install(DictionaryPlugin(target));
-    openmct.install(RealtimeTelemetryPlugin(target, site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(target));
-    openmct.install(CommandConsole(target, site, cmdPort));
-    openmct.install(ChanLimitEval(target));
-    openmct.install(EventLimitEval(target));
+    openmct.install(DictionaryPlugin(configured.target));
+    openmct.install(RealtimeTelemetryPlugin(configured.target, configured.nodeSite, configured.realTelemPort));
+    openmct.install(HistoricalTelemetryPlugin(configured.target));
+    openmct.install(CommandConsole(configured.target, configured.nodeSite, configured.commandPort));
+    openmct.install(ChanLimitEval(configured.target));
+    openmct.install(EventLimitEval(configured.target));
 
     openmct.start();
   </script>

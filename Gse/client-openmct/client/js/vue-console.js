@@ -43,7 +43,7 @@ var command = {
     'command': function(val) {
       if (val != '') {
         this.commandQuery = val;
-        this.$refs.search.focus();
+        this.$refs.input.focus();
       }
     }
   },
