@@ -5,7 +5,7 @@ User Guide is [here](#User Guide)!
 
 The `client-openmct` module is used to interface with targets using a [Node.js](https://nodejs.org) server and [Open Source Mission Control Software](https://nasa.github.io/openmct/) developed by AMES Research center. A computer sets up an instance of the Node.js server while the usual TCP server and targets are running. Clients connect to the server through their web browser, preferebly [Google Chrome](https://www.google.com/chrome/)
 
-![OpenMCT Client] (res/img/PlotSS1.png)
+![OpenMCT Client] (./res/img/PlotSS1.png)
 
 ## <a name="User Guide"></a>2. User Guide
 
@@ -17,9 +17,9 @@ You must first set the following values in
 // Configure values for webapp
 
 // Required
-const target = 'ref';   		// Target Name
-const nodeSite = '127.0.0.1';   // Host to serve the single page application
-const tcpSite = '127.0.0.1';    // Host of the TCP server
+const target = 'ref';   		 // Target Name
+const nodeSite = '127.0.0.1';  // Host to serve the single page application
+const tcpSite = '127.0.0.1';   // Host of the TCP server
 const tcpPort = 50000;  	    // Port for the TCP server
 
 // Can keep as default
@@ -100,7 +100,7 @@ There are nine types of format types used.
 
 ### 3.3 Context
 
-![Context Diagram](res/img/WebAppContextDiagram.png)
+![Context Diagram](./res/img/WebAppContextDiagram.png)
 
 This context diagram shows the different modules used for the server to communicate with the TCP Server and the Client.
 
