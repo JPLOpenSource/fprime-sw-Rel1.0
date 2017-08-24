@@ -1,7 +1,7 @@
 # Client - OpenMCT
  
 ## 1. Introduction
-User Guide is [here](#User Guide)
+User Guide is [here](#User Guide)!
 
 The `client-openmct` module is used to interface with targets using a [Node.js](https://nodejs.org) server and [Open Source Mission Control Software](https://nasa.github.io/openmct/) developed by AMES Research center. A computer sets up an instance of the Node.js server while the usual TCP server and targets are running. Clients connect to the server through their web browser, preferebly [Google Chrome](https://www.google.com/chrome/)
 
@@ -42,7 +42,7 @@ The Node.js server serializes commands from the client to the TCP server and des
 
 | Packet Component | Description | Type, Size (In bits) |
 | :--------------: | :---------- | :--: |
-| Header | 'A5A5 FSW ZZZZ' | String, 13 * 8 |
+| Header | 'A5A5 FSW ZZZZ' | String, (13 * 8) |
 | Size | Size of packet starting at end of this buffer | U32 |
 | Packet Descriptor | '0' Signifying command | U32 |
 | Opcode | Identify event and use as key in dictionary.json. | U32 |
