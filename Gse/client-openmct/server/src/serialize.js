@@ -1,5 +1,5 @@
 // Serializes command
-var commandDict = require('./../res/dictionary.json').ref.commands;
+
 
 function numBuff(num, bits, type) {
   let buff = Buffer.alloc(bits / 8);
@@ -95,11 +95,14 @@ function strBuff(str) {
   
 }
 
-function serialize(usrCommand) {
+function serialize(usrCommand, target) {
   /*
   // Commands follow the following format\
   // header + (32-bit)(32-bit)Descriptor + 
   */
+
+  var commandDict = require('./../res/dictionary.json')[target.toLowerCase()]['commands'];
+
   const header = 'A5A5 FSW ZZZZ';
   const desc = 0;
 

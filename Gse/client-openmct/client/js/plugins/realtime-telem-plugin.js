@@ -2,7 +2,8 @@
  * Basic Realtime telemetry plugin using websockets.
  */
 
-function RealtimeTelemetryPlugin(site, port) {
+function RealtimeTelemetryPlugin(target, site, port) {
+    let targetKey = target.toLowerCase();
     return function (openmct) {
         // Define what to do in this plugin:
 
@@ -25,7 +26,7 @@ function RealtimeTelemetryPlugin(site, port) {
             // Must add 'supportsSubscribe' for realtime
             supportsSubscribe: function (domainObject) {
                 // Subscribe to telemetry with given type
-                return domainObject.identifier.namespace === 'ref.taxonomy';;
+                return domainObject.identifier.namespace === targetKey + '.taxonomy';;
             },
             subscribe: function (domainObject, callback, options) {
                 if (!listeners[domainObject.identifier.key]) {

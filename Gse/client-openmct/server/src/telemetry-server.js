@@ -13,11 +13,12 @@ var getIds = require('./deserialize').getIds;	// Get ids for history
 
 var ws_number = 0;
 var history = {};
-function RealtimeTelemServer(site, gsePort, realMctPort) {
+function RealtimeTelemServer(tcpSite, tcpPort, realMctPort, target) {
+	let targetKey = target.toLowerCase();
 
 	// Ref client
 	var client = new net.Socket();
-	client.connect(gsePort, site, function() {
+	client.connect(tcpPort, tcpSite, function() {
 		console.log('Connected! Realtime server on port: ' + realMctPort);
 
 		fs.closeSync(fs.openSync('server/logs/telem-log.json', 'w'));	// Create log json
@@ -26,7 +27,7 @@ function RealtimeTelemServer(site, gsePort, realMctPort) {
 		client.write('Register GUI\n');
 
 		// Populate history with ids
-		getIds().forEach(function (id) {
+		getIds(targetKey).forEach(function (id) {
 			history[id.toString()] = [];
 		});
 
@@ -38,7 +39,7 @@ function RealtimeTelemServer(site, gsePort, realMctPort) {
 	// Get net server data and save to history
 	client.on('data', function (data) {
 		// Deserialize data into list of packets
-		var toMCT = deserialize(data);
+		var toMCT = deserialize(data, targetKey);
 
 		// Send to websocket
 		toMCT.forEach(function (packet) {
@@ -64,7 +65,7 @@ function RealtimeTelemServer(site, gsePort, realMctPort) {
 		// Get target data and send realtime telem data
 		client.on('data', function (data) {
 			// Deserialize data into list of packets
-			var toMCT = deserialize(data);
+			var toMCT = deserialize(data, targetKey);
 
 			// Send to websocket
 			toMCT.forEach(function (packet) {

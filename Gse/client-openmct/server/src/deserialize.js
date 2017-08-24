@@ -1,5 +1,4 @@
 // Dependencies
-var telem = require('./../res/dictionary.json').ref;  // Get format dictionary
 
 // Utils
 var vsprintf = require('sprintf-js').vsprintf;
@@ -129,7 +128,9 @@ const uSecLen = 4;
 // Size of all packet descriptions except size. Used to calculate size of value
 const packetDescriptionLen = 19;
 
-function deserialize(data) {
+function deserialize(data, target) {
+  var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
+
   let packetArr = [];
   let packetLength = data.length;
 
@@ -246,7 +247,8 @@ function deserialize(data) {
 }
 
 // Returns an array of channel ids
-function getIds() {
+function getIds(target) {
+  var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
   let ids = [];
   let channels = telem['channels'];
   for (let id in channels) {

@@ -23,9 +23,11 @@ var staticServer = new StaticServer(OMCTPort);
 const realMctPort = 1337;
 const histMctPort = 1338;
 const commandPort = 1339;
-const gsePort = 50000;
-const site = '127.0.0.1';
+const tcpPort = 50000;
+const nodeSite = '127.0.0.1';
+const tcpSite = '127.0.0.1';
+const target = 'ref';
 
-RealtimeTelemServer(site, gsePort, realMctPort);
-HistoryServer(site, histMctPort);
-CommandServer(site, gsePort, commandPort);
+RealtimeTelemServer(tcpSite, tcpPort, realMctPort, target);
+HistoryServer(nodeSite, histMctPort);
+CommandServer(tcpSite, tcpPort, commandPort, target);

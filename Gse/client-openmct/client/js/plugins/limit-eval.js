@@ -1,4 +1,5 @@
-function ChanLimitEval() {
+function ChanLimitEval(target) {
+    let targetKey = target.toLowerCase();
     function hasNull(o) {
         for (key in o) {
             if (o[key] == null) {
@@ -46,7 +47,7 @@ function ChanLimitEval() {
 
     LimitEvaluator.appliesTo = function(domainObject) {
         // Applies to ref telemetry iff there are no null values in the limits
-        return domainObject.type === 'ref.telemetry' && domainObject.name !== 'Events' && !hasNull(domainObject.limits);
+        return domainObject.type === targetKey + '.telemetry' && domainObject.name !== 'Events' && !hasNull(domainObject.limits);
     }
 
     return function install(openmct) {
@@ -57,8 +58,8 @@ function ChanLimitEval() {
     }
 }
 
-function EventLimitEval() {
-
+function EventLimitEval(target) {
+    let targetKey = target.toLowerCase();
     function LimitEvaluator(domainObject) {
         return {
             evaluate: function(datum, key) {                
@@ -88,7 +89,7 @@ function EventLimitEval() {
 
     LimitEvaluator.appliesTo = function(domainObject) {
         // Applies to ref telemetry iff there are no null values in the limits
-        return domainObject.type === 'ref.telemetry' && domainObject.name === 'Events';
+        return domainObject.type === targetKey + '.telemetry' && domainObject.name === 'Events';
     }
 
     return function install(openmct) {

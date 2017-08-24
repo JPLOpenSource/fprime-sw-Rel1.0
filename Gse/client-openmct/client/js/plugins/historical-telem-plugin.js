@@ -2,11 +2,12 @@
  * Basic historical telemetry plugin. Local storage
  */
 
-function HistoricalTelemetryPlugin(site, port) {
+function HistoricalTelemetryPlugin(target, site, port) {
+    let targetKey = target.toLowerCase();
     return function install (openmct) {
         var provider = {
             supportsRequest: function (domainObject) {
-                return domainObject.identifier.namespace === 'ref.taxonomy';
+                return domainObject.identifier.namespace === targetKey + '.taxonomy';
             },
             request: function (domainObject, options) {
                 // Get log file

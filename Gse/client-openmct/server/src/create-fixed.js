@@ -3,12 +3,12 @@
 var getIds = require('./deserialize').getIds;
 var fs = require('fs');
 
-function CreateFixed() {
+function CreateFixed(target) {
 
-	var type = 'ref.taxonomy:';
+	var type = target.toLowerCase() + '.taxonomy:';
 
-	var idSize = getIds().length;
-	var composition = getIds().map(function (id) {
+	var idSize = getIds(target.toLowerCase()).length;
+	var composition = getIds(target.toLowerCase()).map(function (id) {
 		return type + id.toString()
 	});
 

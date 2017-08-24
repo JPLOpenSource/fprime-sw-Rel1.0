@@ -1,21 +1,22 @@
-function CommandConsole(site, port) {
+function CommandConsole(target, site, port) {
+    let targetKey = target.toLowerCase();
 
     return function install(openmct) {
 
         openmct.objects.addRoot({
             key: 'console',
-            namespace: 'ref.command'
+            namespace: targetKey + '.command'
         });
 
-        openmct.objects.addProvider('ref.command', {
+        openmct.objects.addProvider(targetKey + '.command', {
             get: function () {
                 return Promise.resolve({
                     name: 'Command Console',
                     identifier: {
                         key: 'console',
-                        namespace: 'ref.command'
+                        namespace: targetKey + '.command'
                     },
-                    type: 'ref.command'
+                    type: targetKey + '.command'
                 });
             }
         });
@@ -23,7 +24,7 @@ function CommandConsole(site, port) {
         openmct.mainViews.addProvider({
             name: 'Command Console',
             canView: function (d) {
-                return d.type === 'ref.command';
+                return d.type === targetKey + '.command';
             },
             view: function (domainObject) {
                 var commandView = new CommandView({

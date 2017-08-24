@@ -66,6 +66,7 @@
     const realTelemPort = 1337;
     const histTelemPort = 1338;
     const cmdPort = 1339;
+    const target = 'ref';
 
     openmct.setAssetPath('node_modules/openmct/dist');
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
@@ -103,12 +104,12 @@
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
-    openmct.install(DictionaryPlugin(site, staticPort));
-    openmct.install(RealtimeTelemetryPlugin(site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(site, histTelemPort));
-    openmct.install(CommandConsole(site, cmdPort));
-    openmct.install(ChanLimitEval());
-    openmct.install(EventLimitEval());
+    openmct.install(DictionaryPlugin(target));
+    openmct.install(RealtimeTelemetryPlugin(target, site, realTelemPort));
+    openmct.install(HistoricalTelemetryPlugin(target, site, histTelemPort));
+    openmct.install(CommandConsole(target, site, cmdPort));
+    openmct.install(ChanLimitEval(target));
+    openmct.install(EventLimitEval(target));
 
     openmct.start();
   </script>

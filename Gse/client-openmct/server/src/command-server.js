@@ -6,7 +6,8 @@ var fs = require('fs');
 
 var serialize = require('./serialize').serialize;
 
-function CommandServer(site, gsePort, commandPort) {
+function CommandServer(tcpSite, tcpPort, commandPort, target) {
+	let targetKey = target.toLowerCase();
 	var commandHistory = {'commands': []};
 	fs.closeSync(fs.openSync('server/logs/command-log.json', 'w'));	// Create log json
 	fs.writeFileSync('server/logs/command-log.json', JSON.stringify(commandHistory), function (err) {
@@ -15,7 +16,7 @@ function CommandServer(site, gsePort, commandPort) {
 		}
 	});
 	var client = new net.Socket();
-	client.connect(gsePort, site, function() {
+	client.connect(tcpPort, tcpSite, function() {
 		console.log('Connected! Command server on port: ' + commandPort);
 		// Register client
 		client.write('Register GUI\n');
@@ -30,7 +31,7 @@ function CommandServer(site, gsePort, commandPort) {
 			let clientCommand = JSON.parse(message);
 
 			// Serialize message
-			let commandPacket = serialize(clientCommand);
+			let commandPacket = serialize(clientCommand, targetKey);
 
 			// Save command to log
 			commandHistory['commands'].unshift(clientCommand);

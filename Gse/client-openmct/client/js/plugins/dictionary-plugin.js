@@ -1,3 +1,6 @@
+let targetKey;
+let targetName;
+
 // Value formatters
 const value_format = {
 	'hints': {
@@ -47,11 +50,11 @@ var objectProvider = {
 		return getDictionary().then(function (dictionary) {
 			// Create and describe domain object from root
 			// Indentifier contians key and namespace
-			if (identifier.key === 'ref') {
+			if (identifier.key === targetKey) {
 				return {
 					// Provider if ref root
 					identifier: identifier, // Domain object 'identifier' is same as root
-					name: 'REF',  // Name of toplevel dictionary object ('REF')
+					name: targetName,  // Name of toplevel dictionary object ('REF')
 					type: 'folder', 
 					location: 'ROOT'
 				};
@@ -60,7 +63,7 @@ var objectProvider = {
 				
 
 				// Measurement = measurement object with same key as 'identifier.key'
-				let measurement = dictionary.ref.channels[identifier.key];
+				let measurement = dictionary[targetKey]['channels'][identifier.key];
 
 				value_formats = [name_format, id_format, time_format, value_format];
 				let units = measurement['units'];
@@ -77,7 +80,7 @@ var objectProvider = {
 				// Object provider for each object in measurments. 
 				// Does not populate tree
 
-				let typeStr = 'ref.telemetry';
+				let typeStr = targetKey + '.telemetry';
 				// console.log('type' + typeStr);
 
         let toReturn = {
@@ -89,7 +92,7 @@ var objectProvider = {
           telemetry: {
             values: value_formats  // Values already in default format
           },
-          location: 'ref.taxonomy:ref'
+          location: targetKey + 'taxonomy:' + targetKey
         }
 				if (measurement.name === 'Events') {
 					// Object provider for events
@@ -110,7 +113,7 @@ var compositionProvider = {
 	appliesTo: function (domainObject) {
 		// Determines what object this composition provider will provide
 		// In this case, the ref.taxonomy domain object with a type of folder.
-		return domainObject.identifier.namespace === 'ref.taxonomy' &&
+		return domainObject.identifier.namespace === targetKey + '.taxonomy' &&
 			   domainObject.type === 'folder';
 	},
 	load: function (domainObject) {
@@ -118,10 +121,10 @@ var compositionProvider = {
 		return getDictionary().then(function (dictionary) {
 			// 'dictionary.measurements' is a list of telemetry objects
 			let channels = [];
-			let chanDict = dictionary['ref']['channels'];
+			let chanDict = dictionary[targetKey]['channels'];
 			for (id in chanDict) {
 				channels.push({
-					namespace: 'ref.taxonomy',
+					namespace: targetKey + '.taxonomy',
 					key: id
 				});
 			}
@@ -133,7 +136,9 @@ var compositionProvider = {
 
 // Actual plugin. Must be a function with 'openmct' result operand and 
 // must return function of 'install (openmct)'
-function DictionaryPlugin(site, port) {
+function DictionaryPlugin(target) {
+	targetKey = target.toLowerCase();
+	targetName = target[0].toUpperCase() + target.substring(1);
 	// Return function of plugin
 	return function install(openmct) {
 		// Create root of dictionary
@@ -142,19 +147,19 @@ function DictionaryPlugin(site, port) {
 
 			// Namespace used to identify which root 
 			// to provide telemetry objects for
-			namespace: 'ref.taxonomy',  
-			key: 'ref'
+			namespace: targetKey + '.taxonomy',  
+			key: targetKey
 		});
 
-		// Create domain object ('ref' folder) under the root namespace 'ref.taxonomy'
-		openmct.objects.addProvider('ref.taxonomy', objectProvider);
+		// Create domain object (ref folder) under the root namespace targetKey + '.taxonomy'
+		openmct.objects.addProvider(targetKey + '.taxonomy', objectProvider);
 
 		// Composition provider will define structure of the tree and populate it.
 		openmct.composition.addProvider(compositionProvider);
 
-		openmct.types.addType('ref.telemetry', {
-			name: 'Ref Telemetry Point',
-			description: 'Ref telemetry point from Ref App.',
+		openmct.types.addType(targetKey + '.telemetry', {
+			name: targetName + ' Telemetry Point',
+			description: targetName + ' telemetry point fromtargetName +   App.',
 			cssClass: 'icon-telemetry'
 		});
 	};
