@@ -43,7 +43,10 @@ body {
   padding: 5px;
   background-color: white;
   cursor: pointer;
+  cursor: hand;
 }
+
+
 
 .command-console .command-hist {
   bottom: 16px;
@@ -68,3 +71,11 @@ body {
   position: relative;
   height: calc(100% - 32px);
 }
+
+.command-console .hist-results p {
+  cursor: pointer;
+  cursor: hand;
+  margin: 0;
+  padding: 5px;
+}
+

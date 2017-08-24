@@ -1,5 +1,5 @@
 var command = {
-  props: ['showResults', 'socket'],
+  props: ['showResults', 'socket', 'command'],
   template: `
     <div class="command-search">
       <input type="text"
@@ -40,6 +40,12 @@ var command = {
       // dev
       alert(val);
     },
+    'command': function(val) {
+      if (val != '') {
+        this.commandQuery = val;
+        this.$refs.search.focus();
+      }
+    }
   },
   methods: {
     getCommands: function () {
@@ -188,7 +194,8 @@ var hist = {
   template: `
     <div class="command-hist">
       <ul class="hist-results">
-        <li v-for="command in commandHistory">
+        <li v-for="command in commandHistory"
+            @click="selectHist(command)">
           <p>{{ formatHistString(command) }}</p>
         </li>
       </ul>
@@ -261,6 +268,9 @@ var hist = {
           });
         });
       }
+    },
+    selectHist: function (cmd) {
+      this.$emit('historySelected', this.formatHistString(cmd));
     }
   }
 };

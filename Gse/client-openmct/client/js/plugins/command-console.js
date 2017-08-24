@@ -30,7 +30,8 @@ function CommandConsole(target, site, port) {
                 var commandView = new CommandView({
                     data: {
                         socket: new WebSocket('ws://' + site + ':' + port.toString()),
-                        showCmdSearchResults: true
+                        showCmdSearchResults: true,
+                        selectedHistory: ''
                     }
                 });
 

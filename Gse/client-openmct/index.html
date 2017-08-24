@@ -41,10 +41,12 @@
 
       <command :showResults=showCmdSearchResults
                :socket=socket
+               :command=selectedHistory
                @click.native="toggleSearch(true)"></command>
       
       <history :socket=socket
-               @click.native="toggleSearch(false)"></history>
+               @click.native="toggleSearch(false)"
+               v-on:historySelected="selectedHistory=$event"></history>
 
     </div>
     </body>
@@ -71,7 +73,6 @@
 
     openmct.setAssetPath('node_modules/openmct/dist');
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
-    // openmct.install(openmct.plugins.CouchDB('http://' + site + ':' + histTelemPort.toString()));
     openmct.install(openmct.plugins.MyItems());
 
     // Configure time system
@@ -116,10 +117,7 @@
   </script>
 
   <!-- Theme edit -->
-  <!-- <link href="client/css/theme.css" media="all" rel="stylesheet" type="text/css"/> -->
-  
+  <link href="client/css/theme.css" media="all" rel="stylesheet" type="text/css"/>
 
-  <!-- Bootstrap -->
-  <!-- <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
 </body>
 </html>
