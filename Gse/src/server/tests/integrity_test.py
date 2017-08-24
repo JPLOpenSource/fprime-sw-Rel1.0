@@ -250,10 +250,15 @@ def WriteAggregate(args):
         for dir_name in dirs:
             dir_path = os.path.join(analysis_path, dir_name)
             report_path = os.path.join(dir_path, "report.txt")
-            with open(report_path, "r") as f:
-                for line in f:
-                    final_report.write(line)
-                final_report.write("\n")
+            try:
+                with open(report_path, "r") as f:
+                    for line in f:
+                        final_report.write(line)
+                    final_report.write("\n")
+
+            except IOError:
+                print("Unable to open: {}".format(report_path))
+                continue
 
     final_report.close()
 
@@ -272,6 +277,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()  
 
+    # Wipe previous throughput data
+    analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
+
+    cmd = "rm -r {}/*".format(analysis_path)
+    os.system(cmd)
+
 
     test = ServerIntegrityTest(args)
     test.start_clients()
@@ -280,7 +291,10 @@ if __name__ == "__main__":
     test.passthrough(args.pass_time)
 
     test.teardown_class()
-
+    
+    # If verbose, aggregate throughput information
+    WriteAggregate(args)
+    time.sleep(2)
 
     # Check logs
     datetime_str = test.passthrough_time.strftime('%Y-%m-%d %H:%M:%S,%f') # Get the time of passthrough start
@@ -289,10 +303,8 @@ if __name__ == "__main__":
     p.wait()
 
 
-    time.sleep(2)
-    # If verbose, aggregate throughput information
-    
-    WriteAggregate(args)
+   
+
 
     
 
