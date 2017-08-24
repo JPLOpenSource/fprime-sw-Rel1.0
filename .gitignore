@@ -61,6 +61,8 @@ Gse/client-openmct/bower_components
 Gse/client-openmct/package-lock.json
 # Server temp files
 Gse/client-openmct/server/temp/*
+# Generated dictionary.json
+Gse/client-openmct/server/res/dictionary.json
 # TCP Log
 ThreadedTCP.log
 Ref.log
