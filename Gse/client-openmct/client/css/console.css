@@ -43,7 +43,6 @@ body {
   padding: 5px;
   background-color: white;
   cursor: pointer;
-
 }
 
 .command-console .command-hist {
@@ -69,51 +68,3 @@ body {
   position: relative;
   height: calc(100% - 32px);
 }
-/*.command-console ul {
-  width: calc(100% - 2em);
-  position: absolute;
-  overflow: auto;
-  list-style: none;
-  max-height: 90%;
-}*/
-
-/*.command-console li {
-  cursor: pointer;
-}
-*/
-
-/*.command-console [v-cloak] {
-  display: none;
-}
-
-
-
-.command-console .cmdContainer {
-  position: relative;
-  height: 90%;
-  font-family: 'Roboto', sans-serif;
-}
-
-.command-console input {
-  width: 100%;
-  font-size: 18px;
-  
-}
-
-.command-console .input-search {
-  left: 1em;
-  width: calc(100% - 2em);
-  bottom: 1em;
-  box-sizing: border-box;
-  position: absolute;
-}
-
-.command-console .cmd-search {
-  z-index: 10;
-  background-color: white;
-  border-radius: 2px;
-  margin-top: 1px;
-  box-shadow: 1px 2px 8px #888888;
-  width: 100%;
-}*/
-
