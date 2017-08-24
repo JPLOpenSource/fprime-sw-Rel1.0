@@ -3,7 +3,7 @@
 var express = require('express');
 var fs = require('fs');
 
-function HistoryServer(site, port) {
+function HistoryServer() {
     server = express();
 
     server.use(function (req, res, next) {
@@ -25,9 +25,6 @@ function HistoryServer(site, port) {
         });
         res.status(200).json(response).end();
     });
-
-    server.listen(port);
-    console.log('History server now running at http://localhost:' + port);
 }
 
 module.exports = HistoryServer;

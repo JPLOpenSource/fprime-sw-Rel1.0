@@ -2,7 +2,7 @@
  * Basic historical telemetry plugin. Local storage
  */
 
-function HistoricalTelemetryPlugin(target, site, port) {
+function HistoricalTelemetryPlugin(target) {
     let targetKey = target.toLowerCase();
     return function install (openmct) {
         var provider = {

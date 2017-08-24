@@ -61,12 +61,13 @@
     // LoadViews();
 
     // OpenMCT
-    const site = 'localhost';
-    const staticPort = 8080;
-    const realTelemPort = 1337;
-    const histTelemPort = 1338;
-    const cmdPort = 1339;
-    const target = 'ref';
+
+    // Set following:
+    const site = 'localhost'; // Site to load single page application
+    const staticPort = 8080;  // Port of single page application
+    const realTelemPort = 1337; // Port to recieve and subscribe to telemetry
+    const cmdPort = 1339; // Port to send commands
+    const target = 'ref'; // target name
 
     openmct.setAssetPath('node_modules/openmct/dist');
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
@@ -106,7 +107,7 @@
     // User plugin installs
     openmct.install(DictionaryPlugin(target));
     openmct.install(RealtimeTelemetryPlugin(target, site, realTelemPort));
-    openmct.install(HistoricalTelemetryPlugin(target, site, histTelemPort));
+    openmct.install(HistoricalTelemetryPlugin(target));
     openmct.install(CommandConsole(target, site, cmdPort));
     openmct.install(ChanLimitEval(target));
     openmct.install(EventLimitEval(target));

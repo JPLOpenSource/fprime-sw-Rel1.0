@@ -69,10 +69,39 @@ Incoming telemetry is handled by the [telemetry-server.js](../server/src/telemet
 |[serialize.js](../server/src/serialize.js)| Uses the dictionary.json file to turn the command object into a binary buffer for the TCP server. |
 |[index.html](../index.html)| The html file of the [SPA](https://en.wikipedia.org/wiki/Single-page_application) that Node.js serves to the user. OpenMCT is imported referenced in this file and is also configured. Also, the fragment of html used for the command widget is written since no web loader, such as [require.js](http://requirejs.org/) is used. |
 
-
 ## <a name="User Guide"></a>4. User Guide
+
+You must first set the following values in both 
+
+[index.html](../index.html):
+
+```
+// Set following:
+const site = 'localhost'; // Site to load single page application
+const staticPort = 8080;  // Port of single page application
+const realTelemPort = 1337; // Port to recieve and subscribe to telemetry
+const cmdPort = 1339; // Port to send commands
+const target = 'ref'; // target name
+```
+and [app.js](../server/app.js):
+
+```
+// Set following
+const target = 'ref';   // Target Name
+const nodeSite = '127.0.0.1';   // Host to serve the single page application
+const OMCTPort = 8080;  // Port for single page application
+const tcpSite = '127.0.0.1';    // Host of the TCP server
+const tcpPort = 50000;  // Port for the TCP server
+const realMctPort = 1337;   // Port streaming live telemetry datums to client
+const commandPort = 1339;   // Port to listen for commands from client
+```
+
+These values are defaulted to running the ref target application.
+Once finished, run the target and the TCP server. Then, run the following commands to setup and run the Node.js server.
 
 ```
 npm install
 npm start
 ```
+
+Open a web browser and go go to `<nodeSite>:OMCTPort` from the values set in app.js to connect with your target.
