@@ -1,4 +1,5 @@
 // Requests to server
+// File form OpenMCT tutorial: https://github.com/nasa/openmct-tutorial/blob/master/lib/http.js
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(factory);
