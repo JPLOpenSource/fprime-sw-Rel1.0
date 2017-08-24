@@ -10,9 +10,9 @@ The component takes input from a `Fw::Com` and `Fw:BufferSend` port.
 These inputs are serviced by the `Zmq::ZmqRadio::downlinkPort_handler` and 
 `Zmq::ZmqRadio::filedownlinkbuffersendin_handler`, respectively. 
 
-An `Os::Task` listener thread, `Zmq::ZmqRadio::groundSubscriptionListener`, runs in parallel with the ZmqRadio's 
-main thread. This listener thread blocks and listens for packets coming
-from the ground system. 
+An `Os::Task` listener thread, `Zmq::ZmqRadio::subscriptionTask`, runs in parallel with the ZmqRadio's main thread. This listener thread blocks and listens for packets coming from the ground system. Any ZMQ error, such as a
+network disconnect, breaks the block allowing the task to switch to the
+`ZMQ_RADIO_DISCONNECTED` state.
 
 In order to support persistent reconnection attempts and component stability,
 the ZmqRadio maintains two internal states:
@@ -20,7 +20,7 @@ the ZmqRadio maintains two internal states:
 - `ZMQ_RADIO_DISCONNECTED`
 - `ZMQ_RADIO_CONNECTED`
 
-The ZmqRadio's internal state controls the input handlers to keep message queues 
+The ZmqRadio's state controls each input handlers to keep message queues 
 from backing up. The internal state also facilitates persistent reconnection
 attempts. 
 
@@ -29,11 +29,11 @@ attempts.
 Requirement | Description | Verification Method
 ----------- | ----------- | -------------------
 1 | All input handlers shall drop incoming messages while in `ZMQ_RADIO_DISCONNECTED`. | 
-2 | The 'Zmq::ZmqRadio::groundSubscriptionListener' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
-3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | Unit Test
+2 | The 'Zmq::ZmqRadio::subscriptionTask' shall be idle while in `ZMQ_RADIO_DISCONNECTED`. |
+3 | All ZMQ resources shall be released upon transitioning from `ZMQ_RADIO_CONNECTED` to `ZMQ_RADIO_DISCONNECTED`. | 
 4 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called if, apart from EAGAIN, a ZMQ error is experienced anywhere. |
-5 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if `Zmq::ZmqRadio` successfully registers to the server. | 
-6 | The `Zmq::ZmqRadio::subscriptionTaskRunnable` thread shall continuously try to receive. Even if `Zmq::ZmqRadio::zmqReadSocket` times out.
+5 | `Zmq::ZmqRadio::State::transitionDisconnected` shall be called after `ZMQ_RADIO_SNDHWM` number of failed socket sends.
+6 | `Zmq::ZmqRadio::State::transitionConnected` shall be called if `Zmq::ZmqRadio` successfully registers to the server. | 
 7 | ZMQ library shall be configured with the options below. |
 8 | The `Zmq::ZmqRadio` component shall be configured with the options below. |
 
@@ -43,9 +43,11 @@ ZMQ Option | Description |  Value
 `ZMQ_RCVTIMEO` | How long before a `zmq_msg_recv` call returns an EAGAIN error. | 200 ms 
 `ZMQ_SNDTIMEO` | How long before a `zmq_msg_send` call returns an EAGAIN error. | 200 ms
 
+
 `Zmq::ZmqRadio` Option | Description |  Value 
 ---------- | ----------- | --------------
 `ZMQ_RADIO_NUM_RECV_TRIES` | Number of times the component retries receiving an uplinked packet. | 5
+`ZMQ_RADIO_SNDHWM` | Maximum number of outbound packets queued until transition to `ZMQ_RADIO_DISCONNECTED` | 5
 
 ## 3. Design
 
@@ -82,13 +84,12 @@ If `ZMQ_RADIO_DISCONNECTED`:  Set state to `ZMQ_RADIO_CONNECTED`
 If `ZMQ_RADIO_CONNECTED`:     Set state to `ZMQ_RADIO_DISCONNECTED` and release ZMQ resources. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  No action. 
 
-### 4.6 reconnect_internalInterfaceHandler
+### 4.6 reconnect_handler
+Is connected to a 1Hz rategroup for persistent reconnection attempts.
 If `ZMQ_RADIO_CONNECTED`:     No action. <br> 
-If `ZMQ_RADIO_DISCONNECTED`:  Invokes itself for repeated reconnection attempts. 
+If `ZMQ_RADIO_DISCONNECTED`:  Attempts connection and registration with the server.
 
 
-
- 
 ## Telemetry Channel List
 TODO
 

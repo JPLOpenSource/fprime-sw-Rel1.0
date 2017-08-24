@@ -44,8 +44,7 @@ namespace Zmq{
 
 	    void init(NATIVE_INT_TYPE queueDepth, NATIVE_INT_TYPE instance);
 
-	    /* Initiate a connection to <port> using socket identity <zmqId> 
-	     * by transitioning to ZMQ_RADIO_RECONNECT state 
+	    /* Attempt a connection to <port> using socket identity <zmqId> 
 	     * */
 	    void open(const char* hostname, U32 port, const char* zmqId); 
 
@@ -63,6 +62,7 @@ namespace Zmq{
 	     * Returns -1 if unsuccessful. 
 	     * */
 	    NATIVE_INT_TYPE registerToServer(void);
+
 	    void preamble(void);
 	    void finalizer(void);
 
@@ -90,7 +90,6 @@ namespace Zmq{
 	    void startSubscriptionTask(I32 priority);
 	    static void subscriptionTaskRunnable(void* comp);
 
-
 	    /* FPrime ZMQ Wrapper functions */
 	    NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data);
 		NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size);
@@ -117,7 +116,6 @@ namespace Zmq{
 	    U32 m_numConnects;
 	    U32 m_numDisconnects;
 	    
-
 
 	    /* Private Internal State class*/
 	    class State{
