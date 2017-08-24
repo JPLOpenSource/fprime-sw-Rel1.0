@@ -7,7 +7,8 @@ var command = {
              v-model="commandQuery"
              @keyup="navigateResults"
              placeholder="<command name>: <arg>, <arg>, ..."
-             ref="input">
+             ref="input"
+             @click="nav.resIndex = -1">
       <ul class="cmd-results"
           v-show="showResults">
         <li v-for="command in results"
@@ -21,21 +22,24 @@ var command = {
     return {
       commandQuery: '',
       results: [],
+      nav: {
+        resIndex: -1,
+      },
       freezeResults: false,
       warning: ''
     }
   },
   watch: {
-    commandQuery: function(val) {
+    'commandQuery': function(val) {
       this.searchCommand(val);
     },
-    showResults: function() {
+    'showResults': function() {
       this.searchCommand(this.commandQuery);
     },
-    warning: function(val) {
+    'warning': function(val) {
       // dev
       alert(val);
-    } 
+    },
   },
   methods: {
     getCommands: function () {
@@ -148,14 +152,24 @@ var command = {
       // Always search
       this.freezeResults = false;
       let keyPressed = event.key;
-      // alert(keyPressed);
       switch (keyPressed) {
         case 'Escape': {
           this.showResults = false;
+          this.nav.resIndex = -1;
           break;
         }
         case 'Enter': {
           this.sendCommand(this.commandQuery);
+          break;
+        }
+        case 'ArrowDown': {
+          let curIndex = this.nav.resIndex;
+          this.nav.resIndex += ((curIndex < this.results.length) ? 1 : 0);
+          break;
+        }
+        case 'ArrowUp': {
+          let curIndex = this.nav.resIndex;
+          this.nav.resIndex -= ((curIndex > -1) ? 1 : 0);
           break;
         }
 
