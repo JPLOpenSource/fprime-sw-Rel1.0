@@ -1,0 +1,10 @@
+cheetah
+enum34
+lxml
+markdown
+multiprocess
+pexpect
+pmw
+tkintertable
+numpy
+matplotlib

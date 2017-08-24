@@ -48,6 +48,7 @@ class ChannelLoader(object):
         self.__dict_channels       = dict()
         self.__dict_channels_by_name = dict()
         self.__dict_format_string = dict()
+        self.__dict_units         = dict()
 
     def getInstance():
         """
@@ -73,8 +74,9 @@ class ChannelLoader(object):
         low_orange_list    = self.loadModules(generated_ch_path, "ID", "LOW_ORANGE")
         low_yellow_list    = self.loadModules(generated_ch_path, "ID", "LOW_YELLOW")
         high_yellow_list   = self.loadModules(generated_ch_path, "ID", "HIGH_YELLOW")
-        high_orange_list    = self.loadModules(generated_ch_path, "ID", "HIGH_ORANGE")
+        high_orange_list   = self.loadModules(generated_ch_path, "ID", "HIGH_ORANGE")
         high_red_list      = self.loadModules(generated_ch_path, "ID", "HIGH_RED")
+        unit_list          = self.loadModules(generated_ch_path, "ID", "UNITS")
 
         # Remove duplicates from component list
         component_list = list(OrderedDict.fromkeys(component_list))
@@ -93,6 +95,9 @@ class ChannelLoader(object):
         self.__dict_high_yellow = dict(high_yellow_list)
         self.__dict_high_orange = dict(high_orange_list)
         self.__dict_high_red = dict(high_red_list)
+        self.__dict_units    = dict(unit_list)
+
+
         #
         for id in self.__dict_name:
             # print self.__dict_name[id], id, self.__dict_ch_desc[id], self.__dict_types[id]
@@ -108,7 +113,8 @@ class ChannelLoader(object):
                                         self.__dict_low_yellow[id],
                                         self.__dict_high_yellow[id],
                                         self.__dict_high_orange[id],
-                                        self.__dict_high_red[id]
+                                        self.__dict_high_red[id],
+                                        self.__dict_units[id]
                                         )
 
         for id, name in self.__dict_name.iteritems():
@@ -124,7 +130,8 @@ class ChannelLoader(object):
                                         self.__dict_low_yellow[id],
                                         self.__dict_high_yellow[id],
                                         self.__dict_high_orange[id],
-                                        self.__dict_high_red[id]
+                                        self.__dict_high_red[id],
+                                        self.__dict_units[id]
                                         )
 
     def getNameDict(self):
@@ -165,3 +172,6 @@ class ChannelLoader(object):
 
     def getChDictByName(self):
         return self.__dict_channels_by_name
+
+    def getUnitsDict(self):
+        return self.__dict_units

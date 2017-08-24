@@ -53,3 +53,21 @@ core
 
 .swp
 
+# Ignoring files for node client view:
+# Modules
+Gse/client-openmct/node_modules
+Gse/client-openmct/bower_components
+# Npm
+Gse/client-openmct/package-lock.json
+# Server temp files
+Gse/client-openmct/server/temp/*
+# Generated dictionary.json
+Gse/client-openmct/server/res/dictionary.json
+# TCP Log
+ThreadedTCP.log
+Ref.log
+lib/python2.7
+
+
+# Python base folder
+

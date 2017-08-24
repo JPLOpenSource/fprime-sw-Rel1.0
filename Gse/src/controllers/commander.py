@@ -101,10 +101,11 @@ class Commander:
         data_len = u32_type.U32Type( len(data) + desc_type.getSize() )
         #
         cmd = "A5A5 " + "FSW " + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
-        #type_base.showBytes(cmd)
+        # type_base.showBytes(cmd)
         sock = self.__the_main_panel.getSock()
         if sock != None:
             self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
+            # type_base.showBytes(cmd)
             sock.send(cmd)
         else:
             self.__the_main_panel.statusUpdate("No socket connection for FSW commands", "red")
