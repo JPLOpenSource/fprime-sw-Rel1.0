@@ -25,7 +25,7 @@ const commandPort = config.commandPort;   // Port to listen for commands from cl
 
 // Create log directory
 if (!fs.existsSync('server/logs')) {
-    fs.mkdirSync('server/logs');
+  fs.mkdirSync('server/logs');
 }
 
 // Create static server for client
