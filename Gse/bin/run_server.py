@@ -17,7 +17,7 @@ def main():
         print("Running server in verbose")
     	#file_lvl = console_lvl = logging.DEBUG
         file_lvl    = logging.DEBUG
-        console_lvl = logging.INFO
+        console_lvl = logging.DEBUG
     else:
     	file_lvl = console_lvl = logging.INFO
 
