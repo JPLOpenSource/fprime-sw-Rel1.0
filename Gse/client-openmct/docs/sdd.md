@@ -81,15 +81,15 @@ You must first set the following values in
 // Configure values for webapp
 
 // Required
-const target = 'ref';   // Target Name
+const target = 'ref';   		// Target Name
 const nodeSite = '127.0.0.1';   // Host to serve the single page application
 const tcpSite = '127.0.0.1';    // Host of the TCP server
-const tcpPort = 50000;  // Port for the TCP server
+const tcpPort = 50000;  	    // Port for the TCP server
 
 // Can keep as default
-const staticPort = 8080;  // Port for single page application
+const staticPort = 8080;      // Port for single page application
 const realTelemPort = 1337;   // Port streaming live telemetry datums to client
-const commandPort = 1339;   // Port to listen for commands from client
+const commandPort = 1339;     // Port to listen for commands from client
 ```
 
 These values are defaulted to running the ref target application.
@@ -100,4 +100,7 @@ npm install
 npm start
 ```
 
-Open a web browser and go go to `<nodeSite>:OMCTPort` from the values set in app.js to connect with your target.
+Open a web browser and go go to `<nodeSite>:staticPort` to connect with your target.
+
+Ref Example:
+`localhost:8080`
