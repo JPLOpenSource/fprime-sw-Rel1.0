@@ -12,6 +12,20 @@ The `client-openmct` module is used to interface with targets using a [Node.js](
 ### 3.2 Protocols
 The Node.js server serializes commands from the client to the TCP server and deserializes channel and event telemetry from a binary buffer to a datum object that OpenMCT can read.
 
+There are nine types of format types used.
+
+| Type | Description |
+| :--: | :---------- |
+| U8 | 8-bit Unsigned Integer |
+| U16 | 16-bit Unsigned Integer |
+| U32 | 32-bit Unsigned Integer |
+| I8 | 8-bit Integer |
+| I16 | 16-bit Integer |
+| I32 | 32-bit Integer |
+| F32 | 32-bit Floating Point Integer |
+| Enum | Enumerated value with a I32 corresponding to a string |
+| String | Each byte is a character. In byte buffers, strings are prepended with its length in a U32 <!--I think--> |
+
 #### 3.2.1 Channel Telemetry
 
 | Packet Component | Description | Type, Size (In bytes) |
@@ -54,7 +68,7 @@ The Node.js server serializes commands from the client to the TCP server and des
 
 ![Context Diagram](res/img/WebAppContextDiagram.png)
 
-Incoming telemetry is handled by the [telemetry-server.js](../server/src/telemetry-server.js) module. Inside, a netsocket gains data from the TCP server. First the datum is parsed through a [deserialize.js](../server/src/deserialize.js) module. The parsed datums are sent to the client through a realtime telemetry websocket in telemetry-server.js. These datums are also saved in a log file under ./server/logs/telem-log.js. An OpenMCT plugin, [historical-telem-plugin.js](../client/js/plugins/historical-telem-plugin.js), sends http requests to the server for OpenMCT to server historical telemetry data in its views.
+This context diagram shows the different modules used for the server to communicate with the TCP Server and the Client.
 
 | Component | Function |
 | :-------: | :------- |
@@ -69,6 +83,41 @@ Incoming telemetry is handled by the [telemetry-server.js](../server/src/telemet
 |[command-console.js](../client/js/plugins/command-console.js) | Uses [Vue.js](Vuejs.org) webwrapper to send commands over a socket server. |
 |[command-server.js](../server/src/command-server.js)| Handles incoming commands from client using a listener. The commands are serialized into binary buffers and are sent to the TCP server.|
 |[serialize.js](../server/src/serialize.js)| Uses the dictionary.json file to turn the command object into a binary buffer for the TCP server. |
+
+### 3.4 Dictionary Object
+The backbone of the entire app relies on the generated server/res/dictionary.js file. The client and the server both use this file to parse commands, setup OpenMCT, and more.
+
+#### Format
+```
+{
+	<{string}target name> : {
+		"channels" {
+			{
+				<{string}channel id>: {
+					"component": <{string}>,
+					"description": <{string}>,
+					"id": <{number} channel id>,
+					"format_string": <{string} With only 1 python-type string modifier>,
+					"limits": {
+                    "high_orange": <{number}>, 
+                    "high_red": <{number}>, 
+                    "high_yellow": <{number}>, 
+                    "low_orange": <{number}>, 
+                    "low_red": <{number}>, 
+                    "low_yellow": <{number}>
+                 },
+                 "name": <{string}>,
+                 "telem_type": "channel",
+                 "type": "Either integer-type or Enum",
+                 {If "type"=Enum} "enum_dict": {
+                 	<{string} integer key>: <{string} corresponding string>,
+                 	...
+                 },
+                 "units": {can be null if none} [
+                 	{
+                 		"Gain":
+                 
+                		
 
 
 ## <a name="User Guide"></a>4. User Guide
