@@ -38,6 +38,8 @@ class RoutingCore(object):
 
     def Quit(self):
         self.routing_table.Quit()
+        for client_name in self.__pubsub_pair_dict:
+            self.__pubsub_pair_dict[client_name].terminate()
 
 
     def GetPubSubPair(self, client_name):
