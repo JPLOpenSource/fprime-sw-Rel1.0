@@ -125,8 +125,16 @@ The backbone of the entire app relies on the generated server/res/dictionary.js 
 ```
 {
 	<{string}target name> : {
-		"channels" {
-			{
+		"channels" : {
+				"-1": {	// Always channel to stream events
+                "component": null, 
+                "description": "Events are shown here", 
+                "format_string": null, 
+                "id": -1, 
+                "name": "Events", 
+                "telem_type": "channel", 
+                "type": "string"
+             }, 
 				<{string}channel id>: {
 					"component": <{string}>,
 					"description": <{string}>,
@@ -149,6 +157,16 @@ The backbone of the entire app relies on the generated server/res/dictionary.js 
                  },
                  "units": {can be null if none} [
                  	{
-                 		"Gain":
+                 		"Gain": <{number}>
+                 		"Label": <{string}>
+                 		"Offset": <{number}>
+                 	},
+                 	...
+                 ]
+             },
+             ...
+       }
+                 	
+               
                  
-                		
+```

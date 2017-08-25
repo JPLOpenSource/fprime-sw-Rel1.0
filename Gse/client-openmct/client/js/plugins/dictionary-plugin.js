@@ -7,7 +7,7 @@ function DictionaryPlugin(target) {
   let targetName = target[0].toUpperCase() + target.substring(1);
 
   // Value formatters
-  const value_format = {
+  let value_format = {
     'hints': {
       'range': 2
     }, 
@@ -17,7 +17,7 @@ function DictionaryPlugin(target) {
     'name': 'Value', 
     'units': 'units'
   };
-  const time_format = {
+  let time_format = {
     'key': 'utc',
     'source': 'timestamp',
     'name': 'Timestamp',
@@ -26,21 +26,21 @@ function DictionaryPlugin(target) {
       'domain': 1
     }
   };
-  const name_format = {
+  let name_format = {
     'hints': {
       'domain': 2
     },
     'key': 'name',
     'name': 'Name'
   };
-  const id_format = {
+  let id_format = {
     'hints': {
       'domain': 3
     },
     'key': 'identifier',
     'name': 'ID'
   };
-  const severity_format = {
+  let severity_format = {
     'hints': {
       'range': 1
     },
@@ -70,7 +70,7 @@ function DictionaryPlugin(target) {
           // Measurement = measurement object with same key as 'identifier.key'
           let measurement = dictionary[targetKey]['channels'][identifier.key];
 
-          value_formats = [name_format, id_format, time_format, value_format];
+          let value_formats = [name_format, id_format, time_format, value_format];
           let units = measurement['units'];
           if (units != null) {
             units.forEach(function (u, i) {
@@ -88,17 +88,17 @@ function DictionaryPlugin(target) {
           let typeStr = targetKey + '.telemetry';
           // console.log('type' + typeStr);
 
-      let toReturn = {
-        identifier: identifier,
-        name: measurement.name,
-        type: typeStr,
-        notes: measurement['description'],
-        // type: typeStr,
-        telemetry: {
-        values: value_formats  // Values already in default format
-        },
-        location: targetKey + 'taxonomy:' + targetKey
-      }
+          let toReturn = {
+            identifier: identifier,
+            name: measurement.name,
+            type: typeStr,
+            notes: measurement['description'],
+            // type: typeStr,
+            telemetry: {
+              values: value_formats  // Values already in default format
+            },
+            location: targetKey + 'taxonomy:' + targetKey
+          }
           if (measurement.name === 'Events') {
             // Object provider for events
             let eventToReturn = Object.assign({}, toReturn);

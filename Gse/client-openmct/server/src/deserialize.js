@@ -236,13 +236,10 @@ function deserialize(data, target) {
         toMCT[keyForm] = valueForm;
       });
     }
-
     // Push packet into queue
     packetArr.push(toMCT);
 
   }
-
-  // console.log(JSON.stringify(packetArr));
   return packetArr;
 }
 

@@ -29,7 +29,7 @@ if (!fs.existsSync('server/logs')) {
 }
 
 // Create static server for client
-const staticServer = new StaticServer(staticPort);
+const staticServer = new StaticServer(nodeSite, staticPort);
 RealtimeTelemServer(tcpSite, tcpPort, realTelemPort, target);
 HistoryServer();
 CommandServer(tcpSite, tcpPort, commandPort, target);

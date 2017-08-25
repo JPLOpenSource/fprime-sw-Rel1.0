@@ -1,10 +1,10 @@
 var express = require('express');
-function StaticServer(port) {
+function StaticServer(nodeSite, port) {
   var server = express();
   
   server.use('/', express.static(__dirname + '/../..'));
   
-  console.log('Open MCT hosted at http://localhost:' + port);
+  console.log('Open MCT hosted at ' + nodeSite + ':' + port);
   
   server.listen(port);
 }
