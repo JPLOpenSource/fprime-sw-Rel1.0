@@ -103,7 +103,7 @@ function DictionaryPlugin(target) {
             telemetry: {
               values: value_formats  // Values already in default format
             },
-            location: targetKey + 'taxonomy:' + targetKey
+            location: targetKey + '.taxonomy:' + targetKey
           }
           if (measurement.name === 'Events') {
             // Object provider for events
