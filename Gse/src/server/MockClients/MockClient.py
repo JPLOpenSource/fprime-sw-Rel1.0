@@ -45,7 +45,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     # Subscribe to all
     command_socket.send_multipart([b"SUB", client_name.encode(), client_type.encode(), b''])
 
-    time.sleep(1)
+    time.sleep(5)
 
     # Setup pub/sub ports
     server_pub_port = struct.unpack("<I", msg[1])[0]

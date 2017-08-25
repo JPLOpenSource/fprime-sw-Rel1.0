@@ -1,4 +1,5 @@
 import zmq
+import time
 import threading
 from logging import DEBUG, INFO
 
@@ -40,17 +41,14 @@ class RoutingCore(object):
         self.routing_table.Quit()
         for client_name in self.__pubsub_pair_dict:
             self.__pubsub_pair_dict[client_name].terminate()
+            self.__pubsub_pair_dict[client_name].join()
 
 
     def GetPubSubPair(self, client_name):
         return self.__pubsub_pair_dict[client_name]
 
-    def CreatePubSubPair(self, client_name, client_type, serverIO_subscriber_output_address,\
-                                                         serverIO_publisher_input_address):
+    def CreateClientProcess(self, client_name, client_type):
 
-        # Do not duplicate if the PubSubPair exists
-        if client_name in self.__pubsub_pair_dict:
-            return
 
         if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
             broker_subscriber_input_address = self.__FlightPacketBroker.GetInputAddress() 
@@ -64,23 +62,20 @@ class RoutingCore(object):
 
             raise TypeError  
            
-        self.__logger.debug("Creating PubSubPair")
+        self.__logger.debug("Creating ClientProcess")
         self.__logger.debug("Client Type: {}".format(client_type))
         
+        client_process = ClientProcess(client_name, client_type, broker_subscriber_input_address,\
+                                                                 broker_publisher_output_address)
 
-        routing_table_command_address       = self.routing_table.GetCommandSocketAddress()
-        routing_table_command_reply_address = self.routing_table.GetCommandReplySocketAddress()
+        return client_process
 
-        psp = PubSubPair(client_name,
-                                    routing_table_command_address,\
-                                    routing_table_command_reply_address,\
-                                    serverIO_subscriber_output_address,\
-                                    serverIO_publisher_input_address,\
-                                    broker_subscriber_input_address,\
-                                    broker_publisher_output_address)
+        
 
-        psp.start()
-        self.__pubsub_pair_dict[client_name] = psp
-                                    
+
+        client_process.start()
+        time.sleep(1) # Give time for PubSubPair process to startup
+    
+        return server_pub_port, server_sub_port                                    
 
 

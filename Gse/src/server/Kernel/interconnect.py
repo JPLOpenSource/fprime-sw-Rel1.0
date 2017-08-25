@@ -1,6 +1,12 @@
 import os
 import zmq
+import types
 import binascii
+
+# Global server config class
+from server.ServerUtils.server_config import ServerConfig
+SERVER_CONFIG = ServerConfig.getInstance()
+
 
 ###################################################################
 ## Wrapper classes for Publisher and Subscriber Thread Endpoints ##
@@ -22,10 +28,37 @@ def BindToRandomIpcEndpoint(socket):
         raise e
     return address
 
+def CheckRoutingCommandEnabled(cmd_socket, cmd_reply_socket):
+    cmd_list = cmd_socket.recv_multipart(zmq.NOBLOCK)
+
+    recipient   = cmd_list[0]
+    option      = cmd_list[1]
+    pub_client  = cmd_list[2] # The publishing client whom to
+                              # subscribe or unsubscribe to.
+
+    if(cmd_list[0] == client_name):
+        logger.debug("Command received: {}".format(cmd_list))
+        if(option == 'subscribe'):
+            sub_socket.setsockopt(zmq.SUBSCRIBE, pub_client)
+        elif(option == 'unsubscribe'):
+            sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
+
+        # Ack routing table
+        cmd_reply_socket.send(b"{}_pubsub Received".format(client_name))
+def CheckRoutingCommandDisabled(cmd_socket, cmd_reply_socket):
+    pass
+
+# Needed to provide copies of CheckRoutingCommand functions
+def copy_func(f, name=None):
+    return types.FunctionType(f.func_code, f.func_globals, name or f.func_name,
+        f.func_defaults, f.func_closure)
+
 class SubscriberThreadEndpoints(object):
-    def __init__(self):
+    def __init__(self, output_address):
         self.__input_port = None 
-        self.__output_address = None  
+        self.__output_address = output_address 
+
+    # Getters and Setters
     def SetEndpoints(self, input_port, output_address):
         self.__input_port = input_port
         self.__output_address = output_address
@@ -33,17 +66,34 @@ class SubscriberThreadEndpoints(object):
         return self.__input_port
     def GetOutputAddress(self):
         return self.__output_address
-    def GetOutputBinder(self):
-        return BindToRandomIpcEndpoint
-    def GetInputBinder(self):
-        return BindToRandomTcpEndpoint
-    def GetEndpointSetter(self):
-        return self.SetEndpoints
+
+    # Endpoint binding methods
+    def BindOutputEndpoint(self, output_socket):
+        output_socket.connect(self.__output_address)
+        return self.__output_address
+    def BindInputEndpoint(self, input_socket):
+        return BindToRandomTcpEndpoint(input_socket)
+
+    # Socket creation methods
+    def GetInputSocket(self, context):
+        return context.socket(zmq.ROUTER)
+    def GetOutputSocket(self, context):
+        return context.socket(zmq.PUB)
+
+    # Setup routing table commands
+    def GetCmdSocket(self, context):
+        return None
+    def GetCmdReplySocket(self, context):
+        return None
+    def GetCheckRoutingCommandFunc(self):
+        return copy_func(CheckRoutingCommandDisabled)
 
 class PublisherThreadEndpoints(object):
-    def __init__(self):
-        self.__input_address = None 
+    def __init__(self, input_address):
+        self.__input_address = input_address
         self.__output_port = None
+
+    # Getters and Setters
     def SetEndpoints(self, input_address, output_port):
         self.__input_address = input_address
         self.__output_port = output_port
@@ -51,10 +101,30 @@ class PublisherThreadEndpoints(object):
         return self.__input_address
     def GetOutputPort(self):
         return self.__output_port
-    def GetOutputBinder(self):
-        return BindToRandomTcpEndpoint
-    def GetInputBinder(self):
-        return BindToRandomIpcEndpoint
-    def GetEndpointSetter(self):
-        return self.SetEndpoints
+
+    # Endpoint binding methods
+    def BindOutputEndpoint(self, output_socket):
+        return BindToRandomTcpEndpoint(output_socket)
+    def BindInputEndpoint(self, input_socket):
+        input_socket.connect(self.__input_address)
+        return self.__input_address
+
+    # Socket creation methods
+    def GetInputSocket(self, context):
+        return context.socket(zmq.SUB)
+    def GetOutputSocket(self, context):
+        return context.socket(zmq.ROUTER)
+
+    # Setup routing table commands
+    def GetCmdSocket(self, context):
+        cmd_socket = context.socket(zmq.SUB)
+        cmd_socket.setsockopt(zmq.SUBSCRIBE, '')
+        cmd_socket.connect(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS)
+        return cmd_socket
+    def GetCmdReplySocket(self, context):
+        cmd_reply_socket = context.socket(zmq.DEALER)
+        cmd_reply_socket.connect(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS)
+        return cmd_reply_socket
+    def GetCheckRoutingCommandFunc(self):
+        return copy_func(CheckRoutingCommandEnabled)
 

@@ -58,6 +58,9 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.USUB_CMD    = "usub"
         self.LIST_CMD    = "list"
 
+        self.ROUTING_TABLE_CMD_ADDRESS = "ipc:///tmp/pipe.rt_cmd"
+        self.ROUTING_TABLE_CMD_REPLY_ADDRESS = "ipc:///tmp/pipe.rt_cmd_reply"
+
 
         config_file_name = 'server.ini'
         files = list()

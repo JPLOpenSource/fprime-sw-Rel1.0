@@ -114,7 +114,7 @@ class ServerIntegrityTest:
             client.Quit()
         
     def passthrough(self, passthrough_time_s):
-        time.sleep(3) # Wait in case clients are still connecting
+        time.sleep(10) # Wait in case clients are still connecting
         self.logger.info("-------- Pass Through Started --------")
         self.passthrough_time = datetime.datetime.now() # Save time of start
         time.sleep(passthrough_time_s)    
@@ -291,6 +291,7 @@ if __name__ == "__main__":
     test.passthrough(args.pass_time)
 
     test.teardown_class()
+    time.sleep(10) # Let server exit
     
     # If verbose, aggregate throughput information
     WriteAggregate(args)

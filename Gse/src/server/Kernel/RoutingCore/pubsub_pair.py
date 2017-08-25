@@ -155,13 +155,14 @@ def ReceiveFromBroker(client_name, context, serverIO_publisher_input_address,\
                         sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
 
                     # Ack routing table
-                    cmd_reply_socket.send(b"Received")
+                    cmd_reply_socket.send(b"{}_pubsub Received".format(client_name))
 
 
                         
     except zmq.ZMQError as e:
         if e.errno == zmq.ETERM:
             analyzer.SetAverageThroughput()
+            analyzer.PrintReports()
             
             output_socket.close()
             sub_socket.close()
@@ -170,7 +171,7 @@ def ReceiveFromBroker(client_name, context, serverIO_publisher_input_address,\
             logger.debug("Exiting Runnable")
             
             
-            analyzer.PrintReports()
+            
 
 
 class PubSubPair(Process):

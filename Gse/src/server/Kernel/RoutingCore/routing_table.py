@@ -36,12 +36,12 @@ class RoutingTable(object):
 
         # Setup command socket
         self.__command_socket     = context.socket(zmq.PUB)
-        self.__command_socket_adr = BindToRandomIpcEndpoint(self.__command_socket)
+        self.__command_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS)
 
         # Set command reply socket
         self.__command_reply_socket = context.socket(zmq.ROUTER)
         self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
-        self.__command_reply_socket_adr = BindToRandomIpcEndpoint(self.__command_reply_socket)
+        self.__command_reply_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS)
 
     def Quit(self):
         self.__command_socket.close()
@@ -171,7 +171,8 @@ class RoutingTable(object):
             
             # Do not update the publisher list if receiving client does not exist.
             try:
-                self.__command_reply_socket.recv()
+                msg = self.__command_reply_socket.recv()
+                print("ROUTING TABLE RECV {}".format(msg))
             except zmq.ZMQError as e:
                 if e.errno == zmq.EAGAIN:
                     self.__logger.warning("{} not registered. Unable to subscribe {} to {}."\
@@ -251,6 +252,7 @@ class RoutingTable(object):
             try:
                 # Tell receiving_client to subcribe or unsubscribe
                 self.__command_socket.send_multipart([receiving_client_name.encode(), option.encode(), publishing_client_name.encode()])
+
                 
                 if(option.lower() == SERVER_CONFIG.SUB_OPTION): 
                     publishing_client_dict[publishing_client_name].add(receiving_client_name)

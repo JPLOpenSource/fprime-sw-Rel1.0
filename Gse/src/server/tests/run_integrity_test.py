@@ -5,12 +5,12 @@ def main():
     # Test 1
     num_flight = 1
     num_ground = 1
-    flight_throughput = 1000 # msgs / second
+    flight_throughput = 500 # msgs / second
     flight_size =  100 # byte
-    ground_throughput = 200 #  msgs / second
+    ground_throughput = 1000 #  msgs / second
     ground_size  = 100 # byte
     monte_time  = 0 # seconds 
-    pass_time = 20#3600*2 # seconds
+    pass_time = 3600*5 # seconds
 
     cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt} -v"\
            .format(nf = num_flight, ng = num_ground,\
