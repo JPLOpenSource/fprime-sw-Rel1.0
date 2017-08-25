@@ -1,5 +1,11 @@
+/*
+ * How to compute limits on channel and find css to display them.
+ * @param {string} target - deployment name
+ * @return - An openmct object
+ */
 function ChanLimitEval(target) {
   let targetKey = target.toLowerCase();
+  // Test if there is severity warning color or not.
   function hasNull(o) {
     for (key in o) {
       if (o[key] == null) {
@@ -8,7 +14,7 @@ function ChanLimitEval(target) {
     }
     return false;
   }
-
+  // This returns the function that OpenMCT wants to figure out how to highlight it.
   function LimitEvaluator(domainObject) {
     return {
       evaluate: function(datum, key) {
@@ -44,12 +50,13 @@ function ChanLimitEval(target) {
       }
     }
   }
-
+  // What does it apply to, well only to the target app, ...
+  // Added the appliesTo and this gets called before the above
   LimitEvaluator.appliesTo = function(domainObject) {
     // Applies to ref telemetry iff there are no null values in the limits
     return domainObject.type === targetKey + '.telemetry' && domainObject.name !== 'Events' && !hasNull(domainObject.limits);
   }
-
+  // Hook up into openmct here
   return function install(openmct) {
     openmct.legacyExtension('capabilities', {
       key: 'limit',
@@ -57,7 +64,11 @@ function ChanLimitEval(target) {
     });
   }
 }
-
+/*
+ * How to compute severity on events and find css to display them.
+ * @param {string} target - deployment name
+ * @return - An openmct object
+ */
 function EventLimitEval(target) {
   let targetKey = target.toLowerCase();
   function LimitEvaluator(domainObject) {

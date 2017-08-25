@@ -128,6 +128,12 @@ const uSecLen = 4;
 // Size of all packet descriptions except size. Used to calculate size of value
 const packetDescriptionLen = 19;
 
+/*
+ * Deserialize a Fprime packet
+ * @param {Buffer} - Input buffer array of raw packet
+ * @target {string} - Target name (or deployment)
+ * @return: Array of OpenMCT formatted dataum
+ */
 function deserialize(data, target) {
   var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
 
@@ -135,6 +141,7 @@ function deserialize(data, target) {
   let packetLength = data.length;
 
   let offset = 0;
+  // Interact deserialized packets
   while (offset < packetLength) {
     let size = readBuff(data, sizeLen * 8, 'U', offset);
     offset += sizeLen;

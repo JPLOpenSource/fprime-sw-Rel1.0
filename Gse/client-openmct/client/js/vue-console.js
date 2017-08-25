@@ -1,5 +1,6 @@
 var command = {
   props: ['showResults', 'socket', 'command'],
+  // Displayed HTML
   template: `
     <div class="command-search">
       <input type="text"
@@ -18,6 +19,7 @@ var command = {
       </ul>
     </div>
   `,
+  // Dependent data initiallized
   data: function () {
     return {
       commandQuery: '',
@@ -29,6 +31,7 @@ var command = {
       warning: ''
     }
   },
+  // If any vals change do this...
   watch: {
     'commandQuery': function(val) {
       this.searchCommand(val);
@@ -47,6 +50,7 @@ var command = {
       }
     }
   },
+  // All the internal widget methods
   methods: {
     getCommands: function () {
       // Returns promise of array of all commands
@@ -139,6 +143,7 @@ var command = {
         userArgs.push(userA);
       });
 
+      // Command object that is actually sent to node.js
       return {
         'id': commandReq['id'],
         'arguments': userArgs,
@@ -154,6 +159,7 @@ var command = {
         // alert(JSON.stringify(commandToSend)); // Dev
       }
     },
+    // Handles the 'Enter' and 'Escape' but others not yet done.
     navigateResults: function (event) {
       // Always search
       this.freezeResults = false;
@@ -191,6 +197,7 @@ var command = {
 var historySocket;
 var hist = {
   props: ['socket'],
+  // HTML of what you see
   template: `
     <div class="command-hist">
       <ul class="hist-results">
@@ -207,6 +214,7 @@ var hist = {
         placeholder="Search history">
     </div>
   `,
+  // Data variables used
   data: function () {
     return {
       commandResults: [],
@@ -214,21 +222,25 @@ var hist = {
       historyQuery: ''
     }
   },
+  // On change execute this function
   watch: {
     historyQuery: function (query) {
       this.searchHist(query);
     }
 
   },
+  // Before page rendering but after instanciation.
   beforeMount() {
     this.populateWithHist();
   },
+  // Continuously executed - node server to client so we see all commands
   mounted() {
     let self = this;
     self.socket.onmessage = function (event) {
       self.commandHistory.unshift(JSON.parse(event.data));
     }
   },
+  // Executable methods within the widget.
   methods: {
     populateWithHist: function () {
       // Load command history from server log
@@ -276,11 +288,14 @@ var hist = {
 };
 
 var CommandView = Vue.extend({
+  // Div to attach Vue object to.
   template: $('#commandTemplate').text(),
+  // Sub-objects to Vue objet
   components: {
     'command': command,
     'history': hist
   },
+  // Utility methods for Vue
   methods: {
     toggleSearch: function (show) {
       this.showCmdSearchResults = show;

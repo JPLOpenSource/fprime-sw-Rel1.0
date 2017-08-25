@@ -25,6 +25,7 @@
   <!-- Historical telemetry plugin -->
   <script src="client/js/plugins/historical-telem-plugin.js"></script>
   <!-- Create views from local storage json -->
+  <!-- Not used now but was for demos.  If done has problem saving layouts. -->
   <script src="client/js/plugins/loc-storage-objects.js"></script>
   <script src="client/js/plugins/limit-eval.js"></script>
   <!-- Stylesheet for limit evaluator -->
@@ -39,11 +40,13 @@
     <body>
     <div class="command-console">
 
+      <!--This a vue command component - implements command entry, search, save to history-->
       <command :showResults=showCmdSearchResults
                :socket=socket
                :command=selectedHistory
                @click.native="toggleSearch(true)"></command>
-      
+
+      <!--This is a vue history component - implements the history list and query.-->
       <history :socket=socket
                @click.native="toggleSearch(false)"
                v-on:historySelected="selectedHistory=$event"></history>
@@ -51,7 +54,7 @@
     </div>
     </body>
   </script>
-  <!-- Vue mount -->
+  <!-- Vue mount command console code -->
   <script src="client/js/vue-console.js"></script>
   <!-- OpenMCT command console plugin -->
   <script src="client/js/plugins/command-console.js"></script>
@@ -68,12 +71,16 @@
     let configured = config.values();
 
     openmct.setAssetPath('node_modules/openmct/dist');
+    // This LocalStorage() could be changed to a database
+    // CouchDb is OpenMCT supportted
     openmct.install(openmct.plugins.LocalStorage()); // Save user-created views locally
     openmct.install(openmct.plugins.MyItems());
 
     // Configure time system
     openmct.install(openmct.plugins.UTCTimeSystem());
+    // Latest value table for channels
     openmct.install(openmct.plugins.LADTable());
+    // Time conductor for bottom row for query of time range data
     openmct.install(openmct.plugins.Conductor({
       menuOptions: [
         {
@@ -95,6 +102,7 @@
         }
       ]
     }));
+    // Conductor stuff as well??
     openmct.time.clock('local', {start: -10 * 60 * 1000, end: 0});
     openmct.time.timeSystem('utc');
 
@@ -102,10 +110,15 @@
     openmct.install(openmct.plugins.Snow());
 
     // User plugin installs
+    // Dictionary and how openmct reads dataums
     openmct.install(DictionaryPlugin(configured.target));
+    // Realtime telemetry - openmct continually runs this function.
     openmct.install(RealtimeTelemetryPlugin(configured.target, configured.nodeSite, configured.realTelemPort));
+    // History tels openmct how to save historical telemetry.
     openmct.install(HistoricalTelemetryPlugin(configured.target));
+    // Command console from vue
     openmct.install(CommandConsole(configured.target, configured.nodeSite, configured.commandPort));
+    // Channel limit and EVR severity evaluators
     openmct.install(ChanLimitEval(configured.target));
     openmct.install(EventLimitEval(configured.target));
 

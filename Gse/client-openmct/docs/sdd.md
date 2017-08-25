@@ -1,5 +1,9 @@
 # Client - OpenMCT
- 
+
+by Sanchit Sinha
+sinhasaeng@gmail.com
+
+
 ## 1. Introduction
 User Guide is [here](#User Guide)!
 
@@ -96,8 +100,6 @@ There are nine types of format types used.
 | Opcode | Identify event and use as key in dictionary.json. | U32 |
 | Command args | Arguments for command. Types and formats are found in dictionary | (Size - 19) |
  
-
-
 ### 3.3 Context
 
 ![Context Diagram](./res/img/WebAppContextDiagram.png)
@@ -166,7 +168,40 @@ The backbone of the entire app relies on the generated server/res/dictionary.js 
              },
              ...
        }
-                 	
-               
-                 
 ```
+### 3.5 Future Work
+
+* Database saved layouts (views) - using CouchDB and OpenMCT hooks
+* Serializable telemetry items displayed
+* Command widget:
+```
+1. Up/Down arrows to navigate history
+
+2. Down arrow activited command list
+
+3. Auto-complete
+
+4. Date/Time tags in history (infrastructure there)
+
+5. Perhaps use Vue list widget for history management
+```
+
+* Group channels by components
+* Organize channel is alpha order
+* Currently plotting units does not work - OpenMCT short coming
+
+
+## 4. References
+
+Tutorial
+https://github.com/nasa/openmct-tutorial
+Documentation
+https://nasa.github.io/openmct/docs/api/
+https://github.com/nasa/openmct/blob/master/API.md
+Openmct
+https://nasa.github.io/openmct/
+Vue
+https://vuejs.org/
+https://vuejs.org/v2/guide/
+
+

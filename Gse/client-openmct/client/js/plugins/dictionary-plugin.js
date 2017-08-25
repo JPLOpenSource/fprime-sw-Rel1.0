@@ -1,7 +1,13 @@
 
 
-// Actual plugin. Must be a function with 'openmct' result operand and 
+// Actual plugin. Must be a function with 'openmct' result operand and
 // must return function of 'install (openmct)'
+
+/*
+ * Configures the structure of channels and datums so OpenMCT can display them.
+ * @param {string} target - name of target (from config.js file)
+ * @return {openmct object} - object that openmct uses to create internal framework
+ */
 function DictionaryPlugin(target) {
   let targetKey = target.toLowerCase();
   let targetName = target[0].toUpperCase() + target.substring(1);
@@ -141,6 +147,9 @@ function DictionaryPlugin(target) {
 
 
   // Return function of plugin
+    /*
+     * Install is ued by openmct to install this functionality
+     */
   return function install(openmct) {
     // Create root of dictionary
     openmct.objects.addRoot({

@@ -1,5 +1,8 @@
 /**
  * Basic Realtime telemetry plugin using websockets.
+ * @param: {string} target - deployment target name
+ * @param: {string} site   - target site
+ * @param: {number} port   - web socket port
  */
 
 function RealtimeTelemetryPlugin(target, site, port) {
@@ -43,10 +46,10 @@ function RealtimeTelemetryPlugin(target, site, port) {
           // Return unsubscribe function:
 
           listeners[domainObject.identifier.key] =
-            listeners[domainObject.identifier.key].filter(function (c) {
-              // Change array to only include values without callback
-              return c !== callback;
-            });
+              listeners[domainObject.identifier.key].filter(function (c) {
+                // Change array to only include values without callback
+                return c !== callback;
+              });
 
           // Send unsub <telem stream> if no array. (Has been unsubscribed).
           if (!listeners[domainObject.identifier.key].length) {
