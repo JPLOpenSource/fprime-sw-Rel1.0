@@ -189,6 +189,8 @@ The backbone of the entire app relies on the generated server/res/dictionary.js 
 * Group channels by components
 * Organize channel is alpha order
 * Currently plotting units does not work - OpenMCT short coming
+* Look into `requirejs` or `browserfy` for importing client side javascript modules. 
+ 
 
 
 ## 4. References
