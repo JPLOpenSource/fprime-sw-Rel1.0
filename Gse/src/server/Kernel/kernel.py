@@ -37,6 +37,8 @@ class ZmqKernel(object):
         self.__context = zmq.Context()
 
         self.__client_process_dict = dict()
+        self.__tmp_input_port = None
+        self.__tmp_output_port = None
 
         # Setup Logger
         SetGlobalLoggingLevel(consoleLevel=console_lvl, fileLevel=file_lvl, globalLevel=True)
@@ -99,7 +101,8 @@ class ZmqKernel(object):
         self.__logger.info("Initiating server shutdown") 
 
         # Terminate all client processes
-        for process in self.__client_process_list: 
+        for client_name in self.__client_process_dict: 
+            process = self.__client_process_dict[client_name]
             self.__logger.debug("Killing: {}".format(process.pid))
             os.kill(process.pid, signal.SIGINT)
             time.sleep(2)
@@ -202,14 +205,15 @@ class ZmqKernel(object):
         if client_name in self.__client_process_dict: # Do not duplicate if the PubSubPair exists
             return self.__client_process_dict[client_name]
         else: # Create a new process
-            client_process = self.__routing_core.CreateClientProcess(client_name, client_type)
+            client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type, self.SetPorts)
             self.__client_process_dict[client_name] = client_process
         
-
-        server_pub_port = client_process.GetPublisherThreadOutputPort()
-        server_sub_port = client_process.GetSubscriberThreadInputPort()
-
         client_process.start()
+        time.sleep(1)   
+
+        # TODO Add ports to client_process dictionary
+        server_pub_port = self.__tmp_output_port
+        server_sub_port = self.__tmp_input_port
 
         try:
             self.__AddClientToRoutingCore(client_name, client_type, client_process)
@@ -222,11 +226,11 @@ class ZmqKernel(object):
             server_pub_port = -1
             server_sub_port = -1
 
-
-        
-        time.sleep(2)
-
         return (status, server_pub_port, server_sub_port)
+
+    def SetPorts(self, input_port, output_port):
+        self.__tmp_input_port = input_port
+        self.__tmp_output_port = output_port
 
 
     def __RegistrationResponse(self, return_name, status, server_pub_port,\

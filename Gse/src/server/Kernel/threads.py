@@ -40,75 +40,61 @@ class  GeneralServerIOThread(threading.Thread):
         log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
         self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.__logger.debug("Logger Active") 
-        self.__logger.debug("ZMQ Context: {}".format(context.underlying))
         
-        input_endpoint = "ipc:///tmp/in.pipe"
-        output_endpoint = "ipc:///tmp/out.pipe"
-        self.__input_socket = context.socket(zmq.ROUTER)
-        self.__input_socket.connect(input_endpoint)
-        self.__output_socket = context.socket(zmq.ROUTER)
-        self.__output_socket.connect(output_endpoint)
-
-        # Set the created endpoints
-        Interconnect.SetEndpoints(input_endpoint, output_endpoint)
-
-
 
         # Initialze class base
-        threading.Thread.__init__(self, target=self.__ServerIORunnable)  
+        threading.Thread.__init__(self, target=self.__ServerIORunnable, args=(Interconnect,context))  
 
-
-
-#        # Setup socket to receive
-#        self.__input_socket = Interconnect.GetInputSocket(context)
-#        self.__input_socket.setsockopt(zmq.LINGER, 0)
-#        self.__input_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-#        # If ROUTER, set options to allow for reconnections
-#        if(self.__input_socket.type == zmq.ROUTER):        
-#            self.__input_socket.setsockopt(zmq.ROUTER_HANDOVER, 1)
-#
-#        # Attempt bind
-#        try:
-#            input_endpoint = Interconnect.BindInputEndpoint(self.__input_socket) 
-#        except zmq.ZMQError as e: 
-#            self.__logger.error("Unable to bind input endpoint.")  
-#            raise e
-#        self.__logger.debug("Input endpoint: {}".format(input_endpoint))
-#        self.__logger.debug(self.__input_socket)
-#
-#        # Setup socket to publish
-#        self.__output_socket = Interconnect.GetOutputSocket(context)
-#        self.__output_socket.setsockopt(zmq.LINGER, 0)
-#        self.__output_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-#        # If ROUTER, set options to allow for reconnections
-#        if(self.__output_socket.type == zmq.ROUTER):        
-#            self.__output_socket.setsockopt(zmq.ROUTER_HANDOVER, 1)
-#
-#        # Attempt bind
-#        try:
-#            output_endpoint = Interconnect.BindOutputEndpoint(self.__output_socket) 
-#        except zmq.ZMQBindError as e:
-#            self.__logger.error("Unable to bind output endpoint.")
-#            raise e
-#        self.__logger.debug("Output endpoint: {}".format(output_endpoint))
-#        self.__logger.debug(self.__output_socket)
-#
-#
-#        # Set routing commands
-#        self.__cmd_socket = Interconnect.GetCmdSocket(context)
-#        self.__cmd_reply_socket = Interconnect.GetCmdReplySocket(context)
-#        self.__CheckRoutingCommand = Interconnect.GetCheckRoutingCommandFunc()
-#
-             
-    def spin(self):
-        signal.pause()
-
-
-    def __ServerIORunnable(self):
+        
+    def __ServerIORunnable(self, Interconnect, context):
         """
         Defines the ServerIO thread.  
         """
         self.__logger.debug("Entering Runnable")
+        self.__logger.debug("ZMQ Context: {}".format(context.underlying))
+
+        # Setup socket to receive
+        input_socket = Interconnect.GetInputSocket(context)
+        input_socket.setsockopt(zmq.LINGER, 0)
+        input_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
+        # If ROUTER, set options to allow for reconnections
+        if(input_socket.type == zmq.ROUTER):        
+            input_socket.setsockopt(zmq.ROUTER_HANDOVER, 1)
+
+        # Attempt bind
+        try:
+            input_endpoint = Interconnect.BindInputEndpoint(input_socket) 
+        except zmq.ZMQError as e: 
+            self.__logger.error("Unable to bind input endpoint.")  
+            raise e
+        self.__logger.debug("Input endpoint: {}".format(input_endpoint))
+        self.__logger.debug(input_socket)
+
+        # Setup socket to publish
+        output_socket = Interconnect.GetOutputSocket(context)
+        output_socket.setsockopt(zmq.LINGER, 0)
+        output_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
+        # If ROUTER, set options to allow for reconnections
+        if(output_socket.type == zmq.ROUTER):        
+            output_socket.setsockopt(zmq.ROUTER_HANDOVER, 1)
+
+        # Attempt bind
+        try:
+            output_endpoint = Interconnect.BindOutputEndpoint(output_socket) 
+        except zmq.ZMQBindError as e:
+            self.__logger.error("Unable to bind output endpoint.")
+            raise e
+        self.__logger.debug("Output endpoint: {}".format(output_endpoint))
+        self.__logger.debug(output_socket)
+
+
+        # Set routing commands
+        cmd_socket = Interconnect.GetCmdSocket(context)
+        cmd_reply_socket = Interconnect.GetCmdReplySocket(context)
+        self.__CheckRoutingCommand = Interconnect.GetCheckRoutingCommandFunc()
+
+        # Set the created endpoints
+        Interconnect.SetEndpoints(input_endpoint, output_endpoint)
 
 
         #analyzer = ThroughputAnalyzer(self.__name + "_analyzer")
@@ -117,36 +103,35 @@ class  GeneralServerIOThread(threading.Thread):
         while True:
             try:
                 #analyzer.StartInstance()
-                msg = self.__input_socket.recv_multipart(flags=zmq.NOBLOCK) 
+                msg = input_socket.recv_multipart(flags=zmq.NOBLOCK) 
                 self.__logger.debug("Packet Received: {}".format(msg))
 
-                self.__output_socket.send_multipart(msg, zmq.NOBLOCK)  
+                output_socket.send_multipart(msg, zmq.NOBLOCK)  
                 
                 #analyzer.SaveInstance()
                 #analyzer.Increment(1)
 
                 # Check for incoming routing table command messages
-                self.__CheckRoutingCommands(self.__cmd_socket, self.__cmd_reply_socket)                    
+                self.__CheckRoutingCommand(self.__logger, self.__client_name, cmd_socket, cmd_reply_socket)                    
 
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
+                    self.__logger.debug("ETERM")
                     break
                 elif e.errno == zmq.EAGAIN:
-                    print("EAGAIN")
                     continue
                 else:
                     raise
 
-        self.__logger.debug("Exiting Runnable")
-
         #analyzer.SetAverageThroughput()
         #analyzer.PrintReports()
 
-        self.__input_socket.close()
-        self.__output_socket.close()
-        if(self.__cmd_socket):
-            self.__cmd_socket.close()
-        if(self.__cmd_reply_socket):
-            self.__cmd_reply_socket.close()
+        input_socket.close()
+        output_socket.close()
+        if(cmd_socket):
+            cmd_socket.close()
+        if(cmd_reply_socket):
+            cmd_reply_socket.close()
+        self.__logger.debug("Exiting Runnable")
 
 

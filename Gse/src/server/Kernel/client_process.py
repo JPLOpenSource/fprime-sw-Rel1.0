@@ -1,4 +1,6 @@
+import os
 import zmq
+import time
 import signal
 from logging import DEBUG, INFO, ERROR 
 from multiprocessing import Process
@@ -14,10 +16,11 @@ from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
 SERVER_CONFIG = ServerConfig.getInstance()
 
 class ClientProcess(Process):
-	def __init__(self, client_name, client_type, broker_subscriber_input_address,\
+	def __init__(self, client_name, client_type, SetPorts, broker_subscriber_input_address,\
                                                  broker_publisher_output_address):
 		Process.__init__(self)
 		signal.signal(signal.SIGINT, self.Quit)
+
 		# Setup logger
 		log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
 		self.__logger = GetLogger("{}_ClientProcess".format(client_name), log_path, logLevel=DEBUG,\
@@ -40,19 +43,26 @@ class ClientProcess(Process):
 		self.__publisher_thread = GeneralServerIOThread(client_name, pubsub_type,\
 		             				self.__pub_thread_endpoints) 
 
-		self.daemon = True
-	def run(self):
 		self.__logger.info("Starting threads")
 		self.__subscriber_thread.start()
 		self.__publisher_thread.start()
 
-		
+		time.sleep(1)
+		input_port = self.__sub_thread_endpoints.GetInputPort()
+		output_port = self.__pub_thread_endpoints.GetOutputPort()
+		SetPorts(input_port, output_port)
+
+		self.daemon = True
+	def run(self):
+
+
 		signal.pause() # Wait until interrupt	
 
 
 	def Quit(self, signum, frame):
 		self.__logger.info("Stopping Threads")
 		self.__context.term()
+		exit(0)
 
 	# End point access methods
 	def GetSubscriberThreadInputPort(self):

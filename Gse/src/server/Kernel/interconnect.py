@@ -28,7 +28,8 @@ def BindToRandomIpcEndpoint(socket):
         raise e
     return address
 
-def CheckRoutingCommandEnabled(cmd_socket, cmd_reply_socket):
+def CheckRoutingCommandEnabled(logger, client_name, cmd_socket, cmd_reply_socket):
+    print("CHECKING ROUTING COMMAND")
     cmd_list = cmd_socket.recv_multipart(zmq.NOBLOCK)
 
     recipient   = cmd_list[0]

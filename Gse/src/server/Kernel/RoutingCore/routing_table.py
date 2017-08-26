@@ -37,11 +37,13 @@ class RoutingTable(object):
         # Setup command socket
         self.__command_socket     = context.socket(zmq.PUB)
         self.__command_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS)
+        self.__logger.debug("Command socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS))
 
         # Set command reply socket
         self.__command_reply_socket = context.socket(zmq.ROUTER)
         self.__command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
         self.__command_reply_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS)
+        self.__logger.debug("Command reply socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS))
 
     def Quit(self):
         self.__command_socket.close()

@@ -7,6 +7,8 @@ from utils.logging_util import GetLogger
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.interconnect import BindToRandomInprocEndpoint
+from server.Kernel.client_process import ClientProcess
+
 from pubsub_pair import PubSubPair
 from packet_broker import PacketBroker
 from routing_table import RoutingTable
@@ -47,7 +49,7 @@ class RoutingCore(object):
     def GetPubSubPair(self, client_name):
         return self.__pubsub_pair_dict[client_name]
 
-    def CreateClientProcess(self, client_name, client_type):
+    def CreateClientProcess(self, client_name, client_type, SetPorts):
 
 
         if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
@@ -65,17 +67,10 @@ class RoutingCore(object):
         self.__logger.debug("Creating ClientProcess")
         self.__logger.debug("Client Type: {}".format(client_type))
         
-        client_process = ClientProcess(client_name, client_type, broker_subscriber_input_address,\
+        client_process = ClientProcess(client_name, client_type, SetPorts, broker_subscriber_input_address,\
                                                                  broker_publisher_output_address)
 
         return client_process
-
-        
-
-
-        client_process.start()
-        time.sleep(1) # Give time for PubSubPair process to startup
-    
-        return server_pub_port, server_sub_port                                    
+                              
 
 
