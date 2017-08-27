@@ -4,29 +4,27 @@ import time
 import signal
 import threading
 import logging
-
 from itertools import cycle
 from logging import DEBUG, INFO
+
 from utils.logging_util import GetLogger
-from utils.throughput_analyzer import ThroughputAnalyzer
+
+from utils import throughput_analyzer
 
 from server.ServerUtils.server_config import ServerConfig
-from RoutingCore.routing_table import RoutingTable 
+from server.Kernel.RoutingCore.routing_table import RoutingTable 
 
 # Global server config class
 SERVER_CONFIG = ServerConfig.getInstance() 
 
 class  GeneralServerIOThread(threading.Thread):
     """
-    Defines the required setup for a general server IO thread. 
+    Defines the required setup for a general server IO thread.
+    Specific logic is provided by Interconnect.
 
     @params client_name: Name of the client which this thread represents.
     @params pubsub_type: "Publisher" or "Subscriber. Case insensitive.
-    @params InputPortBinder: Function to configure ServerIOThread to use tcp or inproc
-    @params OutputPortBinder: Function to configure ServerIOThread to use tcp or inproc
-    @params runnable: The main function of the thread
-    @params SetEndpoints: Callback function to set the port numbers of
-                                   the publish and subscribe ports
+    @params Interconnect: Specified internal logic of the IO thread.
     """
     def __init__(self, client_name, pubsub_type, Interconnect):
 
@@ -68,7 +66,6 @@ class  GeneralServerIOThread(threading.Thread):
             self.__logger.error("Unable to bind input endpoint.")  
             raise e
         self.__logger.debug("Input endpoint: {}".format(input_endpoint))
-        self.__logger.debug(input_socket)
 
         # Setup socket to publish
         output_socket = Interconnect.GetOutputSocket(context)
@@ -85,47 +82,68 @@ class  GeneralServerIOThread(threading.Thread):
             self.__logger.error("Unable to bind output endpoint.")
             raise e
         self.__logger.debug("Output endpoint: {}".format(output_endpoint))
-        self.__logger.debug(output_socket)
 
 
         # Set routing commands
         cmd_socket = Interconnect.GetCmdSocket(context)
         cmd_reply_socket = Interconnect.GetCmdReplySocket(context)
-        self.__CheckRoutingCommand = Interconnect.GetCheckRoutingCommandFunc()
+        CheckRoutingCommand = Interconnect.GetCheckRoutingCommandFunc()
+
+        # Set output_socket details
+        SendOutput = Interconnect.GetOutputSocketFunc()
 
         # Set the created endpoints
         Interconnect.SetEndpoints(input_endpoint, output_endpoint)
 
 
-        #analyzer = ThroughputAnalyzer(self.__name + "_analyzer")
-        #analyzer.StartAverage()
-        
-        while True:
-            try:
-                #analyzer.StartInstance()
-                msg = input_socket.recv_multipart(flags=zmq.NOBLOCK) 
-                self.__logger.debug("Packet Received: {}".format(msg))
+        test_point = throughput_analyzer.GetTestPoint(self.__name + "_test_point")
+        test_point.StartAverage()
 
-                output_socket.send_multipart(msg, zmq.NOBLOCK)  
+        # Wrap while in a try statement so we can catch the ETERM error
+        # that occurs when ClientProcess terminates the zmq context
+        try:        
+            while True:
+
+                # Attempt to receive from input socket
+                try:
+                    test_point.StartInstance()
+
+                    msg = input_socket.recv_multipart(flags=zmq.NOBLOCK) 
+                    self.__logger.debug("Packet Received: {}".format(msg))
+                    SendOutput(self.__logger, msg, output_socket)
+                    test_point.Increment(1)
+                    test_point.SaveInstance()
+
+                    
+
+                except zmq.ZMQError as e:
+                    if e.errno == zmq.EAGAIN:
+                        pass # Pass to check routing
+                    else:
+                        raise
                 
-                #analyzer.SaveInstance()
-                #analyzer.Increment(1)
+                # Attempt to receive from command from routing table
+                try:
+                    # Check for incoming routing table command messages
+                    CheckRoutingCommand(self.__logger, self.__client_name, input_socket, cmd_socket, cmd_reply_socket)                    
+                except zmq.ZMQError as e:
+                    if e.errno == zmq.EAGAIN:
+                        pass # Continue for another loop
+                    else:
+                        raise
 
-                # Check for incoming routing table command messages
-                self.__CheckRoutingCommand(self.__logger, self.__client_name, cmd_socket, cmd_reply_socket)                    
 
-            except zmq.ZMQError as e:
-                if e.errno == zmq.ETERM:
-                    self.__logger.debug("ETERM")
-                    break
-                elif e.errno == zmq.EAGAIN:
-                    continue
-                else:
-                    raise
+        except zmq.ZMQError as e:
+            if e.errno == zmq.ETERM:
+                self.__logger.debug("ETERM")
+                pass # Continue to exit
+            else:
+                raise
 
-        #analyzer.SetAverageThroughput()
-        #analyzer.PrintReports()
+        test_point.SetAverageThroughput()
+        test_point.PrintReports()
 
+        # Close sockets
         input_socket.close()
         output_socket.close()
         if(cmd_socket):

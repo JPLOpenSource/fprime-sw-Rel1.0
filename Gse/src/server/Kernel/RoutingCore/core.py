@@ -9,7 +9,6 @@ from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.interconnect import BindToRandomInprocEndpoint
 from server.Kernel.client_process import ClientProcess
 
-from pubsub_pair import PubSubPair
 from packet_broker import PacketBroker
 from routing_table import RoutingTable
 
@@ -19,6 +18,7 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 class RoutingCore(object):
     """
+
     """
 
     def __init__(self, context):
@@ -29,7 +29,6 @@ class RoutingCore(object):
         self.__logger.debug("Logger Active") 
    
         self.__context = context
-        self.__pubsub_pair_dict = {} 
 
         self.__FlightPacketBroker = PacketBroker(SERVER_CONFIG.FLIGHT_TYPE, self.__context)
         self.__GroundPacketBroker = PacketBroker(SERVER_CONFIG.GROUND_TYPE, self.__context)
@@ -41,13 +40,7 @@ class RoutingCore(object):
 
     def Quit(self):
         self.routing_table.Quit()
-        for client_name in self.__pubsub_pair_dict:
-            self.__pubsub_pair_dict[client_name].terminate()
-            self.__pubsub_pair_dict[client_name].join()
-
-
-    def GetPubSubPair(self, client_name):
-        return self.__pubsub_pair_dict[client_name]
+        self.__logger.info("Exiting")
 
     def CreateClientProcess(self, client_name, client_type, SetPorts):
 
@@ -67,8 +60,9 @@ class RoutingCore(object):
         self.__logger.debug("Creating ClientProcess")
         self.__logger.debug("Client Type: {}".format(client_type))
         
-        client_process = ClientProcess(client_name, client_type, SetPorts, broker_subscriber_input_address,\
-                                                                 broker_publisher_output_address)
+        client_process = ClientProcess(client_name, client_type, SetPorts,\
+                                            broker_subscriber_input_address,\
+                                            broker_publisher_output_address)
 
         return client_process
                               

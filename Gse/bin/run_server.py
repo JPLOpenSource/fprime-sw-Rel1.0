@@ -14,14 +14,13 @@ def main():
     args = parser.parse_args()	
 
     if(args.verbose):
-        print("Running server in verbose")
-    	#file_lvl = console_lvl = logging.DEBUG
+        print("Running server in verbose") 
         file_lvl    = logging.DEBUG
         console_lvl = logging.DEBUG
     else:
     	file_lvl = console_lvl = logging.INFO
 
-    kernel = ZmqKernel(args.cmd_port, console_lvl, file_lvl)  
+    kernel = ZmqKernel(args.cmd_port, console_lvl, file_lvl, args.log_throughput)  
     kernel.Start()
 
 

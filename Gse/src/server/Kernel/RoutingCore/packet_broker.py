@@ -3,7 +3,7 @@ import threading
 from logging import DEBUG, INFO
 
 from utils.logging_util import GetLogger
-from utils.throughput_analyzer import ThroughputAnalyzer
+from utils import throughput_analyzer 
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.interconnect import BindToRandomIpcEndpoint
@@ -47,19 +47,20 @@ class PacketBroker(object):
         poller.register(self.__xpub, zmq.POLLIN)
         poller.register(self.__xsub, zmq.POLLIN)
         try:
-            analyzer = ThroughputAnalyzer(self.name + "_analyzer")
-            analyzer.StartAverage()
+            test_point = throughput_analyzer.GetTestPoint(self.name + "_test_point")
+            test_point.StartAverage()
             while(True):
                 socks = dict(poller.poll(0))
                 if self.__xsub in socks: # XSUB receives packets
-                    analyzer.StartInstance()
+                    test_point.StartInstance()
 
                     msg = self.__xsub.recv_multipart()
                     self.__logger.debug("XSUB Received: {}".format(msg))
                     self.__xpub.send_multipart(msg) 
 
-                    analyzer.SaveInstance()
-                    analyzer.Increment(1)
+                    test_point.SaveInstance()
+
+                    test_point.Increment(1)
 
                 if self.__xpub in socks: # XPUB receives subscription messages and passes them through
                     msg = self.__xpub.recv_multipart()
@@ -68,12 +69,12 @@ class PacketBroker(object):
 
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
-                analyzer.SetAverageThroughput()
+                test_point.SetAverageThroughput()
+                test_point.PrintReports()
                 self.__xsub.close()
                 self.__xpub.close()
                 self.__logger.debug("Exiting Runnable")
 
-                analyzer.PrintReports()
 
     def GetInputAddress(self):
         """

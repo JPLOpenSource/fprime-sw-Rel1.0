@@ -10,7 +10,7 @@ sys.path.append("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref")
 
 from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
-from utils.throughput_analyzer import ThroughputAnalyzer
+from utils import throughput_analyzer
 
 
 # Modules required for test
@@ -42,10 +42,12 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     msg = command_socket.recv_multipart()
     logger.debug("Command Reply Received:{}".format(msg))
 
+    time.sleep(1)
+
     # Subscribe to all
     command_socket.send_multipart([b"SUB", client_name.encode(), client_type.encode(), b''])
 
-    time.sleep(5)
+    time.sleep(1)
 
     # Setup pub/sub ports
     server_pub_port = struct.unpack("<I", msg[1])[0]
@@ -55,6 +57,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     sub_socket = context.socket(zmq.ROUTER)
     sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to receive
     sub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
+    sub_socket.setsockopt(zmq.RCVHWM, 10000)
     pub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
 
 
@@ -75,38 +78,39 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     poller.register(pub_socket, zmq.POLLOUT)
     poller.register(sub_socket, zmq.POLLIN)
 
-
-    sine_wave = test_utils.GetSineWave() 
     
     time.sleep(1)
     try:
 
-        analyzer = ThroughputAnalyzer(client_name + "_analyzer")
-        analyzer.StartAverage()
+        test_point = throughput_analyzer.GetTestPoint(client_name + "_test_point")
+        test_point.StartAverage()
         start_time = time.time()
         val = 0 # Value for linearly increasing data
         while True: 
 
                 socks = dict(poller.poll())
 
+                # Send data to server
                 if pub_socket in socks:
+
 
                     if(throughput != 0):
                         if( (time.time() - start_time) >= latency ):
                             
+                            # Create message with msg_size number of bytes
                             byte_list = [1 for i in range(msg_size-1)]
                             byte_list.append(val)
                             packed = struct.pack("{}B".format(msg_size), *byte_list)
 
-                            analyzer.StartInstance()
+                            test_point.StartInstance()
 
                             start_time = time.time()
                             data = client_name.encode() +" " + packed
                             #logger.debug("Sending: {}".format([packed]))
                             pub_socket.send(data)
 
-                            analyzer.SaveInstance()
-                            analyzer.Increment(1)
+                            test_point.SaveInstance()
+                            test_point.Increment(1)
 
                             val += 1
                             if(val == 256):
@@ -114,6 +118,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
 
 
+                    # Receive data from server
                     if sub_socket in socks:
                         msg = sub_socket.recv_multipart()
                         data = msg[1].split(" ")[-1]
@@ -141,8 +146,8 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
 
     # Quit
-    analyzer.SetAverageThroughput()
-    analyzer.PrintReports()
+    test_point.SetAverageThroughput()
+    test_point.PrintReports()
 
     logger.debug("Closing")
     command_socket.close()

@@ -5,11 +5,13 @@ import signal
 from logging import DEBUG, INFO, ERROR 
 from multiprocessing import Process
 
-from threads import GeneralServerIOThread 
 from utils.logging_util import SetGlobalLoggingLevel, GetLogger
-from server.ServerUtils.server_config import ServerConfig
 
-from interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
+from server.ServerUtils.server_config import ServerConfig
+from server.Kernel.threads import GeneralServerIOThread 
+
+from server.Kernel import interconnect
+from server.Kernel.interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints
 
 
 # Global server config class
@@ -18,58 +20,85 @@ SERVER_CONFIG = ServerConfig.getInstance()
 class ClientProcess(Process):
 	def __init__(self, client_name, client_type, SetPorts, broker_subscriber_input_address,\
                                                  broker_publisher_output_address):
+		"""
+		Constructor of ClientProcess. 
+		Note: The constructor still operates under the parent process. 
+		"""
 		Process.__init__(self)
-		signal.signal(signal.SIGINT, self.Quit)
+		
 
+
+		# Save ports, addresses, names, etc for the new process to access.
+		self.__client_name = client_name
+		self.__client_type = client_type
+		self.__broker_subscriber_input_address = broker_subscriber_input_address
+		self.__broker_publisher_output_address = broker_publisher_output_address
+
+		# Generate random ports and callback so the kernel can access them.
+		self.__input_port = interconnect.GetRandomPort()
+		self.__output_port = interconnect.GetRandomPort()
+		SetPorts(self.__input_port, self.__output_port)
+
+		self.daemon = True # Force kill the process if parent exits.
+						   # ClientProcess should exit gracefuly through
+						   # the kill_socket, but if it does not
+						   # ClientProcess will not remain after the kernel
+						   # exits. 
+
+	def run(self):
+		"""
+		This is the start of the new process.
+		"""
+		signal.signal(signal.SIGINT, signal.SIG_IGN) # Ignore keyboard interrupts. 
+													 # It is the kernel's responsibility to handle them.
 		# Setup logger
 		log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
-		self.__logger = GetLogger("{}_ClientProcess".format(client_name), log_path, logLevel=DEBUG,\
+		logger = GetLogger("{}_ClientProcess".format(self.__client_name), log_path, logLevel=DEBUG,\
 							                                             fileLevel=DEBUG)
-		self.__logger.debug("Logger Active") 
+		logger.debug("Logger Active") 
 
-		self.__context = zmq.Context().instance()
-		self.__logger.debug("ZMQ Context: {}".format(self.__context.underlying))
+		# Create a process level instance of the context
+		context = zmq.Context().instance()
+		logger.debug("ZMQ Context: {}".format(context.underlying))
+		logger.debug("PID: {}".format(os.getpid()))
 
 
 		# Create client subscription thread
-		self.__sub_thread_endpoints = SubscriberThreadEndpoints(broker_subscriber_input_address)
+		sub_thread_endpoints = SubscriberThreadEndpoints(self.__broker_subscriber_input_address, self.__input_port)
 		pubsub_type   = SERVER_CONFIG.SUB_TYPE
-		self.__subscriber_thread = GeneralServerIOThread(client_name, pubsub_type,\
-		             				self.__sub_thread_endpoints) 
+		subscriber_thread = GeneralServerIOThread(self.__client_name, pubsub_type,\
+		             				sub_thread_endpoints) 
 
 		# Create client publish thread
-		self.__pub_thread_endpoints = PublisherThreadEndpoints(broker_publisher_output_address)
+		pub_thread_endpoints = PublisherThreadEndpoints(self.__broker_publisher_output_address, self.__output_port)
 		pubsub_type   = SERVER_CONFIG.PUB_TYPE
-		self.__publisher_thread = GeneralServerIOThread(client_name, pubsub_type,\
-		             				self.__pub_thread_endpoints) 
+		publisher_thread = GeneralServerIOThread(self.__client_name, pubsub_type,\
+		             				pub_thread_endpoints) 
 
-		self.__logger.info("Starting threads")
-		self.__subscriber_thread.start()
-		self.__publisher_thread.start()
+		logger.info("Starting threads")
+		subscriber_thread.start()
+		publisher_thread.start()
 
-		time.sleep(1)
-		input_port = self.__sub_thread_endpoints.GetInputPort()
-		output_port = self.__pub_thread_endpoints.GetOutputPort()
-		SetPorts(input_port, output_port)
+		# Kill socket
+		kill_socket = context.socket(zmq.SUB)
+		kill_socket.connect(SERVER_CONFIG.KILL_SOCKET_ADDRESS)
+		kill_socket.setsockopt(zmq.SUBSCRIBE, '')
 
-		self.daemon = True
-	def run(self):
+		kill_socket.recv() # Block until kill signal is received		
 
-
-		signal.pause() # Wait until interrupt	
-
-
-	def Quit(self, signum, frame):
-		self.__logger.info("Stopping Threads")
-		self.__context.term()
-		exit(0)
+		# Exit by terminating the context
+		# and waiting for threads to close
+		logger.debug("Terminating context")
+		context.term()
+		logger.info("Threads exited")
+		
 
 	# End point access methods
 	def GetSubscriberThreadInputPort(self):
-		return self.__sub_thread_endpoints.GetInputPort()
+		return self.__input_port
 	def GetSubscribterThreadOutputAddress(self):
 		return self.__sub_thread_endpoints.GetOutputAddress()
 	def GetPublisherThreadInputAddress(self):
 		return self.__pub_thread_endpoints.GetInputAddress()
 	def GetPublisherThreadOutputPort(self):
-		return self.__pub_thread_endpoints.GetOutputPort()
+		return self.__output_port

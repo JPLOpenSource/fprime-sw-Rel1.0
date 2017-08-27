@@ -48,6 +48,7 @@ class RoutingTable(object):
     def Quit(self):
         self.__command_socket.close()
         self.__command_reply_socket.close()
+        self.__logger.info("Exiting")
 
     def GetCommandSocketAddress(self):
         """

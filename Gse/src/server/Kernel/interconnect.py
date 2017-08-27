@@ -1,6 +1,7 @@
 import os
 import zmq
 import types
+import random
 import binascii
 
 # Global server config class
@@ -20,7 +21,7 @@ def BindToRandomInprocEndpoint(socket):
     socket.bind(address)
     return address
 def BindToRandomIpcEndpoint(socket):
-    address = "ipc:///tmp/pipe_%s" % binascii.hexlify(os.urandom(8))
+    address = "ipc:///tmp/pipe.%s" % binascii.hexlify(os.urandom(8))
     try:
         socket.bind(address)
     except zmq.ZMQError as e:
@@ -28,8 +29,20 @@ def BindToRandomIpcEndpoint(socket):
         raise e
     return address
 
-def CheckRoutingCommandEnabled(logger, client_name, cmd_socket, cmd_reply_socket):
-    print("CHECKING ROUTING COMMAND")
+def GetRandomPort():
+    return random.randrange(50000,60000)
+
+def SendOutputToClient(logger, msg, output_socket):
+    #logger.debug("Received: {}".format(msg))
+    #logger.debug("Sending: {}".format(msg[1]))
+    output_socket.send(msg[1], zmq.NOBLOCK) # Only send packet
+
+def SendOutputToBroker(logger, msg, output_socket):
+    #logger.debug("Sending: {}".format(msg))
+    output_socket.send_multipart(msg, zmq.NOBLOCK) # Send source header and packet 
+
+
+def CheckRoutingCommandEnabled(logger, client_name, sub_socket, cmd_socket, cmd_reply_socket):
     cmd_list = cmd_socket.recv_multipart(zmq.NOBLOCK)
 
     recipient   = cmd_list[0]
@@ -46,7 +59,7 @@ def CheckRoutingCommandEnabled(logger, client_name, cmd_socket, cmd_reply_socket
 
         # Ack routing table
         cmd_reply_socket.send(b"{}_pubsub Received".format(client_name))
-def CheckRoutingCommandDisabled(cmd_socket, cmd_reply_socket):
+def CheckRoutingCommandDisabled(logger, client_name, sub_socket, cmd_socket, cmd_reply_socket):
     pass
 
 # Needed to provide copies of CheckRoutingCommand functions
@@ -55,8 +68,8 @@ def copy_func(f, name=None):
         f.func_defaults, f.func_closure)
 
 class SubscriberThreadEndpoints(object):
-    def __init__(self, output_address):
-        self.__input_port = None 
+    def __init__(self, output_address, input_port):
+        self.__input_port = input_port
         self.__output_address = output_address 
 
     # Getters and Setters
@@ -73,13 +86,18 @@ class SubscriberThreadEndpoints(object):
         output_socket.connect(self.__output_address)
         return self.__output_address
     def BindInputEndpoint(self, input_socket):
-        return BindToRandomTcpEndpoint(input_socket)
+        input_socket.bind("tcp://*:{}".format(self.__input_port))
+        return self.__input_port
 
     # Socket creation methods
     def GetInputSocket(self, context):
         return context.socket(zmq.ROUTER)
     def GetOutputSocket(self, context):
         return context.socket(zmq.PUB)
+
+    # Set output_socket specifics
+    def GetOutputSocketFunc(self):
+        return copy_func(SendOutputToBroker)
 
     # Setup routing table commands
     def GetCmdSocket(self, context):
@@ -90,9 +108,9 @@ class SubscriberThreadEndpoints(object):
         return copy_func(CheckRoutingCommandDisabled)
 
 class PublisherThreadEndpoints(object):
-    def __init__(self, input_address):
+    def __init__(self, input_address, output_port):
         self.__input_address = input_address
-        self.__output_port = None
+        self.__output_port = output_port
 
     # Getters and Setters
     def SetEndpoints(self, input_address, output_port):
@@ -105,7 +123,8 @@ class PublisherThreadEndpoints(object):
 
     # Endpoint binding methods
     def BindOutputEndpoint(self, output_socket):
-        return BindToRandomTcpEndpoint(output_socket)
+        output_socket.bind("tcp://*:{}".format(self.__output_port))
+        return self.__output_port
     def BindInputEndpoint(self, input_socket):
         input_socket.connect(self.__input_address)
         return self.__input_address
@@ -114,7 +133,11 @@ class PublisherThreadEndpoints(object):
     def GetInputSocket(self, context):
         return context.socket(zmq.SUB)
     def GetOutputSocket(self, context):
-        return context.socket(zmq.ROUTER)
+        return context.socket(zmq.DEALER)
+
+    # Set output_socket specifics
+    def GetOutputSocketFunc(self):
+        return copy_func(SendOutputToClient)
 
     # Setup routing table commands
     def GetCmdSocket(self, context):

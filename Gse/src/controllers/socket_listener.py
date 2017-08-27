@@ -162,6 +162,7 @@ class SocketListener:
         while 1:
             try:
                 msg = subscriber_socket.receiveFromServer()
+                #print("Received: {}".format(msg))
 
             except ServerReceiveError:
                 print "Socket connection terminated"
