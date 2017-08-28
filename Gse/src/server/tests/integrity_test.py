@@ -232,6 +232,8 @@ class ServerIntegrityTest:
 
 
 def WriteAggregate(args):
+    print("Writing Aggregate")
+
     analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
 
     final_report_path = os.path.join(analysis_path, "aggregate.txt")
@@ -280,8 +282,8 @@ if __name__ == "__main__":
     # Wipe previous throughput data
     analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
 
-    cmd = "rm -r {}/*".format(analysis_path)
-    os.system(cmd)
+    #cmd = "rm -r {}/*".format(analysis_path)
+    #os.system(cmd)
 
 
     test = ServerIntegrityTest(args)
@@ -293,7 +295,7 @@ if __name__ == "__main__":
     test.teardown_class()
     time.sleep(10) # Let server exit
     
-    # If verbose, aggregate throughput information
+    # Print aggregate throughput information
     WriteAggregate(args)
     time.sleep(2)
 
