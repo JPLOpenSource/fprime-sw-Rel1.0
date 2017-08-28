@@ -286,6 +286,12 @@ namespace Zmq{
 	ZmqRadioComponentImpl::~ZmqRadioComponentImpl(void){
 	    // Object destruction
 	    DEBUG_PRINT("Destruct\n");
+
+	    zmq_close(this->m_pubSocket);
+		zmq_close(this->m_subSocket);
+		zmq_close(this->m_cmdSocket);
+		zmq_term(this->m_context);
+
 	}
 
 	void ZmqRadioComponentImpl::preamble(void){ 

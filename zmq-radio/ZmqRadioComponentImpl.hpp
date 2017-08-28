@@ -111,7 +111,6 @@ namespace Zmq{
 	    /* Telemetry */
 	    U32 m_packetsSent;
 	    U32 m_packetsRecv;
-	    U32 m_numListenerRecvTimeouts;
 	    U32 m_numDisconnectRetries;
 	    U32 m_numConnects;
 	    U32 m_numDisconnects;

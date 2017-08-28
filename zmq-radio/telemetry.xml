@@ -15,17 +15,12 @@
         Number of times ZmqRadio has tried to reconnect. 
         </comment>
     </channel>
-    <channel id="4" name="ZR_NumListenerRecvTimeouts" data_type="U32">
-        <comment>
-        Number of times ZmqRadio listener thread has timedout. 
-        </comment>
-    </channel>
-    <channel id="5" name="ZR_PktsSent" data_type="U32">
+    <channel id="4" name="ZR_PktsSent" data_type="U32">
         <comment>
         Number of packets sent 
         </comment>
     </channel>
-    <channel id="6" name="ZR_PktsRecv" data_type="U32">
+    <channel id="5" name="ZR_PktsRecv" data_type="U32">
         <comment>
         Number of packets received 
         </comment>
