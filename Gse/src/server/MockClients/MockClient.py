@@ -75,8 +75,10 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
     # Setup Poller
     poller = zmq.Poller()
-    poller.register(pub_socket, zmq.POLLOUT)
-    poller.register(sub_socket, zmq.POLLIN)
+    if(client_type == "ground"):
+        poller.register(pub_socket, zmq.POLLOUT)
+    else:
+        poller.register(sub_socket, zmq.POLLIN)
 
     
     time.sleep(1)
@@ -118,20 +120,20 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
 
 
-                    # Receive data from server
-                    if sub_socket in socks:
-                        msg = sub_socket.recv_multipart()
-                        data = msg[1].split(" ")[-1]
-                        source = msg[1].split(" ")[0]
+                # Receive data from server
+                if sub_socket in socks:
+                    msg = sub_socket.recv_multipart()
+                    data = msg[1].split(" ")[-1]
+                    source = msg[1].split(" ")[0]
 
-                        if(data == ''): 
-                            byte_list = [1 for i in range(msg_size-1)]
-                            byte_list.append(32)
-                            data = struct.pack("{}B".format(msg_size), *byte_list)
+                    if(data == ''): 
+                        byte_list = [1 for i in range(msg_size-1)]
+                        byte_list.append(32)
+                        data = struct.pack("{}B".format(msg_size), *byte_list)
 
-                        #print [data]
-                        unpacked = struct.unpack("{}B".format(msg_size), data)
-                        logger.debug("{} {}".format(source, unpacked[-1]))
+                    #print [data]
+                    unpacked = struct.unpack("{}B".format(msg_size), data)
+                    logger.debug("{} {}".format(source, unpacked[-1]))
 
                      
 
