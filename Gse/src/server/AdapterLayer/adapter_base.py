@@ -120,16 +120,17 @@ class AdapterBase(object):
         from_server_sub_socket.setsockopt(zmq.IDENTITY, self.__client_name)
         from_server_sub_socket.connect("tcp://localhost:{}".format(from_server_sub_port))
 
-        to_client_pub_socket = context.socket(zmq.ROUTER)
+        to_client_pub_socket = context.socket(zmq.DEALER)
         to_client_pub_socket.bind("tcp://*:{}".format(to_client_pub_port)) 
 
         try:
             while(True):
                 msg_bundle = from_server_sub_socket.recv_multipart()
                 logger.debug("Received: {}".format(msg_bundle))
-                packet = msg_bundle[1]
+                packet      = msg_bundle[1]
                 encoded_packet = self.Encode(packet)
-                to_client_pub_socket.send_multipart(encoded_packet)
+                #logger.debug("Sending: {}".format([encoded_packet]))
+                to_client_pub_socket.send(encoded_packet)
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 to_client_pub_socket.close()
