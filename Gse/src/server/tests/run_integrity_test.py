@@ -6,11 +6,11 @@ def main():
     num_flight = 1
     num_ground = 1
     flight_throughput = 10000000 # msgs / second
-    flight_size =  50 # byte
+    flight_size =  1 # byte
     ground_throughput = 10000000 #  msgs / second
-    ground_size  = 50 # byte
+    ground_size  = 1 # byte
     monte_time  = 0 # seconds 
-    pass_time = 60#3600*6 # seconds
+    pass_time = 30*60#3600*6 # seconds
 
     cmd = "python integrity_test.py {nf} {ng} {ft} {fs} {gt} {gs} {mt} {pt}"\
            .format(nf = num_flight, ng = num_ground,\

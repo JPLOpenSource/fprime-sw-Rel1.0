@@ -75,7 +75,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
     # Setup Poller
     poller = zmq.Poller()
-    if(client_type == "ground"):
+    if(client_type == "flight"):
         poller.register(pub_socket, zmq.POLLOUT)
     else:
         poller.register(sub_socket, zmq.POLLIN)
