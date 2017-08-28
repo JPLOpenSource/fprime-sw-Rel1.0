@@ -57,7 +57,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     sub_socket = context.socket(zmq.ROUTER)
     sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to receive
     sub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
-    sub_socket.setsockopt(zmq.RCVHWM, 10000)
+    sub_socket.setsockopt(zmq.RCVHWM, 100000)
     pub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
 
 

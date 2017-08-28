@@ -119,7 +119,7 @@ class ServerConfig(ConfigParser.SafeConfigParser):
                                                     server_filepath, "logs/throughput")
 
         self.__prop['settings'] = dict()
-        self.__prop['settings']['server_socket_hwm'] = 10000
+        self.__prop['settings']['server_socket_hwm'] = 100000
                                                     
 
         # This sets the defaults within a section. 
