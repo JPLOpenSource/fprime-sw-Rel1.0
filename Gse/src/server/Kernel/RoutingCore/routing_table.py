@@ -175,10 +175,9 @@ class RoutingTable(object):
             # Do not update the publisher list if receiving client does not exist.
             try:
                 msg = self.__command_reply_socket.recv()
-                print("ROUTING TABLE RECV {}".format(msg))
             except zmq.ZMQError as e:
                 if e.errno == zmq.EAGAIN:
-                    self.__logger.warning("{} not registered. Unable to subscribe {} to {}."\
+                    self.__logger.warning("{} did not respond. Unable to subscribe {} to {}."\
                                           .format(receiving_client_name,receiving_client_name,\
                                                   publishing_client_list))
                     return

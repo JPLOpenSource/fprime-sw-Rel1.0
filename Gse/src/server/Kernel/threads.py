@@ -95,42 +95,36 @@ class  GeneralServerIOThread(threading.Thread):
         # Set the created endpoints
         Interconnect.SetEndpoints(input_endpoint, output_endpoint)
 
+        poller = zmq.Poller()
+        poller.register(input_socket, zmq.POLLIN)
+        poller.register(cmd_socket, zmq.POLLIN)
+
 
         test_point = throughput_analyzer.GetTestPoint(self.__name + "_test_point")
         test_point.StartAverage()
 
         # Wrap while in a try statement so we can catch the ETERM error
         # that occurs when ClientProcess terminates the zmq context
-        try:        
+        try:
             while True:
+                socks = dict(poller.poll())
 
-                # Attempt to receive from input socket
-                try:
+                if(input_socket in socks):
+
                     test_point.StartInstance()
 
-                    msg = input_socket.recv_multipart(flags=zmq.NOBLOCK) 
+                    msg = input_socket.recv_multipart() 
                     self.__logger.debug("Packet Received: {}".format(msg))
                     SendOutput(self.__logger, msg, output_socket)
+
                     test_point.Increment(1)
                     test_point.SaveInstance()
 
                     
-
-                except zmq.ZMQError as e:
-                    if e.errno == zmq.EAGAIN:
-                        pass # Pass to check routing
-                    else:
-                        raise
-                
-                # Attempt to receive from command from routing table
-                try:
+                elif(cmd_socket in socks):
                     # Check for incoming routing table command messages
                     CheckRoutingCommand(self.__logger, self.__client_name, input_socket, cmd_socket, cmd_reply_socket)                    
-                except zmq.ZMQError as e:
-                    if e.errno == zmq.EAGAIN:
-                        pass # Continue for another loop
-                    else:
-                        raise
+
 
 
         except zmq.ZMQError as e:

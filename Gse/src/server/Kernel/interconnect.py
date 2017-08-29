@@ -35,15 +35,16 @@ def GetRandomPort():
 def SendOutputToClient(logger, msg, output_socket):
     #logger.debug("Received: {}".format(msg))
     #logger.debug("Sending: {}".format(msg[1]))
-    output_socket.send(msg[1], zmq.NOBLOCK) # Only send packet
+    output_socket.send(msg[1]) # Only send packet
 
 def SendOutputToBroker(logger, msg, output_socket):
     #logger.debug("Sending: {}".format(msg))
-    output_socket.send_multipart(msg, zmq.NOBLOCK) # Send source header and packet 
+    output_socket.send_multipart(msg) # Send source header and packet 
 
 
 def CheckRoutingCommandEnabled(logger, client_name, sub_socket, cmd_socket, cmd_reply_socket):
-    cmd_list = cmd_socket.recv_multipart(zmq.NOBLOCK)
+    print("Check command")
+    cmd_list = cmd_socket.recv_multipart()
 
     recipient   = cmd_list[0]
     option      = cmd_list[1]
@@ -101,7 +102,7 @@ class SubscriberThreadEndpoints(object):
 
     # Setup routing table commands
     def GetCmdSocket(self, context):
-        return None
+        return context.socket(zmq.SUB)
     def GetCmdReplySocket(self, context):
         return None
     def GetCheckRoutingCommandFunc(self):
