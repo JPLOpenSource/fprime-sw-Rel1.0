@@ -226,14 +226,12 @@ class ZmqKernel(object):
         client_name = msg[0]
         client_type = msg[2]
         proto       = msg[3]
+        
         self.__logger.info("Registering {client_name} as {client_type} client "
                             "using {proto} protocol."\
                        .format(client_name=client_name, client_type=client_type.lower(),\
                                proto=proto))
 
-
-        #TODO: Generate meaningful registration status
-        status = 1
 
         # Do not duplicate if the ClientProcess exists
         if client_name in self.__client_process_dict:
@@ -243,27 +241,28 @@ class ZmqKernel(object):
             server_sub_port = self.__client_process_dict[client_name]['server_sub_port']
             return (0, server_pub_port, server_sub_port)
 
-        # Create a new process and get it's allocated ports
-        client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type)
-        server_pub_port = client_process.GetPublisherThreadOutputPort()
-        server_sub_port = client_process.GetSubscriberThreadInputPort()
-        self.__logger.debug("output port: {}".format(server_pub_port))
-        self.__logger.debug("input port: {}".format(server_sub_port))
 
-        # Save a reference to the process and it's allocated ports
-        self.__client_process_dict[client_name] = dict()
-        self.__client_process_dict[client_name]['process'] = client_process
-        self.__client_process_dict[client_name]['server_pub_port'] = server_pub_port
-        self.__client_process_dict[client_name]['server_sub_port'] = server_sub_port
-        
-        # Start the publish and subscribe threads
-        client_process.start()
-        
         # Attempt to add the registering client ot the RoutingCore
         # If this succeeds the registration was successful.
         try:
-            self.__AddClientToRoutingCore(client_name, client_type)
+            client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type)
+            # Create a new process and get it's allocated ports
+            server_pub_port = client_process.GetPublisherThreadOutputPort()
+            server_sub_port = client_process.GetSubscriberThreadInputPort()
+            self.__logger.debug("output port: {}".format(server_pub_port))
+            self.__logger.debug("input port: {}".format(server_sub_port))
+
+            # Save a reference to the process and it's allocated ports
+            self.__client_process_dict[client_name] = dict()
+            self.__client_process_dict[client_name]['process'] = client_process
+            self.__client_process_dict[client_name]['server_pub_port'] = server_pub_port
+            self.__client_process_dict[client_name]['server_sub_port'] = server_sub_port
+            
+            # Start the publish and subscribe threads
+            client_process.start()
+
             status = 1 # Successful registration
+
         except TypeError:
             traceback.print_exc()
             self.__logger.error("Client type: {} not recognized.".format(client_type))
@@ -271,6 +270,7 @@ class ZmqKernel(object):
             status = 0
             server_pub_port = 0
             server_sub_port = 0
+
 
         return (status, server_pub_port, server_sub_port)
 
@@ -288,7 +288,7 @@ class ZmqKernel(object):
                struct.pack("<I", server_sub_port)
               ]
 
-        self.__logger.debug("Registartion Status: {}".format(bytes(status)))
+        self.__logger.debug("Registration Status: {}".format(bytes(status)))
         self.__logger.debug("Registration Response: {}".format(msg))
         self.__command_socket.send_multipart(msg)
 
@@ -309,9 +309,3 @@ class ZmqKernel(object):
 
         else:
             raise TypeError
-
-
-
-        
-
-
