@@ -1,5 +1,17 @@
+#===============================================================================
+# NAME: throughput_analyzer.py
+#
+# DESCRIPTION: A standardized interface for analyzing throughput of one thread.
+# AUTHOR: David Kooi
+# EMAIL:  david.kooi@jpl.nasa.gov
+# DATE CREATED: July, 2017
+#
+# Copyright 2017, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 import os
 import time
+import numpy
 import logging
 
 from server.ServerUtils.server_config import ServerConfig
@@ -12,14 +24,21 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 def GlobalToggle(value):
     """
-    Toggle ThroughputAnalyzer on/off.
+    Globally toggle TestPoints on/off.
+    @params value: True or False
     """
     global GLOBAL_TOGGLE
     GLOBAL_TOGGLE = value
 
 def GetTestPoint(name):
+    """
+    Factory method to return a TestPoint object.
+    @params name: Desired name of the object.
+    """
     global GLOBAL_TOGGLE
 
+    # Only return a real object if 
+    # TestPoints are enabled
     if(GLOBAL_TOGGLE is True):
         return TestPoint(name)
     else:
@@ -51,7 +70,7 @@ def AggregateTestPoints():
 
 def InitializeFolders():
     """
-    Ensure test_points start with a clean folder. 
+    Call from program starting point to ensure TestPoints start with a clean folder. 
     """
     throughput_folder = SERVER_CONFIG.get("filepaths", "throughput_analysis_filepath") 
 
@@ -65,6 +84,9 @@ def InitializeFolders():
 
         
 class DummyPoint(object):
+    """
+    Empty class to disable TestPoint analysis.
+    """
     def __init__(self, name):
         pass
     def StartAverage(self):
@@ -89,6 +111,19 @@ class DummyPoint(object):
 
 
 class TestPoint(object):
+    """
+    Enables measurements of the following metrics:
+    
+        Average thoughput: Total messages / Total time
+
+    The following data points are collected over the runtime
+
+        Instantaneous overhead: Time to process one message
+        Instantaneous throughput: Messages / second 
+
+    Averages and standard deviations are computed for the instantaneous
+    overhead and throughput.
+    """
     def __init__(self, name):
         self.name = name
 
@@ -109,9 +144,12 @@ class TestPoint(object):
 
         self.__start_time_inst = 0
         self.__delta_inst      = 0
-        self.__overhead_inst    = []
-        self.__throughput_inst     = []
 
+        self.__overhead_inst   = []
+        self.__overhead_inst_std    = 0
+
+        self.__throughput_inst      = []
+        self.__throughput_inst_std  = 0
 
     def StartAverage(self):
         """
@@ -166,20 +204,26 @@ class TestPoint(object):
         # Get Averages
         try:
             avg_inst_throughput = sum(self.__throughput_inst) / float(len(self.__throughput_inst))
+            std_inst_throughput = numpy.std(self.__throughput_inst)
         except ZeroDivisionError:
             avg_inst_throughput = 0
+            std_inst_throughput = 0
 
         try:
             avg_inst_overhead   = sum(self.__overhead_inst) / float(len(self.__overhead_inst))
+            std_inst_overhead   = numpy.std(self.__overhead_inst)
         except ZeroDivisionError:
             avg_inst_overhead = 0
+            std_inst_overhead = 0
 
         report_path = os.path.join(self.test_point_folder, "report.txt")
         with open(report_path, 'w') as f:
             f.write(self.name + "\n")
             f.write("Application_Throughput {}\n".format(self.__throughput_avg))
             f.write("Average_Instantaneous_Throughput {}\n".format(avg_inst_throughput))
+            f.write("Instantaneous_Throughput_Std {}\n".format(std_inst_throughput))
             f.write("Average_Instantaneous_Overhead {}\n".format(avg_inst_overhead))
+            f.write("Instantaneous_Overhead_Std {}\n".format(std_inst_overhead))
 
         instant_path = os.path.join(self.test_point_folder, "instant_tp_measurements.txt")
         with open(instant_path, 'w') as f:
@@ -192,5 +236,7 @@ class TestPoint(object):
             f.write(self.name + "\n")
             for val in self.__overhead_inst:
                 f.write("{}\n".format(val))
+
+        AggregateTestPoints()
 
 
