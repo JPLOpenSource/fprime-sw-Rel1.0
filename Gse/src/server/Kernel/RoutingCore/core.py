@@ -42,7 +42,7 @@ class RoutingCore(object):
         self.routing_table.Quit()
         self.__logger.info("Exiting")
 
-    def CreateClientProcess(self, client_name, client_type, SetPorts):
+    def CreateClientProcess(self, client_name, client_type):
 
 
         if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
@@ -60,7 +60,7 @@ class RoutingCore(object):
         self.__logger.debug("Creating ClientProcess")
         self.__logger.debug("Client Type: {}".format(client_type))
         
-        client_process = ClientProcess(client_name, client_type, SetPorts,\
+        client_process = ClientProcess(client_name, client_type,\
                                             broker_subscriber_input_address,\
                                             broker_publisher_output_address)
 

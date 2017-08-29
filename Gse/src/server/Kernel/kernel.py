@@ -44,6 +44,7 @@ class ZmqKernel(object):
 
         self.__context = zmq.Context()
 
+        # Store references to each client process
         self.__client_process_dict = dict()
 
         # Setup global logging settings
@@ -53,7 +54,7 @@ class ZmqKernel(object):
         throughput_analyzer.GlobalToggle(tp_on)
         throughput_analyzer.InitializeFolders()
 
-        # Set logger
+        # Create logger
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath") 
         self.__logger = GetLogger("zmq_kernel",log_path, logLevel=DEBUG,\
                                                fileLevel=DEBUG)
@@ -74,6 +75,9 @@ class ZmqKernel(object):
                 raise e
 
         # Setup ClientProcess kill socket
+        # This socket is binds to each ClientProcess.
+        # When the server shuts down a kill message is sent to
+        # each ClientProcess.
         self.__kill_socket = self.__context.socket(zmq.PUB)
         self.__kill_socket.bind(SERVER_CONFIG.KILL_SOCKET_ADDRESS)
 
@@ -117,7 +121,10 @@ class ZmqKernel(object):
         """
         self.__logger.info("Initiating server shutdown")
 
+        # Send message to all ClientProcesses to exit
         self.__kill_socket.send(b"Exit")
+
+        # Quit the RoutingCore
         self.__RoutingCore.Quit()
 
         # Must close all sockets before context will terminate
@@ -137,28 +144,40 @@ class ZmqKernel(object):
         return_id = msg[0]
         cmd       = msg[1].lower()
 
+        # Client Register
         if   cmd == SERVER_CONFIG.REG_CMD: 
             status, server_pub_port, server_sub_port = self.__HandleRegistration(msg)
             self.__RegistrationResponse(return_id, status, server_pub_port, server_sub_port)
 
+        # Client subscribe
         elif cmd == SERVER_CONFIG.SUB_CMD: 
             option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(return_id, status)
 
+        # Client unsubscribe
         elif cmd == SERVER_CONFIG.USUB_CMD:
             option = SERVER_CONFIG.USUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
             self.__RoutingCoreConfigurationResponse(return_id, status)
 
+        # List subscriptions
         elif cmd == SERVER_CONFIG.LIST_CMD:
             client_sub_dict = self.__HandleListSubscription()
             self.__ListSubscriptionResponse(return_id, client_sub_dict)
 
     def __HandleListSubscription(self):
-        return self.__RoutingCore.routing_table.GetAllClientSubscription()
+        """
+        Gets a dictionary detailing the subscription configuration of 
+        all flight and ground clients
+        """
+        subscription_dict = self.__RoutingCore.routing_table.GetAllClientSubscription()
+        return subscription_dict
 
     def __ListSubscriptionResponse(self, return_id, client_sub_dict):
+        """
+        Send a serialized subscription dictionary to the client with ID return_id.
+        """
 
         self.__logger.debug("Sending ListSubscription Response")
         self.__command_socket.send_multipart([return_id, pickle.dumps(client_sub_dict)])
@@ -216,27 +235,35 @@ class ZmqKernel(object):
         #TODO: Generate meaningful registration status
         status = 1
 
-                
-        if client_name in self.__client_process_dict: # Do not duplicate if the ClientProcess exists
-            return self.__client_process_dict[client_name]
-        else:                                         # Create a new process
-            client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type, self.SetPorts)
-            self.__client_process_dict[client_name] = client_process
-        
-        client_process.start()
-        
+        # Do not duplicate if the ClientProcess exists
+        if client_name in self.__client_process_dict:
 
-        # TODO Add ports to client_process dictionary
+            # Return the ports of the created ClientProcess
+            server_pub_port = self.__client_process_dict[client_name]['server_pub_port']
+            server_sub_port = self.__client_process_dict[client_name]['server_sub_port']
+            return (0, server_pub_port, server_sub_port)
+
+        # Create a new process and get it's allocated ports
+        client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type)
         server_pub_port = client_process.GetPublisherThreadOutputPort()
         server_sub_port = client_process.GetSubscriberThreadInputPort()
         self.__logger.debug("output port: {}".format(server_pub_port))
         self.__logger.debug("input port: {}".format(server_sub_port))
-        #server_pub_port = self.__tmp_output_port
-        #server_sub_port = self.__tmp_input_port
 
+        # Save a reference to the process and it's allocated ports
+        self.__client_process_dict[client_name] = dict()
+        self.__client_process_dict[client_name]['process'] = client_process
+        self.__client_process_dict[client_name]['server_pub_port'] = server_pub_port
+        self.__client_process_dict[client_name]['server_sub_port'] = server_sub_port
+        
+        # Start the publish and subscribe threads
+        client_process.start()
+        
+        # Attempt to add the registering client ot the RoutingCore
+        # If this succeeds the registration was successful.
         try:
-            self.__AddClientToRoutingCore(client_name, client_type, client_process)
-
+            self.__AddClientToRoutingCore(client_name, client_type)
+            status = 1 # Successful registration
         except TypeError:
             traceback.print_exc()
             self.__logger.error("Client type: {} not recognized.".format(client_type))
@@ -246,10 +273,6 @@ class ZmqKernel(object):
             server_sub_port = 0
 
         return (status, server_pub_port, server_sub_port)
-
-    def SetPorts(self, input_port, output_port):
-        self.__tmp_input_port = input_port
-        self.__tmp_output_port = output_port
 
 
     def __RegistrationResponse(self, return_name, status, server_pub_port,\
@@ -270,7 +293,7 @@ class ZmqKernel(object):
         self.__command_socket.send_multipart(msg)
 
 
-    def __AddClientToRoutingCore(self, client_name, client_type, client_process):
+    def __AddClientToRoutingCore(self, client_name, client_type):
         """
         Based on it's type, add client to the routing table.
         """

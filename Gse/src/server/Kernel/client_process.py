@@ -18,7 +18,7 @@ from server.Kernel.interconnect import SubscriberThreadEndpoints, PublisherThrea
 SERVER_CONFIG = ServerConfig.getInstance()
 
 class ClientProcess(Process):
-	def __init__(self, client_name, client_type, SetPorts, broker_subscriber_input_address,\
+	def __init__(self, client_name, client_type, broker_subscriber_input_address,\
                                                  broker_publisher_output_address):
 		"""
 		Constructor of ClientProcess. 
@@ -37,7 +37,6 @@ class ClientProcess(Process):
 		# Generate random ports and callback so the kernel can access them.
 		self.__input_port = interconnect.GetRandomPort()
 		self.__output_port = interconnect.GetRandomPort()
-		SetPorts(self.__input_port, self.__output_port)
 
 		self.daemon = True # Force kill the process if parent exits.
 						   # ClientProcess should exit gracefuly through
