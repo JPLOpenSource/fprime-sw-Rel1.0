@@ -113,7 +113,7 @@ class  GeneralServerIOThread(threading.Thread):
 
                     test_point.StartInstance()
 
-                    msg = input_socket.recv_multipart() 
+                    msg = input_socket.recv_multipart(copy=False) 
                     self.__logger.debug("Packet Received: {}".format(msg))
                     SendOutput(self.__logger, msg, output_socket)
 

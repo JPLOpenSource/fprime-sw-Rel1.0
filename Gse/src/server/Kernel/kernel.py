@@ -125,8 +125,6 @@ class ZmqKernel(object):
         self.__kill_socket.close()
         self.__context.term() 
 
-        # Aggregate throughput_analysis
-        throughput_analyzer.AggregateTestPoints()
   
 
     def __HandleCommand(self, msg):

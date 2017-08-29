@@ -35,15 +35,14 @@ def GetRandomPort():
 def SendOutputToClient(logger, msg, output_socket):
     #logger.debug("Received: {}".format(msg))
     #logger.debug("Sending: {}".format(msg[1]))
-    output_socket.send(msg[1]) # Only send packet
+    output_socket.send(msg[1], copy=False) # Only send packet
 
 def SendOutputToBroker(logger, msg, output_socket):
     #logger.debug("Sending: {}".format(msg))
-    output_socket.send_multipart(msg) # Send source header and packet 
+    output_socket.send_multipart(msg, copy=False) # Send source header and packet 
 
 
 def CheckRoutingCommandEnabled(logger, client_name, sub_socket, cmd_socket, cmd_reply_socket):
-    print("Check command")
     cmd_list = cmd_socket.recv_multipart()
 
     recipient   = cmd_list[0]
