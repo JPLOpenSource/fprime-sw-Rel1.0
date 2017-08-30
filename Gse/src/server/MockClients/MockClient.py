@@ -72,6 +72,7 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
     logger.debug("Publishing to port: {}".format(server_sub_port))
     logger.debug("Subscribed to port: {}".format(server_pub_port))
 
+    throughput_analyzer.GlobalToggle(True)
 
     # Setup Poller
     poller = zmq.Poller()
