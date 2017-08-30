@@ -36,6 +36,8 @@ ServerConfig.SUB_CMD | Subscribe a client to one or more other clients | ['SUB' 
 ServerConfig.USUB_CMD | Unsubscribe a client from one or more other clients | ['USUB' <client_name> <client_type> <pub_client_1>...<pub_client_n>] | [<status>]
 ServerConfig.LIST_CMD | Request a list of Flight and Ground client subscriptions | ['LIST'] | [<pickled_client_sub_dict>]
 
+#### Arguments
+
 Arg | Description | Value
 --- | ----------- | -----
 <client_type> | Flight or ground client | `ServerConfig.FLIGHT_TYPE` or `ServerConfig.GROUND_TYPE`
@@ -44,7 +46,9 @@ Arg | Description | Value
 <pickeled_client_sub_dict> | A pickled dictionary contaning subscription information about all Flight and Ground clients
 
 #### Registration example
+##### Python
 
+##### C++
 #### Subscription example
 
 #### List example
