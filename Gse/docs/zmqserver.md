@@ -47,9 +47,11 @@ Arg | Description | Value
 
 #### Registration example
 ##### Python
+![Python ZmqServer register example](img/python_zmq_register.png "ZmqRadioComponent") 
 
 ##### C++
-#### Subscription example
+#### Registration example
+![C++ ZmqServer register example](img/C++_zmq_register.png "ZmqRadioComponent") 
 
 #### List example
 
