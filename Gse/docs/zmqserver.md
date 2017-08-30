@@ -46,6 +46,10 @@ Arg | Description | Value
 <pickeled_client_sub_dict> | A pickled dictionary contaning subscription information about all Flight and Ground clients
 
 #### Registration example
+A client must set their all Zmq socket identity to their a unique name. The server uses the socket identity to 
+register the client and to route client messages.
+
+The server packs the response ports as  
 ##### Python
 ![Python ZmqServer register example](img/python_zmq_register.png "ZmqRadioComponent") 
 
