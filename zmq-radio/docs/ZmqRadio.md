@@ -9,9 +9,8 @@
 |ZR_NumDisconnects|1 (0x1)|U32|Number of times ZmqRadio has transitioned to disconnected state|
 |ZR_NumConnects|2 (0x2)|U32|Number of times ZmqRadio has transitioned to connected state|
 |ZR_NumDisconnectRetries|3 (0x3)|U32|Number of times ZmqRadio has tried to reconnect.|
-|ZR_NumListenerRecvTimeouts|4 (0x4)|U32|Number of times ZmqRadio listener thread has timedout.|
-|ZR_PktsSent|5 (0x5)|U32|Number of packets sent|
-|ZR_PktsRecv|6 (0x6)|U32|Number of packets received|
+|ZR_PktsSent|4 (0x4)|U32|Number of packets sent|
+|ZR_PktsRecv|5 (0x5)|U32|Number of packets received|
 
 ## Event List
 

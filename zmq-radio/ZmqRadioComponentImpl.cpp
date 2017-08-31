@@ -78,7 +78,6 @@ namespace Zmq{
 	// Telemetry
 	,m_packetsSent(0)
 	,m_packetsRecv(0)
-	,m_numListenerRecvTimeouts(0)
 	,m_numDisconnectRetries(0)
 	,m_numConnects(0)
 	,m_numDisconnects(0)
@@ -326,7 +325,6 @@ namespace Zmq{
 		this->tlmWrite_ZR_NumDisconnects(this->m_numDisconnects);
 		this->tlmWrite_ZR_NumConnects(this->m_numConnects);
 		this->tlmWrite_ZR_NumDisconnectRetries(this->m_numDisconnectRetries);
-		this->tlmWrite_ZR_NumListenerRecvTimeouts(this->m_numListenerRecvTimeouts);
 		this->tlmWrite_ZR_PktsSent(this->m_packetsSent);
 		this->tlmWrite_ZR_PktsRecv(this->m_packetsRecv);
 
@@ -362,6 +360,7 @@ namespace Zmq{
 
 			case State::ZMQ_RADIO_CONNECTED_STATE:
 				// Write files down
+				this->zmqSocketWriteFilePacket(this->m_pubSocket, fwBuffer);
 				break;
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
@@ -389,27 +388,60 @@ namespace Zmq{
     	zmq_msg_t fPrimePacket;
     	zmq_msg_init_size(&fPrimePacket, sizeof(buf));
     	memcpy(zmq_msg_data(&fPrimePacket), buf, sizeof(buf));
-
-    	int rc = zmq_msg_send(&fPrimePacket, zmqSocket, 0);
-    	zmq_msg_close(&fPrimePacket);
-    	if(rc == -1){
-    		zmqError("zmqSocketWriteComBuffer\n");
-    		if(zmq_errno() == EAGAIN){ // HWM reached and timed out. Assume connection down.
-    			this->m_state.transitionDisconnected();
-    		}else{
-	    		Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-	    		this->log_WARNING_HI_ZR_SendError(errArg);
-	    		return -1;
-    		}
-    	}else{
-    		// Success. Increase packets sent
-    		this->m_packetsSent++;
-    	}
+		
+		this->zmqSocketWrite(zmqSocket, &fPrimePacket);
+    	
 
     	mutex.unLock();
     	return 1;
 
     }
+
+   	NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketWriteFilePacket(void* zmqSocket, Fw::Buffer &buffer){
+    	// Ensure write calls are atomic
+		static Os::Mutex mutex;
+		mutex.lock();
+
+   		U32 bufferSize = buffer.getsize();
+
+   		U32 packetSize = htonl(bufferSize + 4); // Size of buffer plus description
+   		U32 desc       = 3; // File desc
+   		U8 downlinkBuffer[sizeof(packetSize) + sizeof(desc) + bufferSize]; // Create a buffer for header and packet
+
+   		memcpy(downlinkBuffer, &packetSize, sizeof(packetSize));
+   		memcpy(downlinkBuffer + sizeof(packetSize), &desc, sizeof(desc));
+   		memcpy(downlinkBuffer + sizeof(packetSize) + sizeof(desc) , (U8*)buffer.getdata(), bufferSize);
+
+   		zmq_msg_t fPrimePacket;
+    	zmq_msg_init_size(&fPrimePacket, sizeof(downlinkBuffer));
+    	memcpy(zmq_msg_data(&fPrimePacket), downlinkBuffer, sizeof(downlinkBuffer));
+
+    	this->zmqSocketWrite(zmqSocket, &fPrimePacket);
+
+
+   		mutex.unLock();
+   		return 1;
+   	}
+
+   	void ZmqRadioComponentImpl::zmqSocketWrite(void* zmqSocket, zmq_msg_t* fPrimePacket){
+   		int rc = zmq_msg_send(fPrimePacket, zmqSocket, 0);
+    	zmq_msg_close(fPrimePacket);
+
+    	if(rc == -1){
+    		zmqError("zmqSocketWrite Error\n");
+    		if(zmq_errno() == EAGAIN){ // HWM reached and timed out. Assume connection down.
+    			this->m_state.transitionDisconnected();
+
+    		}else{
+	    		Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+	    		this->log_WARNING_HI_ZR_SendError(errArg);
+    		}
+    	}else{
+    		// Success. Increase packets sent
+    		this->m_packetsSent++;
+    	}
+   	}
+
 
     NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
 		// Ensure read calls are atomic

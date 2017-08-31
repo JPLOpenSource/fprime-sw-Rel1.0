@@ -92,6 +92,8 @@ namespace Zmq{
 
 	    /* FPrime ZMQ Wrapper functions */
 	    NATIVE_INT_TYPE zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data);
+	    NATIVE_INT_TYPE zmqSocketWriteFilePacket(void* zmqSocket, Fw::Buffer &buffer);
+		void zmqSocketWrite(void* zmqSocket, zmq_msg_t* fPrimePacket);
 		NATIVE_INT_TYPE zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size);
 
 
