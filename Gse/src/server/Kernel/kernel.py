@@ -23,6 +23,10 @@ from utils import throughput_analyzer
 from utils.logging_util import GetLogger
 from server.Kernel.client_process import ClientProcess
 
+from server.Kernel import interconnect
+from server.Kernel.threads import GeneralSubscriberThread, GeneralPublisherThread
+
+
 from RoutingCore.core import RoutingCore
 
 # Global server config class
@@ -64,6 +68,32 @@ class ZmqKernel(object):
         # Create RoutingCore
         self.__RoutingCore = RoutingCore(self.__context)
                                  
+
+
+        # Create flight and ground subscriber threads
+        self.__flight_side_context = zmq.Context(io_threads=4)
+        self.__server_flight_sub_port = interconnect.GetRandomPort()
+        self.__flight_subscribe_thread = GeneralSubscriberThread(self.__flight_side_context,\
+                                                                 self.__server_flight_sub_port,\
+                                                                 SERVER_CONFIG.FLIGHT_PUB_ADDRESS)
+
+        self.__ground_side_context = zmq.Context(io_threads=4)
+        self.__server_ground_sub_port = interconnect.GetRandomPort()
+        # TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         # Setup command/status socket
         self.__command_socket = self.__context.socket(zmq.ROUTER)
         try:

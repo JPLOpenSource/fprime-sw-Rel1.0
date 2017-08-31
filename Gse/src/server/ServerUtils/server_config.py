@@ -58,6 +58,9 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.USUB_CMD    = "usub"
         self.LIST_CMD    = "list"
 
+
+        self.FLIGHT_PUB_ADDRESS = "inproc://flight_pub_pipe"
+        self.GROUND_PUB_ADDRESS = "inproc://ground_pub_pipe"
         self.KILL_SOCKET_ADDRESS = "ipc:///tmp/pipe.kill"
         self.ROUTING_TABLE_CMD_ADDRESS = "ipc:///tmp/pipe.rt_cmd"
         self.ROUTING_TABLE_CMD_REPLY_ADDRESS = "ipc:///tmp/pipe.rt_cmd_reply"
