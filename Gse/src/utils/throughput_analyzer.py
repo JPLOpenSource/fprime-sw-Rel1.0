@@ -202,16 +202,18 @@ class TestPoint(object):
         return self.__throughput_inst
     def PrintReports(self):
         # Get Averages
+
+        # Offset the measurments to avoid startup latencies
         try:
-            avg_inst_throughput = sum(self.__throughput_inst) / float(len(self.__throughput_inst))
-            std_inst_throughput = numpy.std(self.__throughput_inst)
+            avg_inst_throughput = sum(self.__throughput_inst[500:]) / float(len(self.__throughput_inst[500:]))
+            std_inst_throughput = numpy.std(self.__throughput_inst[500:])
         except ZeroDivisionError:
             avg_inst_throughput = 0
             std_inst_throughput = 0
 
         try:
-            avg_inst_overhead   = sum(self.__overhead_inst) / float(len(self.__overhead_inst))
-            std_inst_overhead   = numpy.std(self.__overhead_inst)
+            avg_inst_overhead   = sum(self.__overhead_inst[500:]) / float(len(self.__overhead_inst[500:]))
+            std_inst_overhead   = numpy.std(self.__overhead_inst[500:])
         except ZeroDivisionError:
             avg_inst_overhead = 0
             std_inst_overhead = 0
