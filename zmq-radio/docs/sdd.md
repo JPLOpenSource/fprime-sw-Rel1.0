@@ -91,17 +91,17 @@ If `ZMQ_RADIO_DISCONNECTED`:  Attempts connection and registration with the serv
 
 
 ## Telemetry Channel List
-ZR_NumDisconnects
-ZR_NumConnects
-ZR_NumDisconnectRetries
-ZR_PktsSent
-ZR_PktsRecv
+- ZR_NumDisconnects
+- ZR_NumConnects
+- ZR_NumDisconnectRetries
+- ZR_PktsSent
+- ZR_PktsRecv
 
 ## Event List
-ZR_ContextError
-ZR_SocketError
-ZR_BindError
-ZR_Disconnection
-ZR_Connection
-ZR_SendError
-ZR_ReceiveError
+- ZR_ContextError
+- ZR_SocketError
+- ZR_BindError
+- ZR_Disconnection
+- ZR_Connection
+- ZR_SendError
+- ZR_ReceiveError
