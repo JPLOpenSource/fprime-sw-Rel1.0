@@ -18,7 +18,7 @@ BufferManager,fileUplinkBufferManager,301,20
 SignalGen,SG4,321,20
 AssertFatalAdapter,fatalAdapter,341,20
 Health,health,361,20
-ZmqRadio,zmqRadio,381,20
+GndIf,sockGndIf,381,20
 BufferManager,fileDownlinkBufferManager,401,20
 ActiveLogger,eventLogger,421,20
 Time,linuxTime,441,20

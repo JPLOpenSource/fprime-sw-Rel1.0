@@ -38,7 +38,6 @@ enum {
         ACTIVE_COMP_PING_RECEIVER,
 
         CYCLER_TASK,
-        ACTIVE_ZMQ_RADIO,
         NUM_ACTIVE_COMPS
 };
 
@@ -82,10 +81,10 @@ Svc::ActiveRateGroupImpl rateGroup3Comp
 #endif
 ;
 
-
-Zmq::ZmqRadioComponentImpl zmqRadio
+// Command Components
+Svc::SocketGndIfImpl sockGndIf
 #if FW_OBJECT_NAMES == 1
-                    ("ZRAD")
+                    ("SGIF")
 #endif
 ;
 
@@ -221,7 +220,7 @@ void dumpobj(const char* objName) {
 
 #endif
 
-void constructApp(int port_number, char* hostname, char* targetname) {
+void constructApp(int port_number, char* hostname) {
 
     localTargetInit();
 
@@ -263,7 +262,7 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     prmDb.init(10,0);
 
-    zmqRadio.init(100,1);
+    sockGndIf.init(0);
 
     fileUplink.init(30, 0);
     fileDownlink.init(30, 0);
@@ -342,9 +341,8 @@ void constructApp(int port_number, char* hostname, char* targetname) {
 
     pingRcvr.start(ACTIVE_COMP_PING_RECEIVER, 100, 10*1024);
 
-    zmqRadio.open(hostname, port_number, targetname);
-    zmqRadio.start(ACTIVE_ZMQ_RADIO, 90, 20*1024);
-
+    // Initialize socket server
+    sockGndIf.startSocketTask(100, port_number, hostname);
 
 #if FW_OBJECT_REGISTRATION == 1
     //simpleReg.dump();
@@ -393,17 +391,12 @@ void exitTasks(void) {
     fileUplink.exit();
     fileDownlink.exit();
     cmdSeq.exit();
-    zmqRadio.exit();
 }
 
 void print_usage() {
-	(void) printf("Usage: ./Ref [options]\n"
-                  "-p\tport_number         [ REQUIRED ]\n"
-                  "-a\thostname/IP address [ REQUIRED ]\n"
-                  "-n\ttargetname          [ REQUIRED ]\n\n");
+	(void) printf("Usage: ./Ref [options]\n-p\tport_number\n-a\thostname/IP address\n");
 }
 
-#if defined TGT_OS_TYPE_LINUX || TGT_OS_TYPE_DARWIN
 
 #include <signal.h>
 #include <stdio.h>
@@ -418,12 +411,11 @@ int main(int argc, char* argv[]) {
 	U32 port_number;
 	I32 option;
 	char *hostname;
-    char *targetname;
 	port_number = 0;
 	option = 0;
 	hostname = NULL;
 
-	while ((option = getopt(argc, argv, "h::p:n:a:")) != -1){
+	while ((option = getopt(argc, argv, "hp:a:")) != -1){
 		switch(option) {
 			case 'h':
 				print_usage();
@@ -435,9 +427,6 @@ int main(int argc, char* argv[]) {
 			case 'a':
 				hostname = optarg;
 				break;
-            case 'n':
-                targetname = optarg;
-                break;
 			case '?':
 				return 1;
 			default:
@@ -448,17 +437,7 @@ int main(int argc, char* argv[]) {
 
 	(void) printf("Hit Ctrl-C to quit\n");
 
-    if(hostname == NULL || port_number == NULL || targetname == NULL){
-        print_usage();
-        return 1;
-    }
-
-
-    printf("Address: %s", hostname);
-    printf("Port: %d\n", port_number);
-    printf("Target Name: %s\n", targetname);
-
-    constructApp(port_number, hostname, targetname);
+    constructApp(port_number, hostname);
     //dumparch();
 
     signal(SIGINT,sighandler);
@@ -482,74 +461,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-#endif
-
-#ifdef TGT_OS_TYPE_VXWORKS
-
-#include "Fw/Types/VxWorks/VxWorksLogAssert.hpp"
-
-extern "C" {
-    void go(int portNum, char* hostname);
-}
-
-void cycleTask(void* arg) {
-    runcycles(-1);
-}
-
-Os::Task cycleTaskObj;
-
-Fw::VxWorksLogAssertHook logAssertHook;
-
-void go(int portNum, char* hostname) {
-    logAssertHook.registerHook();
-    constructApp(portNum,hostname, targetname);
-    // start thread cycling
-    Fw::EightyCharString taskName("Cycler");
-    if (cycleTaskObj.start(taskName,CYCLER_TASK,160, 10*1024,cycleTask,0) != Os::Task::TASK_OK) {
-        printf("Failed to start cycler task!\n");
-    }
-
-    Os::Task::delay(10000);
-}
-
-#endif
-
-#ifdef TGT_OS_TYPE_RTEMS
-
-#include <stdio.h>
-#include <rtems/rtems_config.h>
-
-
-rtems_task Init (rtems_task_argument ignored) {
-
-    (void) printf("Constructing Architecture\n");
-
-    // *** Probably broken. Hasn't been tested in a few releases ***
-
-    constructApp();
-
-    int cycle = 0;
-
-    while (cycle != 10) {
-        Os::Task::delay(1000);
-        (void) printf("Cycle %d\n",cycle);
-        runcycles(1);
-        cycle++;
-    }
-
-    // stop tasks
-    rateGroup1KhzComp.exit();
-    rateGroup100hzComp.exit();
-    rateGroup1hzComp.exit();
-    blockDrv.exit();
-
-    // Give time for threads to exit
-    (void) printf("Waiting for threads...\n");
-    Os::Task::delay(1000);
-
-    (void) printf("Exiting...\n");
-    exit(0);
-}
-
-#endif
