@@ -46,19 +46,25 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self._setProps()
 
         # Constants
-        self.FLIGHT_TYPE = "flight"
-        self.GROUND_TYPE = "ground"
-        self.PUB_TYPE    = "publish"
-        self.SUB_TYPE    = "subscription"
-        self.SUB_OPTION  = "subscribe"
-        self.USUB_OPTION = "unsubscribe"
+        self.FLIGHT_TYPE = "FLIGHT"
+        self.GROUND_TYPE = "GROUND"
+        self.PUB_TYPE    = "PUBLISH"
+        self.SUB_TYPE    = "SUBSCRIPTION"
+        self.SUB_OPTION  = "SUBSCRIBE"
+        self.USUB_OPTION = "UNSUBSCRIBE"
         
-        self.REG_CMD     = "reg"
-        self.SUB_CMD     = "sub"
-        self.USUB_CMD    = "usub"
-        self.LIST_CMD    = "list"
-        
-        self.SRV_CMD_ID  = bytes("server_cmd_socket")
+        self.REG_CMD     = "REG"
+        self.SUB_CMD     = "SUB"
+        self.USUB_CMD    = "USUB"
+        self.LIST_CMD    = "LIST"
+
+
+        self.FLIGHT_PUB_ADDRESS = "inproc://flight_sub"#"ipc:///tmp/pipe.flight_pub"
+        self.GROUND_PUB_ADDRESS = "inproc://ground_sub"#"ipc:///tmp/pipe.ground_pub"
+        self.KILL_SOCKET_ADDRESS = "ipc:///tmp/pipe.kill"
+        self.ROUTING_TABLE_CMD_ADDRESS = "ipc:///tmp/pipe.rt_cmd"
+        self.ROUTING_TABLE_CMD_REPLY_ADDRESS = "ipc:///tmp/pipe.rt_cmd_reply"
+
 
         config_file_name = 'server.ini'
         files = list()
@@ -93,7 +99,7 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         ################################################################
         # Default file paths here.
         ################################################################
-        self.__prop['filepaths'] = dict()
+        
 
         # Log file save path
         # Default: Current Directory
@@ -106,17 +112,23 @@ class ServerConfig(ConfigParser.SafeConfigParser):
 
         server_filepath = os.path.join(build_root, 'Gse/src/server')
         log_filepath = os.path.join("logs", "server_logs")
+        self.__prop['filepaths'] = dict()
         self.__prop['filepaths']['server_filepath'] = server_filepath 
         self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
                                                   server_filepath, log_filepath)
         self.__prop['filepaths']['server_log_internal_filepath'] = os.path.join(\
-                                                            self.__prop['filepaths']['server_log_filepath'], 'internals')
+                                        self.__prop['filepaths']['server_log_filepath'], 'internals')
+        self.__prop['filepaths']['throughput_analysis_filepath'] = os.path.join(\
+                                                    server_filepath, "logs/throughput")
+
+        self.__prop['settings'] = dict()
+        self.__prop['settings']['server_socket_hwm'] = 100000
                                                     
         self.__prop['filepaths']['adapter_plugin_path'] = os.path.join(server_filepath, 'AdapterLayer/plugins')
 
         # This sets the defaults within a section. 
         self._setSectionDefaults('filepaths')
-               
+        self._setSectionDefaults('settings')   
 
     def _setSectionDefaults(self, section):
         """

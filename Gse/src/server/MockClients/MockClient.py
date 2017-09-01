@@ -6,11 +6,12 @@ import datetime
 
 from logging import INFO
 
-
 sys.path.append("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref") 
 
 from server.ServerUtils.server_config import ServerConfig
 from utils.logging_util import GetLogger
+from utils import throughput_analyzer
+
 
 # Modules required for test
 from controllers.channel_loader import ChannelLoader
@@ -20,12 +21,14 @@ import struct
 
 SERVER_CONFIG = ServerConfig.getInstance()
 
-def MockFlightClient(context, cmd_port, client_name, ch_idx): 
-   
+def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size): 
+    latency = 1 / float(throughput)
+
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  
     logger = GetLogger("{}".format(client_name),log_path, chLevel=INFO) 
     logger.debug("Logger Active") 
+    logger.debug("Latency: {}".format(latency))
  
     command_socket = context.socket(zmq.DEALER) 
     command_socket.setsockopt(zmq.IDENTITY, client_name)
@@ -35,12 +38,16 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     logger.debug("Connected cmd socket")
     
     # Register target
-    command_socket.send_multipart([b"REG", b"flight", b"ZMQ"])
+    command_socket.send_multipart([b"REG", client_type.encode(), b"ZMQ"])
     msg = command_socket.recv_multipart()
     logger.debug("Command Reply Received:{}".format(msg))
 
-    # Subscribe to all commands
-    command_socket.send_multipart([b"SUB", client_name.encode(), b"flight", b''])
+    time.sleep(1)
+
+    # Subscribe to all
+    command_socket.send_multipart([b"SUB", client_name.encode(), client_type.encode(), b''])
+
+    time.sleep(1)
 
     # Setup pub/sub ports
     server_pub_port = struct.unpack("<I", msg[1])[0]
@@ -48,14 +55,16 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
 
     pub_socket = context.socket(zmq.DEALER)
     sub_socket = context.socket(zmq.ROUTER)
-    sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to send
+    sub_socket.setsockopt(zmq.RCVTIMEO, 0) # Do not wait to receive
     sub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
+    sub_socket.setsockopt(zmq.RCVHWM, 100000)
     pub_socket.setsockopt(zmq.LINGER, 0)   # Do not wait to close
 
 
     # Set publisher identity
     pub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
     sub_socket.setsockopt(zmq.IDENTITY, client_name.encode())
+    #sub_socket.setsockopt(zmq.RCVHWM, 100)
 
     pub_socket.connect("tcp://localhost:{}".format(server_sub_port))
     sub_socket.connect("tcp://localhost:{}".format(server_pub_port))
@@ -63,47 +72,86 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
     logger.debug("Publishing to port: {}".format(server_sub_port))
     logger.debug("Subscribed to port: {}".format(server_pub_port))
 
+    throughput_analyzer.GlobalToggle(True)
 
     # Setup Poller
     poller = zmq.Poller()
-    poller.register(pub_socket, zmq.POLLOUT)
-    poller.register(sub_socket, zmq.POLLIN)
+    if(client_type == SERVER_CONFIG.FLIGHT_TYPE):
+        poller.register(pub_socket, zmq.POLLOUT)
+    else:
+        poller.register(sub_socket, zmq.POLLIN)
 
-
-    sine_wave = test_utils.GetSineWave() 
-    ramp = test_utils.GetRamp()
     
     time.sleep(1)
+    try:
 
-    while True: 
-        try:
-
-            for val in ramp: 
+        test_point = throughput_analyzer.GetTestPoint(client_name + "_test_point")
+        test_point.StartAverage()
+        start_time = time.time()
+        val = 0 # Value for linearly increasing data
+        while True: 
 
                 socks = dict(poller.poll())
 
+                # Send data to server
                 if pub_socket in socks:
-                    data = client_name.encode() +" " + bytes(val)
-                    logger.debug("Sending: {}".format(bytes(val)))
-                    pub_socket.send(data)
 
+
+                    if(throughput != 0):
+                        if( (time.time() - start_time) >= latency ):
+                            
+                            # Create message with msg_size number of bytes
+                            byte_list = [1 for i in range(msg_size-1)]
+                            byte_list.append(val)
+                            packed = struct.pack("{}B".format(msg_size), *byte_list)
+
+                            test_point.StartInstance()
+
+                            start_time = time.time()
+                            data = client_name.encode() +" " + packed
+                            #logger.debug("Sending: {}".format([packed]))
+                            pub_socket.send(data)
+
+                            test_point.SaveInstance()
+                            test_point.Increment(1)
+
+                            val += 1
+                            if(val == 256):
+                                val = 0
+
+
+
+                # Receive data from server
                 if sub_socket in socks:
                     msg = sub_socket.recv_multipart()
-                    logger.debug("{}".format(msg[1]))
+                    data = msg[1].split(" ")[-1]
+                    source = msg[1].split(" ")[0]
+
+                    if(data == ''): 
+                        byte_list = [1 for i in range(msg_size-1)]
+                        byte_list.append(32)
+                        data = struct.pack("{}B".format(msg_size), *byte_list)
+
+                    #print [data]
+                    unpacked = struct.unpack("{}B".format(msg_size), data)
+                    logger.debug("{} {}".format(source, unpacked[-1]))
+
+                     
 
 
-                time.sleep(0.1)        
-
-        except zmq.ZMQError as e:
-            if e.errno == zmq.ETERM:
-                logger.debug("ETERM received") 
-                break
-            else:
-                raise
+    except zmq.ZMQError as e:
+        if e.errno == zmq.ETERM:
+            logger.debug("ETERM received") 
+            pass
+        else:
+            raise
 
 
 
     # Quit
+    test_point.SetAverageThroughput()
+    test_point.PrintReports()
+
     logger.debug("Closing")
     command_socket.close()
     pub_socket.close()
@@ -113,6 +161,13 @@ def MockFlightClient(context, cmd_port, client_name, ch_idx):
 
 
 def SetupMockTelemetry():
+    number = 1
+    if number == 1:
+        ch_idx = 103
+    else:
+        ch_idx = 104
+
+
     # Get Sensor1 dictionary
     channel_loader = ChannelLoader()
     channel_loader.create("/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref/"
@@ -170,20 +225,17 @@ def SetupMockTelemetry():
 
 
 if __name__ == "__main__":
-    cmd_port = sys.argv[1] 
+    cmd_port    = sys.argv[1] 
     client_name = sys.argv[2]
-
-    number = 1
-    if number == 1:
-        ch_idx = 103
-    else:
-        ch_idx = 104
+    client_type = sys.argv[3]
+    throughput  = int(sys.argv[4])
+    msg_size    = int(sys.argv[5])
 
     
     context = zmq.Context()
 
-    mock_flight_client = threading.Thread(target=MockFlightClient,\
-                                          args=(context, cmd_port, client_name, ch_idx))
+    mock_flight_client = threading.Thread(target=MockClient,\
+                                           args=(context, cmd_port, client_name, client_type, throughput, msg_size))
     mock_flight_client.start() 
     
     try:

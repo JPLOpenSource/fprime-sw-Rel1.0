@@ -171,7 +171,7 @@ class ZmqClientSocket(ClientSocket):
 
             # Set socket options
             self.__server_cmd_socket.setsockopt(zmq.IDENTITY, gui_name.encode())
-            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 2000) # 2 sec timeout
+            self.__server_cmd_socket.setsockopt(zmq.RCVTIMEO, 5000) # 5 sec timeout
             self.__server_cmd_socket.setsockopt(zmq.LINGER, 0)      # Immidiately close socket
             
             self.__server_cmd_socket.connect("tcp://{}:{}".format(str(host_addr), str(port)))
