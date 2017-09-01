@@ -8,7 +8,6 @@ from multiprocessing import Process
 from utils.logging_util import SetGlobalLoggingLevel, GetLogger
 
 from server.ServerUtils.server_config import ServerConfig
-from server.Kernel.threads import GeneralServerIOThread 
 
 from server.Kernel import interconnect
 from server.Kernel.interconnect import SubscriberThreadEndpoints, PublisherThreadEndpoints

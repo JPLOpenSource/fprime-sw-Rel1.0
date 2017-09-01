@@ -46,21 +46,21 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self._setProps()
 
         # Constants
-        self.FLIGHT_TYPE = "flight"
-        self.GROUND_TYPE = "ground"
-        self.PUB_TYPE    = "publish"
-        self.SUB_TYPE    = "subscription"
-        self.SUB_OPTION  = "subscribe"
-        self.USUB_OPTION = "unsubscribe"
+        self.FLIGHT_TYPE = "FLIGHT"
+        self.GROUND_TYPE = "GROUND"
+        self.PUB_TYPE    = "PUBLISH"
+        self.SUB_TYPE    = "SUBSCRIPTION"
+        self.SUB_OPTION  = "SUBSCRIBE"
+        self.USUB_OPTION = "UNSUBSCRIBE"
         
-        self.REG_CMD     = "reg"
-        self.SUB_CMD     = "sub"
-        self.USUB_CMD    = "usub"
-        self.LIST_CMD    = "list"
+        self.REG_CMD     = "REG"
+        self.SUB_CMD     = "SUB"
+        self.USUB_CMD    = "USUB"
+        self.LIST_CMD    = "LIST"
 
 
-        self.FLIGHT_PUB_ADDRESS = "inproc://flight_pub_pipe"
-        self.GROUND_PUB_ADDRESS = "inproc://ground_pub_pipe"
+        self.FLIGHT_PUB_ADDRESS = "inproc://flight_sub"#"ipc:///tmp/pipe.flight_pub"
+        self.GROUND_PUB_ADDRESS = "inproc://ground_sub"#"ipc:///tmp/pipe.ground_pub"
         self.KILL_SOCKET_ADDRESS = "ipc:///tmp/pipe.kill"
         self.ROUTING_TABLE_CMD_ADDRESS = "ipc:///tmp/pipe.rt_cmd"
         self.ROUTING_TABLE_CMD_REPLY_ADDRESS = "ipc:///tmp/pipe.rt_cmd_reply"

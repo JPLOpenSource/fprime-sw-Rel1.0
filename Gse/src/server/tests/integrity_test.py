@@ -81,13 +81,13 @@ class ServerIntegrityTest:
         for i in range(opts.num_flight):
             name   = "flight_{}".format(i)
             self.mock_flight_list.append( MockClient() )
-            self.mock_flight_list[i].Setup(cmd_port, name, "flight", opts.flight_throughput, opts.flight_size)
+            self.mock_flight_list[i].Setup(cmd_port, name, SERVER_CONFIG.FLIGHT_TYPE, opts.flight_throughput, opts.flight_size)
 
         self.mock_ground_list = []
         for i in range(opts.num_ground):
             name = "ground_{}".format(i)
             self.mock_ground_list.append( MockClient() )
-            self.mock_ground_list[i].Setup(cmd_port, name, "ground", opts.ground_throughput, opts.ground_size)
+            self.mock_ground_list[i].Setup(cmd_port, name, SERVER_CONFIG.GROUND_TYPE, opts.ground_throughput, opts.ground_size)
             
 
     def teardown_class(self):

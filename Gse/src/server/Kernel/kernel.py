@@ -46,10 +46,13 @@ class ZmqKernel(object):
         @params timeout: Quit server after timeout. For unittesting purposes
         """
 
-        self.__context = zmq.Context()
+        self.__main_context = zmq.Context()
 
         # Store references to each client process
-        self.__client_process_dict = dict()
+        self.__routing_table = dict()
+        self.__routing_table[SERVER_CONFIG.FLIGHT_TYPE] = dict()
+        self.__routing_table[SERVER_CONFIG.GROUND_TYPE] = dict()
+        self.__book_keeping = dict()
 
         # Setup global logging settings
         logging_util.SetGlobalLoggingLevel(consoleLevel=console_lvl, fileLevel=file_lvl,\
@@ -65,27 +68,33 @@ class ZmqKernel(object):
         self.__logger.debug("Logger Active")
         self.__logger.debug("PID: {}".format(os.getpid()))
 
-        # Create RoutingCore
-        self.__RoutingCore = RoutingCore(self.__context)
-                                 
-
 
         # Create flight and ground subscriber threads
-        self.__flight_side_context = zmq.Context(io_threads=4)
+        self.__flight_side_context = zmq.Context(io_threads=1)
         self.__server_flight_sub_port = interconnect.GetRandomPort()
         self.__flight_subscribe_thread = GeneralSubscriberThread(self.__flight_side_context,\
+                                                                 SERVER_CONFIG.FLIGHT_TYPE,\
                                                                  self.__server_flight_sub_port,\
                                                                  SERVER_CONFIG.FLIGHT_PUB_ADDRESS)
 
-        self.__ground_side_context = zmq.Context(io_threads=4)
+        self.__ground_side_context = zmq.Context(io_threads=1)
         self.__server_ground_sub_port = interconnect.GetRandomPort()
-        # TODO
+        self.__ground_subscribe_thread = GeneralSubscriberThread(self.__ground_side_context,\
+                                                                 SERVER_CONFIG.GROUND_TYPE,\
+                                                                 self.__server_ground_sub_port,
+                                                                 SERVER_CONFIG.GROUND_PUB_ADDRESS)
 
 
+        # Setup command socket
+        self.__routing_command_socket     = self.__main_context.socket(zmq.PUB)
+        self.__routing_command_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS)
+        self.__logger.debug("Command socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS))
 
-
-
-
+        # Set command reply socket
+        self.__routing_command_reply_socket = self.__main_context.socket(zmq.ROUTER)
+        self.__routing_command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
+        self.__routing_command_reply_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS)
+        self.__logger.debug("Command reply socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS))
 
 
 
@@ -95,7 +104,7 @@ class ZmqKernel(object):
 
 
         # Setup command/status socket
-        self.__command_socket = self.__context.socket(zmq.ROUTER)
+        self.__command_socket = self.__main_context.socket(zmq.ROUTER)
         try:
             self.__command_socket.bind("tcp://*:{}".format(command_port))
         except zmq.ZMQError as e:
@@ -108,7 +117,7 @@ class ZmqKernel(object):
         # This socket is binds to each ClientProcess.
         # When the server shuts down a kill message is sent to
         # each ClientProcess.
-        self.__kill_socket = self.__context.socket(zmq.PUB)
+        self.__kill_socket = self.__main_context.socket(zmq.PUB)
         self.__kill_socket.bind(SERVER_CONFIG.KILL_SOCKET_ADDRESS)
 
         # Create Reactor 
@@ -138,6 +147,8 @@ class ZmqKernel(object):
         try:
             self.__logger.debug("Kernel reactor starting.")
 
+            self.__flight_subscribe_thread.start()
+            self.__ground_subscribe_thread.start()
             self.__loop.start() 
 
         except KeyboardInterrupt:
@@ -154,13 +165,15 @@ class ZmqKernel(object):
         # Send message to all ClientProcesses to exit
         self.__kill_socket.send(b"Exit")
 
-        # Quit the RoutingCore
-        self.__RoutingCore.Quit()
 
+        self.__flight_side_context.term()
+        self.__ground_side_context.term()
         # Must close all sockets before context will terminate
         self.__command_socket.close()
         self.__kill_socket.close()
-        self.__context.term() 
+        self.__routing_command_socket.close()
+        self.__routing_command_reply_socket.close()
+        self.__main_context.term() 
 
   
 
@@ -172,7 +185,7 @@ class ZmqKernel(object):
         self.__logger.debug("Command Received: {}".format(msg))
 
         return_id = msg[0]
-        cmd       = msg[1].lower()
+        cmd       = msg[1]
 
         # Client Register
         if   cmd == SERVER_CONFIG.REG_CMD: 
@@ -201,8 +214,7 @@ class ZmqKernel(object):
         Gets a dictionary detailing the subscription configuration of 
         all flight and ground clients
         """
-        subscription_dict = self.__RoutingCore.routing_table.GetAllClientSubscription()
-        return subscription_dict
+        return self.__routing_table
 
     def __ListSubscriptionResponse(self, return_id, client_sub_dict):
         """
@@ -223,29 +235,40 @@ class ZmqKernel(object):
         client_type         = msg[3]
         subscriptions       = msg[4:]
 
-        # Configure Flight Client subscriptions
-        if(client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE):
-            
-            if(subscriptions == ['']): # Empty message in zmq means subscribe to all
-                self.__RoutingCore.routing_table.ConfigureAllGroundPublishers(option, client_name)
-            else:
-                self.__RoutingCore.routing_table.ConfigureGroundPublishers(option,\
-                                                                   client_name,\
-                                                                  subscriptions)
-        # Configure Ground Client subscriptions
-        elif(client_type.lower() == SERVER_CONFIG.GROUND_TYPE):
-            if(subscriptions == ['']): # Subscribe to all
-                self.__RoutingCore.routing_table.ConfigureAllFlightPublishers(option, client_name)
-            else:
-                self.__RoutingCore.routing_table.ConfigureFlightPublishers(option,\
-                                                                client_name,\
-                                                                subscriptions)
+
+        self.__logger.info("{} {} to {}".format(option, client_name, subscriptions))
+
+        # Configure subscriptions
+        if(client_type == SERVER_CONFIG.FLIGHT_TYPE):
+            pub_client_type = SERVER_CONFIG.GROUND_TYPE
+        elif(client_type == SERVER_CONFIG.GROUND_TYPE):
+            pub_client_type = SERVER_CONFIG.FLIGHT_TYPE
         else:
             self.__logger.error("Client type: {} not recognized.".format(client_type))
             return -1
 
+        if(subscriptions == ['']): # Empty message in zmq means subscribe to all
+            subscriptions = [pub_client for pub_client in self.__routing_table[pub_client_type]]
+
+        for pub_client in subscriptions:
+            if(option == SERVER_CONFIG.USUB_OPTION):
+                self.__routing_table[pub_client_type][pub_client].remove(client_name)
+            elif(option == SERVER_CONFIG.SUB_OPTION):
+                self.__routing_table[pub_client_type][intern(pub_client)].add(client_name)
+            
+            # Tell receiving_client to subcribe or unsubscribe
+            self.__routing_command_socket.send_multipart([client_name.encode(), option.encode(), pub_client.encode()])
+            # Wait for response
+            try:
+                self.__routing_command_reply_socket.recv()
+            except zmq.ZMQError as e:
+                if e.errno == zmq.EAGAIN:
+                    self.__logger.warning("No response from {}".format(client_name))
+                else:
+                    raise
 
         return 1
+
 
 
     def __HandleRegistration(self, msg):
@@ -263,43 +286,48 @@ class ZmqKernel(object):
                                proto=proto))
 
 
-        # Do not duplicate if the ClientProcess exists
-        if client_name in self.__client_process_dict:
-
-            # Return the ports of the created ClientProcess
-            server_pub_port = self.__client_process_dict[client_name]['server_pub_port']
-            server_sub_port = self.__client_process_dict[client_name]['server_sub_port']
+        # Add to routing table if a new client
+        if client_name in self.__routing_table:
+            server_sub_port = self.__book_keeping[client_name]['sub_port']
+            server_pub_port = self.__book_keeping[client_name]['pub_port']
             return (0, server_pub_port, server_sub_port)
 
+        else: # Create dictionary entries
+            self.__routing_table[client_type][client_name] = set() # A set of subscribed clients
+            self.__book_keeping[client_name] = dict()
 
-        # Attempt to add the registering client ot the RoutingCore
-        # If this succeeds the registration was successful.
-        try:
-            client_process = self.__RoutingCore.CreateClientProcess(client_name, client_type)
-            # Create a new process and get it's allocated ports
-            server_pub_port = client_process.GetPublisherThreadOutputPort()
-            server_sub_port = client_process.GetSubscriberThreadInputPort()
-            self.__logger.debug("output port: {}".format(server_pub_port))
-            self.__logger.debug("input port: {}".format(server_sub_port))
 
-            # Save a reference to the process and it's allocated ports
-            self.__client_process_dict[client_name] = dict()
-            self.__client_process_dict[client_name]['process'] = client_process
-            self.__client_process_dict[client_name]['server_pub_port'] = server_pub_port
-            self.__client_process_dict[client_name]['server_sub_port'] = server_sub_port
-            
-            # Start the publish and subscribe threads
-            client_process.start()
 
-            status = 1 # Successful registration
+        # Based on the type create a PublisherThread
+        if(client_type == SERVER_CONFIG.FLIGHT_TYPE):
 
-        except TypeError:
-            traceback.print_exc()
-            self.__logger.error("Client type: {} not recognized.".format(client_type))
+            server_sub_port = self.__server_flight_sub_port
+            server_pub_port = interconnect.GetRandomPort()
+            pub_thread = GeneralPublisherThread(self.__ground_side_context, client_name, SERVER_CONFIG.GROUND_PUB_ADDRESS,\
+                                                                                         server_pub_port)
 
+            pub_thread.start()
+            status = 1
+        elif(client_type == SERVER_CONFIG.GROUND_TYPE):
+
+            server_sub_port = self.__server_ground_sub_port
+            server_pub_port = interconnect.GetRandomPort()
+            pub_thread = GeneralPublisherThread(self.__flight_side_context, client_name, SERVER_CONFIG.FLIGHT_PUB_ADDRESS,\
+                                                                                         server_pub_port)
+
+            pub_thread.start()
+
+            self.__book_keeping[client_name]['pub_port'] = server_pub_port
+            self.__book_keeping[client_name]['sub_port'] = server_sub_port
+            status = 1
+        else:
+            self.__logger.error("Client type {} not recognized.".format(client_type))
             status = 0
             server_pub_port = 0
             server_sub_port = 0
+       
+
+
 
 
         return (status, server_pub_port, server_sub_port)
@@ -319,7 +347,9 @@ class ZmqKernel(object):
               ]
 
         self.__logger.debug("Registration Status: {}".format(bytes(status)))
-        self.__logger.debug("Registration Response: {}".format(msg))
+        self.__logger.debug("{} registered.".format(return_name))
+        self.__logger.debug("{} Server Pub Port {}".format(return_name, server_pub_port))
+        self.__logger.debug("{} Server Sub Port {}".format(return_name, server_sub_port))
         self.__command_socket.send_multipart(msg)
 
 
@@ -327,12 +357,12 @@ class ZmqKernel(object):
         """
         Based on it's type, add client to the routing table.
         """
-        if client_type.lower() == SERVER_CONFIG.FLIGHT_TYPE:
+        if client_type == SERVER_CONFIG.FLIGHT_TYPE:
 
             # Add to routing table
             self.__RoutingCore.routing_table.AddFlightClient(client_name)
 
-        elif client_type.lower() == SERVER_CONFIG.GROUND_TYPE:
+        elif client_type == SERVER_CONFIG.GROUND_TYPE:
 
             # Add to routing table
             self.__RoutingCore.routing_table.AddGroundClient(client_name)

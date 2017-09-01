@@ -23,7 +23,13 @@ SERVER_CONFIG = ServerConfig.getInstance()
 
 class GeneralSubscriberThread(threading.Thread):
 
-    def __init__(self, context, server_sub_port, pub_address):
+    def __init__(self, context, client_type, server_sub_port, pub_address):
+        # Setup Logger
+        name = "{}_SubscribeThread".format(client_type) 
+        self.__name = name
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
+        self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        self.__logger.debug("Logger Active") 
 
         self.__sub_socket = context.socket(zmq.ROUTER)
         self.__sub_socket.setsockopt(zmq.LINGER, 0)
@@ -34,35 +40,61 @@ class GeneralSubscriberThread(threading.Thread):
         self.__pub_socket = context.socket(zmq.PUB)
         self.__pub_socket.setsockopt(zmq.LINGER, 0)        
         self.__pub_socket.bind(pub_address)
+        self.__logger.debug("Pub socket connected to {}".format(pub_address))
         
         threading.Thread.__init__(self, target=self.__SubscribeRunnable)
 
     def __SubscribeRunnable(self):
+        self.__logger.debug("Starting Runnable")
+        test_point = throughput_analyzer.GetTestPoint(self.__name + "_test_point")
+        test_point.StartAverage()
+
+        poller = zmq.Poller()
+        poller.register(self.__sub_socket, zmq.POLLIN)
+
         try:
             while(True):
-                msg = self.__sub_socket.recv_multipart(copy=False)
-                self.__pub_socket.send_multipart(msg, copy=False)
+                socks = dict(poller.poll())
+                if(self.__sub_socket in socks):
+
+                    test_point.StartInstance()
+
+                    msg = self.__sub_socket.recv_multipart(copy=False)
+                    self.__pub_socket.send_multipart(msg, copy=False)
+                   
+                    test_point.SaveInstance()
+                    test_point.Increment(1)
+
         except zmq.ZMQError as e:
             if(e.errno == zmq.ETERM):
+                self.__logger.debug("ETERM received")
                 pass
             else:
                 raise  
 
         # Exit
+        test_point.SetAverageThroughput()
+        test_point.PrintReports()
         self.__sub_socket.close()
         self.__pub_socket.close()
 
 
 class GeneralPublisherThread(threading.Thread):
-    def __init__(self, context, client_name, pub_address, server_pub_port)
+    def __init__(self, context, client_name, pub_address, server_pub_port):
+        # Setup Logger
+        name = "{}_PublishThread".format(client_name) 
+        self.__name = name
+        log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
+        self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
+        self.__logger.debug("Logger Active") 
 
         self.__client_name = client_name
 
         self.__sub_socket = context.socket(zmq.SUB)
         self.__sub_socket.setsockopt(zmq.LINGER, 0)
         self.__sub_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-        self.__sub_socket.setsockopt(zmq.ROUTER_HANDOVER, 1) # Needed for client reconnect
         self.__sub_socket.connect(pub_address)
+        self.__logger.debug("Sub Socket conneced to {}".format(pub_address))
         
         self.__pub_socket = context.socket(zmq.DEALER)
         self.__pub_socket.setsockopt(zmq.LINGER, 0)        
@@ -79,168 +111,65 @@ class GeneralPublisherThread(threading.Thread):
         threading.Thread.__init__(self, target=self.__PublishRunnable)
 
     def __PublishRunnable(self):
+        self.__logger.debug("Starting Runnable")
 
         poller = zmq.Poller()
         poller.register(self.__sub_socket, zmq.POLLIN)
         poller.register(self.__cmd_socket, zmq.POLLIN)
 
-        socks = dict(poller.poll())
-
-        if(self.__sub_socket in socks):
-            msg = self.__sub_socket.recv_multipart(copy=False)
-            self.__pub_socket.send_multipart(msg, copy=False)
-
-        if(self.__cmd_socket in socks):
-            cmd_list = cmd_socket.recv_multipart()
-
-            recipient   = cmd_list[0]
-            option      = cmd_list[1]
-            pub_client  = cmd_list[2] # The publishing client whom to
-                                      # subscribe or unsubscribe to.
-
-            if(cmd_list[0] == self.__client_name):
-                logger.debug("Command received: {}".format(cmd_list))
-                if(option == 'subscribe'):
-                    sub_socket.setsockopt(zmq.SUBSCRIBE, pub_client)
-                elif(option == 'unsubscribe'):
-                    sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
-
-            # Ack routing table
-            cmd_reply_socket.send(b"{}_pubsub Received".format(client_name))
-
-
-
-
-
-
-
-class  GeneralServerIOThread(threading.Thread):
-    """
-    Defines the required setup for a general server IO thread.
-    Specific logic is provided by Interconnect.
-
-    @params client_name: Name of the client which this thread represents.
-    @params pubself.__subtype: "Publisher" or "Subscriber. Case insensitive.
-    @params Interconnect: Specified internal logic of the IO thread.
-    """
-    def __init__(self, client_name, pubself.__subtype, Interconnect):
-
-        self.__client_name = client_name
-        self.__pubself.__subtype = pubself.__subtype
-        context = zmq.Context.instance()
-
-        # Setup Logger
-        name = "{}_{}_IOThread".format(client_name, pubself.__subtype) 
-        self.__name = name
-        log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath") 
-        self.__logger = GetLogger(name, log_path, logLevel=DEBUG, fileLevel=DEBUG)
-        self.__logger.debug("Logger Active") 
-        
-
-        # Initialze class base
-        threading.Thread.__init__(self, target=self.__ServerIORunnable, args=(Interconnect,context))  
-
-        
-    def __ServerIORunnable(self, Interconnect, context):
-        """
-        Defines the ServerIO thread.  
-        """
-        self.__logger.debug("Entering Runnable")
-        self.__logger.debug("ZMQ Context: {}".format(context.underlying))
-
-        # Setup socket to receive
-        self.__subsocket = Interconnect.GetInputSocket(context)
-        self.__subsocket.setsockopt(zmq.LINGER, 0)
-        self.__subsocket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-        # If ROUTER, set options to allow for reconnections
-        if(self.__subsocket.type == zmq.ROUTER):        
-            self.__subsocket.setsockopt(zmq.ROUTER_HANDOVER, 1)
-
-        # Attempt bind
-        try:
-            self.__subendpoint = Interconnect.BindInputEndpoint(self.__subsocket) 
-        except zmq.ZMQError as e: 
-            self.__logger.error("Unable to bind input endpoint.")  
-            raise e
-        self.__logger.debug("Input endpoint: {}".format(self.__subendpoint))
-
-        # Setup socket to publish
-        output_socket = Interconnect.GetOutputSocket(context)
-        output_socket.setsockopt(zmq.LINGER, 0)
-        output_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm')))
-        # If ROUTER, set options to allow for reconnections
-        if(output_socket.type == zmq.ROUTER):        
-            output_socket.setsockopt(zmq.ROUTER_HANDOVER, 1)
-
-        # Attempt bind
-        try:
-            output_endpoint = Interconnect.BindOutputEndpoint(output_socket) 
-        except zmq.ZMQBindError as e:
-            self.__logger.error("Unable to bind output endpoint.")
-            raise e
-        self.__logger.debug("Output endpoint: {}".format(output_endpoint))
-
-
-        # Set routing commands
-        cmd_socket = Interconnect.GetCmdSocket(context)
-        cmd_reply_socket = Interconnect.GetCmdReplySocket(context)
-        CheckRoutingCommand = Interconnect.GetCheckRoutingCommandFunc()
-
-        # Set output_socket details
-        SendOutput = Interconnect.GetOutputSocketFunc()
-
-        # Set the created endpoints
-        Interconnect.SetEndpoints(self.__subendpoint, output_endpoint)
-
-        poller = zmq.Poller()
-        poller.register(self.__subsocket, zmq.POLLIN)
-        poller.register(cmd_socket, zmq.POLLIN)
-
-
         test_point = throughput_analyzer.GetTestPoint(self.__name + "_test_point")
         test_point.StartAverage()
 
-        # Wrap while in a try statement so we can catch the ETERM error
-        # that occurs when ClientProcess terminates the zmq context
         try:
-            while True:
+            while(True):
                 socks = dict(poller.poll())
 
-                if(self.__subsocket in socks):
-
+                if(self.__sub_socket in socks):
                     test_point.StartInstance()
 
-                    msg = self.__subsocket.recv_multipart(copy=False) 
-                    self.__logger.debug("Packet Received: {}".format(msg))
-                    SendOutput(self.__logger, msg, output_socket)
+                    msg = self.__sub_socket.recv_multipart()
+                    self.__pub_socket.send(msg[1], copy=False)
 
-                    test_point.Increment(1)
                     test_point.SaveInstance()
+                    test_point.Increment(1)
 
-                    
-                elif(cmd_socket in socks):
-                    # Check for incoming routing table command messages
-                    CheckRoutingCommand(self.__logger, self.__client_name, self.__subsocket, cmd_socket, cmd_reply_socket)                    
+                if(self.__cmd_socket in socks):
+                    self.__logger.debug("Received")
+                    cmd_list = self.__cmd_socket.recv_multipart()
 
+                    recipient   = cmd_list[0]
+                    option      = cmd_list[1]
+                    pub_client  = cmd_list[2] # The publishing client whom to
+                                              # subscribe or unsubscribe to.
 
+                    if(cmd_list[0] == self.__client_name):
+                        self.__logger.debug("Command received: {}".format(cmd_list))
+                        if(option == SERVER_CONFIG.SUB_OPTION):
+                            self.__logger.debug("Setting sub")
+                            self.__sub_socket.setsockopt(zmq.SUBSCRIBE, pub_client)
+                        elif(option == SERVER_CONFIG.USUB_OPTION):
+                            self.__logger.debug("Setting usub")
+                            self.__sub_socket.setsockopt(zmq.UNSUBSCRIBE, pub_client) 
 
+                    # Ack routing table
+                    self.__cmd_reply_socket.send(b"{}_pubsub Received".format(self.__client_name))
+        
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
-                self.__logger.debug("ETERM")
-                pass # Continue to exit
+                self.__logger.debug("ETERM received")
+                pass
             else:
                 raise
+
 
         test_point.SetAverageThroughput()
         test_point.PrintReports()
 
-        # Close sockets
-        self.__subsocket.close()
-        output_socket.close()
-        if(cmd_socket):
-            cmd_socket.close()
-        if(cmd_reply_socket):
-            cmd_reply_socket.close()
-        self.__logger.debug("Exiting Runnable")
+        self.__sub_socket.close()
+        self.__pub_socket.close()
+        self.__cmd_socket.close()
+        self.__cmd_reply_socket.close()
+
+
 
 
