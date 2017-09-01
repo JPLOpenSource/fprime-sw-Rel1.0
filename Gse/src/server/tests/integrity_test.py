@@ -17,8 +17,6 @@ from nose import with_setup
 
 from server.ServerUtils.server_config import ServerConfig
 from server.Kernel.kernel import ZmqKernel
-#from server.MockClients.MockClient import MockClient
-#from server.MockClients.MockGroundClient import MockGroundClient
 from server.tests.test_objects import *
 
 from utils.logging_util import GetLogger
@@ -232,6 +230,9 @@ class ServerIntegrityTest:
 
 
 def WriteAggregate(args):
+    """
+    Aggregate the data and add a description of the test.
+    """
     print("Writing Aggregate")
 
     analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
@@ -281,10 +282,6 @@ if __name__ == "__main__":
 
     # Wipe previous throughput data
     analysis_path = SERVER_CONFIG.get('filepaths','throughput_analysis_filepath')
-
-    #cmd = "rm -r {}/*".format(analysis_path)
-    #os.system(cmd)
-
 
     test = ServerIntegrityTest(args)
     test.start_clients()

@@ -239,6 +239,6 @@ class TestPoint(object):
             for val in self.__overhead_inst:
                 f.write("{}\n".format(val))
 
-        AggregateTestPoints()
+        
 
 

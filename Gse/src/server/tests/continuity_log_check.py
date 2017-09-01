@@ -13,7 +13,7 @@ def check_log(log_path, pass_through_dtime):
     Open log file and find the point where the server stability test moved into 
     passthough phase.
 
-    Once that point is reached, make sure all received increases linearly by one. 
+    Once that point is reached, make sure all received data increases linearly by one. 
 
     Returns None if log data is complete.
     Returns The log line if data is incomplete.
@@ -95,7 +95,7 @@ def main():
 
     ground_names = ["ground_{}".format(i) for i in range(num_ground)]
 
-
+    # Iterate through the log files and check the data
     for client_name_list in [flight_names, ground_names]:
         for client_name in client_name_list:
             print("Checking: {}".format(client_name))

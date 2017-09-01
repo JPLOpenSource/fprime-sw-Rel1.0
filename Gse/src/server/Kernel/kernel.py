@@ -154,6 +154,8 @@ class ZmqKernel(object):
         self.__routing_command_reply_socket.close()
         self.__main_context.term() 
 
+        throughput_analyzer.AggregateTestPoints()
+
   
 
     def __HandleCommand(self, msg):
