@@ -22,7 +22,7 @@
 | | | |error|Fw::LogStringArg&|80||    
 |ZR_BindError|3 (0x3)|ZmqRadio bind error| | | | |
 | | | |error|Fw::LogStringArg&|80||    
-|ZR_Disconnection|5 (0x5)|ZmqRadio component disconneted| | | | |
+|ZR_Disconnection|5 (0x5)|ZmqRadio component disconnected| | | | |
 |ZR_Connection|6 (0x6)|ZmqRadio component connected to server| | | | |
 |ZR_SendError|8 (0x8)|ZmqRadio send error| | | | |
 | | | |error|Fw::LogStringArg&|80||    

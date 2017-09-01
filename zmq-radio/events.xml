@@ -25,7 +25,7 @@
     </event>
     <event id="5" name="ZR_Disconnection" severity="WARNING_HI" format_string = "ZmqRadio disconnection from server.">
         <comment>
-	ZmqRadio component disconneted 
+	ZmqRadio component disconnected 
         </comment>
     </event>
     <event id="6" name="ZR_Connection" severity="ACTIVITY_HI" format_string = "ZmqRadio connected to server.">
