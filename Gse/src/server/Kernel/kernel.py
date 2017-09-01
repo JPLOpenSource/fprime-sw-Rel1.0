@@ -22,6 +22,8 @@ from utils import throughput_analyzer
 from utils.logging_util import GetLogger
 
 from server.AdapterLayer import adapter_utility
+from server.AdapterLayer.adapter_process import AdapterProcess
+
 from server.Kernel import interconnect
 from server.Kernel.threads import GeneralSubscriberThread, GeneralPublisherThread
 
@@ -275,7 +277,8 @@ class ZmqKernel(object):
 
             # If the client already registered we don't need to create another thread.
             # Just return the port numbers.
-            if client_name in self.__routing_table:
+            if client_name in self.__routing_table[client_type]:
+                self.__logger.info("{} Already registered. Returning port numbers.".format(client_name))
                 server_sub_port = self.__book_keeping[client_name]['sub_port']
                 server_pub_port = self.__book_keeping[client_name]['pub_port']
                 return (1, server_pub_port, server_sub_port)
@@ -364,7 +367,7 @@ class ZmqKernel(object):
         # Create a process
         process = AdapterProcess(adapter)
         # Save a reference to the process
-        self.__adapter_process_dict[proto] = process
+        self.__adapter_process_dict[client_name] = process
         # Now start
         process.start()
 
@@ -372,8 +375,8 @@ class ZmqKernel(object):
         return to_client_pub_port, from_client_sub_port
 
     def __TerminateAdapters(self):
-        for proto in self.__adapter_process_dict:
-            self.__adapter_process_dict[proto].terminate()
+        for client_name in self.__adapter_process_dict:
+            self.__adapter_process_dict[client_name].terminate()
 
     def __RegistrationResponse(self, return_name, status, server_pub_port,\
                                                         server_sub_port):
