@@ -19,15 +19,10 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 from utils import logging_util
 from utils import throughput_analyzer
-
 from utils.logging_util import GetLogger
-from server.Kernel.client_process import ClientProcess
 
 from server.Kernel import interconnect
 from server.Kernel.threads import GeneralSubscriberThread, GeneralPublisherThread
-
-
-from RoutingCore.core import RoutingCore
 
 # Global server config class
 from server.ServerUtils.server_config import ServerConfig
@@ -52,7 +47,7 @@ class ZmqKernel(object):
         self.__routing_table = dict()
         self.__routing_table[SERVER_CONFIG.FLIGHT_TYPE] = dict()
         self.__routing_table[SERVER_CONFIG.GROUND_TYPE] = dict()
-        self.__book_keeping = dict()
+        self.__book_keeping = dict() # Use for storing port numbers
 
         # Setup global logging settings
         logging_util.SetGlobalLoggingLevel(consoleLevel=console_lvl, fileLevel=file_lvl,\
@@ -85,22 +80,16 @@ class ZmqKernel(object):
                                                                  SERVER_CONFIG.GROUND_PUB_ADDRESS)
 
 
-        # Setup command socket
+        # Setup routing command socket
         self.__routing_command_socket     = self.__main_context.socket(zmq.PUB)
         self.__routing_command_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS)
         self.__logger.debug("Command socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_ADDRESS))
 
-        # Set command reply socket
+        # Set routing command reply socket
         self.__routing_command_reply_socket = self.__main_context.socket(zmq.ROUTER)
         self.__routing_command_reply_socket.setsockopt(zmq.RCVTIMEO, 500) # Timeout after 500 ms
         self.__routing_command_reply_socket.bind(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS)
         self.__logger.debug("Command reply socket: {}".format(SERVER_CONFIG.ROUTING_TABLE_CMD_REPLY_ADDRESS))
-
-
-
-
-
-
 
 
         # Setup command/status socket
@@ -112,13 +101,6 @@ class ZmqKernel(object):
                 self.__logger.error("Unable to bind command socket to port {}"\
                              .format(command_port))
                 raise e
-
-        # Setup ClientProcess kill socket
-        # This socket is binds to each ClientProcess.
-        # When the server shuts down a kill message is sent to
-        # each ClientProcess.
-        self.__kill_socket = self.__main_context.socket(zmq.PUB)
-        self.__kill_socket.bind(SERVER_CONFIG.KILL_SOCKET_ADDRESS)
 
         # Create Reactor 
         self.__loop = IOLoop.instance()
@@ -162,15 +144,12 @@ class ZmqKernel(object):
         """
         self.__logger.info("Initiating server shutdown")
 
-        # Send message to all ClientProcesses to exit
-        self.__kill_socket.send(b"Exit")
-
-
+        # Terminate both contexts to kill all the threads
         self.__flight_side_context.term()
         self.__ground_side_context.term()
+
         # Must close all sockets before context will terminate
         self.__command_socket.close()
-        self.__kill_socket.close()
         self.__routing_command_socket.close()
         self.__routing_command_reply_socket.close()
         self.__main_context.term() 
@@ -233,7 +212,7 @@ class ZmqKernel(object):
         """
         client_name         = msg[2]
         client_type         = msg[3]
-        subscriptions       = msg[4:]
+        subscriptions       = msg[4:] # Subscriptions are listed
 
 
         self.__logger.info("{} {} to {}".format(option, client_name, subscriptions))
@@ -286,19 +265,19 @@ class ZmqKernel(object):
                                proto=proto))
 
 
-        # Add to routing table if a new client
+        # If the client already registered we don't need to create another thread.
+        # Just return the port numbers.
         if client_name in self.__routing_table:
             server_sub_port = self.__book_keeping[client_name]['sub_port']
             server_pub_port = self.__book_keeping[client_name]['pub_port']
-            return (0, server_pub_port, server_sub_port)
+            return (1, server_pub_port, server_sub_port)
 
-        else: # Create dictionary entries
+        else: # The client is not registered. Create a new dictionary entry
             self.__routing_table[client_type][client_name] = set() # A set of subscribed clients
             self.__book_keeping[client_name] = dict()
 
 
-
-        # Based on the type create a PublisherThread
+        # Based on the client_type create a PublisherThread
         if(client_type == SERVER_CONFIG.FLIGHT_TYPE):
 
             server_sub_port = self.__server_flight_sub_port
@@ -317,9 +296,11 @@ class ZmqKernel(object):
 
             pub_thread.start()
 
+            # Store the port numbers for future reference
             self.__book_keeping[client_name]['pub_port'] = server_pub_port
             self.__book_keeping[client_name]['sub_port'] = server_sub_port
-            status = 1
+
+            status = 1 # Successful registration
         else:
             self.__logger.error("Client type {} not recognized.".format(client_type))
             status = 0
@@ -327,16 +308,13 @@ class ZmqKernel(object):
             server_sub_port = 0
        
 
-
-
-
         return (status, server_pub_port, server_sub_port)
 
 
     def __RegistrationResponse(self, return_name, status, server_pub_port,\
                                                         server_sub_port):
         """
-        Send response to the registering client 
+        Send response to the registering client.
         """
 
         msg = [
@@ -352,20 +330,3 @@ class ZmqKernel(object):
         self.__logger.debug("{} Server Sub Port {}".format(return_name, server_sub_port))
         self.__command_socket.send_multipart(msg)
 
-
-    def __AddClientToRoutingCore(self, client_name, client_type):
-        """
-        Based on it's type, add client to the routing table.
-        """
-        if client_type == SERVER_CONFIG.FLIGHT_TYPE:
-
-            # Add to routing table
-            self.__RoutingCore.routing_table.AddFlightClient(client_name)
-
-        elif client_type == SERVER_CONFIG.GROUND_TYPE:
-
-            # Add to routing table
-            self.__RoutingCore.routing_table.AddGroundClient(client_name)
-
-        else:
-            raise TypeError
