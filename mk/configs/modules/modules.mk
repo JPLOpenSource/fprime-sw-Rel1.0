@@ -66,8 +66,7 @@ SVC_MODULES := \
 	Svc/FileDownlink \
     Svc/AssertFatalAdapter \
     Svc/FatalHandler \
-	Svc/FileManager \
-	Svc/ZmqGroundIf
+	Svc/FileManager
 
 DRV_MODULES := \
 	Drv/DataTypes \
@@ -79,9 +78,11 @@ REF_MODULES := \
 	Ref/RecvBuffApp \
 	Ref/SendBuffApp \
 	Ref/SignalGen \
-	Ref/PingReceiver\
-	Ref/ZmqSockIf\
-	Ref/zmq
+	Ref/PingReceiver \
+	fprime-zmq/zmq-radio \
+	fprime-zmq/zmq
+
+
 	
 Ref_MODULES := \
 	\
@@ -173,6 +174,9 @@ OTHER_MODULES := \
 	gtest \
 	Os/Stubs \
 	Fw/Test \
+	fprime-zmq/zmq-radio \
+	fprime-zmq/zmq-pub \
+	fprime-zmq/zmq-sub \
 	$(FW_GTEST_MODULES)
 
 # List deployments
