@@ -177,13 +177,11 @@ class ZmqKernel(object):
         elif cmd == SERVER_CONFIG.SUB_CMD: 
             option = SERVER_CONFIG.SUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
-            self.__RoutingCoreConfigurationResponse(return_id, status)
 
         # Client unsubscribe
         elif cmd == SERVER_CONFIG.USUB_CMD:
             option = SERVER_CONFIG.USUB_OPTION 
             status = self.__HandleRoutingCoreConfiguration(msg, option)
-            self.__RoutingCoreConfigurationResponse(return_id, status)
 
         # List subscriptions
         elif cmd == SERVER_CONFIG.LIST_CMD:
@@ -205,8 +203,6 @@ class ZmqKernel(object):
         self.__logger.debug("Sending ListSubscription Response")
         self.__command_socket.send_multipart([return_id, pickle.dumps(client_sub_dict)])
 
-    def __RoutingCoreConfigurationResponse(self, return_id, status):
-        pass#self.__command_socket.send_multipart([return_id, status])
 
     def __HandleRoutingCoreConfiguration(self, msg, option):
         """
@@ -319,6 +315,8 @@ class ZmqKernel(object):
         Send response to the registering client.
         """
 
+        # Pack the data as little endian integers to make it convinient
+        # for the embedded systems to recieve 
         msg = [
                bytes(return_name),\
                struct.pack("<I", status),\

@@ -1,3 +1,5 @@
+# Register a test client to the server
+
 import zmq
 
 c = zmq.Context()
