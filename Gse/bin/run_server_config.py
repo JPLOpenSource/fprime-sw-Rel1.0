@@ -3,6 +3,10 @@ import zmq
 import pickle
 import click
 
+# Global server config class
+from server.ServerUtils.server_config import ServerConfig
+SERVER_CONFIG = ServerConfig.getInstance()
+
 @click.group()
 def cli():
     """
@@ -14,8 +18,8 @@ class ClientModel(object):
         self.__flight_clients = {}
         self.__ground_clients = {}
     def SetClientSubscriptions(self, client_sub_dict):
-        self.__flight_clients = client_sub_dict['flight']
-        self.__ground_clients = client_sub_dict['ground']
+        self.__flight_clients = client_sub_dict[SERVER_CONFIG.FLIGHT_TYPE]
+        self.__ground_clients = client_sub_dict[SERVER_CONFIG.GROUND_TYPE]
 
     def SetFlightClientSubscriptions(self, client_dict):
         self.__flight_clients = client_dict
@@ -37,9 +41,9 @@ class ClientModel(object):
 
     def VerifyClientName(self, client_name):
         if client_name in self.__flight_clients:
-            return 'flight' 
+            return SERVER_CONFIG.FLIGHT_TYPE
         elif client_name in self.__ground_clients:
-            return 'ground' 
+            return SERVER_CONFIG.GROUND_TYPE
         else:
             return None 
 
@@ -102,7 +106,7 @@ def ResetDisplay(client_model, connection):
         n_NewLines(1)
         for client_name in client_model.GetFlightClientNames():
 
-            click.echo('{} Subscribed To'.format(client_name)) 
+            click.echo('{} Publishing To'.format(client_name)) 
             # Iterate through and display flight client subscriptions
             for g_client in client_model.GetFlightClientSubscriptions(client_name):
                 click.echo("-->{}".format(g_client))
@@ -115,7 +119,7 @@ def ResetDisplay(client_model, connection):
         n_NewLines(1)
         for client_name in client_model.GetGroundClientNames():
             
-            click.echo('{} Subscribed To'.format(client_name))
+            click.echo('{} Publishing To'.format(client_name))
             # Iterate through and display ground client subscriptions
             for f_client in client_model.GetGroundClientSubscriptions(client_name):
                 click.echo("-->{}".format(f_client))
