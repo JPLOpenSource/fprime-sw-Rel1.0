@@ -111,20 +111,39 @@ class ServerConfig(ConfigParser.SafeConfigParser):
             build_root = ''
 
         server_filepath = os.path.join(build_root, 'Gse/src/server')
-        log_filepath = os.path.join("logs", "server_logs")
+        log_filepath = os.path.join(server_filepath, "logs")
+        
+        # Wipe all logs on first instance
+        if(not os.path.exists(log_filepath)):
+            os.mkdir(log_filepath)
+
         self.__prop['filepaths'] = dict()
         self.__prop['filepaths']['server_filepath'] = server_filepath 
-        self.__prop['filepaths']['server_log_filepath'] = os.path.join(\
-                                                  server_filepath, log_filepath)
-        self.__prop['filepaths']['server_log_internal_filepath'] = os.path.join(\
-                                        self.__prop['filepaths']['server_log_filepath'], 'internals')
-        self.__prop['filepaths']['throughput_analysis_filepath'] = os.path.join(\
-                                                    server_filepath, "logs/throughput")
+
+        ## Server log path
+        server_log_path = os.path.join(log_filepath, "server_logs")
+        if(not os.path.exists(server_log_path)): # Create if folder does not exist
+            os.mkdir(server_log_path)
+        self.__prop['filepaths']['server_log_filepath'] = server_log_path
+
+        ## Server internal log path
+        internal_log_path = os.path.join(server_log_path, "internal")
+        if(not os.path.exists(internal_log_path)):
+            os.mkdir(internal_log_path)
+        self.__prop['filepaths']['server_log_internal_filepath'] = internal_log_path
+
+        ## Throughput analysis filetpath
+        tp_analysis_path = os.path.join(log_filepath, "throughput")
+        if(not os.path.exists(tp_analysis_path)):
+            os.mkdir(tp_analysis_path)
+        self.__prop['filepaths']['throughput_analysis_filepath'] = tp_analysis_path
+
+        self.__prop['filepaths']['adapter_plugin_path'] = os.path.join(server_filepath, 'AdapterLayer/plugins')
+
 
         self.__prop['settings'] = dict()
         self.__prop['settings']['server_socket_hwm'] = 100000
                                                     
-        self.__prop['filepaths']['adapter_plugin_path'] = os.path.join(server_filepath, 'AdapterLayer/plugins')
 
         # This sets the defaults within a section. 
         self._setSectionDefaults('filepaths')
@@ -137,4 +156,15 @@ class ServerConfig(ConfigParser.SafeConfigParser):
         self.add_section(section)
         for (key,value) in self.__prop[section].items():
             self.set(section, key, "%s" % value)
+
+    def WipeServerLogs(self):
+        # Wipe server logs
+        log_path = self.get("filepaths", "server_log_filepath")
+        server_logs = os.path.join(log_path, "*.log")
+        os.system("rm {}".format(server_logs))
+
+        log_path = self.get("filepaths", "server_log_internal_filepath")
+        internal_logs = os.path.join(log_path, "*.log")
+        os.system("rm {}".format(internal_logs))
+
 

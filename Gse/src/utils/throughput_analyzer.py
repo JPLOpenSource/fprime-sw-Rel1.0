@@ -133,9 +133,10 @@ class TestPoint(object):
 
         # Remove contents of TestPoint's folder if it exists
         if(os.path.exists(self.test_point_folder)):
-            os.system("rm -r {}/*".format(test_point_folder))  
-        else: # Create folder
-            os.mkdir(self.test_point_folder)
+            os.system("rm -r {}".format(self.test_point_folder))  
+        
+        # Create folder
+        os.mkdir(self.test_point_folder)
 
         self.__start_time_avg = 0
         self.__delta_avg      = 0

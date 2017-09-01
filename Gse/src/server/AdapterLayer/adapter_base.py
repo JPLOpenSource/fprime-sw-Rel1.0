@@ -9,7 +9,6 @@ from multiprocessing import Process
 from zmq.eventloop.ioloop import IOLoop, PeriodicCallback 
 from zmq.eventloop.zmqstream import ZMQStream
 
-from server.Kernel.interconnect import BindToRandomTcpEndpoint
 from utils.logging_util import SetGlobalLoggingLevel, GetLogger
 from server.ServerUtils.server_config import ServerConfig
 

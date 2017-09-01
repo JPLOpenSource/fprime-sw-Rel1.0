@@ -25,21 +25,6 @@ from utils.logging_util import GetLogger
 SERVER_CONFIG = ServerConfig.getInstance()
 
 
-def WipeServerLogs():
-    # Wipe server logs
-    log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
-    server_logs = os.path.join(log_path, "*.log")
-    os.system("rm {}".format(server_logs))
-
-    log_path = SERVER_CONFIG.get("filepaths", "server_log_internal_filepath")
-    internal_logs = os.path.join(log_path, "*.log")
-    os.system("rm {}".format(internal_logs))
-
-    log_path = SERVER_CONFIG.get("filepaths", "throughput_analysis_filepath")
-    all_folders = os.path.join(log_path, "*")
-    os.system("rm -r {}".format(all_folders))
-
-
 class ServerIntegrityTest:
     """
     This test asserts the server remains stable
@@ -53,11 +38,10 @@ class ServerIntegrityTest:
             print("Exiting.")
             sys.exit()
 
+        SERVER_CONFIG.WipeServerLogs()
         log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")
         self.logger = GetLogger("MontecarloIntegrityTest_UTEST", log_path, logLevel=DEBUG, fileLevel=DEBUG)
         self.logger.debug("Logger Active")
-
-        WipeServerLogs()
 
         # Server cmd port
         cmd_port   = 5551

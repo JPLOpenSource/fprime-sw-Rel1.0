@@ -22,7 +22,10 @@ import struct
 SERVER_CONFIG = ServerConfig.getInstance()
 
 def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size): 
-    latency = 1 / float(throughput)
+    if client_type == SERVER_CONFIG.FLIGHT_TYPE:
+        latency = 1 / float(throughput)
+    else:
+        latency = 0 # Ground clients dont send
 
     # Setup Logger   
     log_path = SERVER_CONFIG.get("filepaths", "server_log_filepath")  

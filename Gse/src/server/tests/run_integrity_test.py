@@ -3,19 +3,19 @@ from subprocess import Popen
 
 
 def main():
-  """
-  Define a test to perform.
-  Parameters:
-  num_flight: Number of flight clients
-  num_ground: Number of ground clients
-  message_size: Number of bytes per message
-  flight_throughput: Used to set speed of message transmission. 
+    """
+    Define a test to perform.
+    Parameters:
+    num_flight: Number of flight clients
+    num_ground: Number of ground clients
+    message_size: Number of bytes per message
+    flight_throughput: Used to set speed of message transmission. 
     NOTE: This is not the real throughput the OS grants.
           Check the throughput logs to check real throughput
-  monte_time: How long to perform random connections and disconnections between
+    monte_time: How long to perform random connections and disconnections between
               the flight and ground clients.
-  pass_time: How long to pass data between clients.
-  """
+    pass_time: How long to pass data between clients.
+    """
     # Test 1
     num_flight = 1
     num_ground = 1 

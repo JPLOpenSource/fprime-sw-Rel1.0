@@ -21,6 +21,7 @@ from utils import logging_util
 from utils import throughput_analyzer
 from utils.logging_util import GetLogger
 
+from server.AdapterLayer import adapter_utility
 from server.Kernel import interconnect
 from server.Kernel.threads import GeneralSubscriberThread, GeneralPublisherThread
 
@@ -48,6 +49,10 @@ class ZmqKernel(object):
         self.__routing_table[SERVER_CONFIG.FLIGHT_TYPE] = dict()
         self.__routing_table[SERVER_CONFIG.GROUND_TYPE] = dict()
         self.__book_keeping = dict() # Use for storing port numbers
+
+        # Setup adapter and adapter book keeping
+        self.__reference_adapter_dict    = adapter_utility.LoadAdapters()
+        self.__adapter_process_dict      = dict()
 
         # Setup global logging settings
         logging_util.SetGlobalLoggingLevel(consoleLevel=console_lvl, fileLevel=file_lvl,\
@@ -102,10 +107,7 @@ class ZmqKernel(object):
                              .format(command_port))
                 raise e
 
-        # Setup adapter and adapter booking
 
-        self.__reference_adapter_dict    = adapter_utility.LoadAdapters()
-        self.__adapter_process_dict      = dict()
 
 
         # Create Reactor 
@@ -311,7 +313,7 @@ class ZmqKernel(object):
                 raise TypeError
 
 
-            # Check protocols
+            # Check if a protocol adapter should be created
             if(proto.lower() in self.__reference_adapter_dict):
 
                 # Create an adapter betweent the client and server.
@@ -322,6 +324,9 @@ class ZmqKernel(object):
                                                                         server_pub_port,\
                                                                         server_sub_port,\
                                                                         proto.lower())
+                # Store the new port numbers for future reference
+                self.__book_keeping[client_name]['pub_port'] = server_pub_port
+                self.__book_keeping[client_name]['sub_port'] = server_sub_port
          
             elif proto.lower() == "zmq":
                 pass
@@ -339,10 +344,6 @@ class ZmqKernel(object):
             status = 0
             server_pub_port = 0
             server_sub_port = 0
-            self.__logger.error("Client type {} not recognized.".format(client_type))
-            status = 0
-            server_pub_port = 0
-            server_sub_port = 0
        
         return (status, server_pub_port, server_sub_port)
 
@@ -356,6 +357,7 @@ class ZmqKernel(object):
 
         # Get uninstantiated adapter object 
         Adapter = self.__reference_adapter_dict[proto] 
+
         # Then create an instance 
         adapter = Adapter(proto, client_name, to_server_sub_port, from_server_pub_port,\
                                               to_client_pub_port, from_client_sub_port)
