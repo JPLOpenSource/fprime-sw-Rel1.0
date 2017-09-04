@@ -178,7 +178,7 @@ class ZmqClientSocket(ClientSocket):
 
             # Register the GUI with the server
             # TODO: Create unique ground-client name
-            self.__server_cmd_socket.send_multipart([b"REG", b"GROUND", b"spacepacket"])
+            self.__server_cmd_socket.send_multipart([b"REG", b"GROUND", b"ZMQ"])
 
             response = self.__server_cmd_socket.recv_multipart()
             self.__server_pub_port = struct.unpack("<I", response[1])[0]
