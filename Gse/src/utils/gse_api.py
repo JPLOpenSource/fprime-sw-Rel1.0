@@ -256,6 +256,9 @@ class GseApi(object):
       self.__server_command_interface.UnsubscribeClientFrom(targetName, "FLIGHT", self.__api_client_name)
       time.sleep(1)
 
+    def getPublisherDict(self):
+      return self.__server_command_interface.GetPublisherDict()
+
     def receive(self):
       """
       Grabs all telemetry and data in event listener's queue until the queue is emptied.
