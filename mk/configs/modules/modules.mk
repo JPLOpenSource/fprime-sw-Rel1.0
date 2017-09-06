@@ -109,19 +109,12 @@ Ref_MODULES := \
 	
 
 #zmq-ref_MODULES := \
-	\
 #	$(ZMQ-REF_MODULES) \
-	\
 #	$(SVC_MODULES) \
-	\
 #	$(DRV_MODULES) \
-	\
 #	$(FW_MODULES) \
-	\
 #	$(OS_MODULES) \
-	\
 #	$(CFDP_MODULES) \
-  	\
 #  	$(UTILS_MODULES)
 
 

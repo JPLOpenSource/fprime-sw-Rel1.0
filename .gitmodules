@@ -1,0 +1,3 @@
+[submodule "fprime-zmq"]
+	path = fprime-zmq
+	url = https://github.jpl.nasa.gov/reder/fprime-zmq.git
