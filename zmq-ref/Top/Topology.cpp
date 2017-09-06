@@ -423,7 +423,7 @@ int main(int argc, char* argv[]) {
 	option = 0;
 	hostname = NULL;
 
-	while ((option = getopt(argc, argv, "h::p:n:a:")) != -1){
+	while ((option = getopt(argc, argv, "hp:n:a:")) != -1){
 		switch(option) {
 			case 'h':
 				print_usage();
