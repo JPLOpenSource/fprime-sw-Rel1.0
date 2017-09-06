@@ -191,3 +191,15 @@ Publisher threads are unique for each client. Publisher threads receive packets 
 #### Adapters
 -------------
 
+
+##### Len Running ZMQ Server Tests
+--------------
+
+cd Gse/src/server/tests
+vi run_integrity_test.py and edit test configuration parameters.
+python run_integrity_test.py
+examine results in server/logs/throughput/aggregate.txt
+
+
+
+
