@@ -5,6 +5,7 @@ import os
 import logging
 import subprocess
 from enum import Enum
+import exceptions
 from subprocess import PIPE
 from optparse import OptionParser
 

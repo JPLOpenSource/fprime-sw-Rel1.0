@@ -21,3 +21,15 @@ class GseControllerMnemonicMismatchException(GseControllerException):
 class GseControllerStutasUpdateException(GseControllerException):
     def __init__(self, val):
         super(GseControllerUndefinedDirectoryException,self).__init__("Bad status update mode: %s !" % str(val))
+
+class ServerReceiveError(Exception):
+    def __init__(self, msg):
+        self.__msg = msg
+    def __str__(self):
+        return repr(self.__msg)
+
+class ServerSendError(Exception):
+    def __init__(self, msg):
+        self.__msg = msg
+    def __str__(self):
+        return repr(self.__msg)

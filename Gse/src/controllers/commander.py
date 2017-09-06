@@ -18,9 +18,14 @@
 # Python standard modules
 #
 import collections
+import zmq
+
 from models.serialize import type_base
 from models.serialize import u32_type
+
 from controllers import status_bar_updater
+from controllers.client_sock import ServerSendError
+
 #from views import main_panel
 
 class Commander:
@@ -37,7 +42,8 @@ class Commander:
         Constructor.
         """
         self.create_mediator()
-        self.__the_main_panel = None
+        self.__the_main_panel    = None
+        self.__publisherSocket   = None
 
         # Update the status bar whenever packets are sent
         self.__status_bar_updater = status_bar_updater.StatusBarUpdater.getInstance()
@@ -82,33 +88,47 @@ class Commander:
         if one is set.  This is an indication of connection.
         """
         self.__the_main_panel = the_main_panel
+        self.__clientSocket = self.__the_main_panel.getClientSocket()
 
+
+    def connect(self, socket):
+        self.__publisherSocket = socket
 
     def cmd_send(self, widget, cmd_obj):
+        """
+        Check if clientSocket instance exists.
+        Do not continue if gse is not connected to server.
+        """
+
+        if(self.__publisherSocket is None):
+            print("Cannot send command. Commander not connected to server.")
+            return
+
         #print "Command serialized: %s (0x%x)" % (cmd_obj.getMnemonic(), cmd_obj.getOpCode())
         data = cmd_obj.serialize()
         #type_base.showBytes(data)
-        #
+        
         # Package and send immediate command here...
-        # A5A5 <Target Name> <command descriptor 0x5A5A5A5A>
+        # <command descriptor 0x5A5A5A5A>
         # <4 Bytes of command packet size, data only>
         # <command opcode data> <command args data> <checksum-tbd>
         desc = u32_type.U32Type( 0x5A5A5A5A )
-        #
+        
         # Added desc. type for FSW to know it is a command (0).
         desc_type = u32_type.U32Type(0)
         #
         data_len = u32_type.U32Type( len(data) + desc_type.getSize() )
         #
-        cmd = "A5A5 " + "FSW " + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
-        # type_base.showBytes(cmd)
-        sock = self.__the_main_panel.getSock()
-        if sock != None:
-            self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
-            # type_base.showBytes(cmd)
-            sock.send(cmd)
-        else:
-            self.__the_main_panel.statusUpdate("No socket connection for FSW commands", "red")
+        cmd = desc.serialize() + data_len.serialize() + desc_type.serialize() + data
+        #type_base.showBytes(cmd)
+
+        #self.__status_bar_updater.update_data(num_recv=0, num_sent=len(cmd))
+
+        try:
+            self.__publisherSocket.publishToServer(cmd)
+        except ServerSendError as e:
+            print(e)
+            return
 
 
 class Mediator(object):

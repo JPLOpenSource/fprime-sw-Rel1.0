@@ -1,0 +1,11 @@
+/Users/dkooi/Workspace/fprime-sw/Gse/bin/pexpect_runner.py: Running command "/Users/dkooi/Envs/isf_p2/bin/python /Users/dkooi/Workspace/fprime-sw/Gse/bin/gse.py --port 50000 --dictionary /Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref --connect --addr 127.0.0.1 -L /Users/dkooi/Workspace/fprime-sw/Ref/logs -Ngui_1"
+Generated path /Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref
+HOST: 127.0.0.1
+PORT: 50000
+NAME: gui_1
+Unable to connect to 127.0.0.1:50000
+HOST: 127.0.0.1
+PORT: 50000
+NAME: gui_1
+Unable to connect to 127.0.0.1:50000
+Exit...
