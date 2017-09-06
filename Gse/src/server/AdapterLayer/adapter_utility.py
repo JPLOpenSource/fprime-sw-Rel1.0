@@ -21,13 +21,12 @@ from server.ServerUtils.server_config import ServerConfig
 SERVER_CONFIG = ServerConfig.getInstance()
 
 def LoadAdapters():
-	"""
-	Iterate through the names and path of all the 
-	plugin files. 
+    """
+    Iterate through the names and path of all the 
+    plugin files. 
 
-	Use imp to get an instance of the adapter object.
-	"""
-
+    Use imp to get an instance of the adapter object.
+    """
     object_dict= dict()
     for module_desc in plugins.__all__:
         name = module_desc['name']
