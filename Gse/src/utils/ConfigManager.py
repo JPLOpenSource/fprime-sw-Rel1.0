@@ -133,12 +133,15 @@ class ConfigManager(ConfigParser.SafeConfigParser):
         self.__prop['gui']['window_min_y']    = 600
         self.__prop['gui']['window_offset_x'] = 10
         self.__prop['gui']['window_offset_y'] = 10
-        #
+
         self.__prop['performance'] = dict()
-        self.__prop['performance']['stripchart_update_rate']  = 500 # Milliseconds
-        self.__prop['performance']['telem_table_update_rate'] = 500 # Milliseconds
+        self.__prop['performance']['stripchart_update_period']  = 500 # Milliseconds
+        self.__prop['performance']['telem_table_update_period'] = 500 # Milliseconds
+        self.__prop['performance']['event_table_update_period'] = 200 # Milliseconds
+        self.__prop['performance']['status_bar_update_period']  = 1000 # Milliseconds
+        self.__prop['performance']['stripchart_update_period']  = 500 # Milliseconds
         self.__prop['performance']['status_light_deadband'] = 3 # Seconds
-        #
+
         self.__prop['severity_colors']=dict()
         self.__prop['severity_colors'][Severity.COMMAND.name]    = "lightblue"
         self.__prop['severity_colors'][Severity.DIAGNOSTIC.name] = ""
@@ -191,6 +194,13 @@ class ConfigManager(ConfigParser.SafeConfigParser):
         self.__prop['helppanel']['default_header_link_size'] = 16
         self.__prop['helppanel']['panel_header_font_size'] = 18
 
+        self.__prop['server'] = dict()
+        self.__prop['server']['command_socket'] = None
+        self.__prop['server']['zmq_context'] = None
+        self.__prop['server']['address']  = ''
+        self.__prop['server']['pub_port'] = ''
+        self.__prop['server']['sub_port'] = ''
+
 
         # 'DEFAULT' section is baked in for Python 2.6x
         # the call below will raise ValueError
@@ -201,6 +211,7 @@ class ConfigManager(ConfigParser.SafeConfigParser):
 
         #
 
+        self._setSectionDefaults('server')
         self._setSectionDefaults('persist')
         self._setSectionDefaults('helppanel')
         self._setSectionDefaults('performance')

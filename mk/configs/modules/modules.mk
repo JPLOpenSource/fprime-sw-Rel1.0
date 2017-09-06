@@ -79,7 +79,8 @@ REF_MODULES := \
 	Ref/SendBuffApp \
 	Ref/SignalGen \
 	Ref/PingReceiver
-	
+
+
 Ref_MODULES := \
 	\
 	$(REF_MODULES) \
@@ -96,6 +97,34 @@ Ref_MODULES := \
   	\
   	$(UTILS_MODULES)
 		
+
+ZMQ-REF_MODULES := \
+	fprime-zmq/zmq-ref/Top \
+	Ref/RecvBuffApp \
+	Ref/SendBuffApp \
+	Ref/SignalGen \
+	Ref/PingReceiver \
+	fprime-zmq/zmq-radio \
+	fprime-zmq/zmq
+	
+
+zmq-ref_MODULES := \
+	\
+	$(ZMQ-REF_MODULES) \
+	\
+	$(SVC_MODULES) \
+	\
+	$(DRV_MODULES) \
+	\
+	$(FW_MODULES) \
+	\
+	$(OS_MODULES) \
+	\
+	$(CFDP_MODULES) \
+  	\
+  	$(UTILS_MODULES)
+
+
 ACDEVTEST_MODULES := \
 	Autocoders/test/active_tester \
 	Autocoders/test/app1 \
@@ -170,11 +199,14 @@ OTHER_MODULES := \
 	gtest \
 	Os/Stubs \
 	Fw/Test \
+	fprime-zmq/zmq-radio \
+	fprime-zmq/zmq-pub \
+	fprime-zmq/zmq-sub \
 	$(FW_GTEST_MODULES)
 
 # List deployments
 
-DEPLOYMENTS := Ref acdev
+DEPLOYMENTS := Ref acdev zmq-ref
 
 # Location of ground/gse software. Autocoded dictionary elements are copied here.
 GDS_MODULE := Gse
