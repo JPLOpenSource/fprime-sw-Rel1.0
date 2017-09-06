@@ -4,25 +4,40 @@ from server.AdapterLayer.adapter_base import AdapterBase
 from server.ServerUtils.bit_utils import BitArray
 
 def GetObject():
+    """
+    Required module function.
+    @returns class object of the implemented adapter.
+    """
     return SpacePacketAdapter
 def GetAdapterName():
+    """
+    @returns The name of the adapter. This is the name by which a client registration protocol is matched.
+    """
     return "spacepacket"
 
 class SpacePacketAdapter(AdapterBase):
+    """
+    Adapter implementation of a SpacePacket adapter.
+    """
     def __init__(self, *args, **kwargs):
         AdapterBase.__init__(self, *args, **kwargs)
 
     def Decode(self, encoded_packet):
     	"""
-    	From client decode.
+    	Receives an SpacePacket from the client. 
+        The packet is decoded into FPrime native
+        and sent to the server.
     	"""
-        print(encoded_packet)
+
+        #print(encoded_packet)
     	packet = encoded_packet[6:] # Remove spacepacket header
         return packet
 
     def Encode(self, packet):
     	"""
-    	To client encode.
+    	Receives a FPrime native packet from the server.
+        The packet is encoded with a SpacePacket header
+        and sent to the receiving client.
     	"""
 
     	# Process first 4 octets
@@ -47,6 +62,7 @@ class SpacePacketAdapter(AdapterBase):
 
 
     	spacepacket_header = first_4_octets + last_2_octets
-        print("Sending: {}".format([spacepacket_header + packet]))
+        #print("Sending: {}".format([spacepacket_header + packet]))
+
         return spacepacket_header + packet
 
