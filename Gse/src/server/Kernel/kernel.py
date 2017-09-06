@@ -307,10 +307,6 @@ class ZmqKernel(object):
 
                 pub_thread.start()
 
-                # Store the port numbers for future reference
-                self.__book_keeping[client_name]['pub_port'] = server_pub_port
-                self.__book_keeping[client_name]['sub_port'] = server_sub_port
-
                 status = 1 # Successful registration
             else:
                 raise TypeError
@@ -327,9 +323,6 @@ class ZmqKernel(object):
                                                                         server_pub_port,\
                                                                         server_sub_port,\
                                                                         proto.lower())
-                # Store the new port numbers for future reference
-                self.__book_keeping[client_name]['pub_port'] = server_pub_port
-                self.__book_keeping[client_name]['sub_port'] = server_sub_port
          
             elif proto.lower() == "zmq":
                 pass
@@ -347,7 +340,11 @@ class ZmqKernel(object):
             status = 0
             server_pub_port = 0
             server_sub_port = 0
-       
+
+
+        # Store the port numbers for future reference
+        self.__book_keeping[client_name]['pub_port'] = server_pub_port
+        self.__book_keeping[client_name]['sub_port'] = server_sub_port
         return (status, server_pub_port, server_sub_port)
 
     def __CreateAdapter(self, client_type, client_name, server_pub_port, server_sub_port, proto):
