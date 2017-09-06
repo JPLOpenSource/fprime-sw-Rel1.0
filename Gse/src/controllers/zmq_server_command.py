@@ -27,11 +27,11 @@ class ServerCommandInterface(object):
         for pub_client in pub_list:
             self.__cmd_socket.send_multipart([option.encode(), client_name.encode(),\
                                               client_type.encode(), pub_client.encode()])
+    
     def GetPublisherDict():
         self.__cmd_socket.send_multipart([b"LIST"])
 
-        
         msg = self.__cmd_socket.recv_multipart() 
-        client_sub_dict = pickle.loads(msg[0])
+        client_pub_dict = pickle.loads(msg[0])
 
-        return client_sub_dict 
+        return client_pub_dict 
