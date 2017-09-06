@@ -1,3 +1,5 @@
+# Test that the AdapterProcess works.
+
 import zmq
 import time
 import signal
@@ -6,6 +8,10 @@ import threading
 from adapter_process import AdapterProcess
 
 class TestAdapter():
+    """
+    TestAdapter maintains two threads.
+    The two threads communicate between each other.
+    """
     def __init__(self):
 
         self.context = zmq.Context()
@@ -37,16 +43,24 @@ class TestAdapter():
                 output_socket.close()
 
     def Start(self):
-        
+        """
+        Start threads.
+        """
         self.thread_1.start()
         time.sleep(0.01) # Let thread startup
-        #self.thread_2.start()
+        self.thread_2.start()
     
     def Quit(self):
+        """
+        Quit the test adapter.
+        """
         self.context.term()
 
 
 if __name__ == "__main__":
+    """
+    Wrap the TestAdapter in an AdapterProcess. 
+    """
     ta = TestAdapter()
     adapter_process = AdapterProcess(ta)
     adapter_process.start()
