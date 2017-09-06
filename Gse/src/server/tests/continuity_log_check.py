@@ -33,7 +33,7 @@ def check_log(log_path, pass_through_dtime):
             #print split_s
             if(curr_dt >= pass_through_dtime):
                 client_name = split_s[4]
-                if(client_name == "Sending:" or client_name == "Thoughput:"):
+                if(client_name == "Sending:" or client_name == "Thoughput:"): # Skip prefixes
                     continue
                 if(client_name == "ETERM"):
                     break

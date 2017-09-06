@@ -23,6 +23,14 @@ class GeneralSubscriberThread(threading.Thread):
     """
 
     def __init__(self, context, client_type, server_sub_port, pub_address):
+        """
+        A thread that receives packets from clients.
+        @params context: ZMQ context.
+        @params client_type: Type of client
+        @params server_sub_port: What port the server is listening on.
+        @params pub_address: What address to publish packets to.
+        """
+
         # Setup Logger
         name = "{}_SubscribeThread".format(client_type) 
         self.__name = name
@@ -32,9 +40,9 @@ class GeneralSubscriberThread(threading.Thread):
 
         self.__sub_socket = context.socket(zmq.ROUTER)
         self.__sub_socket.setsockopt(zmq.LINGER, 0) # Immediatly close socket
-        self.__sub_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm'))) # Set zmq msg buffer size
+        self.__sub_socket.setsockopt(zmq.RCVHWM, int(SERVER_CONFIG.get('settings', 'server_socket_hwm'))) # Set zmq msg buffer size.
                                                                                                           # This is how many msgs to 
-                                                                                                          # Buffer before msgs are dropped
+                                                                                                          # buffer before msgs are dropped.
         self.__sub_socket.setsockopt(zmq.ROUTER_HANDOVER, 1) # Needed for client reconnect
         self.__sub_socket.bind("tcp://*:{}".format(server_sub_port))
 
@@ -160,7 +168,7 @@ class GeneralPublisherThread(threading.Thread):
 
                     msg = self.__sub_socket.recv_multipart()
                     self.__pub_socket.send(msg[1], copy=False) # First part of message is the sender_name
-                                                               # Only send the fprime packet
+                                                               # We only need to send the fprime packet
 
                     test_point.SaveInstance() # Stop the timer for recv and send latency
                     test_point.Increment(1) # Increase number of messages processsed

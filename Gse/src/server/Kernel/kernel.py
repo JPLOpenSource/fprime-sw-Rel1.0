@@ -44,7 +44,7 @@ class ZmqKernel(object):
         @params timeout: Quit server after timeout. For unittesting purposes
         """
 
-        self.__main_context = zmq.Context()
+        self.__main_context = zmq.Context() # Context for the main event loop sockets
 
         # Store references to each client process
         self.__routing_table = dict()
@@ -72,14 +72,14 @@ class ZmqKernel(object):
 
 
         # Create flight and ground subscriber threads
-        self.__flight_side_context = zmq.Context(io_threads=1)
+        self.__flight_side_context = zmq.Context(io_threads=1) # Context for flight oriented connections
         self.__server_flight_sub_port = interconnect.GetRandomPort()
         self.__flight_subscribe_thread = GeneralSubscriberThread(self.__flight_side_context,\
                                                                  SERVER_CONFIG.FLIGHT_TYPE,\
                                                                  self.__server_flight_sub_port,\
                                                                  SERVER_CONFIG.FLIGHT_PUB_ADDRESS)
 
-        self.__ground_side_context = zmq.Context(io_threads=1)
+        self.__ground_side_context = zmq.Context(io_threads=1) # Context for ground oriented connections
         self.__server_ground_sub_port = interconnect.GetRandomPort()
         self.__ground_subscribe_thread = GeneralSubscriberThread(self.__ground_side_context,\
                                                                  SERVER_CONFIG.GROUND_TYPE,\
@@ -108,9 +108,6 @@ class ZmqKernel(object):
                 self.__logger.error("Unable to bind command socket to port {}"\
                              .format(command_port))
                 raise e
-
-
-
 
         # Create Reactor 
         self.__loop = IOLoop.instance()
@@ -165,6 +162,7 @@ class ZmqKernel(object):
         self.__routing_command_reply_socket.close()
         self.__main_context.term() 
 
+        # Gather all the testpoint data into one file.
         throughput_analyzer.AggregateTestPoints()
 
   
@@ -173,6 +171,7 @@ class ZmqKernel(object):
         """
         Receives a new command message and dispatches the message to the
         proper command handler.
+        @params msg: Received Zmq message.
         """
         self.__logger.debug("Command Received: {}".format(msg))
 
@@ -206,18 +205,23 @@ class ZmqKernel(object):
         """
         return self.__routing_table
 
-    def __ListSubscriptionResponse(self, return_id, client_sub_dict):
+    def __ListSubscriptionResponse(self, return_id, client_pub_dict):
         """
         Send a serialized subscription dictionary to the client with ID return_id.
+        @params return_id: Identification of the receiving client
+        @params client_pub_dict: Publish oriented Pub/Sub dictionary
         """
 
         self.__logger.debug("Sending ListSubscription Response")
-        self.__command_socket.send_multipart([return_id, pickle.dumps(client_sub_dict)])
+        self.__command_socket.send_multipart([return_id, pickle.dumps(client_pub_dict)])
 
 
     def __HandleRoutingCoreConfiguration(self, msg, option):
         """
         Handle subscribe or unsubscribe operation.
+        @params msg: Received zmq message from the command socket
+        @params option: How to configure the routing table. 
+                        Either SERVER_CONFIG.SUB_OPTION or SERVER_CONFIG.USUB_OPTION.
         """
         client_name         = msg[2]
         client_type         = msg[3]
@@ -263,6 +267,7 @@ class ZmqKernel(object):
         """
         Receives a client registration message.
         Returns a tuple containing the registration status, pub, and sub ports 
+        @params msg: Received zmq message from the command socket.
         """
         client_name = msg[0]
         client_type = msg[2]
@@ -326,6 +331,7 @@ class ZmqKernel(object):
          
             elif proto.lower() == "zmq":
                 pass
+            
             else:
                 raise TypeError
 
@@ -348,6 +354,16 @@ class ZmqKernel(object):
         return (status, server_pub_port, server_sub_port)
 
     def __CreateAdapter(self, client_type, client_name, server_pub_port, server_sub_port, proto):
+        """
+        Based on proto, create a new Adapter and AdapterProcess.
+        Save a reference to the AdapterProcess and start.
+
+        @params client_type: Type of the client
+        @params client_name: Name of the client
+        @params server_pub_port: What port the server is publishing from.
+        @params server_sub_port: What port the server is listening on.  
+        @params proto: Name of the protocol to use.
+        """
         # Get ports for the adapter to connect to
         from_server_pub_port = server_pub_port # Server port publishing to adapter
         to_server_sub_port   = server_sub_port   # Server port subscribed to adapter
@@ -363,8 +379,10 @@ class ZmqKernel(object):
                                               to_client_pub_port, from_client_sub_port)
         # Create a process
         process = AdapterProcess(adapter)
+
         # Save a reference to the process
         self.__adapter_process_dict[client_name] = process
+
         # Now start
         process.start()
 
@@ -372,6 +390,10 @@ class ZmqKernel(object):
         return to_client_pub_port, from_client_sub_port
 
     def __TerminateAdapters(self):
+        """
+        Iterate through the adapter dictionary and terminate all the AdapterProcesses.
+        terminate() sends a signal for the AdapterProcesses to act on.
+        """
         for client_name in self.__adapter_process_dict:
             self.__adapter_process_dict[client_name].terminate()
 
@@ -379,6 +401,13 @@ class ZmqKernel(object):
                                                         server_sub_port):
         """
         Send response to the registering client.
+
+        Clients expect publish port numbers before subscribe port.
+        
+        @params return_name: Name of the client the response is for.
+        @params status: Status of the registration.
+        @params server_pub_port: What port the server is publishing from.
+        @params server_sub_port: What port the server is listening on.
         """
 
         # Pack the data as little endian integers to make it convinient
@@ -394,5 +423,6 @@ class ZmqKernel(object):
         self.__logger.debug("{} registered.".format(return_name))
         self.__logger.debug("{} Server Pub Port {}".format(return_name, server_pub_port))
         self.__logger.debug("{} Server Sub Port {}".format(return_name, server_sub_port))
+
         self.__command_socket.send_multipart(msg)
 

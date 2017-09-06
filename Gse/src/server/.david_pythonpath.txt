@@ -1,1 +1,0 @@
-export PYTHONPATH=/Users/dkooi/Workspace/fprime-sw/Gse/generated/Ref:/Users/dkooi/Workspace/fprime-sw/Gse/src
