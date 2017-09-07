@@ -21,8 +21,8 @@
 #include <Fw/Types/BasicTypes.hpp>
 #include <fprime-zmq/zmq-radio/ZmqRadioComponentImpl.hpp>
 
-#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
-//#define DEBUG_PRINT(x,...)
+//#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
+#define DEBUG_PRINT(x,...)
 
 namespace Zmq{
 
@@ -37,25 +37,25 @@ namespace Zmq{
 				    //printf("%s: ZMQ EAGAIN\n", from);
 				    return true;
 				case EFSM:
-				     printf("%s: ZMQ EFSM", from);
+				     DEBUG_PRINT("%s: ZMQ EFSM", from);
 				     return true;
 				case ETERM:
-					printf("%s: ZMQ terminate\n",from);
+					DEBUG_PRINT("%s: ZMQ terminate\n",from);
 					return true;
 				case ENOTSOCK:
-					printf("%s: ZMQ ENOTSOCK\n",from);
+					DEBUG_PRINT("%s: ZMQ ENOTSOCK\n",from);
 					return true;
 				case EINTR:
-					printf("%s: ZMQ EINTR\n",from);
+					DEBUG_PRINT("%s: ZMQ EINTR\n",from);
 					return false;
 				case EFAULT:
-					printf("%s: ZMQ EFAULT\n",from);
+					DEBUG_PRINT("%s: ZMQ EFAULT\n",from);
 					return false;
 				case ENOMEM:
-					printf("%s: ZMQ ENOMEM\n", from);
+					DEBUG_PRINT("%s: ZMQ ENOMEM\n", from);
 					return false;
 				default:
-					printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
+					DEBUG_PRINT("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
 					return true;
 			}
 		}
@@ -509,7 +509,7 @@ namespace Zmq{
     }
 
     void ZmqRadioComponentImpl::subscriptionTaskRunnable(void* ptr){
-    	printf("Entering subscriptionTask\n");
+    	DEBUG_PRINT("Entering subscriptionTask\n");
     	fflush(stderr);
 
 		// Get reference to component
