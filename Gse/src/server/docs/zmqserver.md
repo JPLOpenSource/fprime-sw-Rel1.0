@@ -160,10 +160,10 @@ Entries are stored in the publisher's perspetive.
 I.e all publishers keep a set of who is subscribed to them. The routing table take the following format:
 
 ```python
-# Example routing table
+# Example routing table:
 # flight_client_1 publishes to ground_client_1
 # flight_client_2 publishes to ground_client_2
-# Neither ground clients are set publish
+# Neither ground clients are set to publish
 
 routing_table = 
 {
@@ -191,15 +191,112 @@ Publisher threads are unique for each client. Publisher threads receive packets 
 #### Adapters
 -------------
 
+![ZmqServer Design](img/server_adapter_view.png "ZmqServer")<br>
+When a client registers it is required to send tell the server which protocol to use. 
+The default protocol is ZMQ. This tells the server to act as a end to end transport for FPrime native packets.
 
-##### Len Running ZMQ Server Tests
+If a different protocol is requested an Adapter is created and placed between the client and the server.
+
+![ZmqServer Design](img/server_adapter_classes.png "ZmqServer")<br>
+
+##### Adapter Implementation
+Adapters are implemented by creating a AdapterBase subclass inside of server/AdapterLayer/plugins. The Adapter is automatically loaded
+into the application. Implementation modules must have the following module level functions:
+
+![ZmqServer Design](img/server_adapter_impl.png "ZmqServer")<br>
+
+
+
+#### Command Line Utility
+-------------------------
+A command line utility is available to configure the Pub/Sub configuration of the server.
+
+
+
+#### ZmqServer Tests
 --------------
+A throughput and integrity test are located in: `Gse/src/server/tests`<br>
 
+The test is configured by editing `run_integrity_test.py`:<br>
+![ZmqServer Design](img/server_test_config.png "ZmqServer")<br>
+These parameters allow you to test different configurations using the server. The test creates 
+n flight clients and n ground clients. Flight clients publish data to all ground clients. The data
+is padded to conform to the requested size.
+
+Command line use:
+
+```
 cd Gse/src/server/tests
 vi run_integrity_test.py and edit test configuration parameters.
 python run_integrity_test.py
 examine results in server/logs/throughput/aggregate.txt
+```
+
+
+The test can be used for:
+
+- Throughput analysis
+- Data integrity
+- Server integrity
+
+##### Throughput analysis: Records latency and throughput of each thread
+The server test uses the `Gse/utils/throughput_analyzer.py` utility.<br>
+The `throughput_analyzer` module allows the user to create `TestPoints` within a thread. The `TestPoint` can be used to record:
+
+- Total throughput (total messages / total time )
+- Instantenous latency: Time for thread receive and send a message
+- Instantenous throughput: ( 1 / instantenous latency )
+
+
+```python
+# Gse/src/server/Kernel/thread.py
+# Server Subscriber thread
+...
+    
+test_point = throughput_analyzer.GetTestPoint(self.__name + "_test_point") # Create test point
+test_point.StartAverage() # Start timing the total lifetime
+
+try:
+    while(True):
+        socks = dict(poller.poll()) # Block until msg is received
+        if(self.__sub_socket in socks):
+
+            test_point.StartInstance() # Start instance timer
+
+            msg = self.__sub_socket.recv_multipart(copy=False) 
+            self.__pub_socket.send_multipart(msg, copy=False)  
+                                                               
+            test_point.SaveInstance() # Stop instance timer
+            test_point.Increment(1)   # Increment the total number of msgs sent
+
+...
+
+# Exit
+test_point.SetAverageThroughput() # Stop timing the total lifetime
+test_point.PrintReports()         # Print reports to file
+```
+Test points are aggregated at the end of the test. Their results can be seen in:
+`server/logs/throughput/aggregate.txt`
+
+![ZmqServer Design](img/server_test_result.png "ZmqServer")<br>
+
+##### Data integrity: Checks if packets were dropped during the test
+Flight clients publish a ramp function to all ground clients.
+The ramp function increases by 1 to 255 in steps of 1. 
+
+Ground clients receive and log the received values. After the passthrough is finished
+the logs are checked for inconsistencies. 
+
+![ZmqServer Design](img/server_test_pass.png "ZmqServer")<br>
+
+
+#####Server integrity: Checks if the server can withstand arbitrary connections and disconnections
+If the test parameter monte\_time is greater than 0, the test will perform random connections
+and disconnections for monte\_time seconds. 
 
 
 
-
+#### Future Work
+----------------
+- Error messages when server drops packets 
+- GSE API Client Demo

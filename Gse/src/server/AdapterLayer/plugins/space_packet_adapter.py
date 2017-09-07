@@ -11,6 +11,7 @@ def GetObject():
     return SpacePacketAdapter
 def GetAdapterName():
     """
+    Required module function.
     @returns The name of the adapter. This is the name by which a client registration protocol is matched.
     """
     return "spacepacket"

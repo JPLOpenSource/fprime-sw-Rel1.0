@@ -102,7 +102,8 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
                     if(throughput != 0):
                         if( (time.time() - start_time) >= latency ):
-                            
+                            start_time = time.time()
+
                             # Create message with msg_size number of bytes
                             byte_list = [1 for i in range(msg_size-1)]
                             byte_list.append(val)
@@ -110,7 +111,6 @@ def MockClient(context, cmd_port, client_name, client_type, throughput, msg_size
 
                             test_point.StartInstance()
 
-                            start_time = time.time()
                             data = client_name.encode() +" " + packed
                             #logger.debug("Sending: {}".format([packed]))
                             pub_socket.send(data)
