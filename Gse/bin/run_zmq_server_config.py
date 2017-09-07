@@ -14,6 +14,9 @@ def cli():
     """
 
 class ClientModel(object):
+    """
+    Data model for the command line utility.
+    """
     def __init__(self):
         self.__flight_clients = {}
         self.__ground_clients = {}
@@ -56,6 +59,9 @@ class ClientModel(object):
         return pub_list
 
 class Connection(object):
+    """
+    Controller for handling connections.
+    """
     def __init__(self, port, address):
         self.__context = zmq.Context()
         self.__cmd_socket = self.__context.socket(zmq.DEALER) 
@@ -178,8 +184,7 @@ def main(port, server_address):
             client_type = client_model.VerifyClientName(client_name)
             if client_type is not None:
                 ResetDisplay(client_model, connection)
-                click.echo('Enter clients for {} to subscribe to.'.format(client_name))
-                pub_list = click.prompt("Seperated by commas") 
+                pub_list = click.prompt("Publisher Name") 
                 pub_list = client_model.VerifyPubList(pub_list)
                 if pub_list is not None:            
                     connection.SubscribeClientTo(client_name, client_type, pub_list) 
@@ -201,8 +206,7 @@ def main(port, server_address):
             client_name = click.prompt("Unsubscriber's Name")
             client_type = client_model.VerifyClientName(client_name)
             if client_type is not None:
-                click.echo("Enter clients for {} to unsubscribe to".format(client_name)) 
-                pub_list= click.prompt("Seperated by commas")
+                pub_list= click.prompt("Publisher Name")
                 pub_list = client_model.VerifyPubList(pub_list)
                 if pub_list is not None:
                     connection.UnsubscribeClientFrom(client_name, client_type, pub_list)
