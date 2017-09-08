@@ -24,10 +24,10 @@ import binascii
 from subprocess import PIPE, STDOUT
 
 from utils import Logger
+from utils import command_args
 from checksum import *
 from models.serialize.u32_type import *
 
-from views import command_args_factory
 from controllers import command_loader
 from controllers import commander
 from controllers import event_loader
@@ -138,7 +138,6 @@ class GseApi(object):
         self._events.create(generated_path + os.sep + "events")
         self._channels = channel_loader.ChannelLoader.getInstance()
         self._channels.create(generated_path + os.sep + "channels")
-        self.__args_factory = command_args_factory.CommandArgsFactory()
         self._ev_listener = event_listener.EventListener.getInstance()
         self._ev_listener.setupLogging()
         self._ch_listener = channel_listener.ChannelListener.getInstance()
@@ -222,7 +221,7 @@ class GseApi(object):
               (recv_id, _) = evr
               if type == "evr" and id == recv_id:
                 notFound = False
-      except TimeoutException:
+      except self.TimeoutException:
         print 'Timeout reached, unable to find', type, 'ID', id
 
       if timeout:
@@ -350,10 +349,22 @@ class GseApi(object):
         if args is not None:
            for i in range(len(args)):
                arg_name, arg_desc, arg_type = cmd_obj.getArgs()[i]
-               arg_obj = self.__args_factory.create_arg_type(arg_name, arg_type, args[i])
+               arg_obj = command_args.create_arg_type(arg_name, arg_type, args[i])
                cmd_obj.setArg(arg_name, arg_obj)
 
+        # This added to make it work with both zmq and tcp
+        # Moved command assembly code down into object
         self.__commander.cmd_send(None, cmd_obj)
+        #
+        # Old code
+        #data_len = U32Type( len(data) + desc_type.getSize() )
+        #cmd = "A5A5 " + "FSW " + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
+        ##type_base.showBytes(cmd)
+        #if self.__sock == None:
+        #    print "Command %s not sent: No socket connection" % cmd_name
+        #    return -1
+        #self.__sock.send(cmd)
+
         if args is None:
             print 'Sent command', cmd_name
         else:

@@ -11,7 +11,7 @@
 
 ======================================================================-->
 
-<telemetry telemetry_base="$SignalGenIdBase">
+<telemetry>
   <channel id="0" name="SignalGen_Output" data_type="F32" abbrev="T001-300" low_red="-3" low_orange="-2" low_yellow = "-1" high_yellow="1" high_orange="2" high_red="3">
     <comment>SignalGen Output</comment>
     <units name="volts" gain="2.5" offset="0.0"></units>
