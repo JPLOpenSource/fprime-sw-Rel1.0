@@ -240,19 +240,39 @@ class GseApi(object):
 
     # Subscription Configuration
     # Sleep to give server time to make changes.
+    def subscribeClientToClient(self, publisherName, subscriberName, subscriberType):
+      self.__server_command_interface.SubscribeClientTo(subscriberName, subscriberType, publisherName)
+      time.sleep(1)
+
+    def unsubscibeClientFromClient(self, publisherName, subscriberName, subscriberType):
+      self.__server_command_interface.UnsubscribeClientFrom(self.__api_client_name, "GROUND", targetName)
+      time.sleep(1)
+
     def subscribeTo(self, targetName):
+      """
+      Subscribe API to targetName
+      """
       self.__server_command_interface.SubscribeClientTo(self.__api_client_name, "GROUND", targetName)
       time.sleep(1)
 
     def unsubscribeFrom(self, targetName):
+      """
+      Unsubscribe from targetName
+      """
       self.__server_command_interface.UnsubscribeClientFrom(self.__api_client_name, "GROUND", targetName)
       time.sleep(1)
 
     def subscribeTargetToSelf(self, targetName):
+      """
+      Subscribe targetName to self
+      """
       self.__server_command_interface.SubscribeClientTo(targetName, "FLIGHT", self.__api_client_name)
       time.sleep(1)
 
     def unsubscribeTargetFromSelf(self, targetName):
+      """
+      Unsubscribe target name from self
+      """
       self.__server_command_interface.UnsubscribeClientFrom(targetName, "FLIGHT", self.__api_client_name)
       time.sleep(1)
 
