@@ -15,7 +15,7 @@ The following components are provided:
 |`zmq-router`|A generic router with serialize input/ouput ports for sending port invocations to other nodes via ZMQ.|In progress, doesn't work yet|
 |`zmq-pub`|A component with serialize input ports for publishing port calls.|Not started|
 |`zmq-sub`|A component with serialize output ports for subscribing to port calls.|Not started|
-|`zmq-radio`|A component with uplink/downlink ports that communicate via ZMQ with a ground system|Not started|
+|`zmq-radio`|A component with uplink/downlink ports that communicate via ZMQ with a ground system|Delivered|
 
 See the component SDD files in their respective `docs` subdirectories.
 
@@ -97,6 +97,7 @@ make rebuild
 To start a simple flight and ground configuration running in seperate windows do these commands
 
 ````
+cd ../Gse/bin
 python run_zmq_server.py 50000
 ````
 
