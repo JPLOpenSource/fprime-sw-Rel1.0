@@ -1,34 +1,14 @@
 
 #include <fprime-zmq/zmq-radio/test/ut/Tester.hpp>
 
-volatile bool quit = false;
-
-static void sighandler(int signum){
-    quit = true;
+TEST(zmqradio,testConnection) {
+    Zmq::Tester test;
+    test.testConnection();
 }
 
-int main(int argc, char* argv[]){
-
-    signal(SIGINT, sighandler);
-    signal(SIGTERM, sighandler);
-
-    Zmq::Tester tester;
-    tester.testConnection();
-
-    //Zmq::ZmqRadioComponentImpl comp("flight");
-    //comp.init(100, 1);
-    //comp.open("localhost", 5555, "flight_1");
-    
-
-
-    //comp.start(1, 90, 20*1024);
-
-    while(not quit){
-    
-    }
-
-    //comp.exit();
-    
-
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
+
 
