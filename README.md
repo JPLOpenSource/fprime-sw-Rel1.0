@@ -36,4 +36,84 @@ Add:
 `-DZMQ_BUILD_DRAFT_API` if you wish to use the ZMQ draft API. (Needed for `zmq_router`)
 
 
+## Modification to repo for zmq-ref and zmq-radio to build properly
+
+git submodule add https://github.jpl.nasa.gov/reder/fprime-zmq.git
+
+Add the following to `<root>/mk/configs/module/modules.mk`
+
+````
+ZMQ-REF_MODULES := \
+        fprime-zmq/zmq-ref/Top \
+        Ref/RecvBuffApp \
+        Ref/SendBuffApp \
+        Ref/SignalGen \
+        Ref/PingReceiver \
+        fprime-zmq/zmq-radio \
+        fprime-zmq/zmq
+
+
+zmq-ref_MODULES := \
+        $(ZMQ-REF_MODULES) \
+        $(SVC_MODULES) \
+        $(DRV_MODULES) \
+        $(FW_MODULES) \
+        $(OS_MODULES) \
+        $(CFDP_MODULES) \
+        $(UTILS_MODULES)
+````
+
+Change this to:
+
+````
+# Other modules to build, but not to link with deployment binaries
+OTHER_MODULES := \
+        gtest \
+        Os/Stubs \
+        Fw/Test \
+        fprime-zmq/zmq-radio \
+        fprime-zmq/zmq-pub \
+        fprime-zmq/zmq-sub \
+        $(FW_GTEST_MODULES)
+````
+
+Change this to:
+
+````
+
+# List deployments
+
+DEPLOYMENTS := Ref acdev zmq-ref
+
+````
+
+Next build the submodule
+
+````
+cd `<root>/fprime-zmq/zmq-ref`
+make rebuild
+````
+
+To start a simple flight and ground configuration running in seperate windows do these commands
+
+````
+python run_zmq_server.py 50000
+````
+
+````
+python gse.py -d ../generated/Ref -N ground -p 50000
+````
+
+````
+zmq-ref -p 50000 -a localhost -n flight
+````
+
+Then configure using the run_zmq_server_config.py script.
+
+
+
+
+
+
+
 

@@ -96,7 +96,6 @@ Is connected to a 1Hz rategroup for persistent reconnection attempts.
 If `ZMQ_RADIO_CONNECTED`:     No action. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  Attempts connection and registration with the server.
 
-
 Dictionaries: [HTML](ActiveLogger.html) [MD](ZmqRadio.md)
 
 
@@ -104,3 +103,18 @@ Dictionaries: [HTML](ActiveLogger.html) [MD](ZmqRadio.md)
 - Change receive and sending to use a Serializable instead of incrementing a buffer pointer
 - Remove use of ntohl for network correction
 - Remove strings from EVRs
+
+##5.0 Running Unit Test Cases
+
+The unit tests all need a running instance of the `run_zmq_server.py` server so before executing unit test cases in a seperate shell window execute this
+
+````
+python run_zmq_server.py 5555
+````
+
+Then do
+
+````
+make ut_clean ut run_ut
+````
+in the component directory.
