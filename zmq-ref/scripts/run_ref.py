@@ -8,6 +8,9 @@ import time
 import signal
 from optparse import OptionParser
 
+from controllers.zmq_server_command import ServerCommandInterface 
+from utils.gse_api import GseApi
+
 def main(argv=None):
     
     start_port = 50000
@@ -56,17 +59,11 @@ def main(argv=None):
         TTS = subprocess.Popen(TTS_args)
     else:
         tts_log = open("ZmqServer.log",'w')
-        TTS_args = [python_bin, "-u", "%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
+        TTS_args = [python_bin, "%s/Gse/bin/run_server.py"%build_root,"%d"%used_port]
         TTS = subprocess.Popen(TTS_args,stdout=tts_log,stderr=subprocess.STDOUT)
     
     # wait for TCP Server to start
     time.sleep(5)
-    
-    # run Gse GUI
-    GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_1.log","GUI 1",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
-                "-N gui_1"]
-    #print ("GUI: %s"%" ".join(GUI_args))
-    GUI1 = subprocess.Popen(GUI_args)
 
     # run Ref app
     
@@ -77,9 +74,19 @@ def main(argv=None):
     if not nobin:
         REF_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"Ref.log","Ref 1 Application",ref_bin,"-p","%d"%used_port,"-a",addr,"-n flight_1"]
         REF1 = subprocess.Popen(REF_args)
+
+    time.sleep(2)
+
+    # run Gse GUI
+    GUI_args = [python_bin,"%s/Gse/bin/pexpect_runner.py"%build_root,"gui_1.log","GUI 1",python_bin,"%s/Gse/bin/gse.py"%build_root,"--port","%d"%used_port,"--dictionary","%s/Gse/generated/Ref"%build_root,"--connect","--addr",addr,"-L","%s/Ref/logs"%build_root,\
+                "-N gui_1", "-T flight_1"]
+    #print ("GUI: %s"%" ".join(GUI_args))
+    GUI1 = subprocess.Popen(GUI_args)
     
     GUI1.wait()
-    GUI2.wait()
+
+    api = GseApi(server_addr="localhost", port=used_port, api_client_name="api_1")
+    api.SubscribeClientToClient("flight_1", "FLIGHT", "gui_1") # Subscribe flight_1 to gui_1
 
     if not nobin:
         try:
