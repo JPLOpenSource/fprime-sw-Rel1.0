@@ -148,6 +148,8 @@ class ZmqClientSocket(ClientSocket):
         super(ZmqClientSocket, self).__init__(host_addr, port, gui_name, main_panel)
 
         try:
+            self.__gui_name = gui_name
+
             self.__zmq_initialized = False # Let the destructor know if all zmq components were initialzed
 
             ####################
@@ -241,7 +243,7 @@ class ZmqClientSocket(ClientSocket):
 
 
 
-    def SubscribeToTargets(self, targets):
+    def SubscribeTo(self, targets):
         if targets is not None:
             for target in targets:
                  # Subscribe to all targets

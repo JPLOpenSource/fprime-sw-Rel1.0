@@ -458,6 +458,9 @@ class TopPanel(object):
         else:
             self.__client_socket = client_sock.ZmqClientSocket.GetClientSocket(host_addr, port, gui_name, self)
 
+            # Subscribe to targets
+            self.__client_socket.SubscribeTo(self.__opts.targets)
+
         if(self.__client_socket):
             self.__socket_listen.connect(self.__client_socket.GetSubscriberSocket())
             self.__commander.connect(self.__client_socket.GetPublisherSocket())

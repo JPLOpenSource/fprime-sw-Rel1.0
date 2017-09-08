@@ -363,3 +363,4 @@ and disconnections for monte\_time seconds.
 - GSE API Client Demo
 - Further throughput testing with outbound clients
 - Add command to list all registered protocol translations
+- gse.py auto connect
