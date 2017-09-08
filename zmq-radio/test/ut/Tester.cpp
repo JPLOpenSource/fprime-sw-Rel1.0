@@ -57,23 +57,25 @@ namespace Zmq {
     testConnection(void)
 
   {
+    // Initialize component and open a connection
     this->component.init(100, 1);
     this->component.open("localhost", 5555, "flight_1");
-    printf("State: %d\n", this->component.m_state.get());
-    
+     
+    // Call reconnect handler to activate telemetry
     this->component.reconnect_handler(0,0);
-    ASSERT_TLM_ZR_NumConnects(0,1);
-    ASSERT_EVENTS_ZR_Connection_SIZE(1);
+    ASSERT_TLM_ZR_NumConnects(0,1); // Expecting 1 connection
+    ASSERT_EVENTS_ZR_Connection_SIZE(1); // Expecting 1 connection event
 
+    // Transition to disconnected state
     this->component.m_state.transitionDisconnected();
+    // Call reconnect handler to activate telemetry
     this->component.reconnect_handler(0,0);
-    ASSERT_EVENTS_ZR_Disconnection_SIZE(1);
-    ASSERT_TLM_ZR_NumDisconnects(1,1);
+    ASSERT_EVENTS_ZR_Disconnection_SIZE(1); // Expecting one disconnection event
+    ASSERT_TLM_ZR_NumDisconnects(1,1); // Expecting 1 disconnect
     
     // reconnect handler should have made a reconenction attempt
-    ASSERT_EVENTS_ZR_Connection_SIZE(2);
-    ASSERT_TLM_ZR_NumConnects(1,2);
-
+    ASSERT_EVENTS_ZR_Connection_SIZE(2); // Expect 2 connection events 
+    ASSERT_TLM_ZR_NumConnects(1,2); // Expect 2 connections
 
   }
   // ----------------------------------------------------------------------

@@ -53,6 +53,11 @@ namespace Zmq{
 	PROTECTED:
 	PRIVATE:
 
+		// Return values for zmqSocketRead
+		enum {ZMQ_SOCKET_READ_EAGAIN = -1,
+			  ZMQ_SOCKET_READ_ERROR  = -2};
+
+
 		/* Setup zmq context and attempt server connection 
 		 * */
 	    void connect(void);
@@ -100,7 +105,6 @@ namespace Zmq{
 	    /* ZMQ Components */
 	    void* m_context; //!< zmq context
 	    void* m_pubSocket; //!< zmq socket for outbound telemetry,events, and files
-	    void* m_subSocket; //!< zmq socket for inbound commands and files
 	    void* m_cmdSocket; //!< zmq socket for server registration
 
 	    /* Network Info */

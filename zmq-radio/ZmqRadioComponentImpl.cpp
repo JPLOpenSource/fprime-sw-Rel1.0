@@ -21,8 +21,8 @@
 #include <Fw/Types/BasicTypes.hpp>
 #include <fprime-zmq/zmq-radio/ZmqRadioComponentImpl.hpp>
 
-#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
-//#define DEBUG_PRINT(x,...)
+//#define DEBUG_PRINT(x,...) printf(x,##__VA_ARGS__)
+#define DEBUG_PRINT(x,...)
 
 namespace Zmq{
 
@@ -37,25 +37,25 @@ namespace Zmq{
 				    //printf("%s: ZMQ EAGAIN\n", from);
 				    return true;
 				case EFSM:
-				     printf("%s: ZMQ EFSM", from);
+				     DEBUG_PRINT("%s: ZMQ EFSM", from);
 				     return true;
 				case ETERM:
-					printf("%s: ZMQ terminate\n",from);
+					DEBUG_PRINT("%s: ZMQ terminate\n",from);
 					return true;
 				case ENOTSOCK:
-					printf("%s: ZMQ ENOTSOCK\n",from);
+					DEBUG_PRINT("%s: ZMQ ENOTSOCK\n",from);
 					return true;
 				case EINTR:
-					printf("%s: ZMQ EINTR\n",from);
+					DEBUG_PRINT("%s: ZMQ EINTR\n",from);
 					return false;
 				case EFAULT:
-					printf("%s: ZMQ EFAULT\n",from);
+					DEBUG_PRINT("%s: ZMQ EFAULT\n",from);
 					return false;
 				case ENOMEM:
-					printf("%s: ZMQ ENOMEM\n", from);
+					DEBUG_PRINT("%s: ZMQ ENOMEM\n", from);
 					return false;
 				default:
-					printf("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
+					DEBUG_PRINT("%s: ZMQ error: %s\n",from,zmq_strerror(zmq_errno()));
 					return true;
 			}
 		}
@@ -72,7 +72,6 @@ namespace Zmq{
 	// ZMQ Components
 	,m_context(0)
 	,m_pubSocket(0)
-	,m_subSocket(0)
 	,m_cmdSocket(0)
 
 	// Telemetry
@@ -107,6 +106,7 @@ namespace Zmq{
 	void ZmqRadioComponentImpl::connect(void){
 	    int rc = 0; // Return code
 
+	    DEBUG_PRINT("Connecting\n");
 	    // Setup context
 	    this->m_context   = zmq_ctx_new();
 	    if(not this->m_context){
@@ -148,19 +148,6 @@ namespace Zmq{
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_RCVTIMEO, &ZMQ_RADIO_RCVTIMEO, sizeof(ZMQ_RADIO_RCVTIMEO));
 	    zmq_setsockopt(this->m_pubSocket, ZMQ_SNDTIMEO, &ZMQ_RADIO_SNDTIMEO, sizeof(ZMQ_RADIO_SNDTIMEO));
 
-	    /* Sub Socket */
-	    this->m_subSocket = zmq_socket(this->m_context, ZMQ_ROUTER); 
-	    if(not this->m_subSocket){ 
-			zmqError("ZmqRadioComponentImpl::connect Error creating sub socket");
-			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-			this->log_WARNING_HI_ZR_SocketError(errArg);
-			this->m_state.transitionDisconnected();
-			return;
-	    }
-	    zmq_setsockopt(this->m_subSocket, ZMQ_IDENTITY, &this->m_zmqId, strlen(this->m_zmqId));
-	    zmq_setsockopt(this->m_subSocket, ZMQ_LINGER, &ZMQ_RADIO_LINGER, sizeof(ZMQ_RADIO_LINGER));
-	    zmq_setsockopt(this->m_subSocket, ZMQ_RCVTIMEO, &ZMQ_RADIO_RCVTIMEO, sizeof(ZMQ_RADIO_RCVTIMEO));
-	    zmq_setsockopt(this->m_subSocket, ZMQ_SNDTIMEO, &ZMQ_RADIO_SNDTIMEO, sizeof(ZMQ_RADIO_SNDTIMEO));
 
 	    // Attempt registration
 	    rc = this->registerToServer();
@@ -241,19 +228,20 @@ namespace Zmq{
 					memcpy(&this->m_serverSubPort, zmq_msg_data(&msg), size);
 					DEBUG_PRINT("serverSubPort: %d\n", this->m_serverSubPort);
 					break;
+
+				default:
+		            FW_ASSERT(0);
 				
 			}
 			zmq_msg_close(&msg);
 		}
 
 		// Check registration status
-		// TODO
-		if(regStatus != 0){
-			
-		}else{
-			
+		if(regStatus == 0){
+			Fw::LogStringArg errArg("Registration Error: Registration status 0\n");
+			this->log_WARNING_HI_ZR_SocketError(errArg);
+			return -1;
 		}
-		
 
 		// Connect publish socket
 		(void)snprintf(endpoint,ZMQ_RADIO_ENDPOINT_NAME_SIZE,"tcp://%s:%d",this->m_hostname, this->m_serverSubPort);
@@ -267,16 +255,6 @@ namespace Zmq{
 			return -1;
 		} 
 
-		// Connect subscribe socket
-		(void)snprintf(endpoint, ZMQ_RADIO_ENDPOINT_NAME_SIZE, "tcp://%s:%d", this->m_hostname, this->m_serverPubPort);
-		rc = zmq_connect(this->m_subSocket,endpoint);
-		if (-1 == rc) {
-			zmqError("ZmqRadioComponentImpl::registerToServer Error connecting subscribe socket.");
-			Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
-			this->log_WARNING_HI_ZR_SocketError(errArg);
-			return -1;
-		} 
-
 	    return 0;
 
 	}
@@ -285,12 +263,6 @@ namespace Zmq{
 	ZmqRadioComponentImpl::~ZmqRadioComponentImpl(void){
 	    // Object destruction
 	    DEBUG_PRINT("Destruct\n");
-
-	    zmq_close(this->m_pubSocket);
-		zmq_close(this->m_subSocket);
-		zmq_close(this->m_cmdSocket);
-		zmq_term(this->m_context);
-
 	}
 
 	void ZmqRadioComponentImpl::preamble(void){ 
@@ -301,6 +273,12 @@ namespace Zmq{
 	void ZmqRadioComponentImpl::finalizer(void){
 	    // Close Zmq
 	    DEBUG_PRINT("Finalizer\n");
+
+	    // The transition to disconnect destroys all zmq resources.
+	    // If the zmq resources are destroyed here the subscription thread
+	    // might call transitionDisconnected() and attempt to destroy
+	    // an already destroyed zmq resource.
+		m_state.transitionDisconnected();
 	}
 
 	/* Handlers */
@@ -318,6 +296,9 @@ namespace Zmq{
 				DEBUG_PRINT("reconnect_handler: Not connected. Reconnect.\n");
 				this->connect();
 				break;
+
+			default:
+		        FW_ASSERT(0);
 
 		}
 		
@@ -347,8 +328,10 @@ namespace Zmq{
 			case State::ZMQ_RADIO_DISCONNECTED_STATE:
 				// Drop packets
 				break;
-		}
-		
+
+			default:
+		        FW_ASSERT(0);
+		}	
 	}
 
 	void ZmqRadioComponentImpl::fileDownlinkBufferSendIn_handler(
@@ -366,16 +349,16 @@ namespace Zmq{
 				// Drop packets
 				break;
 
-		}
+			default:
+		        FW_ASSERT(0);
 
+		}
 	}
 
 	/* FPrime ZMQ Wrapper functions */
 
     NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketWriteComBuffer(void* zmqSocket, Fw::ComBuffer &data) {
-    	// Ensure write calls are atomic
-		static Os::Mutex mutex;
-		mutex.lock();
+
     	//printf("Data Size: 0x%04x\n", data.getBuffLength());
     	//printf("Data Desc: 0x%04x\n", *(U32*)data.getBuffAddr());
 
@@ -391,16 +374,10 @@ namespace Zmq{
 		
 		this->zmqSocketWrite(zmqSocket, &fPrimePacket);
     	
-
-    	mutex.unLock();
     	return 1;
-
     }
 
    	NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketWriteFilePacket(void* zmqSocket, Fw::Buffer &buffer){
-    	// Ensure write calls are atomic
-		static Os::Mutex mutex;
-		mutex.lock();
 
    		U32 bufferSize = buffer.getsize();
 
@@ -418,8 +395,6 @@ namespace Zmq{
 
     	this->zmqSocketWrite(zmqSocket, &fPrimePacket);
 
-
-   		mutex.unLock();
    		return 1;
    	}
 
@@ -444,9 +419,6 @@ namespace Zmq{
 
 
     NATIVE_INT_TYPE ZmqRadioComponentImpl::zmqSocketRead(void* zmqSocket, U8* buf, NATIVE_INT_TYPE size) {
-		// Ensure read calls are atomic
-		static Os::Mutex mutex;
-		mutex.lock();
 
 		NATIVE_INT_TYPE rc = 0; // return code
         NATIVE_INT_TYPE total=0;
@@ -457,16 +429,13 @@ namespace Zmq{
     	rc = zmq_msg_recv(&zmqID, zmqSocket, 0);
     	zmq_msg_close(&zmqID);
     	if(rc == -1){
-    		if(zmq_errno() == EAGAIN){ // Recv timed out so keep retrying
-    			mutex.unLock();
-    			return -1;
+    		if(zmq_errno() == EAGAIN){ // Recv call timed out 
+    			return ZMQ_SOCKET_READ_EAGAIN;
     		}else{ // A more serious error has occured
 	    		zmqError("ZmqRadioComponentImpl::zmqSocketRead: zmq_msg_recv error.");
 		    	Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
 		    	this->log_WARNING_HI_ZR_ReceiveError(errArg);
-		    	this->m_state.transitionDisconnected();
-		    	mutex.unLock();
-		    	return -1;
+		    	return ZMQ_SOCKET_READ_ERROR;
 	    	}
     	}
 
@@ -476,17 +445,14 @@ namespace Zmq{
     	total = zmq_msg_recv(&fPrimePacket, zmqSocket, 0);
 
     	if(total == -1){
-    		if(zmq_errno() == EAGAIN){ // Recv timed out so keep retrying
-    			mutex.unLock();
-    			return -1;
+    		if(zmq_errno() == EAGAIN){ // Recv timed out
+    			return ZMQ_SOCKET_READ_EAGAIN;
     		}else{
 
 	    		zmqError("ZmqRadioComponentImpl::zmqSocketRead: zmq_msg_recv error.");
 		    	Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
 		    	this->log_WARNING_HI_ZR_ReceiveError(errArg);
-		    	this->m_state.transitionDisconnected();
-		    	mutex.unLock();
-		    	return -1;
+		    	return ZMQ_SOCKET_READ_ERROR;
 		    }
 
     	}else{ // Success. Copy packet data into buf, close message, and increase number packets received
@@ -495,7 +461,6 @@ namespace Zmq{
     		this->m_packetsRecv++;
     	}
 
-    	mutex.unLock();
         return total;
     }
 
@@ -508,32 +473,86 @@ namespace Zmq{
     
     }
 
+
     void ZmqRadioComponentImpl::subscriptionTaskRunnable(void* ptr){
-    	printf("Entering subscriptionTask\n");
+    	DEBUG_PRINT("Entering subscriptionTask\n");
     	fflush(stderr);
 
 		// Get reference to component
 		ZmqRadioComponentImpl* comp = (ZmqRadioComponentImpl*) ptr;
     	
+    	void* subSocket = 0; // Zmq Subscription socket
+
+		U32 packetDelimiter;
+		U32 packetSize;
+		U32 packetDesc;
+		U8 buf[FW_COM_BUFFER_MAX_SIZE];
+		
     	while(1){
-	        U32 packetDelimiter;
-	        U32 packetSize;
-	        U32 packetDesc;
-	        U8 buf[FW_COM_BUFFER_MAX_SIZE];
-	        U16 buf_ptr = 0;
+	        U16 buf_ptr = 0; // Reset buffer pointer
 
 
 	        switch(comp->m_state.get()){
 	        	case State::ZMQ_RADIO_DISCONNECTED_STATE:
+
 	        		// Idle
 	        		break;
 
 		        case State::ZMQ_RADIO_CONNECTED_STATE:
+
+		        	if(subSocket == 0){ // Create subSocket if disconnected
+					    subSocket = zmq_socket(comp->m_context, ZMQ_ROUTER); 
+					    if(subSocket == 0){ 
+							zmqError("ZmqRadioComponentImpl::connect Error creating sub socket");
+							Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+							comp->log_WARNING_HI_ZR_SocketError(errArg);
+
+							// Close this thread's zmq resource
+							zmq_close(subSocket);
+	        				subSocket = 0;
+
+							comp->m_state.transitionDisconnected();
+							break;
+					    }
+					    zmq_setsockopt(subSocket, ZMQ_IDENTITY, &comp->m_zmqId, strlen(comp->m_zmqId));
+					    zmq_setsockopt(subSocket, ZMQ_LINGER, &ZMQ_RADIO_LINGER, sizeof(ZMQ_RADIO_LINGER));
+					    zmq_setsockopt(subSocket, ZMQ_RCVTIMEO, &ZMQ_RADIO_RCVTIMEO, sizeof(ZMQ_RADIO_RCVTIMEO));
+					    zmq_setsockopt(subSocket, ZMQ_SNDTIMEO, &ZMQ_RADIO_SNDTIMEO, sizeof(ZMQ_RADIO_SNDTIMEO));
+
+						// Connect subscribe socket
+						char endpoint[ZMQ_RADIO_ENDPOINT_NAME_SIZE];
+						(void)snprintf(endpoint, ZMQ_RADIO_ENDPOINT_NAME_SIZE, "tcp://%s:%d", comp->m_hostname, comp->m_serverPubPort);
+						int rc = zmq_connect(subSocket,endpoint);
+						if (-1 == rc) {
+							zmqError("ZmqRadioComponentImpl::subscriptionTaskRunnable: Error connecting subscribe socket.");
+							Fw::LogStringArg errArg(zmq_strerror(zmq_errno()));
+							comp->log_WARNING_HI_ZR_SocketError(errArg);
+
+							// Close this thread's zmq resource
+							zmq_close(subSocket);
+	        				subSocket = 0;
+
+							comp->m_state.transitionDisconnected();
+							break;
+						} 
+
+
+		        	} // if subSocket == 0
+
 		    		// Read incoming zmq message
 		    		I32 msgSize = 0;
-					msgSize = comp->zmqSocketRead(comp->m_subSocket, buf, (NATIVE_INT_TYPE)FW_COM_BUFFER_MAX_SIZE);
-					if(msgSize == -1){ // An error occured
+					msgSize = comp->zmqSocketRead(subSocket, buf, (NATIVE_INT_TYPE)FW_COM_BUFFER_MAX_SIZE);
+					if(msgSize > 0){ // Successful read
+						// Pass
+					}else if(msgSize == ZMQ_SOCKET_READ_ERROR){ // A serious zmq error
+						// Close this thread's zmq resource
+						zmq_close(subSocket);
+        				subSocket = 0;
+
+						comp->m_state.transitionDisconnected();
 						break;
+					}else if(msgSize == ZMQ_SOCKET_READ_EAGAIN){ // Socket has timed out
+						break; // Break switch and retry
 					}
 
 					// Extract packet delimiter
@@ -556,7 +575,6 @@ namespace Zmq{
 
 		            // Increment buffer pointer
 		            buf_ptr += sizeof(packetDelimiter);
-
 
 		            // Extract FPrime packet size
 		            packetSize = *(U32*)(buf + buf_ptr);
@@ -660,9 +678,6 @@ namespace Zmq{
 	}
 
 	void ZmqRadioComponentImpl::State::transitionConnected(){
-		// Ensure transition calls are atomic
-		static Os::Mutex mutex;
-		mutex.lock();
 
 		switch(this->state){
 
@@ -682,29 +697,35 @@ namespace Zmq{
 
 				this->m_parent->m_numConnects++;
 				break;
+
+			default:
+		    	FW_ASSERT(0);
 		}
-		mutex.unLock();
 
 	}
 
 	void ZmqRadioComponentImpl::State::transitionDisconnected(){
+		/*
+			This function has a mutex beacuse either the main thread or the subscription thread
+			can call transitionDisconnected().
+		*/
+
 		// Ensure transition calls are atomic
 		static Os::Mutex mutex;
 		mutex.lock();
 
 		// Release ZMQ resources to prepare for reconnect attempts
 		zmq_close(this->m_parent->m_pubSocket);
-		zmq_close(this->m_parent->m_subSocket);
 		zmq_close(this->m_parent->m_cmdSocket);
 		zmq_term(this->m_parent->m_context);
-
 
 		switch(this->state){
 
 			case ZMQ_RADIO_CONNECTED_STATE:
+				DEBUG_PRINT("Disconnecting\n");
+
 				// Disconnection experienced
 				this->state = ZMQ_RADIO_DISCONNECTED_STATE;
-
 				this->m_parent->log_WARNING_HI_ZR_Disconnection();
 				this->m_parent->m_numDisconnects++;
 
@@ -715,9 +736,11 @@ namespace Zmq{
 				this->m_parent->m_numDisconnectRetries++;
 				break;
 
+			default:
+		        FW_ASSERT(0);
+
 		}
 		mutex.unLock();
-
 	}
 
 } // namespace Zmq 
