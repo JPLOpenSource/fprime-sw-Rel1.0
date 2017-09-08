@@ -1,4 +1,3 @@
-
 # ZmqRadio Component
 
 ## 1. Introduction
@@ -6,23 +5,26 @@
 The ZmqRadio is an active component that provides an interface to the 
 ZeroMQ based GSE server. 
 
+The FPrime ZeroMQ GSE server uses ZeroMQ as a socket middleware library. An interface is needed to allow an embedded system to communicate with the server. This component provides that.  
+
 The component takes input from a `Fw::Com` and `Fw:BufferSend` port.
 These inputs are serviced by the `Zmq::ZmqRadio::downlinkPort_handler` and 
 `Zmq::ZmqRadio::filedownlinkbuffersendin_handler`, respectively. 
 
-An `Os::Task` listener thread, `Zmq::ZmqRadio::subscriptionTask`, runs in parallel with the ZmqRadio's main thread. This listener thread blocks and listens for packets coming from the ground system. Any ZMQ error, such as a
-network disconnect, breaks the block allowing the task to switch to the
-`ZMQ_RADIO_DISCONNECTED` state.
+An `Os::Task` listener thread, `Zmq::ZmqRadio::subscriptionTask`, runs in parallel with the ZmqRadio's main thread. This listener thread blocks and listens for packets coming from the ground system.
 
-In order to support persistent reconnection attempts and component stability,
-the ZmqRadio maintains two internal states:
+The component uses state to determine it's behavior. There are two states the component can be in:
 
-- `ZMQ_RADIO_DISCONNECTED`
 - `ZMQ_RADIO_CONNECTED`
+- `ZMQ_RADIO_DISCONNECTED`
 
 The ZmqRadio's state controls each input handlers to keep message queues 
 from backing up. The internal state also facilitates persistent reconnection
 attempts. 
+
+A ZMQ error, such as a network disconnect, may change 
+`ZMQ_RADIO_DISCONNECTED` state. While in a disconnected state the component tries to reconnect with the server. The state is restored to `ZMQ_RADIO_CONNECTED` if connection is successful.
+
 
 
 ## 2. Requirements
@@ -46,8 +48,8 @@ ZMQ Option | Description |  Value
 
 `Zmq::ZmqRadio` Option | Description |  Value 
 ---------- | ----------- | --------------
-`ZMQ_RADIO_NUM_RECV_TRIES` | Number of times the component retries receiving an uplinked packet. | 5
-`ZMQ_RADIO_SNDHWM` | Maximum number of outbound packets queued until transition to `ZMQ_RADIO_DISCONNECTED` | 5
+`ZMQ_RADIO_NUM_RECV_TRIES` | Number of times the component retries receiving an uplinked packet. | 5 s
+`ZMQ_RADIO_SNDHWM` | Maximum number of outbound packets queued until transition to `ZMQ_RADIO_DISCONNECTED` | 5 msgs
 
 ## 3. Design
 
@@ -60,6 +62,10 @@ ZMQ Option | Description |  Value
 #### 3.1.2 State Diagram
 
 ![ZmqRadioStateDiagram](img/ZmqRadioState.png "ZmqRadioState") 
+
+#### 3.1.3 Sequence Diagram
+![ZmqRadioStateDiagram](img/ZmqRadioStateSequence.png "ZmqRadioState") 
+
 
 ## 4. Functional Description
 
@@ -84,24 +90,17 @@ If `ZMQ_RADIO_DISCONNECTED`:  Set state to `ZMQ_RADIO_CONNECTED`
 If `ZMQ_RADIO_CONNECTED`:     Set state to `ZMQ_RADIO_DISCONNECTED` and release ZMQ resources. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  No action. 
 
-### 4.6 reconnect_handler
+### 4.6 sched_handler
 Is connected to a 1Hz rategroup for persistent reconnection attempts.
+
 If `ZMQ_RADIO_CONNECTED`:     No action. <br> 
 If `ZMQ_RADIO_DISCONNECTED`:  Attempts connection and registration with the server.
 
 
-## Telemetry Channel List
-- ZR_NumDisconnects
-- ZR_NumConnects
-- ZR_NumDisconnectRetries
-- ZR_PktsSent
-- ZR_PktsRecv
+Dictionaries: [HTML](ActiveLogger.html) [MD](ZmqRadio.md)
 
-## Event List
-- ZR_ContextError
-- ZR_SocketError
-- ZR_BindError
-- ZR_Disconnection
-- ZR_Connection
-- ZR_SendError
-- ZR_ReceiveError
+
+## Future Work
+- Change receive and sending to use a Serializable instead of incrementing a buffer pointer
+- Remove use of ntohl for network correction
+- Remove strings from EVRs
