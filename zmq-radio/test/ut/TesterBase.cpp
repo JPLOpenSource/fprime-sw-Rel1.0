@@ -49,8 +49,6 @@ namespace Zmq {
       new History<TlmEntry_ZR_NumConnects>(maxHistorySize);
     this->tlmHistory_ZR_NumDisconnectRetries = 
       new History<TlmEntry_ZR_NumDisconnectRetries>(maxHistorySize);
-    this->tlmHistory_ZR_NumListenerRecvTimeouts = 
-      new History<TlmEntry_ZR_NumListenerRecvTimeouts>(maxHistorySize);
     this->tlmHistory_ZR_PktsSent = 
       new History<TlmEntry_ZR_PktsSent>(maxHistorySize);
     this->tlmHistory_ZR_PktsRecv = 
@@ -89,7 +87,6 @@ namespace Zmq {
     delete this->tlmHistory_ZR_NumDisconnects;
     delete this->tlmHistory_ZR_NumConnects;
     delete this->tlmHistory_ZR_NumDisconnectRetries;
-    delete this->tlmHistory_ZR_NumListenerRecvTimeouts;
     delete this->tlmHistory_ZR_PktsSent;
     delete this->tlmHistory_ZR_PktsRecv;
     // Destroy event histories
@@ -997,18 +994,6 @@ namespace Zmq {
         break;
       }
 
-      case ZmqRadioComponentBase::CHANNELID_ZR_NUMLISTENERRECVTIMEOUTS:
-      {
-        U32 arg;
-        const Fw::SerializeStatus _status = val.deserialize(arg);
-        if (_status != Fw::FW_SERIALIZE_OK) {
-          printf("Error deserializing ZR_NumListenerRecvTimeouts: %d\n", _status);
-          return;
-        }
-        this->tlmInput_ZR_NumListenerRecvTimeouts(timeTag, arg);
-        break;
-      }
-
       case ZmqRadioComponentBase::CHANNELID_ZR_PKTSSENT:
       {
         U32 arg;
@@ -1049,7 +1034,6 @@ namespace Zmq {
     this->tlmHistory_ZR_NumDisconnects->clear();
     this->tlmHistory_ZR_NumConnects->clear();
     this->tlmHistory_ZR_NumDisconnectRetries->clear();
-    this->tlmHistory_ZR_NumListenerRecvTimeouts->clear();
     this->tlmHistory_ZR_PktsSent->clear();
     this->tlmHistory_ZR_PktsRecv->clear();
   }
@@ -1096,21 +1080,6 @@ namespace Zmq {
   {
     TlmEntry_ZR_NumDisconnectRetries e = { timeTag, val };
     this->tlmHistory_ZR_NumDisconnectRetries->push_back(e);
-    ++this->tlmSize;
-  }
-
-  // ---------------------------------------------------------------------- 
-  // Channel: ZR_NumListenerRecvTimeouts
-  // ---------------------------------------------------------------------- 
-
-  void ZmqRadioTesterBase ::
-    tlmInput_ZR_NumListenerRecvTimeouts(
-        const Fw::Time& timeTag,
-        const U32& val
-    )
-  {
-    TlmEntry_ZR_NumListenerRecvTimeouts e = { timeTag, val };
-    this->tlmHistory_ZR_NumListenerRecvTimeouts->push_back(e);
     ++this->tlmSize;
   }
 
@@ -1288,25 +1257,6 @@ namespace Zmq {
 
       }
 
-      case ZmqRadioComponentBase::EVENTID_ZR_RECVTIMEOUT: 
-      {
-
-#if FW_AMPCS_COMPATIBLE
-        // For AMPCS, decode zero arguments
-        Fw::SerializeStatus _zero_status = Fw::FW_SERIALIZE_OK;
-        U8 _noArgs;
-        _zero_status = args.deserialize(_noArgs);
-        FW_ASSERT(
-            _zero_status == Fw::FW_SERIALIZE_OK,
-            static_cast<AssertArg>(_zero_status)
-        );
-#endif    
-        this->logIn_WARNING_HI_ZR_RecvTimeout();
-
-        break;
-
-      }
-
       case ZmqRadioComponentBase::EVENTID_ZR_SENDERROR: 
       {
 
@@ -1383,7 +1333,6 @@ namespace Zmq {
     this->eventHistory_ZR_BindError->clear();
     this->eventsSize_ZR_Disconnection = 0;
     this->eventsSize_ZR_Connection = 0;
-    this->eventsSize_ZR_RecvTimeout = 0;
     this->eventHistory_ZR_SendError->clear();
     this->eventHistory_ZR_ReceiveError->clear();
   }
@@ -1537,19 +1486,6 @@ namespace Zmq {
     )
   {
     ++this->eventsSize_ZR_Connection;
-    ++this->eventsSize;
-  }
-
-  // ----------------------------------------------------------------------
-  // Event: ZR_RecvTimeout 
-  // ----------------------------------------------------------------------
-
-  void ZmqRadioTesterBase ::
-    logIn_WARNING_HI_ZR_RecvTimeout(
-        void
-    )
-  {
-    ++this->eventsSize_ZR_RecvTimeout;
     ++this->eventsSize;
   }
 

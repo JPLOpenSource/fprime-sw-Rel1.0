@@ -221,56 +221,6 @@ namespace Zmq {
   }
 
   // ----------------------------------------------------------------------
-  // Channel: ZR_NumListenerRecvTimeouts
-  // ----------------------------------------------------------------------
-
-  void ZmqRadioGTestBase ::
-    assertTlm_ZR_NumListenerRecvTimeouts_size(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 size
-    ) const
-  {
-    ASSERT_EQ(this->tlmHistory_ZR_NumListenerRecvTimeouts->size(), size)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Size of history for telemetry channel ZR_NumListenerRecvTimeouts\n"
-      << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->tlmHistory_ZR_NumListenerRecvTimeouts->size() << "\n";
-  }
-
-  void ZmqRadioGTestBase ::
-    assertTlm_ZR_NumListenerRecvTimeouts(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 index,
-        const U32& val
-    )
-    const
-  {
-    ASSERT_LT(index, this->tlmHistory_ZR_NumListenerRecvTimeouts->size())
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Index into history of telemetry channel ZR_NumListenerRecvTimeouts\n"
-      << "  Expected: Less than size of history (" 
-      << this->tlmHistory_ZR_NumListenerRecvTimeouts->size() << ")\n"
-      << "  Actual:   " << index << "\n";
-    const TlmEntry_ZR_NumListenerRecvTimeouts& e =
-      this->tlmHistory_ZR_NumListenerRecvTimeouts->at(index);
-    ASSERT_EQ(val, e.arg)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Value at index "
-      << index
-      << " on telmetry channel ZR_NumListenerRecvTimeouts\n"
-      << "  Expected: " << val << "\n"
-      << "  Actual:   " << e.arg << "\n";
-  }
-
-  // ----------------------------------------------------------------------
   // Channel: ZR_PktsSent
   // ----------------------------------------------------------------------
 
@@ -575,26 +525,6 @@ namespace Zmq {
       << "  Value:    Size of history for event ZR_Connection\n"
       << "  Expected: " << size << "\n"
       << "  Actual:   " << this->eventsSize_ZR_Connection << "\n";
-  }
-
-  // ----------------------------------------------------------------------
-  // Event: ZR_RecvTimeout
-  // ----------------------------------------------------------------------
-
-  void ZmqRadioGTestBase ::
-    assertEvents_ZR_RecvTimeout_size(
-        const char *const __callSiteFileName,
-        const U32 __callSiteLineNumber,
-        const U32 size
-    ) const
-  {
-    ASSERT_EQ(size, this->eventsSize_ZR_RecvTimeout)
-      << "\n"
-      << "  File:     " << __callSiteFileName << "\n"
-      << "  Line:     " << __callSiteLineNumber << "\n"
-      << "  Value:    Size of history for event ZR_RecvTimeout\n"
-      << "  Expected: " << size << "\n"
-      << "  Actual:   " << this->eventsSize_ZR_RecvTimeout << "\n";
   }
 
   // ----------------------------------------------------------------------

@@ -48,12 +48,6 @@
 #define ASSERT_TLM_ZR_NumDisconnectRetries(index, value) \
   this->assertTlm_ZR_NumDisconnectRetries(__FILE__, __LINE__, index, value)
 
-#define ASSERT_TLM_ZR_NumListenerRecvTimeouts_SIZE(size) \
-  this->assertTlm_ZR_NumListenerRecvTimeouts_size(__FILE__, __LINE__, size)
-
-#define ASSERT_TLM_ZR_NumListenerRecvTimeouts(index, value) \
-  this->assertTlm_ZR_NumListenerRecvTimeouts(__FILE__, __LINE__, index, value)
-
 #define ASSERT_TLM_ZR_PktsSent_SIZE(size) \
   this->assertTlm_ZR_PktsSent_size(__FILE__, __LINE__, size)
 
@@ -96,9 +90,6 @@
 
 #define ASSERT_EVENTS_ZR_Connection_SIZE(size) \
   this->assertEvents_ZR_Connection_size(__FILE__, __LINE__, size)
-
-#define ASSERT_EVENTS_ZR_RecvTimeout_SIZE(size) \
-  this->assertEvents_ZR_RecvTimeout_size(__FILE__, __LINE__, size)
 
 #define ASSERT_EVENTS_ZR_SendError_SIZE(size) \
   this->assertEvents_ZR_SendError_size(__FILE__, __LINE__, size)
@@ -342,27 +333,6 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Channel: ZR_NumListenerRecvTimeouts
-      // ----------------------------------------------------------------------
-
-      //! Assert telemetry value in history at index
-      //!
-      void assertTlm_ZR_NumListenerRecvTimeouts_size(
-          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
-          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
-          const U32 size /*!< The asserted size*/
-      ) const;
-
-      void assertTlm_ZR_NumListenerRecvTimeouts(
-          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
-          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
-          const U32 index, /*!< The index*/
-          const U32& val /*!< The channel value*/
-      ) const;
-
-    protected:
-
-      // ----------------------------------------------------------------------
       // Channel: ZR_PktsSent
       // ----------------------------------------------------------------------
 
@@ -490,18 +460,6 @@ namespace Zmq {
       // ----------------------------------------------------------------------
 
       void assertEvents_ZR_Connection_size(
-          const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
-          const U32 __callSiteLineNumber, /*!< The line number of the call site*/
-          const U32 size /*!< The asserted size*/
-      ) const;
-
-    protected:
-
-      // ----------------------------------------------------------------------
-      // Event: ZR_RecvTimeout
-      // ----------------------------------------------------------------------
-
-      void assertEvents_ZR_RecvTimeout_size(
           const char *const __callSiteFileName, /*!< The name of the file containing the call site*/
           const U32 __callSiteLineNumber, /*!< The line number of the call site*/
           const U32 size /*!< The asserted size*/

@@ -695,22 +695,6 @@ namespace Zmq {
     protected:
 
       // ----------------------------------------------------------------------
-      // Event: ZR_RecvTimeout
-      // ----------------------------------------------------------------------
-
-      //! Handle event ZR_RecvTimeout
-      //!
-      virtual void logIn_WARNING_HI_ZR_RecvTimeout(
-          void
-      );
-
-      //! Size of history for event ZR_RecvTimeout
-      //!
-      U32 eventsSize_ZR_RecvTimeout;
-
-    protected:
-
-      // ----------------------------------------------------------------------
       // Event: ZR_SendError
       // ----------------------------------------------------------------------
 
@@ -850,31 +834,6 @@ namespace Zmq {
       //!
       History<TlmEntry_ZR_NumDisconnectRetries> 
         *tlmHistory_ZR_NumDisconnectRetries;
-
-    protected:
-
-      // ----------------------------------------------------------------------
-      // Channel: ZR_NumListenerRecvTimeouts
-      // ----------------------------------------------------------------------
-
-      //! Handle channel ZR_NumListenerRecvTimeouts
-      //!
-      virtual void tlmInput_ZR_NumListenerRecvTimeouts(
-          const Fw::Time& timeTag, /*!< The time*/
-          const U32& val /*!< The channel value*/
-      );
-
-      //! A telemetry entry for channel ZR_NumListenerRecvTimeouts
-      //!
-      typedef struct {
-        Fw::Time timeTag;
-        U32 arg;
-      } TlmEntry_ZR_NumListenerRecvTimeouts;
-
-      //! The history of ZR_NumListenerRecvTimeouts values
-      //!
-      History<TlmEntry_ZR_NumListenerRecvTimeouts> 
-        *tlmHistory_ZR_NumListenerRecvTimeouts;
 
     protected:
 
