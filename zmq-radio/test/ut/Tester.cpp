@@ -123,6 +123,14 @@ namespace Zmq {
   // ----------------------------------------------------------------------
   // Helper methods 
   // ----------------------------------------------------------------------
+  //! Dispatch internal messages
+  //!
+  void Tester::dispatchAll(void)
+  {
+      while(this->component.m_queue.getNumMsgs() > 0) {
+          this->component.doDispatch();
+      }
+  }
 
   void Tester ::
     connectPorts(void) 
