@@ -271,7 +271,7 @@ class ZmqClientSocket(ClientSocket):
             if e.errno == zmq.EAGAIN:
                 string = "Unable to connect to {}:{}".format(host_addr, port)
                 print(string)
-                main_panel.UpdateMainPanelStatus(string, "red")
+                #main_panel.UpdateMainPanelStatus(string, "red")
                     
 
 
