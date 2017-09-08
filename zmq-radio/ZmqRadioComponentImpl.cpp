@@ -88,8 +88,31 @@ namespace Zmq{
 	    ZmqRadioComponentBase::init(queueDepth, instance);
 	}
 
+	void ZmqRadioComponentImpl::preamble(void){ 
+	    DEBUG_PRINT("Preamble\n");
+	    this->connect();
+	    this->startSubscriptionTask(100);
+	}
+
+	void ZmqRadioComponentImpl::finalizer(void){
+	    // Close Zmq
+	    DEBUG_PRINT("Finalizer\n");
+
+	    // The transition to disconnect destroys all zmq resources.
+	    // If the zmq resources are destroyed here the subscription thread
+	    // might call transitionDisconnected() and attempt to destroy
+	    // an already destroyed zmq resource.
+		m_state.transitionDisconnected();
+	}
+
+	ZmqRadioComponentImpl::~ZmqRadioComponentImpl(void){
+	    // Object destruction
+	    DEBUG_PRINT("Destruct\n");
+	}
+
+
 	void ZmqRadioComponentImpl::open(const char* hostname, U32 port, const char* zmqId){
-		DEBUG_PRINT("Opening Connection\n");
+		DEBUG_PRINT("Saving network information\n");
 
 	    strncpy(this->m_hostname, hostname, strlen(hostname)); // Save hostname
 	    this->m_hostname[strlen(hostname)] = 0; // Null terminate
@@ -98,9 +121,6 @@ namespace Zmq{
 	    this->m_zmqId[strlen(zmqId)] = 0; // Null terminate
 
 	    this->m_serverCmdPort = port; // Save server command port 
-	
-	    this->connect();
-	    this->startSubscriptionTask(100);
 	}
 
 	void ZmqRadioComponentImpl::connect(void){
@@ -257,28 +277,6 @@ namespace Zmq{
 
 	    return 0;
 
-	}
-
-
-	ZmqRadioComponentImpl::~ZmqRadioComponentImpl(void){
-	    // Object destruction
-	    DEBUG_PRINT("Destruct\n");
-	}
-
-	void ZmqRadioComponentImpl::preamble(void){ 
-	    DEBUG_PRINT("Preamble\n");
-	    
-	}
-
-	void ZmqRadioComponentImpl::finalizer(void){
-	    // Close Zmq
-	    DEBUG_PRINT("Finalizer\n");
-
-	    // The transition to disconnect destroys all zmq resources.
-	    // If the zmq resources are destroyed here the subscription thread
-	    // might call transitionDisconnected() and attempt to destroy
-	    // an already destroyed zmq resource.
-		m_state.transitionDisconnected();
 	}
 
 	/* Handlers */
