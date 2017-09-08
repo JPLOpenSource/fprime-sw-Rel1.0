@@ -105,3 +105,19 @@ If `ZMQ_RADIO_DISCONNECTED`:  Attempts connection and registration with the serv
 - ZR_Connection
 - ZR_SendError
 - ZR_ReceiveError
+
+
+##5.0 Running Unit Test Cases
+
+The unit tests all need a running instance of the `run_zmq_server.py` server so before executing unit test cases in a seperate shell window execute this
+
+````
+python run_zmq_server.py 5555
+````
+
+Then do
+
+````
+make ut_clean ut run_ut
+````
+in the component directory.
