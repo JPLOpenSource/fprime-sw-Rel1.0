@@ -97,6 +97,9 @@ Interactive Example
 import zmq
 context = zmq.Context()
 cmd_socket = context.Socket(zmq.DEALER)
+cmd_socket.setsockopt(zmq.IDENTITY,  b"GUI_NAME")
+cmd_socket.setsockopt(zmq.RCVTIMEO, 5000)
+cmd_socket.setsockopt(zmq.LINGER, 0)
 cmd_socket.connect("tcp://localhost:5555")
 cmd_socket.send_multipart([b'REG', b'GROUND', b'ZMQ'])
 response = cmd_socket.recv_multipart()
