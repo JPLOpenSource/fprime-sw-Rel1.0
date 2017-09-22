@@ -389,7 +389,7 @@
 
 	...
 */
-#elif BUILD_LINUX
+#elif TGT_OS_TYPE_LINUX
 
 /* src/platform.hpp.  Generated from platform.hpp.in by configure.  */
 /* src/platform.hpp.in.  Generated from configure.ac by autoheader.  */
