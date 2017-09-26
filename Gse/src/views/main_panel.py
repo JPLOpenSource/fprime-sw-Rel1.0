@@ -444,9 +444,9 @@ class TopPanel(object):
 
     def connectTCP(self):
         """
-        Creates a ClientSocket class. 
+        Creates a ClientSocket class.
         """
-        
+
         # Create server connection
         gui_name  = self.__opts.name
         host_addr = self.__opts.addr
@@ -457,8 +457,8 @@ class TopPanel(object):
             self.__client_socket = client_sock.TcpClientSocket.GetClientSocket(host_addr, port, gui_name, self)
         else:
             self.__client_socket = client_sock.ZmqClientSocket.GetClientSocket(host_addr, port, gui_name, self)
-            
-            if(self.__client_socket)
+
+            if(self.__client_socket):
                 # Subscribe to targets
                 self.__client_socket.SubscribeTo(self.__opts.targets)
 
