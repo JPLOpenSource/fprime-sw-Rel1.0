@@ -653,15 +653,13 @@ And you should see the openmct application running.
 
 ## 5. References
 
-Tutorial
-https://github.com/nasa/openmct-tutorial
-Documentation
-https://nasa.github.io/openmct/docs/api/
-https://github.com/nasa/openmct/blob/master/API.md
-Openmct
-https://nasa.github.io/openmct/
-Vue
-https://vuejs.org/
-https://vuejs.org/v2/guide/
+Title |  URL
+-------|--------
+Tutorial | https://github.com/nasa/openmct-tutorial
+Documentation | https://nasa.github.io/openmct/docs/api/
+Documentation | https://github.com/nasa/openmct/blob/master/API.md
+Openmct | https://nasa.github.io/openmct/
+Vue | https://vuejs.org/
+Vue User's Guide | https://vuejs.org/v2/guide/
 
 

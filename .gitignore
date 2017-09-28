@@ -69,6 +69,8 @@ ThreadedTCP.log
 Ref.log
 lib/python2.7
 
+# WebSphere files
+Gse/client-openmct/.idea/*.xml
 
 # Python base folder
 
