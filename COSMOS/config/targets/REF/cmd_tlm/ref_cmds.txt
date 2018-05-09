@@ -1,0 +1,4 @@
+COMMAND REF NO_OP BIG_ENDIAN "NO OP test command"
+  APPEND_PARAMETER DESC 32 UINT 0 0 0 "Command descriptor always zero"
+  APPEND_PARAMETER LENGTH 32 UINT 12 128 12 "Command length"
+  APPEND_ID_PARAMETER NO_OP_ID 32 UINT 121 121 121 "Command Id or op code"
