@@ -203,6 +203,7 @@ namespace Svc {
 
     void CommandDispatcherImpl::CMD_NO_OP_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
     	Fw::LogStringArg no_op_string("Hello, World!");
+    	printf("CMD_NO_OP\n");
     	// Log event for NO_OP here.
     	this->log_COMMAND_NoOpReceived();
         this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
