@@ -18,5 +18,6 @@ COMMAND REF CMD_NO_OP_STRING BIG_ENDIAN "NO OP test that takes arguments"
   APPEND_PARAMETER LENGTH 32 UINT 8 48 14 "Command length"
   APPEND_PARAMETER DESC 32 UINT 0 0 0 "Command descriptor always zero"
   APPEND_ID_PARAMETER CMD_NO_OP_STRING 32 UINT 122 122 122 "Command Id or op code"  
-  APPEND_PARAMETER StringArg 240 STRING "String" "The String command argument"
+  APPEND_PARAMETER StringArgSize 16 UINT 0 40 40 "The String length"
+  APPEND_PARAMETER StringArg 0 STRING "String" "The String command argument"
 
