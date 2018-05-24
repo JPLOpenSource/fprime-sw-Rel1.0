@@ -2,7 +2,7 @@ SCREEN AUTO AUTO 1.0
 
 VERTICAL
 
-  TITLE "REF Instrument Latest Header"
+  TITLE " Instrument Latest Header"
 
   VERTICALBOX
     SECTIONHEADER "Header"

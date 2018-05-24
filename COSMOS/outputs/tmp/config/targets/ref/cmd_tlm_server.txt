@@ -5,7 +5,7 @@ INTERFACE REF_INT tcpip_server_interface.rb 5000 5000 10 10 nil
 #INTERFACE REF_INT tcpip_server_interface.rb 5000 5000 10 10 LENGTH 32 32 8 1 BIG_ENDIAN 0 nil nil true
   TARGET REF
   PROTOCOL WRITE LengthProtocol 32 32 8 1 BIG_ENDIAN 0 5A5A5A5A nil true
-  PROTOCOL READ  LengthProtocol 72 32 9 1 BIG_ENDIAN 0 4135413520475549 nil true
+  PROTOCOL READ  LengthProtocol 72 32 13 1 BIG_ENDIAN 0 413541352047554920 nil true
 
   
   

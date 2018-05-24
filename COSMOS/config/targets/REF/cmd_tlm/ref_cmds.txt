@@ -21,3 +21,9 @@ COMMAND REF CMD_NO_OP_STRING BIG_ENDIAN "NO OP test that takes arguments"
   APPEND_PARAMETER StringArgSize 16 UINT 0 40 40 "The String length"
   APPEND_PARAMETER StringArg 0 STRING "String" "The String command argument"
 
+COMMAND REF SB_START_PKTS BIG_ENDIAN "Command to start sending packets"
+  APPEND_PARAMETER SYNC 32 UINT 0x5A5A5A5A 0x5A5A5A5A 0x5A5A5A5A "Sync pattern"
+  APPEND_PARAMETER LENGTH 32 UINT 8 128 8 "Command length"
+  APPEND_PARAMETER DESC 32 UINT 0 0 0 "Command descriptor always zero"
+  APPEND_ID_PARAMETER SB_START_PKTS 32 UINT 81 81 81 "Command Id or op code"
+

@@ -1,5 +1,5 @@
 # Automatically pull in screens from all targets
-AUTO_TARGETS
+#AUTO_TARGETS
 
 # Create a new dropdown with a few specific sceens
 GROUP "My group"
@@ -9,7 +9,8 @@ GROUP "My group"
 
 # NEW_COLUMN
 
-# AUTO_TARGET INST
+AUTO_TARGET INST
+AUTO_TARGET REF
 
 # TARGET INST
 #  SCREEN "adcs.txt"
