@@ -35,8 +35,6 @@ PATH PROCEDURES ./procedures
 
 ALLOW_ACCESS ALL
 
-ENABLE_SOUND
-
 # Initialize the metadata dialog using values from the following file:
 META_INIT config/data/meta_init.txt
 
