@@ -1,0 +1,184 @@
+COMPONENT NAME,COMPONENT TYPE,EVR ID,ARG NUMBER,ARG NAME,ARG TYPE,COMMENT,ENUM NAME
+rateGroup1Comp,ActiveRateGroup,22,0,cycle,U32,The cycle where the cycle occurred,None
+pingRcvr,PingReceiver,42,0,code,U32,Ping code,None
+sendBuffComp,SendBuff,81,0,id,U32,The ID argument,None
+sendBuffComp,SendBuff,82,0,id,U32,The ID argument,None
+sendBuffComp,SendBuff,83,0,id,U32,The ID argument,None
+sendBuffComp,SendBuff,84,0,arg1,U32,First FATAL argument,None
+sendBuffComp,SendBuff,84,1,arg2,U32,Second FATAL argument,None
+sendBuffComp,SendBuff,84,2,arg3,U32,Second FATAL argument,None
+recvBuffComp,RecvBuff,101,0,id,U32,The ID argument,None
+recvBuffComp,RecvBuff,102,0,id,U32,The ID argument,None
+recvBuffComp,RecvBuff,103,0,id,U32,The ID argument,None
+cmdDisp,CommandDispatcher,121,0,Opcode,U32,The opcode to register,None
+cmdDisp,CommandDispatcher,121,1,port,I32,The registration port,None
+cmdDisp,CommandDispatcher,121,2,slot,I32,The dispatch slot it was placed in,None
+cmdDisp,CommandDispatcher,122,0,Opcode,U32,The opcode dispatched,None
+cmdDisp,CommandDispatcher,122,1,port,I32,The port dispatched to,None
+cmdDisp,CommandDispatcher,123,0,Opcode,U32,The I32 command argument,None
+cmdDisp,CommandDispatcher,124,0,Opcode,U32,The opcode with the error,None
+cmdDisp,CommandDispatcher,124,1,error,ENUM,The error value,ErrorResponse
+cmdDisp,CommandDispatcher,125,0,Status,ENUM,The deserialization error,CmdSerError
+cmdDisp,CommandDispatcher,126,0,Opcode,U32,Invalid opcode,None
+cmdDisp,CommandDispatcher,127,0,Opcode,U32,The opcode that overflowed the list,None
+cmdDisp,CommandDispatcher,129,0,No_op_string,string,The NO-OP string that is generated,None
+cmdDisp,CommandDispatcher,130,0,arg1,I32,Arg1,None
+cmdDisp,CommandDispatcher,130,1,arg2,F32,Arg2,None
+cmdDisp,CommandDispatcher,130,2,arg3,U8,Arg3,None
+prmDb,PrmDb,141,0,Id,U32,The parameter ID,None
+prmDb,PrmDb,142,0,Id,U32,The parameter ID,None
+prmDb,PrmDb,143,0,Id,U32,The parameter ID,None
+prmDb,PrmDb,144,0,Id,U32,The parameter ID,None
+prmDb,PrmDb,145,0,stage,ENUM,The write stage,PrmWriteError
+prmDb,PrmDb,145,9,record,I32,The record that had the failure,None
+prmDb,PrmDb,145,10,error,I32,The error code,None
+prmDb,PrmDb,146,0,records,U32,The number of records saved,None
+prmDb,PrmDb,147,0,stage,ENUM,The write stage,PrmReadError
+prmDb,PrmDb,147,11,record,I32,The record that had the failure,None
+prmDb,PrmDb,147,12,error,I32,The error code,None
+prmDb,PrmDb,148,0,records,U32,The number of records loaded,None
+rateGroup2Comp,ActiveRateGroup,162,0,cycle,U32,The cycle where the cycle occurred,None
+cmdSeq,CmdSequencer,541,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,542,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,543,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,544,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,544,1,stage,ENUM,The read stage,FileReadStage
+cmdSeq,CmdSequencer,544,9,error,I32,The error code,None
+cmdSeq,CmdSequencer,545,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,545,1,recordNumber,U32,The record number,None
+cmdSeq,CmdSequencer,545,2,error,I32,The error code,None
+cmdSeq,CmdSequencer,546,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,546,1,size,U32,Inavalid size,None
+cmdSeq,CmdSequencer,547,0,fileName,string,The sequence file,None
+cmdSeq,CmdSequencer,548,0,fileName,string,The sequence file,None
+cmdSeq,CmdSequencer,548,1,storedCRC,U32,The CRC stored in the file,None
+cmdSeq,CmdSequencer,548,2,computedCRC,U32,The CRC computed over the file,None
+cmdSeq,CmdSequencer,549,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,549,1,recordNumber,U32,The record number of the command,None
+cmdSeq,CmdSequencer,549,2,opCode,U32,The command opcode,None
+cmdSeq,CmdSequencer,550,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,551,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,551,1,recordNumber,U32,The record number,None
+cmdSeq,CmdSequencer,551,2,opCode,U32,The opcode,None
+cmdSeq,CmdSequencer,551,3,errorStatus,U32,The error status,None
+cmdSeq,CmdSequencer,553,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,553,1,header_records,U32,The number of records in the header,None
+cmdSeq,CmdSequencer,553,2,extra_bytes,U32,The number of bytes beyond last record,None
+cmdSeq,CmdSequencer,554,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,554,1,time_base,U16,The current time,None
+cmdSeq,CmdSequencer,554,2,seq_time_base,U16,The sequence time base,None
+cmdSeq,CmdSequencer,555,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,555,1,currTimeBase,U8,The current time base,None
+cmdSeq,CmdSequencer,555,2,seqTimeBase,U8,The sequence time base,None
+cmdSeq,CmdSequencer,556,0,filename,string,The sequence file,None
+cmdSeq,CmdSequencer,557,0,opcode,U32,The reported opcode,None
+cmdSeq,CmdSequencer,558,0,mode,ENUM,The new mode,SeqMode
+cmdSeq,CmdSequencer,560,0,filename,string,The sequence file,None
+cmdSeq,CmdSequencer,561,0,filename,string,The sequence file,None
+cmdSeq,CmdSequencer,561,1,command,U32,The command that timed out,None
+cmdSeq,CmdSequencer,562,0,filename,string,The sequence file,None
+cmdSeq,CmdSequencer,562,1,command,U32,The command that was stepped,None
+cmdSeq,CmdSequencer,563,0,filename,string,The sequence file,None
+SG1,SignalGen,181,0,Frequency,U32,,None
+SG1,SignalGen,181,1,Amplitude,U32,,None
+SG1,SignalGen,181,2,Phase,U32,,None
+SG3,SignalGen,201,0,Frequency,U32,,None
+SG3,SignalGen,201,1,Amplitude,U32,,None
+SG3,SignalGen,201,2,Phase,U32,,None
+SG2,SignalGen,221,0,Frequency,U32,,None
+SG2,SignalGen,221,1,Amplitude,U32,,None
+SG2,SignalGen,221,2,Phase,U32,,None
+rateGroup3Comp,ActiveRateGroup,242,0,cycle,U32,The cycle where the cycle occurred,None
+fileUplink,FileUplink,261,0,fileName,string,The file name,None
+fileUplink,FileUplink,261,1,computed,U32,The computed value,None
+fileUplink,FileUplink,261,2,read,U32,The value read,None
+fileUplink,FileUplink,262,0,fileName,string,The name of the file,None
+fileUplink,FileUplink,263,0,fileName,string,The name of the file,None
+fileUplink,FileUplink,264,0,fileName,string,The name of the file,None
+fileUplink,FileUplink,265,0,packetType,U32,The type of the packet received,None
+fileUplink,FileUplink,265,1,mode,U32,The receive mode,None
+fileUplink,FileUplink,266,0,packetIndex,U32,The sequence index of the packet,None
+fileUplink,FileUplink,266,1,fileName,string,The name of the file,None
+fileUplink,FileUplink,267,0,packetIndex,U32,The sequence index of the out-of-order packet,None
+fileUplink,FileUplink,267,1,lastPacketIndex,U32,The sequence index of the last packet received before the out-of-order packet,None
+SG5,SignalGen,281,0,Frequency,U32,,None
+SG5,SignalGen,281,1,Amplitude,U32,,None
+SG5,SignalGen,281,2,Phase,U32,,None
+fileUplinkBufferManager,BufferManager,303,0,expected,U32,The expected ID value,None
+fileUplinkBufferManager,BufferManager,303,1,saw,U32,The ID value seen,None
+SG4,SignalGen,321,0,Frequency,U32,,None
+SG4,SignalGen,321,1,Amplitude,U32,,None
+SG4,SignalGen,321,2,Phase,U32,,None
+fatalAdapter,AssertFatalAdapter,341,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,341,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,342,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,342,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,342,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,343,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,343,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,343,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,343,3,arg2,U32,Second assert argument,None
+fatalAdapter,AssertFatalAdapter,344,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,344,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,344,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,344,3,arg2,U32,Second assert argument,None
+fatalAdapter,AssertFatalAdapter,344,4,arg3,U32,Third assert argument,None
+fatalAdapter,AssertFatalAdapter,345,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,345,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,345,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,345,3,arg2,U32,Second assert argument,None
+fatalAdapter,AssertFatalAdapter,345,4,arg3,U32,Third assert argument,None
+fatalAdapter,AssertFatalAdapter,345,5,arg4,U32,Fourth assert argument,None
+fatalAdapter,AssertFatalAdapter,346,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,346,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,346,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,346,3,arg2,U32,Second assert argument,None
+fatalAdapter,AssertFatalAdapter,346,4,arg3,U32,Third assert argument,None
+fatalAdapter,AssertFatalAdapter,346,5,arg4,U32,Fourth assert argument,None
+fatalAdapter,AssertFatalAdapter,346,6,arg5,U32,Fifth assert argument,None
+fatalAdapter,AssertFatalAdapter,347,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,347,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,347,2,arg1,U32,First assert argument,None
+fatalAdapter,AssertFatalAdapter,347,3,arg2,U32,Second assert argument,None
+fatalAdapter,AssertFatalAdapter,347,4,arg3,U32,Third assert argument,None
+fatalAdapter,AssertFatalAdapter,347,5,arg4,U32,Fourth assert argument,None
+fatalAdapter,AssertFatalAdapter,347,6,arg5,U32,Fifth assert argument,None
+fatalAdapter,AssertFatalAdapter,347,7,arg6,U32,Sixth assert argument,None
+fatalAdapter,AssertFatalAdapter,348,0,file,string,The source file of the assert,None
+fatalAdapter,AssertFatalAdapter,348,1,line,U32,Line number of the assert,None
+fatalAdapter,AssertFatalAdapter,348,2,numArgs,U32,Number of unexpected arguments,None
+health,Health,361,0,entry,string,The entry passing the warning level,None
+health,Health,362,0,entry,string,The entry passing the warning level,None
+health,Health,363,0,entry,string,The entry passing the warning level,None
+health,Health,363,1,badKey,U32,The incorrect key value,None
+health,Health,364,0,enabled,ENUM,If health checking is enabled,HealthIsEnabled
+health,Health,365,0,enabled,ENUM,If health pinging is enabled for a particular entry,HealthPingIsEnabled
+health,Health,365,2,entry,string,The entry passing the warning level,None
+health,Health,366,0,entry,string,The entry passing the warning level,None
+health,Health,367,0,entry,string,The entry changed,None
+health,Health,367,1,warn,U32,The new warning value,None
+health,Health,367,2,fatal,U32,The new FATAL value,None
+health,Health,368,0,entry,string,The entry changed,None
+health,Health,368,1,warn,U32,The new warning value,None
+health,Health,368,2,fatal,U32,The new FATAL value,None
+sockGndIf,GndIf,381,0,PortNumber,U32,The port number running the socket server,None
+sockGndIf,GndIf,382,0,PortNumber,U32,The port number running the socket server,None
+sockGndIf,GndIf,383,0,PortNumber,U32,The port number running the socket server,None
+fileDownlinkBufferManager,BufferManager,403,0,expected,U32,The expected ID value,None
+fileDownlinkBufferManager,BufferManager,403,1,saw,U32,The ID value seen,None
+eventLogger,ActiveLogger,421,0,stage,ENUM,The write stage,LogWriteError
+eventLogger,ActiveLogger,421,15,error,I32,The error code,None
+eventLogger,ActiveLogger,422,0,records,U32,number of records written,None
+eventLogger,ActiveLogger,423,0,severity,ENUM,The severity level,EventFilterState
+eventLogger,ActiveLogger,423,6,recvEnabled,bool,,None
+eventLogger,ActiveLogger,423,7,sendEnabled,bool,,None
+eventLogger,ActiveLogger,424,0,ID,U32,The ID filtered,None
+eventLogger,ActiveLogger,425,0,ID,U32,The ID filtered,None
+eventLogger,ActiveLogger,426,0,ID,U32,The ID removed,None
+eventLogger,ActiveLogger,427,0,ID,U32,The ID removed,None
+fileDownlink,FileDownlink,501,0,fileName,string,The name of the file,None
+fileDownlink,FileDownlink,502,0,fileName,string,The name of the file,None
+fileDownlink,FileDownlink,503,0,sourceFileName,string,The source file name,None
+fileDownlink,FileDownlink,503,1,destFileName,string,The destination file name,None
+fileDownlink,FileDownlink,504,0,sourceFileName,string,The source file name,None
+fileDownlink,FileDownlink,504,1,destFileName,string,The destination file name,None

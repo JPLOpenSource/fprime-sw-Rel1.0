@@ -1,0 +1,46 @@
+COMPONENT NAME,COMPONENT TYPE,OPCODE,ARG NUMBER,ARG NAME,ARG TYPE,COMMENT,ENUM NAME
+sendBuffComp,SendBuff,83,0,arg1,U32,First FATAL Argument,None
+sendBuffComp,SendBuff,83,1,arg2,U32,Second FATAL Argument,None
+sendBuffComp,SendBuff,83,2,arg3,U32,Third FATAL Argument,None
+sendBuffComp,SendBuff,84,0,arg1,U32,First ASSERT Argument,None
+sendBuffComp,SendBuff,84,1,arg2,U32,Second ASSERT Argument,None
+sendBuffComp,SendBuff,84,2,arg3,U32,Third ASSERT Argument,None
+sendBuffComp,SendBuff,84,3,arg4,U32,Fourth ASSERT Argument,None
+sendBuffComp,SendBuff,84,4,arg5,U32,Fifth ASSERT Argument,None
+sendBuffComp,SendBuff,84,5,arg6,U32,Sixth ASSERT Argument,None
+cmdDisp,CommandDispatcher,122,0,arg1,string,The String command argument,None
+cmdDisp,CommandDispatcher,123,0,arg1,I32,The I32 command argument,None
+cmdDisp,CommandDispatcher,123,1,arg2,F32,The F32 command argument,None
+cmdDisp,CommandDispatcher,123,2,arg3,U8,The U8 command argument,None
+cmdSeq,CmdSequencer,541,0,fileName,string,The name of the sequence file,None
+cmdSeq,CmdSequencer,542,0,fileName,string,The name of the sequence file,None
+SG1,SignalGen,181,0,Frequency,U32,,None
+SG1,SignalGen,181,1,Amplitude,U32,,None
+SG1,SignalGen,181,2,Phase,U32,,None
+SG3,SignalGen,201,0,Frequency,U32,,None
+SG3,SignalGen,201,1,Amplitude,U32,,None
+SG3,SignalGen,201,2,Phase,U32,,None
+SG2,SignalGen,221,0,Frequency,U32,,None
+SG2,SignalGen,221,1,Amplitude,U32,,None
+SG2,SignalGen,221,2,Phase,U32,,None
+SG5,SignalGen,281,0,Frequency,U32,,None
+SG5,SignalGen,281,1,Amplitude,U32,,None
+SG5,SignalGen,281,2,Phase,U32,,None
+SG4,SignalGen,321,0,Frequency,U32,,None
+SG4,SignalGen,321,1,Amplitude,U32,,None
+SG4,SignalGen,321,2,Phase,U32,,None
+health,Health,361,0,enable,ENUM,whether or not health checks are enabled,HealthEnabled
+health,Health,362,0,entry,string,The entry to enable/disable,None
+health,Health,362,1,enable,ENUM,whether or not a port is pinged,PingEnabled
+health,Health,363,0,entry,string,The entry to modify,None
+health,Health,363,1,warningValue,U32,Ping warning threshold,None
+health,Health,363,2,fatalValue,U32,Ping fatal threshold,None
+eventLogger,ActiveLogger,421,0,FilterLevel,ENUM,Filter level,InputFilterLevel
+eventLogger,ActiveLogger,421,1,FilterEnable,ENUM,Filter state,InputFilterEnabled
+eventLogger,ActiveLogger,422,0,FilterLevel,ENUM,Filter level,SendFilterLevel
+eventLogger,ActiveLogger,422,1,FilterEnable,ENUM,Severity filter state,SendFilterEnabled
+eventLogger,ActiveLogger,423,0,filename,string,,None
+eventLogger,ActiveLogger,424,0,ID,U32,,None
+eventLogger,ActiveLogger,424,1,IdFilterEnable,ENUM,ID filter state,IdFilterEnabled
+fileDownlink,FileDownlink,501,0,sourceFileName,string,The name of the on-board file to send,None
+fileDownlink,FileDownlink,501,1,destFileName,string,The name of the destination file on the ground,None

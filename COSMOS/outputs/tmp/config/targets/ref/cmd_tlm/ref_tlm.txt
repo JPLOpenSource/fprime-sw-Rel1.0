@@ -1,15 +1,12 @@
-#TELEMETRY REF REF_REGISTRATION BIG_ENDIAN "Register FSW String"
-#  APPEND_ITEM REF_STRING 104 STRING "Initial string sent from Ref app"
-#    FORMAT_STRING "%s"
-
 #############################################################################
 # EVRS
 
-TELEMETRY REF NOOPRECEIVED BIG_ENDIAN "NO-OP command EVR"
+# COMPONENT: "Svc::CommandDispatcher"
+TELEMETRY REF NOOPRECEIVED BIG_ENDIAN "The command dispatcher has successfully recieved a NO-OP command from GUI"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 2 "Descriptor always 2 for EVR's"  
-    APPEND_ID_ITEM OP_CODE 32 UINT 128 "Opcode"
+    APPEND_ID_ITEM EVR_ID 32 UINT 128 "Opcode"
     APPEND_ITEM TIME_BASE 16 UINT "Time Base"
     APPEND_ITEM TIME_CONTEXT 8 UINT "Time Context"
     APPEND_ITEM SECS 32 UINT "Seconds"
@@ -18,30 +15,39 @@ TELEMETRY REF NOOPRECEIVED BIG_ENDIAN "NO-OP command EVR"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('ISF received a NO-OP command')
       GENERIC_READ_CONVERSION_END
+    ITEM SEVERITY 0 0 DERIVED "Severity"
+      GENERIC_READ_CONVERSION_START STRING 0
+        sprintf('COMMAND')
+      GENERIC_READ_CONVERSION_END
 
-TELEMETRY REF TESTCMD1ARGS BIG_ENDIAN "Test-Cmd1 EVR"
+# COMPONENT: "Svc::CommandDispatcher"
+TELEMETRY REF TESTCMD1ARGS BIG_ENDIAN "This log event message returns the TEST_CMD_1 arguments."
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 2 "Descriptor always 2 for EVR's"  
-    APPEND_ID_ITEM OP_CODE 32 UINT 130 "Opcode"
+    APPEND_ID_ITEM EVR_ID 32 UINT 130 "Opcode"
     APPEND_ITEM TIME_BASE 16 UINT "Time Base"
     APPEND_ITEM TIME_CONTEXT 8 UINT "Time Context"
     APPEND_ITEM SECS 32 UINT "Seconds"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM ARG1 32 INT "Arg1"
     APPEND_ITEM ARG2 32 FLOAT "Arg2"
- #     FORMAT_STRING "%1.4f"
     APPEND_ITEM ARG3 8 UINT "Arg3"
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d', packet.read('ARG1'), packet.read('ARG2'), packet.read('ARG3'))
       GENERIC_READ_CONVERSION_END
+    ITEM SEVERITY 0 0 DERIVED "Severity"
+      GENERIC_READ_CONVERSION_START STRING 0
+        sprintf('COMMAND')
+      GENERIC_READ_CONVERSION_END
 
-TELEMETRY REF FIRSTPACKETRECEIVED BIG_ENDIAN "First packet received EVR"
+# COMPONENT: "Ref::RecvBuff"
+TELEMETRY REF FIRSTPACKETRECEIVED BIG_ENDIAN "First packet received"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 2 "Descriptor always 2 for EVR's"  
-    APPEND_ID_ITEM OP_CODE 32 UINT 101 "Opcode"
+    APPEND_ID_ITEM EVR_ID 32 UINT 101 "Opcode"
     APPEND_ITEM TIME_BASE 16 UINT "Time Base"
     APPEND_ITEM TIME_CONTEXT 8 UINT "Time Context"
     APPEND_ITEM SECS 32 UINT "Seconds"
@@ -51,12 +57,17 @@ TELEMETRY REF FIRSTPACKETRECEIVED BIG_ENDIAN "First packet received EVR"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('First packet ID %d received', packet.read('ID'))
       GENERIC_READ_CONVERSION_END
+    ITEM SEVERITY 0 0 DERIVED "Severity"
+      GENERIC_READ_CONVERSION_START STRING 0
+        sprintf('ACTIVITY_LO')
+      GENERIC_READ_CONVERSION_END
 
-TELEMETRY REF OPCODEDISPATCHED BIG_ENDIAN "Opcode dispatched EVR"
+# COMPONENT = "Svc::CommandDispatcher"
+TELEMETRY REF OPCODEDISPATCHED BIG_ENDIAN "Op code dispatched event"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 2 "Descriptor always 2 for EVR's"  
-    APPEND_ID_ITEM OP_CODE 32 UINT 122 "Opcode"
+    APPEND_ID_ITEM EVR_ID 32 UINT 122 "Opcode"
     APPEND_ITEM TIME_BASE 16 UINT "Time Base"
     APPEND_ITEM TIME_CONTEXT 8 UINT "Time Context"
     APPEND_ITEM SECS 32 UINT "Seconds"
@@ -67,12 +78,17 @@ TELEMETRY REF OPCODEDISPATCHED BIG_ENDIAN "Opcode dispatched EVR"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('Opcode 0x%04X dispatched to port %d', packet.read('OPCODE'), packet.read('PORT'))
       GENERIC_READ_CONVERSION_END
+    ITEM SEVERITY 0 0 DERIVED "Severity"
+      GENERIC_READ_CONVERSION_START STRING 0
+        sprintf('COMMAND')
+      GENERIC_READ_CONVERSION_END
 
-TELEMETRY REF OPCODECOMPLETED BIG_ENDIAN "Opcode completed EVR"
+# COMPONENT: "Svc::CommandDispatcher"
+TELEMETRY REF OPCODECOMPLETED BIG_ENDIAN "Op code completed event"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 2 "Descriptor always 2 for EVR's"  
-    APPEND_ID_ITEM OP_CODE 32 UINT 123 "Opcode"
+    APPEND_ID_ITEM EVR_ID 32 UINT 123 "Opcode"
     APPEND_ITEM TIME_BASE 16 UINT "Time Base"
     APPEND_ITEM TIME_CONTEXT 8 UINT "Time Context"
     APPEND_ITEM SECS 32 UINT "Seconds"
@@ -82,12 +98,17 @@ TELEMETRY REF OPCODECOMPLETED BIG_ENDIAN "Opcode completed EVR"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('Opcode 0x%04X completed', packet.read('OPCODE'))
       GENERIC_READ_CONVERSION_END
+    ITEM SEVERITY 0 0 DERIVED "Severity"
+      GENERIC_READ_CONVERSION_START STRING 0
+        sprintf('COMMAND')
+      GENERIC_READ_CONVERSION_END
 
 
 #############################################################################
 # CHANNELS
 
-TELEMETRY REF BD_CYCLES BIG_ENDIAN "Block Driver Cycles Channel"
+# COMPONENT: "Drv::BlockDriver"
+TELEMETRY REF BD_CYCLES BIG_ENDIAN "Driver cycle count"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
     APPEND_ID_ITEM DESC 32 UINT 1 "Descriptor always 1 for Channels"  
@@ -98,6 +119,7 @@ TELEMETRY REF BD_CYCLES BIG_ENDIAN "Block Driver Cycles Channel"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 UINT "Value"
 
+# COMPONENT: "Ref::SendBuff"
 TELEMETRY REF SENDSTATE BIG_ENDIAN "Readback of Parameter4"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -111,6 +133,7 @@ TELEMETRY REF SENDSTATE BIG_ENDIAN "Readback of Parameter4"
       STATE SEND_IDLE 0
       STATE SEND_ACTIVE 1
 
+# COMPONENT: "Ref::PingReceiver"
 TELEMETRY REF PR_NUMPINGS BIG_ENDIAN "Number of pings received"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -122,6 +145,7 @@ TELEMETRY REF PR_NUMPINGS BIG_ENDIAN "Number of pings received"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 UINT "Value"
 
+# COMPONENT: "Svc::ActiveRateGroup"
 TELEMETRY REF RATEGROUP1COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -134,6 +158,7 @@ TELEMETRY REF RATEGROUP1COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group
     APPEND_ITEM VALUE 32 UINT "Value"
       UNITS Micrometers us
 
+# COMPONENT: "Svc::ActiveRateGroup"
 TELEMETRY REF RATEGROUP2COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -146,6 +171,7 @@ TELEMETRY REF RATEGROUP2COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group
     APPEND_ITEM VALUE 32 UINT "Value"
       UNITS Micrometers us
 
+# COMPONENT: "Svc::ActiveRateGroup"
 TELEMETRY REF RATEGROUP3COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -158,6 +184,7 @@ TELEMETRY REF RATEGROUP3COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group
     APPEND_ITEM VALUE 32 UINT "Value"
       UNITS Micrometers us
 
+# COMPONENT: "Ref::SendBuff"
 TELEMETRY REF PACKETSSENT BIG_ENDIAN "Number of packets sent"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -169,6 +196,7 @@ TELEMETRY REF PACKETSSENT BIG_ENDIAN "Number of packets sent"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 64 UINT "Value"
 
+# COMPONENT: "Ref::RecvBuff"
 TELEMETRY REF NUMPKTS BIG_ENDIAN "Number of packets received"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -180,6 +208,7 @@ TELEMETRY REF NUMPKTS BIG_ENDIAN "Number of packets received"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 UINT "Value"
 
+# COMPONENT: "Ref::RecvBuff"
 TELEMETRY REF NUMERRPKTS BIG_ENDIAN "Number of received with errors"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -191,6 +220,7 @@ TELEMETRY REF NUMERRPKTS BIG_ENDIAN "Number of received with errors"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 UINT "Value"
 
+# COMPONENT: "Ref::RecvBuff"
 TELEMETRY REF SENSOR1 BIG_ENDIAN "Value of Sensor1"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -201,8 +231,8 @@ TELEMETRY REF SENSOR1 BIG_ENDIAN "Value of Sensor1"
     APPEND_ITEM SECS 32 UINT "Seconds"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 FLOAT "Value"
-#      FORMAT_STRING "%1.4f"
 
+# COMPONENT: "Ref::RecvBuff"
 TELEMETRY REF SENSOR2 BIG_ENDIAN "Value of Sensor2"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
@@ -213,8 +243,8 @@ TELEMETRY REF SENSOR2 BIG_ENDIAN "Value of Sensor2"
     APPEND_ITEM SECS 32 UINT "Seconds"
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM VALUE 32 FLOAT "Value"
-#      FORMAT_STRING "%1.4f"
 
+# COMPONENT: "Svc::CommandDispatcher"
 TELEMETRY REF COMMANDSDISPATCHED BIG_ENDIAN "Number of commands dispatched"
     APPEND_ITEM SYNC 72 STRING "Sync pattern"  
     APPEND_ITEM LENGTH 32 UINT "Telemetry length"
