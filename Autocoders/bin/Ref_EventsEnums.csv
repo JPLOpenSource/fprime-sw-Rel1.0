@@ -1,0 +1,68 @@
+COMPONENT NAME,COMPONENT TYPE,EVR_ID,ENUM_NAME,INDETIFIER,VALUE,COMMENT
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_INVALID_OPCODE,0,Invalid opcode dispatched
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_VALIDATION_ERROR,1,Command failed validation
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_FORMAT_ERROR,2,Command failed to deserialize
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_EXECUTION_ERROR,3,Command had execution error
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_BUSY,4,Component busy
+cmdDisp,CommandDispatcher,124,ErrorResponse,ERR_UNEXP,5,Unexpected response
+cmdDisp,CommandDispatcher,125,CmdSerError,ERR_BUFFER_TOO_SMALL,0,Buffer too small
+cmdDisp,CommandDispatcher,125,CmdSerError,ERR_BUFFER_FORMAT,1,Buffer wrong format
+cmdDisp,CommandDispatcher,125,CmdSerError,ERR_SIZE_MISMATCH,2,Buffer size mismatch
+cmdDisp,CommandDispatcher,125,CmdSerError,ERR_TYPE_MISMATCH,3,Buffer type mismatch
+cmdDisp,CommandDispatcher,125,CmdSerError,ERR_UNEXP_STAT,4,Unexpected status
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_OPEN,0,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_DELIMETER,1,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_DELIMETER_SIZE,2,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_RECORD_SIZE,3,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_RECORD_SIZE_SIZE,4,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_PARAMETER_ID,5,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_PARAMETER_ID_SIZE,6,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_PARAMETER_VALUE,7,
+prmDb,PrmDb,145,PrmWriteError,PRM_WRITE_PARAMETER_VALUE_SIZE,8,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_OPEN,0,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_DELIMETER,1,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_DELIMETER_SIZE,2,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_DELIMETER_VALUE,3,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_RECORD_SIZE,4,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_RECORD_SIZE_SIZE,5,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_RECORD_SIZE_VALUE,6,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_PARAMETER_ID,7,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_PARAMETER_ID_SIZE,8,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_PARAMETER_VALUE,9,
+prmDb,PrmDb,147,PrmReadError,PRM_READ_PARAMETER_VALUE_SIZE,10,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_READ_HEADER,0,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_READ_HEADER_SIZE,1,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_DESER_SIZE,2,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_DESER_NUM_RECORDS,3,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_DESER_TIME_BASE,4,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_DESER_TIME_CONTEXT,5,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_READ_SEQ_CRC,6,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_READ_SEQ_DATA,7,
+cmdSeq,CmdSequencer,544,FileReadStage,SEQ_READ_SEQ_DATA_SIZE,8,
+cmdSeq,CmdSequencer,558,SeqMode,SEQ_STEP_MODE,0,
+cmdSeq,CmdSequencer,558,SeqMode,SEQ_AUTO_MODE,1,
+health,Health,364,HealthIsEnabled,HEALTH_CHECK_DISABLED,0,
+health,Health,364,HealthIsEnabled,HEALTH_CHECK_ENABLED,1,
+health,Health,365,HealthPingIsEnabled,HEALTH_PING_DISABLED,0,
+health,Health,365,HealthPingIsEnabled,HEALTH_PING_ENABLED,1,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_OPEN,0,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_FATAL_DELIMETER,1,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_FATAL_RECORD,2,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_WARNING_HI_DELIMETER,3,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_WARNING_HI_RECORD,4,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_WARNING_LO_DELIMETER,5,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_WARNING_LO_RECORD,6,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_COMMAND_DELIMETER,7,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_COMMAND_RECORD,8,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_ACTIVITY_HI_DELIMETER,9,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_ACTIVITY_HI_RECORD,10,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_ACTIVITY_LO_DELIMETER,11,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_ACTIVITY_LO_RECORD,12,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_DIAGNOSTIC_DELIMETER,13,
+eventLogger,ActiveLogger,421,LogWriteError,LOG_WRITE_DIAGNOSTIC_RECORD,14,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_WARNING_HI,0,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_WARNING_LO,1,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_COMMAND,2,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_ACTIVITY_HI,3,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_ACTIVITY_LO,4,
+eventLogger,ActiveLogger,423,EventFilterState,EVENT_FILTER_DIAGNOSTIC,5,

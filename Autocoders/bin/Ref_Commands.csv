@@ -1,0 +1,43 @@
+COMPONENT NAME,COMPONENT TYPE,OPCODE,MNEMONIC,COMMENT
+pingRcvr,PingReceiver,41,PR_StopPings,Command to disable ping response
+sendBuffComp,SendBuff,81,SB_START_PKTS,Command to start sending packets
+sendBuffComp,SendBuff,82,SB_INJECT_PKT_ERROR,Send a bad packet
+sendBuffComp,SendBuff,83,SB_GEN_FATAL,Generate a FATAL EVR
+sendBuffComp,SendBuff,84,SB_GEN_ASSERT,Generate an ASSERT
+cmdDisp,CommandDispatcher,121,CMD_NO_OP,No-op command
+cmdDisp,CommandDispatcher,122,CMD_NO_OP_STRING,No-op string command
+cmdDisp,CommandDispatcher,123,CMD_TEST_CMD_1,No-op command
+cmdDisp,CommandDispatcher,124,CMD_CLEAR_TRACKING,Clear command tracking info to recover from components not returning status
+prmDb,PrmDb,141,PRM_SAVE_FILE,Command to save parameter image to file. Uses file name passed to constructor
+cmdSeq,CmdSequencer,541,CS_Run,Run a command sequence file
+cmdSeq,CmdSequencer,542,CS_Validate,Validate a command sequence file
+cmdSeq,CmdSequencer,543,CS_Cancel,Cancel a command sequence
+cmdSeq,CmdSequencer,544,CS_Start,Start running a command sequence
+cmdSeq,CmdSequencer,545,CS_Step,Perform one step in a command sequence. Valid only if CmdSequencer is in MANUAL run mode.
+cmdSeq,CmdSequencer,546,CS_Auto,Set the run mode to AUTO.
+cmdSeq,CmdSequencer,547,CS_Manual,Set the run mode to MANUAL.
+SG1,SignalGen,181,SignalGen_Settings,Signal Generator Settings
+SG1,SignalGen,182,SignalGen_Toggle,Toggle Signal Generator On/Off.
+SG1,SignalGen,183,SignalGen_Skip,Skip next sample
+SG3,SignalGen,201,SignalGen_Settings,Signal Generator Settings
+SG3,SignalGen,202,SignalGen_Toggle,Toggle Signal Generator On/Off.
+SG3,SignalGen,203,SignalGen_Skip,Skip next sample
+SG2,SignalGen,221,SignalGen_Settings,Signal Generator Settings
+SG2,SignalGen,222,SignalGen_Toggle,Toggle Signal Generator On/Off.
+SG2,SignalGen,223,SignalGen_Skip,Skip next sample
+SG5,SignalGen,281,SignalGen_Settings,Signal Generator Settings
+SG5,SignalGen,282,SignalGen_Toggle,Toggle Signal Generator On/Off.
+SG5,SignalGen,283,SignalGen_Skip,Skip next sample
+SG4,SignalGen,321,SignalGen_Settings,Signal Generator Settings
+SG4,SignalGen,322,SignalGen_Toggle,Toggle Signal Generator On/Off.
+SG4,SignalGen,323,SignalGen_Skip,Skip next sample
+health,Health,361,HLTH_ENABLE,A command to enable or disable health checks
+health,Health,362,HLTH_PING_ENABLE,Ignore a particular ping entry
+health,Health,363,HLTH_CHNG_PING,Change ping value
+eventLogger,ActiveLogger,421,ALOG_SET_EVENT_REPORT_FILTER,Set filter for reporting events. Events are not stored in component.
+eventLogger,ActiveLogger,422,ALOG_SET_EVENT_SEND_FILTER,Set filter for sending events. Event will not be sent as a buffer.
+eventLogger,ActiveLogger,423,ALOG_DUMP_EVENT_LOG,Dump circular buffers of events to a file
+eventLogger,ActiveLogger,424,ALOG_SET_ID_FILTER,Filter a particular ID
+eventLogger,ActiveLogger,425,ALOG_DUMP_FILTER_STATE,Dump the filter states via events
+fileDownlink,FileDownlink,501,FileDownlink_SendFile,Read a named file off the disk. Divide it into packets and send the packets for transmission to the ground.
+fileDownlink,FileDownlink,502,FileDownlink_Cancel,"Cancel the downlink in progress, if any"

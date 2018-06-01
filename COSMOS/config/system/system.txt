@@ -1,11 +1,5 @@
 # Declare Targets that make up the system
 # DECLARE_TARGET target_name [substitute_name]
-
-# AUTO_DECLARE_TARGETS
-DECLARE_TARGET INST
-DECLARE_TARGET INST INST2
-#DECLARE_TARGET EXAMPLE
-#DECLARE_TARGET TEMPLATED
 DECLARE_TARGET SYSTEM
 DECLARE_TARGET REF
 
@@ -40,10 +34,6 @@ PATH HANDBOOKS ./outputs/handbooks
 PATH PROCEDURES ./procedures
 
 ALLOW_ACCESS ALL
-
-ENABLE_SOUND
-# DISABLE_DNS
-# STALENESS_SECONDS 30
 
 # Initialize the metadata dialog using values from the following file:
 META_INIT config/data/meta_init.txt
