@@ -201,7 +201,15 @@
                 </arg>
            </args>       
         </event>
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <event id="9" name="TestCmd1Args" severity="ACTIVITY_LO" format_string = "ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d" >
+=======
+        <event id="9" name="TestCmd1Args" severity="ACTIVE_LO" format_string = "ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d" >
+>>>>>>> Stashed changes
+=======
+        <event id="9" name="TestCmd1Args" severity="ACTIVE_LO" format_string = "ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d" >
+>>>>>>> Stashed changes
            <comment>
            This log event message returns the TEST_CMD_1 arguments.
            </comment>
@@ -217,18 +225,40 @@
                 </arg>
            </args>       
         </event>
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <event id="10" name="TestCmd1StringArgs" severity="ACTIVITY_HI" format_string = "ISF TEST_CMD_1 string args: %s, %s" >
            <comment>
            This log event message returns the TEST_CMD_1 string arguments.
            </comment>
            <args>
+=======
+=======
+>>>>>>> Stashed changes
+        <event id="9" name="TestCmdStrings" severity="ACTIVE_LO" format_string = "ISF TEST_CMD_STRINGS args: I32: %s, U8: %s" >
+            <comment>
+                This log event message returns the TEST_CMD_STRINGS arguments.
+            </comment>
+            <args>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
                 <arg name="arg1" type="string" size="10">
                     <comment>Arg1</comment>
                 </arg>
                 <arg name="arg2" type="string" size="3">
                     <comment>Arg2</comment>
                 </arg>
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
            </args>
+=======
+            </args>
+>>>>>>> Stashed changes
+=======
+            </args>
+>>>>>>> Stashed changes
         </event>
     </events>
     <telemetry>

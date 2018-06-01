@@ -218,6 +218,14 @@ namespace Svc {
 
     void CommandDispatcherImpl::CMD_TEST_CMD_1_cmdHandler(FwOpcodeType opCode, U32 cmdSeq, I32 arg1, F32 arg2, U8 arg3) {
     	this->log_ACTIVITY_LO_TestCmd1Args(arg1,arg2,arg3);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+        this->log_ACTIVITY_LO_TestCmdStrings("one","two");
+>>>>>>> Stashed changes
+=======
+        this->log_ACTIVITY_LO_TestCmdStrings("one","two");
+>>>>>>> Stashed changes
     	this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
     }
 

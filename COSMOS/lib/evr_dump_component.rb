@@ -38,7 +38,7 @@ module Cosmos
       processed_text << "#{packet.received_time.formatted}\t"
       processed_text << "#{packet.packet_name}" << "\t" * name_tabs
       processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_ID', :RAW)}\t"
-      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' SEVERITY', :RAW)}" << "\t" * sev_tabs
+      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}" << "\t" * sev_tabs
       processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' MESSAGE', :RAW)}\t"
 
       # Ensure that queue does not grow infinitely while paused
