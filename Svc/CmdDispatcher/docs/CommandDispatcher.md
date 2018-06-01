@@ -51,3 +51,6 @@
 | | | |arg1|I32||Arg1|    
 | | | |arg2|F32||Arg2|    
 | | | |arg3|U8||Arg3|    
+|TestCmd1StringArgs|10 (0xa)|This log event message returns the TEST_CMD_1 string arguments.| | | | |
+| | | |arg1|Fw::LogStringArg&|10|Arg1|    
+| | | |arg2|Fw::LogStringArg&|3|Arg2|    
