@@ -29,7 +29,7 @@ module Cosmos
       if "#{packet.packet_name}".length > (8 * 2)
           name_tabs = name_tabs - 1
       end
-      if "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' SEVERITY', :RAW)}".length > (8 * 1)
+      if "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}".length > (8 * 1)
           sev_tabs = sev_tabs - 1
       end
       
