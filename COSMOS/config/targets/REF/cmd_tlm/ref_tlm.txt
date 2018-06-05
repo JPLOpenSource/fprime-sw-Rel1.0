@@ -513,9 +513,11 @@ TELEMETRY REF TESTCMD1STRINGARGS BIG_ENDIAN "This log event message returns the 
     APPEND_ITEM USECS 32 UINT "Microseconds"
     APPEND_ITEM EVR_ITEMS 0 BLOCK "Contains all other items"
     ITEM ARG1 0 0 DERIVED "Arg1"
-      READ_CONVERSION multivariable_tlm_item_conversion.rb "256 START 16 INTEGER 0 STRING"
+      READ_CONVERSION multivariable_tlm_item_conversion.rb "256 START 32 INT"
     ITEM ARG2 0 0 DERIVED "Arg2"
-      READ_CONVERSION multivariable_tlm_item_conversion.rb "256 START 16 INTEGER 0 STRING 16 UINT 0 STRING"
+      READ_CONVERSION multivariable_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING"
+    ITEM ARG3 0 0 DERIVED "Arg2"
+      READ_CONVERSION multivariable_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING 32 FLOAT"
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('ISF TEST_CMD_1 args: I32: %s, U8: %s', packet.read('EVR_ITEMS'), packet.read('EVR_ITEMS'))

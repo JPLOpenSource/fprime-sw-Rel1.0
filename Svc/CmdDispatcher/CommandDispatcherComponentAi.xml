@@ -217,16 +217,19 @@
                 </arg>
             </args>
         </event>
-        <event id="10" name="TestCmd1StringArgs" severity="ACTIVITY_HI" format_string = "ISF TEST_CMD_1 string args: %s, %s" >
+        <event id="10" name="TestCmd1StringArgs" severity="ACTIVITY_HI" format_string = "ISF TEST_CMD_1 string args: %d, %s, %f" >
             <comment>
                 This log event message returns the TEST_CMD_1 string arguments.
             </comment>
             <args>
-                <arg name="arg1" type="string" size="10">
+                <arg name="arg1" type="I32">
                     <comment>Arg1</comment>
                 </arg>
-                <arg name="arg2" type="string" size="3">
+                <arg name="arg2" type="string" size="10">
                     <comment>Arg2</comment>
+                </arg>
+                <arg name="arg3" type="F32">
+                    <comment>Arg3</comment>
                 </arg>
             </args>
         </event>
