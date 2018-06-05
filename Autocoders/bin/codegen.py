@@ -240,7 +240,7 @@ def generate_topology(the_parsed_topology_xml, xml_filename, opt):
     #Used to generate base ID/base ID window CSV files
     if True:
         generator.configureVisitor(csv_instance_name , "TopologyIDVisitor" , True , True)
-    
+
     #Used to generate HTML tables of ID's etc.
     if opt.default_topology_dict:
         generator.configureVisitor(cmd_html_instance_name, "InstanceTopologyCmdHTMLVisitor", True, True)

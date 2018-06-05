@@ -1,20 +1,28 @@
 # encoding: ascii-8bit
 
-# Converts BLOCK data type for commands with multiple strings into the proper packet format for FPrime
+# Converts BLOCK data type for commands with multiple strings into the proper packet format
 
 require 'cosmos/conversions/conversion'
 module Cosmos
+    # Allows for the usage of multiple variable-length arguments spread throughout
+    # the telemetry packet.  Parses the packet's BLOCK item field and sets the
+    # last argument defined in the constructor's template parameter as the value
+    # for the current item.
     class MultivariableTlmItemConversion < Conversion
         BITS_IN_BYTE = 8
         
-        # Template: instructions for parsing the raw data (the number of bits of each item)
-        # Specified as a string of bit-number / data-type pairs beginning with the number
-        # of bits to pass over followed by the word START
-        # "160 START 16 UINT 0 STRING 16 UINT 0 STRING"
+        # @param template [String] Instructions for parsing the raw data (the number
+        #   of bits of each item) specified as a string of bit-number / data-type
+        #   pairs beginning with the number of bits to pass over followed by the
+        #   word START.  Example: "160 START 16 UINT 0 STRING 16 UINT 0 STRING"
         def initialize(template)
             super()
             @template = template.split(" ")
         end
+        
+        # @param (see Conversion#call)
+        # @return [Integer|Float|Boolean|String] The value corresponding to
+        #   the current item
         def call(value, packet, buffer)
             # Get hex string representation of all data in the current packet
             # Arguments defined in COSMOS library file packets.rb
@@ -24,19 +32,26 @@ module Cosmos
         end
         
         # Converts a hex string to a signed integer
+        # @param text [String] Hex string
+        # @param bits [Integer] Bits for signed integer returned
+        # @return [Integer] The converted signed integer
         def to_signed(text, bits)
+            # Convert first from hex to unsigned integer
             temp = hex_convert(text, "UINT", 0)
             length = bits
             
-            # Find middle of possible uints given bits, negative is higher half and positive is lower
             mid = 2**(length-1)
             max_uint = 2**length
             
-            # Bit flip if negative
             return (temp>=mid) ? temp - max_uint : temp
         end
         
-        # Removes whitespace and then "packs" Hex into variable of given type (all byte sizes identical)
+        # Converts hex string to desired data type
+        # @param text [String] Hex string
+        # @param type [String] Desired data type.  Can be STRING UINT
+        #   INT FLOAT or BOOLEAN.
+        # @param bits [Integer] Bits for signed integer returned
+        # @return [String|Integer|Float|Boolean] The converted value
         def hex_convert(text, type, bits)
             case type
                 when "STRING"
@@ -53,51 +68,54 @@ module Cosmos
             end
         end
         
-        # Returns the last defined packet item in @templates from hex string example below
-        # 00 41 35 41 35 20 47 55 49 20 00 00 00 1A 00 00 00
+        # Parses an argument specified in template from the full hex string
+        # of all raw data in the current packet.  Example: 00 41 35 41 35 20 47
+        # @param hex [String] Hex string of all packet data
+        # @return [Integer|Float|Boolean|String] The value corresponding to
+        #   the current item
         def extract_item(hex)
             text = hex.dup
-            error_str = "ERROR" # Only returned if error
+            error_str = "ERROR"
             
-            templ_arg_index = 2 # @template skips first 2 indexes because they define first-item offset
+            templ_arg_index = 2  # @template skips first 2 indexes because they define offset to first block item
             
             # Number of bytes until first non-BLOCK item
             bytes_to_pass = @template[0].to_i / BITS_IN_BYTE
             # Every 3 characters a new byte in hex string is passed
             chars_read = 0
             
-            i = bytes_to_pass * 3   # Skip past all non-BLOCK items
-            dataline_begin = 0 # Position of each line's raw_data to be appended to final string
-            dataline_end = 0
+            # Skip past all non-BLOCK items
+            i = bytes_to_pass * 3
             
             # Iterate through all characters in hex string
             while i < text.length
                 # Extract desired item because end of @template reached else pass over next item
                 if templ_arg_index + 2 == @template.length or (@template[templ_arg_index + 2].to_i == 0 and templ_arg_index + 4 == @template.length)
-                    
                     # If normal data type else if string
                     if templ_arg_index + 2 == @template.length
                         len = @template[templ_arg_index].to_i / BITS_IN_BYTE
                         return hex_convert(text[i..i+len*3-1], @template[templ_arg_index + 1], @template[templ_arg_index].to_i)
-                        else
+                    else
                         len = @template[templ_arg_index].to_i / BITS_IN_BYTE
                         str_len = hex_convert(text[i..i+len*3-1], @template[templ_arg_index + 1], @template[templ_arg_index].to_i)
                         return hex_convert(text[i+len*3..i+len*3+str_len*3-1], @template[templ_arg_index + 3], @template[templ_arg_index + 2])
                     end
-                    else
+                else
                     # Pass over string and its length else pass over other data type
                     if @template[templ_arg_index + 2].to_i == 0
                         len = @template[templ_arg_index].to_i / BITS_IN_BYTE
                         i = i + len * 3 + hex_convert(text[i..i+len*3-1], @template[templ_arg_index + 1], @template[templ_arg_index].to_i) * 3
                         templ_arg_index = templ_arg_index + 4
-                        else
+                    else
                         i = i + @template[templ_arg_index].to_i / BITS_IN_BYTE * 3
                         templ_arg_index = templ_arg_index + 2
                     end
-                end
-            end
+                end 
+            end # while
             
             return error_str
         end
-    end
-end
+        
+    end # class MultivariableTlmItemConversion
+    
+end # module Cosmos

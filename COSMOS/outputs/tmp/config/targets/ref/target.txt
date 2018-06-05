@@ -12,8 +12,59 @@ IGNORE_PARAMETER LENGTH
 # Explicitly define command and telemetry files
 # If not given then all the files in cmd/tlm will be processed in
 # alphabetical order
-COMMANDS ref_cmds.txt
-TELEMETRY ref_tlm.txt
+COMMANDS commands/alog_dump_event_log.txt
+COMMANDS commands/alog_dump_filter_state.txt
+COMMANDS commands/cmd_no_op.txt
+COMMANDS commands/cmd_no_op_string.txt
+COMMANDS commands/cmd_test_cmd_1.txt
+COMMANDS commands/cs_auto.txt
+COMMANDS commands/file_downlink_send_file.txt
+COMMANDS commands/hlth_enable.txt
+COMMANDS commands/parameter1_prm_save.txt
+COMMANDS commands/parameter1_prm_set.txt
+COMMANDS commands/sb_gen_assert.txt
+COMMANDS commands/sb_gen_fatal.txt
+COMMANDS commands/sb_inject_pkt_error.txt
+COMMANDS commands/sb_start_pkts.txt
+COMMANDS commands/sg1_signal_gen_settings.txt
+COMMANDS commands/sg1_signal_gen_toggle.txt
+TELEMETRY events/af_assert0.txt
+TELEMETRY events/af_assert6.txt
+TELEMETRY events/alog_file_write_complete.txt
+TELEMETRY events/alog_file_write_err.txt
+TELEMETRY events/alog_severity_filter_state.txt
+TELEMETRY events/buff_recv_parameter_updated.txt
+TELEMETRY events/buff_send_parameter_updated.txt
+TELEMETRY events/connected_to_server.txt
+TELEMETRY events/cs_mode_switched.txt
+TELEMETRY events/file_downlink_file_sent.txt
+TELEMETRY events/first_packet_received.txt
+TELEMETRY events/hlth_check_enable.txt
+TELEMETRY events/no_op_received.txt
+TELEMETRY events/no_op_string_received.txt
+TELEMETRY events/op_code_completed.txt
+TELEMETRY events/op_code_dispatched.txt
+TELEMETRY events/op_code_error.txt
+TELEMETRY events/prm_id_added.txt
+TELEMETRY events/prm_id_not_found.txt
+TELEMETRY events/prm_id_updated.txt
+TELEMETRY events/sg1_signalgen_settings_changed.txt
+TELEMETRY events/test_cmd1_args.txt
+TELEMETRY events/test_cmd1_string_args.txt
+TELEMETRY channels/bd_cycles.txt
+TELEMETRY channels/commands_dispatched.txt
+TELEMETRY channels/num_err_pkts.txt
+TELEMETRY channels/num_pkts.txt
+TELEMETRY channels/packets_sent.txt
+TELEMETRY channels/parameter1.txt
+TELEMETRY channels/pr_numpings.txt
+TELEMETRY channels/rategroup1comp_rgmaxtime.txt
+TELEMETRY channels/rategroup2comp_rgmaxtime.txt
+TELEMETRY channels/rategroup3comp_rgmaxtime.txt
+TELEMETRY channels/send_state.txt
+TELEMETRY channels/sensor1.txt
+TELEMETRY channels/sensor2.txt
+TELEMETRY channels/sg1_signalgen_output.txt
 
 # Automatically substitute the target name in screen definitions
 AUTO_SCREEN_SUBSTITUTE
