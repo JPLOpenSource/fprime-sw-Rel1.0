@@ -80,6 +80,25 @@
                 </arg>
             </args>
         </command>
+        <command kind="async" opcode="4" mnemonic="CMD_DEBUG_COSMOS" >
+            <comment>
+                Sends some arguments to COSMOS to test ruby script that allows multiple strings / in same packet
+            </comment>
+            <args>
+                <arg name="arg1" type="I16">
+                    <comment>The I32 command argument</comment>
+                </arg>
+                <arg name="arg2" type="string">
+                    <comment>The string command argument</comment>
+                </arg>
+                <arg name="arg3" type="string">
+                    <comment>The string command argument</comment>
+                </arg>
+                <arg name="arg4" type="F64">
+                    <comment>The F64 command argument</comment>
+                </arg>
+            </args>
+        </command>
         <command kind="async" opcode="3" mnemonic="CMD_CLEAR_TRACKING" >
             <comment>
                 Clear command tracking info to recover from components not returning status
@@ -217,19 +236,22 @@
                 </arg>
             </args>
         </event>
-        <event id="10" name="TestCmd1StringArgs" severity="ACTIVITY_HI" format_string = "ISF TEST_CMD_1 string args: %d, %s, %f" >
+        <event id="10" name="TestCmd1StringArgs" severity="ACTIVITY_HI" format_string = "ISF TEST_CMD_1 string args: %d, %s, %s, %f" >
             <comment>
                 This log event message returns the TEST_CMD_1 string arguments.
             </comment>
             <args>
-                <arg name="arg1" type="I32">
+                <arg name="arg1" type="I16">
                     <comment>Arg1</comment>
                 </arg>
                 <arg name="arg2" type="string" size="10">
                     <comment>Arg2</comment>
                 </arg>
-                <arg name="arg3" type="F32">
+                <arg name="arg3" type="string" size="10">
                     <comment>Arg3</comment>
+                </arg>
+                <arg name="arg4" type="F64">
+                    <comment>Arg4</comment>
                 </arg>
             </args>
         </event>

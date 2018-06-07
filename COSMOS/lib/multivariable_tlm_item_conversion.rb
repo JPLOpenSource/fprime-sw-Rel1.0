@@ -55,16 +55,20 @@ module Cosmos
         def hex_convert(text, type, bits)
             case type
                 when "STRING"
-                return [(text).gsub(/\s+/, "")].pack('H*')
+                    return [(text).gsub(/\s+/, "")].pack('H*')
                 when "UINT"
-                return (text).gsub(/\s+/, "").to_i(16)
+                    return (text).gsub(/\s+/, "").to_i(16)
                 when "INT"
-                return to_signed(text, bits)
+                    return to_signed(text, bits)
                 when "FLOAT"
                     # Convert hex to integer, then pack for sign, then unpack to float
-                    return [(text).gsub(/\s+/, "").to_i(16)].pack('L').unpack('F')[0]
+                    if bits == 32
+                        return [hex_convert((text).gsub(/\s+/, ""), "INT", bits)].pack('L').unpack('F')[0]
+                    elsif bits == 64
+                        return [hex_convert((text).gsub(/\s+/, ""), "INT", bits)].pack('Q').unpack('D')[0]
+                    end
                 when "BOOLEAN"
-                return hex_convert(text, "UINT", 0) == 0 ? true: false
+                    return hex_convert(text, "UINT", 0) == 0 ? true: false
             end
         end
         

@@ -139,6 +139,8 @@ namespace Svc {
             //!  \param opCode the CLEAR_TRACKING opcode.
             //!  \param cmdSeq the assigned sequence number for the command
             void CMD_CLEAR_TRACKING_cmdHandler(FwOpcodeType opCode, U32 cmdSeq);
+        
+            void CMD_DEBUG_COSMOS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq, I16 arg1, const Fw::CmdStringArg& arg2, const Fw::CmdStringArg& arg3, F64 arg4);
 
             //! \struct DispatchEntry
             //! \brief table used to store opcode to port mappings
