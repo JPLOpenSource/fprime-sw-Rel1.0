@@ -13,12 +13,20 @@ import logging
 import exceptions
 
 from optparse import OptionParser
+from models import ModelParser
+from utils import ConfigManager
 
 from utils import Logger
 
 # Parsers to read the XML
 from parsers import XmlParser
 from parsers import XmlTopologyParser
+
+# Cosmos file writer class
+from utils.cosmos.Cosmos import Cosmos
+
+# Configuration manager object.
+CONFIG = ConfigManager.ConfigManager.getInstance()
 
 # Flag to indicate verbose mode.
 VERBOSE = False
@@ -47,8 +55,6 @@ def pinit():
     Initialize the option parser and return it.
     """
 
-    current_dir = os.getcwd()
-
     usage = "usage: %prog [options] [xml_topology_filename]"
     vers = "%prog " + VERSION.id + " " + VERSION.comment
     program_longdesc = '''
@@ -61,6 +67,8 @@ These can be used to send commands and receive telemetry within the COSMOS syste
     parser = OptionParser(usage, version=vers, epilog=program_longdesc,description=program_license)
     
     # Add parser options
+    parser.add_option("-l", "--logger", dest="logger", default="QUIET",
+        help="Set the logging level <DEBUG | INFO | QUIET> (def: 'QUIET').")
     parser.add_option("-r", "--rm_target", dest="target_rm",
                       help="Target to be removed", default=None)
     
@@ -79,6 +87,7 @@ def main():
     global BUILD_ROOT # environmental variable if set
     global DEPLOYMENT # deployment set in topology xml only and used to install new instance dicts
 
+    CONFIG = ConfigManager.ConfigManager.getInstance()
     Parser = pinit()
     (opt, args) = Parser.parse_args()
     VERBOSE = opt.verbose_flag
@@ -102,6 +111,7 @@ def main():
         sys.exit(-1)
     else:
         BUILD_ROOT = os.environ['BUILD_ROOT']
+        ModelParser.BUILD_ROOT = BUILD_ROOT
         PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
     #
     # Parse XML
@@ -113,13 +123,27 @@ def main():
         if xml_type == "assembly" or xml_type == "deployment":
             DEBUG.info("Detected ISF Topology XML Files...")
             the_parsed_topology_xml = XmlTopologyParser.XmlTopologyParser(xml_filename)
+            
+            for inst in the_parsed_topology_xml.get_instances():
+                comp_name = inst.get_name()
+                comp_type = inst.get_type()
+                base_id = inst.get_base_id()
+                if '0x' in base_id:
+                    base_id = int(base_id, 16)
+                else:
+                    base_id = int(base_id)
+                comp_parser = inst.get_comp_xml()
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
             COSMOS = BUILD_ROOT + "/COSMOS/config"
-            #
-            # Create COSMOS application file system here
-            #
             
+            #
+            # Create COSMOS application file system here by passing parsed topology to cosmos file generator
+            #
+            cosmos = Cosmos(the_parsed_topology_xml, DEPLOYMENT, COSMOS)
+            
+            # Generate all event files here
+            cosmos.create_events()
             
         else:
             PRINT.info("File not a Topology XML file")

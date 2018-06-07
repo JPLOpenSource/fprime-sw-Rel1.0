@@ -230,7 +230,7 @@ namespace Svc {
         this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
     }
     
-    void CommandDispatcherImpl::CMD_DEBUG_COSMOS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq, I16 arg1, const Fw::CmdStringArg& arg2, const Fw::CmdStringArg& arg3, F64 arg4) {
+    void CommandDispatcherImpl::CMD_DEBUG_COSMOS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
          Fw::LogStringArg arg2("arg2");
          Fw::LogStringArg arg3("arg3");
         I16 arg1 = -123;

@@ -25,6 +25,10 @@ cmdDisp,CommandDispatcher,129,0,No_op_string,string,The NO-OP string that is gen
 cmdDisp,CommandDispatcher,130,0,arg1,I32,Arg1,None
 cmdDisp,CommandDispatcher,130,1,arg2,F32,Arg2,None
 cmdDisp,CommandDispatcher,130,2,arg3,U8,Arg3,None
+cmdDisp,CommandDispatcher,131,0,arg1,I16,Arg1,None
+cmdDisp,CommandDispatcher,131,1,arg2,string,Arg2,None
+cmdDisp,CommandDispatcher,131,2,arg3,string,Arg3,None
+cmdDisp,CommandDispatcher,131,3,arg4,F64,Arg4,None
 prmDb,PrmDb,141,0,Id,U32,The parameter ID,None
 prmDb,PrmDb,142,0,Id,U32,The parameter ID,None
 prmDb,PrmDb,143,0,Id,U32,The parameter ID,None
