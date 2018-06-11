@@ -5,8 +5,7 @@
 #
 # XML Source: /Users/jishii/Documents/git_folder/fprime-sw/Svc/ActiveRateGroup/ActiveRateGroupComponentAi.xml
 
-# COMPONENT: "ActiveRateGroup::rateGroup3Comp"
-TELEMETRY REF RATEGROUP3COMP_RGMAXTIME BIG_ENDIAN "Max execution time rate group"
-<%=render "_ref_tlm_chn_hdr.txt", locals: {id: 241} %>
+# COMPONENT: "ActiveRateGroup::rateGroup1Comp"
+TELEMETRY REF RATEGROUP1COMP_RGCYCLESLIPS BIG_ENDIAN "Cycle slips for rate group"
+<%=render "_ref_tlm_chn_hdr.txt", locals: {id: 22} %>
     APPEND_ITEM VALUE 32 UINT "Value"
-      FORMAT_STRING "%u us"

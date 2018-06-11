@@ -24,6 +24,10 @@ from parsers import XmlTopologyParser
 
 # Cosmos file writer class
 from utils.cosmos.Cosmos import Cosmos
+from utils.cosmos import CosmosWriter
+from utils.cosmos import ChannelWriter
+from utils.cosmos import ChannelScreenWriter
+from utils.cosmos import EventWriter
 
 # Configuration manager object.
 CONFIG = ConfigManager.ConfigManager.getInstance()
@@ -135,15 +139,19 @@ def main():
                 comp_parser = inst.get_comp_xml()
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
-            COSMOS = BUILD_ROOT + "/COSMOS/config"
             
             #
             # Create COSMOS application file system here by passing parsed topology to cosmos file generator
             #
-            cosmos = Cosmos(the_parsed_topology_xml, DEPLOYMENT, COSMOS)
+            cosmos = Cosmos()
+            
+            # Add the writers for the correspondig files that should be written
+            cosmos.append_writer(ChannelWriter.ChannelWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
+            cosmos.append_writer(EventWriter.EventWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
+            cosmos.append_writer(ChannelScreenWriter.ChannelScreenWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
             
             # Generate all event files here
-            cosmos.create_events()
+            cosmos.generate_cosmos_files()
             
         else:
             PRINT.info("File not a Topology XML file")
