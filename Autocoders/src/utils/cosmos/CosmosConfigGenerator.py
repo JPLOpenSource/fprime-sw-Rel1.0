@@ -3,7 +3,7 @@ import logging
 # Global logger init. below.
 PRINT = logging.getLogger('output')
 
-class Cosmos:
+class CosmosConfigGenerator:
     
     def __init__(self):
         self.writers = []

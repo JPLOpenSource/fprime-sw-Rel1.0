@@ -5,14 +5,14 @@ import time
 import datetime
 import logging
 
-from utils.cosmos import CosmosWriter
+from utils.cosmos import CosmosWriterAbs
 
 from utils.cosmos.templates import Channel
 
-class ChannelWriter(CosmosWriter.CosmosWriter):
+class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
 
-    def __init__(self, topology, deployment_name, build_root):
-        super(ChannelWriter, self).__init__(topology, deployment_name, build_root)
+    def __init__(self, parser, deployment_name, build_root):
+        super(ChannelWriter, self).__init__(parser, deployment_name, build_root)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
@@ -24,96 +24,47 @@ class ChannelWriter(CosmosWriter.CosmosWriter):
         return r
     
     def write(self):
-        instances = self.topology.get_instances()
+        print "Creating Channel Files"
         channel_templates = {}
-        for inst in instances:
-            comp_name = inst.get_name()
-            comp_type = inst.get_type()
-            base_id = inst.get_base_id()
-            if '0x' in base_id:
-                base_id = int(base_id, 16)
-            else:
-                base_id = int(base_id)
-                comp_parser = inst.get_comp_xml()
+        for ch in self.parser.channels:
+            n = ch.get_ch_name()
+            if n in self.repeated_names.keys():
+                # Fix other name pair
+                if n in channel_templates.keys():
+                    channel_templates.get(n).channel_name = self.repeated_names.get(n).get_comp_name() + "_" + n
+                    channel_templates.update({self.repeated_names.get(n).get_comp_name() + "_" + 
+                                        n: channel_templates.get(n)})
+                    channel_templates = self.removekey(channel_templates, n)
+                n = ch.get_comp_name() + "_" + n
+            self.repeated_names.update({n: ch})
 
-            #
-            # Write out each row of channel tlm data here...
-            #
-            if "get_channels" in dir(comp_parser):
-                channels = comp_parser.get_channels()
-                
-                for ch in channels:
-                    
-                    ch_id = ch.get_ids()[0]
-                    if '0x' in ch_id:
-                        ch_id = int(ch_id, 16)
-                    else:
-                        ch_id = int(ch_id)
-                    ch_id += base_id
-                    n     = ch.get_name()
-                    if n in self.repeated_names.keys():
-                        # Fix other name pair
-                        if n in channel_templates.keys():
-                            channel_templates.get(n).channel_name = self.repeated_names.get(n)[1].get_name() + "_" + n
-                            channel_templates.update({self.repeated_names.get(n)[1].get_name() + "_" + 
-                                                n: channel_templates.get(n)})
-                            channel_templates = self.removekey(channel_templates, n)
-                        n = comp_name + "_" + n
-                    self.repeated_names.update({n: (ch, inst)})
-                    t     = ch.get_type()
-                    enum_name = "None"
-                    if type(t) is type(tuple()):
-                        enum = t
-                        enum_name = t[0][1]
-                        t = t[0][0]
-                    ch_comment = ch.get_comment()
+            # Initialize Cheetah Template
+            c = Channel.Channel()
 
-                    # Initialize Cheetah Template
-                    c = Channel.Channel()
-                    
-                    d = datetime.datetime.now()
-                    c.date = d.strftime("%A, %d %B %Y")
-                    c.user = os.environ['USER']
-                    c.source = comp_parser.get_xml_filename()
-                    c.component_string = comp_type + "::" + comp_name
-                    c.target_caps = self.deployment_name.upper()
-                    c.channel_name = n
-                    c.endianness = "BIG_ENDIAN"
-                    c.chn_desc = ch_comment
-                    c.target_lower = self.deployment_name.lower()
-                    c.id = ch_id
-                    
-                    cosmos_type = self.type_hash[t]
-                    
-                    c.value_bits = cosmos_type[0]
-                    c.value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM") else cosmos_type[2])
-                    
-                    # Handle units
-                    format_string = "EMPTY"
-                    if ch.get_format_string():
-                        format_string = ch.get_format_string()
-                    c.format_string = format_string
-                    
-                    # Handle enum type
-                    channel_enum_types = "EMPTY"
-                    count = 0
-                    if t == 'ENUM':
-                        channel_enum_types = []
-                        for item in enum[1]:
-                            if item[1] == None:
-                                channel_enum_types.append((item[0], count))
-                            else:
-                                channel_enum_types.append((item[0], count))
-                            count = count + 1
+            c.date = ch.get_date()
+            c.user = ch.get_user()
+            c.source = ch.get_source()
+            c.component_string = ch.get_component_string()
+            c.ch_name = ch.get_ch_name()
+            c.endianness = ch.get_endianness()
+            c.ch_desc = ch.get_ch_desc()
+            c.id = ch.get_id()
+            c.target_caps = self.deployment_name.upper()
+            c.target_lower = self.deployment_name.lower()
 
-                    c.types = channel_enum_types
-                    channel_templates.update({n: c})
-                    
+            c.value_bits = ch.get_value_bits()
+            c.value_type = ch.get_value_type()
+    
+            c.format_string = ch.get_format_string()
+            c.types = ch.get_types()
+
+            channel_templates.update({n: c})
+
         # Write files
         for name, c in channel_templates.iteritems():
-            fl = open(self.destination + c.channel_name.lower() + ".txt", "w")
-            print "Channel " + c.channel_name + " Created"
-            c.channel_name = c.channel_name.upper()
+            fl = open(self.destination + name.lower() + ".txt", "w")
+            print "Channel " + c.ch_name + " Created"
+            c.ch = c.ch_name.upper()
             msg = c.__str__()
                     
             fl.writelines(msg)

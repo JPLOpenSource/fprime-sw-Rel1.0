@@ -23,7 +23,8 @@ from parsers import XmlParser
 from parsers import XmlTopologyParser
 
 # Cosmos file writer class
-from utils.cosmos.Cosmos import Cosmos
+from utils.cosmos import CosmosConfigGenerator
+from utils.cosmos import CosmosTopParser
 from utils.cosmos import CosmosWriter
 from utils.cosmos import ChannelWriter
 from utils.cosmos import ChannelScreenWriter
@@ -141,17 +142,23 @@ def main():
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
             
             #
-            # Create COSMOS application file system here by passing parsed topology to cosmos file generator
+            # Create COSMOS application file system here by parsing topology and passing data to cosmos config file generator
             #
-            cosmos = Cosmos()
             
+            cosmos_parser = CosmosTopParser.CosmosTopParser()
+            
+            # Parse the topology file
+            cosmos_parser.parse_topology(the_parsed_topology_xml)
+    
+            cosmos_gen = CosmosConfigGenerator.CosmosConfigGenerator()
+             
             # Add the writers for the correspondig files that should be written
-            cosmos.append_writer(ChannelWriter.ChannelWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
-            cosmos.append_writer(EventWriter.EventWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
-            cosmos.append_writer(ChannelScreenWriter.ChannelScreenWriter(the_parsed_topology_xml, DEPLOYMENT, BUILD_ROOT))
-            
+            cosmos_gen.append_writer(ChannelWriter.ChannelWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+#             cosmos_gen.append_writer(EventWriter.EventWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+#             cosmos_gen.append_writer(ChannelScreenWriter.ChannelScreenWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+             
             # Generate all event files here
-            cosmos.generate_cosmos_files()
+            cosmos_gen.generate_cosmos_files()
             
         else:
             PRINT.info("File not a Topology XML file")

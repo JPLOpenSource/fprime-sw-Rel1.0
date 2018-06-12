@@ -5,11 +5,11 @@ import time
 import datetime
 import logging
 
-from utils.cosmos import CosmosWriter
+from utils.cosmos import CosmosWriterAbs
 
 from utils.cosmos.templates import Channel_Screen
 
-class ChannelScreenWriter(CosmosWriter.CosmosWriter):
+class ChannelScreenWriter(CosmosWriterAbs.CosmosWriterAbs):
     
     def __init__(self, topology, deployment_name, build_root):
         super(ChannelScreenWriter, self).__init__(topology, deployment_name, build_root)
