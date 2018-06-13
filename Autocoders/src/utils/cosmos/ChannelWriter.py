@@ -17,11 +17,6 @@ class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
         
         # Initialize writer-unique file destination location
         self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/"
-        
-    def removekey(self, d, key):
-        r = dict(d)
-        del r[key]
-        return r
     
     def write(self):
         print "Creating Channel Files"
@@ -45,7 +40,7 @@ class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
             c.user = ch.get_user()
             c.source = ch.get_source()
             c.component_string = ch.get_component_string()
-            c.ch_name = ch.get_ch_name()
+            c.ch_name = n
             c.endianness = ch.get_endianness()
             c.ch_desc = ch.get_ch_desc()
             c.id = ch.get_id()
@@ -62,9 +57,10 @@ class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
 
         # Write files
         for name, c in channel_templates.iteritems():
+            c.ch_name = name
             fl = open(self.destination + name.lower() + ".txt", "w")
-            print "Channel " + c.ch_name + " Created"
-            c.ch = c.ch_name.upper()
+            print "Channel " + name + " Created"
+            c.ch_name = name.upper()
             msg = c.__str__()
                     
             fl.writelines(msg)

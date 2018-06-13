@@ -9,6 +9,36 @@ class CosmosTopParser():
         self.channels = []
         self.events = []
         self.commands = []
+        
+    def get_bits_from_type(self, type):
+        if type == 'F32':
+            return 32
+        elif type == 'F64':
+            return 64
+        elif type == 'U8':
+            return 8
+        elif type == 'U16':
+            return 16
+        elif type == 'U32':
+            return 32
+        elif type == 'U64':
+            return 64
+        elif type == 'I8':
+            return 8
+        elif type == 'I16':
+            return 16
+        elif type == 'I32':
+            return 32
+        elif type == 'I64':
+            return 64
+        elif type == 'bool':
+            return 16
+        elif type == 'string':
+            return 0
+        elif type == 'ENUM':
+            return 32
+        else:
+            print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
                 
     def parse_topology(self, topology, overwrite = True):
         if overwrite:
@@ -86,33 +116,54 @@ class CosmosTopParser():
                     f = evr.get_format_string()
                     source = comp_parser.get_xml_filename()
                     cosmos_evr = CosmosEvent.CosmosEvent(comp_name, comp_type, source, evr_id, n, s, f, comment)
+                    
+                    # Count strings to see if 2 (if so needs block)
+                    string_count = 0
+                    args = evr.get_args()
+                    for arg in args:
+                        t = arg.get_type()
+                        if t == 'string':
+                            string_count += 1
+                    
+                    use_block = False
+                    if string_count >= 2:
+                        use_block = True
+                        cosmos_evr.add_block()
                     #
                     # Write out the evr args records here...
                     #
-                    num = 0
-                    args = evr.get_args()
+                    flip_bits = False
+                    bit_count = 0
                     for arg in args:
                         n = arg.get_name()
                         t = arg.get_type()
+                        s = arg.get_size()
                         c = arg.get_comment()
                         enum_name = "None"
+                        enum = None
                         if type(t) is type(tuple()):
                             enum = t
                             enum_name = t[0][1]
                             t = t[0][0]
-                        num += 1
-                        #
-                        # Write out the evr enum records here...
-                        #
-                        if t == 'ENUM':
-                            num = 0
-                            for item in enum[1]:
-                                if item[1] == None:
-                                    pass
-                                else:
-                                    num = int(item[1])
-                                num += 1
-                        #cosmos_evr.add_arg(n, t, c, enum_name)
+
+                        bits = self.get_bits_from_type(t)
+                        bit_offset = 0
+                        template_string = 0
+                        evr_type = 'NORMAL'
+                        if use_block:
+                            evr_type = 'DERIVED'
+                        elif flip_bits:
+                            evr_type = 'NEG_OFFSET'
+                            
+                        if t == 'string':
+                            flip_bits = True
+                            
+                        cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset, template_string)
+                    if flip_bits:
+                        cosmos_evr.update_neg_offset()
+                    if use_block:
+                        cosmos_evr.update_template_strings()
+                    self.events.append(cosmos_evr)
             #
             # Write out each row of channel tlm data here...
             #
