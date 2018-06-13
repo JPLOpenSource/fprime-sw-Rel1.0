@@ -9,6 +9,6 @@
 # FULL: "assert
 # PRIORITY: "0
 # COMPONENT: "cmdDisp::CommandDispatcher"
-COMMAND REF CMD_NO_OP BIG_ENDIAN "No-op command"
-<%=render "_ref_cmds_hdr.txt", locals: {id: 121} %>
+COMMAND REF CMD_CLEAR_TRACKING BIG_ENDIAN "Clear command tracking info to recover from components not returning status"
+<%=render "_ref_cmds_hdr.txt", locals: {id: 124} %>
 

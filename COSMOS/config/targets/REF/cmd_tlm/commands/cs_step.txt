@@ -9,6 +9,6 @@
 # FULL: "assert
 # PRIORITY: "0
 # COMPONENT: "cmdSeq::CmdSequencer"
-COMMAND REF CS_AUTO BIG_ENDIAN "Set the run mode to AUTO."
-<%=render "_ref_cmds_hdr.txt", locals: {id: 546} %>
+COMMAND REF CS_STEP BIG_ENDIAN "Perform one step in a command sequence. Valid only if CmdSequencer is in MANUAL run mode."
+<%=render "_ref_cmds_hdr.txt", locals: {id: 545} %>
 

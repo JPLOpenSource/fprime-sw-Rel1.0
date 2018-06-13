@@ -9,10 +9,12 @@
 # FULL: "assert
 # PRIORITY: "0
 # COMPONENT: "eventLogger::ActiveLogger"
-COMMAND REF ALOG_DUMP_EVENT_LOG BIG_ENDIAN "Dump circular buffers of events to a file"
-<%=render "_ref_cmds_hdr.txt", locals: {id: 423} %>
-    APPEND_PARAMETER FILENAME_LENGTH 16 UINT 0 65535 0 "Length of String Arg"
-    APPEND_PARAMETER FILENAME 0 STRING   "String" ""
+COMMAND REF ALOG_SET_ID_FILTER BIG_ENDIAN "Filter a particular ID"
+<%=render "_ref_cmds_hdr.txt", locals: {id: 424} %>
+    APPEND_PARAMETER ID 32 UINT 0 4294967295 0 ""
         STATE SEND_ENABLED 0
         STATE SEND_DISABLED 1
+    APPEND_PARAMETER IDFILTERENABLE 32 UINT 0 4294967295 0 "ID filter state"
+        STATE ID_ENABLED 0
+        STATE ID_DISABLED 1
 

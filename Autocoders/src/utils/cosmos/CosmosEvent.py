@@ -38,10 +38,6 @@ class CosmosEvent(CosmosObjectAbs.CosmosObjectAbs):
         self.evr_desc = comment
         self.severity = severity
         self.format_string = format_string
-        self.item_type = 'NORMAL'
-        self.neg_offset = False
-        self.neg_offset = False
-        self.derived = False
         self.evr_items = []
         self.names = []
         self.non_len_names = []
@@ -72,19 +68,18 @@ class CosmosEvent(CosmosObjectAbs.CosmosObjectAbs):
         value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM" or cosmos_type[1] == "BOOLEAN") else cosmos_type[2])
         
         # Handle enum
-        channel_enum_types = []
+        event_enum_types = []
         count = 0
         if not enum == None:
             num = 0
             for item in enum[1]:
                 if item[1] == None:
-                    channel_enum_types.append((item[0], num))
+                    event_enum_types.append((item[0], num))
                 else:
-                    channel_enum_types.append((item[0], int(item[1])))
+                    event_enum_types.append((item[0], int(item[1])))
                 num += 1
-        types = channel_enum_types
+        types = event_enum_types
         
-        item = 'NONE'
         if evr_type == 'NEG_OFFSET':
             item = self.EventItem(name, desc, bits, value_type, types)
             item.add_neg_offset_fields(bit_offset)

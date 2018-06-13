@@ -58,46 +58,76 @@ class CosmosTopParser():
             #
             # Write out each row of command data here...
             #
-#             if 'get_commands' in dir(comp_parser):
-#                 cmds = comp_parser.get_commands()
-#                 for cmd in cmds:
-#                     opcode = cmd.get_opcodes()[0]
-#                     if '0x' in opcode:
-#                         opcode = int(opcode, 16)
-#                     else:
-#                         opcode = int(opcode)
-#                     opcode += base_id
-#                     n = cmd.get_mnemonic()
-#                     c = cmd.get_comment()
-#                     cosmos_cmd = CosmosCommand.CosmosCommand(comp_name, comp_type, n, opcode, c)
+            if 'get_commands' in dir(comp_parser):
+                cmds = comp_parser.get_commands()
+                for cmd in cmds:
+                    opcode = cmd.get_opcodes()[0]
+                    if '0x' in opcode:
+                        opcode = int(opcode, 16)
+                    else:
+                        opcode = int(opcode)
+                    opcode += base_id
+                    n = cmd.get_mnemonic()
+                    c = cmd.get_comment()
+                    m = cmd.get_mnemonic()
+                    p = cmd.get_priority()
+                    s = cmd.get_sync()
+                    f = cmd.get_full()
+                    source = comp_parser.get_xml_filename()
+                    cosmos_cmd = CosmosCommand.CosmosCommand(comp_name, comp_type, source, n, opcode, c, m, p, s, f)
+                    
+                    # Count strings to see if 2 (if so needs block)
+                    string_count = 0
+                    args = cmd.get_args()
+                    for arg in args:
+                        t = arg.get_type()
+                        if t == 'string':
+                            string_count += 1
+                    
+                    use_block = False
+                    if string_count >= 2:
+                        use_block = True
 #                     #
 #                     # Write out command args csv here....
 #                     #
-#                     args = cmd.get_args()
-#                     num = 0
-#                     for arg in args:
-#                         n = arg.get_name()
-#                         t = arg.get_type()
-#                         c = arg.get_comment()
-#                         enum_name = "None"
-#                         if type(t) is type(tuple()):
-#                             enum = t
-#                             enum_name = t[0][1]
-#                             t = t[0][0]
-#                         num += 1
-#                         #
-#                         # Write out command enum csv here...
-#                         #
-#                         if t == 'ENUM':
-#                             num2 = 0
-#                             for item in enum[1]:
-#                                 if item[1] == None:
-#                                     pass
-#                                 else:
-#                                     num2 = int(item[1])
-#                                 num2 += 1
-#                         cosmos_cmd.add_arg(n, t, c, enum_name)
-#                     self.commands.append(cosmos_cmd)       
+                    num = 0
+                    flip_bits = False
+                    for arg in args:
+                        n = arg.get_name()
+                        t = arg.get_type()
+                        c = arg.get_comment()
+                        s = arg.get_size()
+                        enum_name = "None"
+                        if type(t) is type(tuple()):
+                            enum = t
+                            enum_name = t[0][1]
+                            t = t[0][0]
+                        num += 1
+                        bits = self.get_bits_from_type(t)
+                        #
+                        # Write out command enum csv here...
+                        #
+                        if t == 'ENUM':
+                            num2 = 0
+                            for item in enum[1]:
+                                if item[1] == None:
+                                    pass
+                                else:
+                                    num2 = int(item[1])
+                                num2 += 1
+                        
+                        cmd_type = 'NORMAL'        
+                        if flip_bits:
+                            cmd_type = 'NEG_OFFSET'
+                            
+                        if t == 'string':
+                            flip_bits = True
+                        
+                        if not use_block:        
+                            cosmos_cmd.add_arg(n, t, c, bits, s, enum_name, enum, cmd_type)
+                    if flip_bits:
+                        cosmos_cmd.update_neg_offset()
+                    self.commands.append(cosmos_cmd)       
             #
             # Write out each row of event data here...
             #

@@ -27,6 +27,7 @@ from utils.cosmos import CosmosConfigGenerator
 from utils.cosmos import CosmosTopParser
 from utils.cosmos import CosmosWriter
 from utils.cosmos import ChannelWriter
+from utils.cosmos import CommandWriter
 from utils.cosmos import ChannelScreenWriter
 from utils.cosmos import EventWriter
 
@@ -155,6 +156,7 @@ def main():
             # Add the writers for the correspondig files that should be written
             cosmos_gen.append_writer(ChannelWriter.ChannelWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(EventWriter.EventWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(CommandWriter.CommandWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
 #             cosmos_gen.append_writer(ChannelScreenWriter.ChannelScreenWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
              
             # Generate all event files here
