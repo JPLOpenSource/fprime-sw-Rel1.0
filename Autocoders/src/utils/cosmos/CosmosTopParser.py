@@ -1,7 +1,7 @@
 
-from utils.cosmos import CosmosCommand
-from utils.cosmos import CosmosChannel
-from utils.cosmos import CosmosEvent
+from utils.cosmos.models import CosmosCommand
+from utils.cosmos.models import CosmosChannel
+from utils.cosmos.models import CosmosEvent
 
 class CosmosTopParser():
     

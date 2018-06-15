@@ -7,7 +7,7 @@
 
 # COMPONENT: "${component_string}"
 TELEMETRY ${target_caps} ${evr_name} ${endianness} "${evr_desc}"
-    #raw<%=#end raw render "_ref_tlm_evr_hdr.txt", locals: {id: ${id}} %>
+    #raw<%=#end raw render "_${target_lower}_tlm_evr_hdr.txt", locals: {id: ${id}} %>
 
     #for $block, $derived, $name, $desc, $template_string, $types, $neg_offset, $bit_offset, $bits, $type in $evr_items
     #if $block
@@ -16,24 +16,24 @@ TELEMETRY ${target_caps} ${evr_name} ${endianness} "${evr_desc}"
       ITEM $name 0 0 DERIVED "$desc"
         READ_CONVERSION multivariable_tlm_item_conversion.rb "$template_string"
         #for $type in $types
-        STATE $type[0] $type[1]
+        # STATE $type[0] $type[1]
         #end for
     #else if $neg_offset
     ITEM $name $bit_offset $bits $type "$desc"
       #for $type in $types
-        STATE $type[0] $type[1]
+        # STATE $type[0] $type[1]
       #end for
     #else
     APPEND_ITEM $name $bits $type "$desc"
       #for $type in $types
-        STATE $type[0] $type[1]
+        # STATE $type[0] $type[1]
       #end for
     #end if
     #end for
 
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0
-        sprintf('${format_string}' #slurp
+        sprintf("${format_string}" #slurp
 #for $name in $nonlen_names 
 , packet.read('$name') #slurp
 #end for

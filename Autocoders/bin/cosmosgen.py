@@ -1,12 +1,21 @@
-'''
-NAME: cosmosgen.py
-
-DESCRIPTION: This script reads topology XML to produce config files for
-             a cosmos application.
-'''
+#!/bin/env python
+#===============================================================================
+# NAME: cosmosgen.py
+#
+# DESCRIPTION: A tool for autocoding topology XML files into cosmos targets in 
+# COSMOS directory.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
+import shutil
 import time
 import glob
 import logging
@@ -23,13 +32,21 @@ from parsers import XmlParser
 from parsers import XmlTopologyParser
 
 # Cosmos file writer class
-from utils.cosmos import CosmosConfigGenerator
+from utils.cosmos import CosmosGenerator
 from utils.cosmos import CosmosTopParser
-from utils.cosmos import CosmosWriter
-from utils.cosmos import ChannelWriter
-from utils.cosmos import CommandWriter
-from utils.cosmos import ChannelScreenWriter
-from utils.cosmos import EventWriter
+from utils.cosmos.writers import CosmosWriter
+from utils.cosmos.writers import ChannelWriter
+from utils.cosmos.writers import CommandWriter
+from utils.cosmos.writers import SystemConfigWriter
+from utils.cosmos.writers import ServerWriter
+from utils.cosmos.writers import ChannelScreenWriter
+from utils.cosmos.writers import DataViewerWriter
+from utils.cosmos.writers import EventWriter
+from utils.cosmos.writers import DataViewerConfigWriter
+from utils.cosmos.writers import TlmViewerConfigWriter
+from utils.cosmos.writers import ServerConfigWriter
+from utils.cosmos.writers import TargetWriter
+from utils.cosmos.writers import PartialWriter
 
 # Configuration manager object.
 CONFIG = ConfigManager.ConfigManager.getInstance()
@@ -76,7 +93,7 @@ These can be used to send commands and receive telemetry within the COSMOS syste
     parser.add_option("-l", "--logger", dest="logger", default="QUIET",
         help="Set the logging level <DEBUG | INFO | QUIET> (def: 'QUIET').")
     parser.add_option("-r", "--rm_target", dest="target_rm",
-                      help="Target to be removed", default=None)
+                      help="Target to be removed", action="store", default=None)
     
     parser.add_option("-v", "--verbose", dest="verbose_flag",
                       help="Enable verbose mode showing more runtime detail (def: False)",
@@ -101,16 +118,10 @@ def main():
         # Get the current working directory so that we can return to it when
     # the program completes. We always want to return to the place where
     # we started.
+    
     starting_directory = os.getcwd()
-    #
-    #  Parse the input Component XML file and create internal meta-model
-    #
-    if len(args) == 0:
-        PRINT.info("Usage: %s [options] xml_filename" % sys.argv[0])
-        return
-    else:
-        xml_filenames = args[0:]
-
+    
+    
     # Check for BUILD_ROOT env. variable
     if ('BUILD_ROOT' in os.environ.keys()) == False:
         PRINT.info("ERROR: Build root not set to root build path...")
@@ -119,10 +130,42 @@ def main():
         BUILD_ROOT = os.environ['BUILD_ROOT']
         ModelParser.BUILD_ROOT = BUILD_ROOT
         PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
+            
+    # Remove a target from filesystem
+    if opt.target_rm:
+        target = opt.target_rm.upper()
+        
+        if target == "SYSTEM":
+            print "ERROR: DO NOT REMOVE SYSTEM FOLDER"
+            sys.exit(-1)
+            
+        if not os.path.isdir(BUILD_ROOT + "/COSMOS/config/targets/" + target):
+            print "ERROR: DEPLOYMENT DOES NOT EXIST"
+            sys.exit(-1)
+        
+        shutil.rmtree(BUILD_ROOT + "/COSMOS/config/targets/" + target)
+        print "REMOVED " + BUILD_ROOT + "/COSMOS/config/targets/" + target + "/"
+        
+        SystemConfigWriter.SystemConfigWriter(None, "", BUILD_ROOT, target).write()
+        ServerConfigWriter.ServerConfigWriter(None, "", BUILD_ROOT, target).write()
+        DataViewerConfigWriter.DataViewerConfigWriter(None, "", BUILD_ROOT, target).write()
+        TlmViewerConfigWriter.TlmViewerConfigWriter(None, "", BUILD_ROOT, target).write()
+        print "REMOVED ALL REFERENCES TO " + target
+        sys.exit(-1)
+
+    #
+    #  Parse the input Component XML file and create internal meta-model
+    #
+    if len(args) == 0:
+        PRINT.info("Usage: %s [options] xml_filename" % sys.argv[0])
+        return
+    else:
+        xml_filenames = args[0:]
+    
     #
     # Parse XML
     #
-    for xml_filename in xml_filenames:       
+    for xml_filename in xml_filenames:
         
         xml_type = XmlParser.XmlParser(xml_filename)()
 
@@ -140,6 +183,7 @@ def main():
                     base_id = int(base_id)
                 comp_parser = inst.get_comp_xml()
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
+#             DEPLOYMENT = "Foobar"
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
             
             #
@@ -151,15 +195,26 @@ def main():
             # Parse the topology file
             cosmos_parser.parse_topology(the_parsed_topology_xml)
     
-            cosmos_gen = CosmosConfigGenerator.CosmosConfigGenerator()
+            cosmos_gen = CosmosGenerator.CosmosGenerator()
+            
+            # Create the config/targets filesystem for the Deployment if it doesn't already exist
+            cosmos_gen.create_filesystem(DEPLOYMENT, BUILD_ROOT)
              
-            # Add the writers for the correspondig files that should be written
+            # Add the writers for the corresponding files that should be written
+            cosmos_gen.append_writer(PartialWriter.PartialWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(SystemConfigWriter.SystemConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ServerConfigWriter.ServerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(DataViewerConfigWriter.DataViewerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(TlmViewerConfigWriter.TlmViewerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ServerWriter.ServerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(TargetWriter.TargetWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(ChannelWriter.ChannelWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(EventWriter.EventWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(CommandWriter.CommandWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-#             cosmos_gen.append_writer(ChannelScreenWriter.ChannelScreenWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ChannelScreenWriter.ChannelScreenWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(DataViewerWriter.DataViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
              
-            # Generate all event files here
+            # Generate all files here
             cosmos_gen.generate_cosmos_files()
             
         else:

@@ -79,7 +79,7 @@ module Cosmos
         #   the current item
         def extract_item(hex)
             text = hex.dup
-            error_str = "ERROR"
+            error_str = 0
             
             templ_arg_index = 2  # @template skips first 2 indexes because they define offset to first block item
             
