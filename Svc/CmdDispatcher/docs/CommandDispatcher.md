@@ -13,6 +13,7 @@
 | | | |arg1|I32|The I32 command argument|                    
 | | | |arg2|F32|The F32 command argument|                    
 | | | |arg3|U8|The U8 command argument|                    
+|CMD_DEBUG_COSMOS|4 (0x4)|Sends some arguments to COSMOS to test ruby script that allows multiple strings / in same packet| | |   
 |CMD_CLEAR_TRACKING|3 (0x3)|Clear command tracking info to recover from components not returning status| | |   
 
 ## Telemetry Channel List
@@ -52,6 +53,7 @@
 | | | |arg2|F32||Arg2|    
 | | | |arg3|U8||Arg3|    
 |TestCmd1StringArgs|10 (0xa)|This log event message returns the TEST_CMD_1 string arguments.| | | | |
-| | | |arg1|I32||Arg1|    
+| | | |arg1|I16||Arg1|    
 | | | |arg2|Fw::LogStringArg&|10|Arg2|    
-| | | |arg3|F32||Arg3|    
+| | | |arg3|Fw::LogStringArg&|10|Arg3|    
+| | | |arg4|F64||Arg4|    

@@ -300,6 +300,7 @@ def main():
                 else:
                     base_id = int(base_id)
                 comp_parser = inst.get_comp_xml()
+                print dir(comp_parser)
                 #
                 # Write out each row of command data here...
                 #

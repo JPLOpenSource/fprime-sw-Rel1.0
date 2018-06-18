@@ -19,7 +19,8 @@ cmdDisp,CommandDispatcher,126,InvalidCommand,WARNING_HI,Invalid opcode 0x%04X re
 cmdDisp,CommandDispatcher,127,TooManyCommands,WARNING_HI,Too many outstanding commands. opcode=0x%04X
 cmdDisp,CommandDispatcher,128,NoOpReceived,COMMAND,ISF received a NO-OP command
 cmdDisp,CommandDispatcher,129,NoOpStringReceived,COMMAND,"ISF generated a NO-OP string, No_op_string=%s"
-cmdDisp,CommandDispatcher,130,TestCmd1Args,COMMAND,"ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d"
+cmdDisp,CommandDispatcher,130,TestCmd1Args,ACTIVITY_LO,"ISF TEST_CMD_1 args: I32: %d, F32: %f, U8: %d"
+cmdDisp,CommandDispatcher,131,TestCmd1StringArgs,ACTIVITY_HI,"ISF TEST_CMD_1 string args: %d, %s, %s, %f"
 prmDb,PrmDb,141,PrmIdNotFound,WARNING_LO,Parameter ID 0x%08X not found
 prmDb,PrmDb,142,PrmIdUpdated,ACTIVITY_HI,Parameter ID 0x%08X updated
 prmDb,PrmDb,143,PrmDbFull,FATAL,Parameter DB full when adding ID 0x%08X

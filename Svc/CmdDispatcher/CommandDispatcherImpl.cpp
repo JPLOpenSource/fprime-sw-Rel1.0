@@ -219,9 +219,6 @@ namespace Svc {
     
     void CommandDispatcherImpl::CMD_TEST_CMD_1_cmdHandler(FwOpcodeType opCode, U32 cmdSeq, I32 arg1, F32 arg2, U8 arg3) {
         this->log_ACTIVITY_LO_TestCmd1Args(arg1,arg2,arg3);
-        Fw::LogStringArg msg1(std::to_string(arg3).c_str());
-        // Fw::LogStringArg msg2(std::to_string(arg2).c_str());
-        this->log_ACTIVITY_HI_TestCmd1StringArgs(arg1,msg1,arg2);
         this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
     }
     
@@ -230,6 +227,15 @@ namespace Svc {
         for (NATIVE_INT_TYPE entry = 0; entry < CMD_DISPATCHER_SEQUENCER_TABLE_SIZE; entry++) {
             this->m_sequenceTracker[entry].used = false;
         }
+        this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
+    }
+    
+    void CommandDispatcherImpl::CMD_DEBUG_COSMOS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
+         Fw::LogStringArg arg2("arg2");
+         Fw::LogStringArg arg3("arg3");
+        I16 arg1 = -123;
+        F64 arg4 = 2.34;
+        this->log_ACTIVITY_HI_TestCmd1StringArgs(arg1,arg2,arg3,arg4);
         this->cmdResponse_out(opCode,cmdSeq,Fw::COMMAND_OK);
     }
     

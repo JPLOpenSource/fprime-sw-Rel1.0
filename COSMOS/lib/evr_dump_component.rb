@@ -13,33 +13,32 @@ module Cosmos
     # Prints the header strings for EVR's
     def initialize_gui
         super
+        @spaces = {
+            "TIME" => 25,
+            "NAME" => 25,
+            "ID" => 10,
+            "SEVERITY" => 15
+        }
         @text.font = Cosmos.get_default_font
-        @text.appendPlainText("TIME\t\t\tNAME\t\t\tID\tSEVERITY\t\tMESSAGE\n" << '-' * 115)
+        @text.appendPlainText("TIME" + " " * @spaces["TIME"] + "NAME" + " " * @spaces["NAME"] + "ID" + " " * @spaces["ID"] + "SEVERITY" + " " * @spaces["SEVERITY"] + "MESSAGE\n" << '-' * 130)
     end
-      
-        
-      #@text.appendPlainText("Test")
 
     # Processes the given packet. No gui interaction should be done in this
     # method. Override this method for other components.
     def process_packet (packet)
-      # Determine tab amount between columns
-      sev_tabs = 2
-      name_tabs = 2
-      if "#{packet.packet_name}".length > (8 * 2)
-          name_tabs = name_tabs - 1
-      end
-      if "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}".length > (8 * 1)
-          sev_tabs = sev_tabs - 1
-      end
+      # Determine space amount between columns
+      time_spaces = ("TIME".length + @spaces["TIME"]) - "#{packet.received_time.formatted}".length
+      name_spaces = ("NAME".length + @spaces["NAME"]) - "#{packet.packet_name}".length
+      id_spaces = ("ID".length + @spaces["ID"]) - "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_ID', :RAW)}".length
+      severity_spaces = ("SEVERITY".length + @spaces["SEVERITY"]) - "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}".length
       
       processed_text = ''
       processed_text << "\n"
-      processed_text << "#{packet.received_time.formatted}\t"
-      processed_text << "#{packet.packet_name}" << "\t" * name_tabs
-      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_ID', :RAW)}\t"
-      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}" << "\t" * sev_tabs
-      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' MESSAGE', :RAW)}\t"
+      processed_text << "#{packet.received_time.formatted}" << " " * time_spaces
+      processed_text << "#{packet.packet_name}" << " " * name_spaces
+      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_ID', :RAW)}" << " " * id_spaces
+      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}" << " " * severity_spaces
+      processed_text << "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' MESSAGE', :RAW)}"
 
       # Ensure that queue does not grow infinitely while paused
       if @processed_queue.length < 1000

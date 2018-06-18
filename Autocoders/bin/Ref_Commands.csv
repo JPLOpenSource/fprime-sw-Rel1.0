@@ -7,6 +7,7 @@ sendBuffComp,SendBuff,84,SB_GEN_ASSERT,Generate an ASSERT
 cmdDisp,CommandDispatcher,121,CMD_NO_OP,No-op command
 cmdDisp,CommandDispatcher,122,CMD_NO_OP_STRING,No-op string command
 cmdDisp,CommandDispatcher,123,CMD_TEST_CMD_1,No-op command
+cmdDisp,CommandDispatcher,125,CMD_DEBUG_COSMOS,Sends some arguments to COSMOS to test ruby script that allows multiple strings / in same packet
 cmdDisp,CommandDispatcher,124,CMD_CLEAR_TRACKING,Clear command tracking info to recover from components not returning status
 prmDb,PrmDb,141,PRM_SAVE_FILE,Command to save parameter image to file. Uses file name passed to constructor
 cmdSeq,CmdSequencer,541,CS_Run,Run a command sequence file
