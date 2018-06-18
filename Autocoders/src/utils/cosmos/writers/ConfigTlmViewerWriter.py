@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ConfigTlmViewerWriter.py
+#
+# DESCRIPTION: This writer generates the tlm_viewer.txt in COSMOS/config/
+# tools/tlm_viewer/ directory that defines the existing targets for the 
+# tlm_viewer application
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -6,25 +21,40 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import ConfigWriterAbs
+from utils.cosmos.writers import AbstractConfigWriter
 
 from utils.cosmos.templates import Tlm_Viewer_Config
 
-class TlmViewerConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
+class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
+    """
+    This class generates the tlm viewer config file in
+    cosmos_directory/COSMOS/config/tools/tlm_viewer/
+    """
     
-    def __init__(self, parser, deployment_name, build_root, old_definition=None):
-        super(TlmViewerConfigWriter, self).__init__(parser, deployment_name, build_root, old_definition)
+    def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        @param old_definition: COSMOS target name that you want to remove
+        """
+        super(ConfigTlmViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/tools/tlm_viewer/"
+        self.destination = cosmos_directory + "/COSMOS/config/tools/tlm_viewer/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
+        # Add target to list of lines that will always be written
         user_definitions = []
         if self.deployment_name and not self.deployment_name == "":
             user_definitions.append("AUTO_TARGET " + self.deployment_name.upper())
         
+        # Open file for reading if exists already and parse all old targets
         names = []
         if os.path.isfile(self.destination + 'tlm_viewer.txt'):
             fl = open(self.destination + "tlm_viewer.txt", "r")
@@ -52,9 +82,10 @@ class TlmViewerConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
         for line in user_definitions:
             names.append(line.split(" ")[1])
         
-#         # Open file
+        # Open file
         fl = open(self.destination + "tlm_viewer.txt", "w")
-         
+        
+        # Initialize and fill Cheetah template 
         tv = Tlm_Viewer_Config.Tlm_Viewer_Config()
          
         tv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

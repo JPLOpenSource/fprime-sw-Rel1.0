@@ -1,3 +1,19 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ServerWriter.py
+#
+# DESCRIPTION: This writer generates the cmd_tlm_server.txt file in COSMOS/config/targets
+# /DEPLOYMENT_NAME/ directory that contains configuration data for the cosmos
+# target interface.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
+
 
 import os
 import sys
@@ -5,25 +21,38 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Cosmos_Server
 
-class ServerWriter(CosmosWriterAbs.CosmosWriterAbs):
+class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the server definition file in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/
+    """
     
-    def __init__(self, parser, deployment_name, build_root):
-        super(ServerWriter, self).__init__(parser, deployment_name, build_root)
+    def __init__(self, parser, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(ServerWriter, self).__init__(parser, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/"
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
         # Open file
         fl = open(self.destination + "cmd_tlm_server.txt", "w")
         print "Server Interface File Created"
         
+        # Initialize and fill cheetah template
         cs = Cosmos_Server.Cosmos_Server()
         
         cs.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

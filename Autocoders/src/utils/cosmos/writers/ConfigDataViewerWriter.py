@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ConfigDataViewerWriter.py
+#
+# DESCRIPTION: This writer generates the data_viewer.txt in COSMOS/config/
+# tools/data_viewer/ directory that defines the existing targets for the data_viewer
+# application
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -6,25 +21,40 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import ConfigWriterAbs
+from utils.cosmos.writers import AbstractConfigWriter
 
 from utils.cosmos.templates import Data_Viewer_Config
 
-class DataViewerConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
+class ConfigDataViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
+    """
+    This class generates the data viewer config file in
+    cosmos_directory/COSMOS/config/tools/data_viewer/
+    """
     
-    def __init__(self, parser, deployment_name, build_root, old_definition=None):
-        super(DataViewerConfigWriter, self).__init__(parser, deployment_name, build_root, old_definition)
+    def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        @param old_definition: COSMOS target name that you want to remove
+        """
+        super(ConfigDataViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/tools/data_viewer/"
+        self.destination = cosmos_directory + "/COSMOS/config/tools/data_viewer/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
+        # Add target to list of lines that will always be written
         user_definitions = []
         if self.deployment_name and not self.deployment_name == "":
             user_definitions.append("TARGET_COMPONENT " + self.deployment_name.upper())
         
+        # Open file for reading if exists already and parse all old targets
         names = []
         if os.path.isfile(self.destination + 'data_viewer.txt'):
             fl = open(self.destination + "data_viewer.txt", "r")
@@ -52,9 +82,10 @@ class DataViewerConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
         for line in user_definitions:
             names.append(line.split(" ")[1])
         
-#         # Open file
+        # Open file
         fl = open(self.destination + "data_viewer.txt", "w")
          
+        # Initialize and fill Cheetah template
         dv = Data_Viewer_Config.Data_Viewer_Config()
          
         dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

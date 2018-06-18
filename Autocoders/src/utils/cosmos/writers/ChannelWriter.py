@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ChannelWriter.py
+#
+# DESCRIPTION: This writer generates the channel files in the COSMOS/config/targets
+# /DEPLOYMENT_NAME/cmd_tlm/channels/ directory that contains configuration data 
+# for each channel.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -5,20 +20,32 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Channel
 
-class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
+class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the channel definition files in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/channels/
+    """
 
-    def __init__(self, parser, deployment_name, build_root):
-        super(ChannelWriter, self).__init__(parser, deployment_name, build_root)
+    def __init__(self, parser, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(ChannelWriter, self).__init__(parser, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/"
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/"
     
     def write(self):
+        """
+        Generates the file
+        """
         print "Creating Channel Files"
         channel_templates = {}
         for ch in self.parser.channels:
@@ -33,7 +60,7 @@ class ChannelWriter(CosmosWriterAbs.CosmosWriterAbs):
                 n = ch.get_comp_name() + "_" + n
             self.repeated_names.update({n: ch})
 
-            # Initialize Cheetah Template
+            # Initialize and fill Cheetah Template
             c = Channel.Channel()
 
             c.date = ch.get_date()

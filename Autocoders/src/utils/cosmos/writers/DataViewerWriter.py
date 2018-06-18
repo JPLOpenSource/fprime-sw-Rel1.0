@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: DataViewerWriter.py
+#
+# DESCRIPTION: This writer generates the data_viewer.txt file in COSMOS/config/targets
+# /DEPLOYMENT_NAME/tools/data_viewer directory that contains configuration data for
+# the EVR screen in the data_viewer application.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -5,21 +20,33 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Data_Viewer
 
-class DataViewerWriter(CosmosWriterAbs.CosmosWriterAbs):
+class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the data viewer definition file in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/tools/data_viewer/
+    """
     
-    def __init__(self, parser, deployment_name, build_root):
-        super(DataViewerWriter, self).__init__(parser, deployment_name, build_root)
+    def __init__(self, parser, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(DataViewerWriter, self).__init__(parser, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/tools/data_viewer/"
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/tools/data_viewer/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
         event_list= []
         for evr in self.parser.events:
             n = evr.get_evr_name()
@@ -37,6 +64,7 @@ class DataViewerWriter(CosmosWriterAbs.CosmosWriterAbs):
         fl = open(self.destination + "data_viewer.txt", "w")
         print "Data Viewer Created"
         
+        # Initialize and fill cheetah template
         dv = Data_Viewer.Data_Viewer()
         
         dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

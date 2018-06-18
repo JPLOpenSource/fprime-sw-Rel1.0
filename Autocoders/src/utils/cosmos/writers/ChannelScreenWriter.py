@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ChannelScreenWriter.py
+#
+# DESCRIPTION: This writer generates the channels.txt file in COSMOS/config/targets
+# /DEPLOYMENT_NAME/screens/ directory that contains configuration data for the cosmos
+# tlm_viewer application.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -5,21 +20,33 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Channel_Screen
 
-class ChannelScreenWriter(CosmosWriterAbs.CosmosWriterAbs):
+class ChannelScreenWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the channel screen definition file in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/screens/
+    """
     
-    def __init__(self, parser, deployment_name, build_root):
-        super(ChannelScreenWriter, self).__init__(parser, deployment_name, build_root)
+    def __init__(self, parser, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(ChannelScreenWriter, self).__init__(parser, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/screens/"
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/screens/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
         channel_list= []
         for ch in self.parser.channels:
             n = ch.get_ch_name()
@@ -37,6 +64,7 @@ class ChannelScreenWriter(CosmosWriterAbs.CosmosWriterAbs):
         fl = open(self.destination + "channels.txt", "w")
         print "Channel Screen Created"
         
+        # Initialize and fill cheetah template
         c = Channel_Screen.Channel_Screen()
         
         c.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

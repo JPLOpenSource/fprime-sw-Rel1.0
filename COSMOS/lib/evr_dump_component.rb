@@ -22,9 +22,6 @@ module Cosmos
         @text.font = Cosmos.get_default_font
         @text.appendPlainText("TIME" + " " * @spaces["TIME"] + "NAME" + " " * @spaces["NAME"] + "ID" + " " * @spaces["ID"] + "SEVERITY" + " " * @spaces["SEVERITY"] + "MESSAGE\n" << '-' * 130)
     end
-      
-        
-      #@text.appendPlainText("Test")
 
     # Processes the given packet. No gui interaction should be done in this
     # method. Override this method for other components.

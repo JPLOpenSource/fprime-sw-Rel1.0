@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: CommandWriter.py
+#
+# DESCRIPTION: This writer generates the command files in the COSMOS/config/targets
+# /DEPLOYMENT_NAME/cmd_tlm/commands/ directory that contains configuration data for each
+# command.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -5,23 +20,33 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Command
 
-PRINT = logging.getLogger('output')
-
-class CommandWriter(CosmosWriterAbs.CosmosWriterAbs):
+class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the command definition files in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/commands/
+    """
     
-    def __init__(self, topology, deployment_name, build_root):
-        super(CommandWriter, self).__init__(topology, deployment_name, build_root)
+    def __init__(self, topology, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(CommandWriter, self).__init__(topology, deployment_name, cosmos_directory)
         self.repeated_names = {}
     
         # Initialize writer-unique file destination location
-        self.build_root = build_root
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/"
+        self.cosmos_directory = cosmos_directory
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/"
     
     def write(self):
+        """
+        Generates the file
+        """
         print "Creating Command Files"
         command_templates = {}
         for cmd in self.parser.commands:
@@ -36,7 +61,7 @@ class CommandWriter(CosmosWriterAbs.CosmosWriterAbs):
                 n = cmd.get_comp_name() + "_" + n
             self.repeated_names.update({n: cmd})
 
-            # Initialize Cheetah Template
+            # Initialize and fill Cheetah Template
             c = Command.Command()
 
             c.date = cmd.get_date()
@@ -49,7 +74,7 @@ class CommandWriter(CosmosWriterAbs.CosmosWriterAbs):
             c.opcode = cmd.get_opcode()
             c.target_caps = self.deployment_name.upper()
             c.target_lower = self.deployment_name.lower()
-            c.cmd_args = cmd.get_cmd_args_cosmos()
+            c.cmd_items = cmd.get_cmd_items_cosmos()
             c.mnemonic = cmd.get_mnemonic()
             c.priority = cmd.get_priority()
             c.sync = cmd.get_sync()

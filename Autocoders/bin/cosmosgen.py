@@ -37,14 +37,14 @@ from utils.cosmos import CosmosTopParser
 from utils.cosmos.writers import CosmosWriter
 from utils.cosmos.writers import ChannelWriter
 from utils.cosmos.writers import CommandWriter
-from utils.cosmos.writers import SystemConfigWriter
+from utils.cosmos.writers import ConfigSystemWriter
 from utils.cosmos.writers import ServerWriter
 from utils.cosmos.writers import ChannelScreenWriter
 from utils.cosmos.writers import DataViewerWriter
 from utils.cosmos.writers import EventWriter
-from utils.cosmos.writers import DataViewerConfigWriter
-from utils.cosmos.writers import TlmViewerConfigWriter
-from utils.cosmos.writers import ServerConfigWriter
+from utils.cosmos.writers import ConfigDataViewerWriter
+from utils.cosmos.writers import ConfigTlmViewerWriter
+from utils.cosmos.writers import ConfigServerWriter
 from utils.cosmos.writers import TargetWriter
 from utils.cosmos.writers import PartialWriter
 
@@ -135,26 +135,29 @@ def main():
     if opt.target_rm:
         target = opt.target_rm.upper()
         
+        # Required by COSMOS for it to run properly
         if target == "SYSTEM":
-            print "ERROR: DO NOT REMOVE SYSTEM FOLDER"
+            print "ERROR: DO NOT REMOVE COSMOS SYSTEM FOLDER"
             sys.exit(-1)
             
         if not os.path.isdir(BUILD_ROOT + "/COSMOS/config/targets/" + target):
-            print "ERROR: DEPLOYMENT DOES NOT EXIST"
+            print "ERROR: DEPLOYMENT " + target + " DOES NOT EXIST"
             sys.exit(-1)
         
         shutil.rmtree(BUILD_ROOT + "/COSMOS/config/targets/" + target)
         print "REMOVED " + BUILD_ROOT + "/COSMOS/config/targets/" + target + "/"
         
-        SystemConfigWriter.SystemConfigWriter(None, "", BUILD_ROOT, target).write()
-        ServerConfigWriter.ServerConfigWriter(None, "", BUILD_ROOT, target).write()
-        DataViewerConfigWriter.DataViewerConfigWriter(None, "", BUILD_ROOT, target).write()
-        TlmViewerConfigWriter.TlmViewerConfigWriter(None, "", BUILD_ROOT, target).write()
+        # Write targetless info ("" in params) to each of the files that we don't want to entirely remove
+        # as they may affect other targets we aren't currently removing
+        ConfigSystemWriter.ConfigSystemWriter(None, "", BUILD_ROOT, target).write()
+        ConfigServerWriter.ConfigServerWriter(None, "", BUILD_ROOT, target).write()
+        ConfigDataViewerWriter.ConfigDataViewerWriter(None, "", BUILD_ROOT, target).write()
+        ConfigTlmViewerWriter.ConfigTlmViewerWriter(None, "", BUILD_ROOT, target).write()
         print "REMOVED ALL REFERENCES TO " + target
         sys.exit(-1)
 
     #
-    #  Parse the input Component XML file and create internal meta-model
+    #  Parse the input Topology XML filename
     #
     if len(args) == 0:
         PRINT.info("Usage: %s [options] xml_filename" % sys.argv[0])
@@ -163,7 +166,7 @@ def main():
         xml_filenames = args[0:]
     
     #
-    # Parse XML
+    # Create XML Parser and write COSMOS files for Topology
     #
     for xml_filename in xml_filenames:
         
@@ -172,22 +175,13 @@ def main():
         if xml_type == "assembly" or xml_type == "deployment":
             DEBUG.info("Detected ISF Topology XML Files...")
             the_parsed_topology_xml = XmlTopologyParser.XmlTopologyParser(xml_filename)
-            
-            for inst in the_parsed_topology_xml.get_instances():
-                comp_name = inst.get_name()
-                comp_type = inst.get_type()
-                base_id = inst.get_base_id()
-                if '0x' in base_id:
-                    base_id = int(base_id, 16)
-                else:
-                    base_id = int(base_id)
-                comp_parser = inst.get_comp_xml()
+
+            # Name of COSMOS target to be created
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
-#             DEPLOYMENT = "Foobar"
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
             
             #
-            # Create COSMOS application file system here by parsing topology and passing data to cosmos config file generator
+            # Create COSMOS application file system here by passing XML parser data to cosmos config file generator
             #
             
             cosmos_parser = CosmosTopParser.CosmosTopParser()
@@ -197,15 +191,15 @@ def main():
     
             cosmos_gen = CosmosGenerator.CosmosGenerator()
             
-            # Create the config/targets filesystem for the Deployment if it doesn't already exist
+            # Create the config/targets directories for the Deployment if they don't already exist
             cosmos_gen.create_filesystem(DEPLOYMENT, BUILD_ROOT)
              
             # Add the writers for the corresponding files that should be written
             cosmos_gen.append_writer(PartialWriter.PartialWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(SystemConfigWriter.SystemConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ServerConfigWriter.ServerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(DataViewerConfigWriter.DataViewerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(TlmViewerConfigWriter.TlmViewerConfigWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ConfigSystemWriter.ConfigSystemWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ConfigServerWriter.ConfigServerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ConfigDataViewerWriter.ConfigDataViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.append_writer(ConfigTlmViewerWriter.ConfigTlmViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(ServerWriter.ServerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(TargetWriter.TargetWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
             cosmos_gen.append_writer(ChannelWriter.ChannelWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))

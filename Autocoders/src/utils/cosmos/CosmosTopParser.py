@@ -1,16 +1,42 @@
+#!/bin/env python
+#===============================================================================
+# NAME: CosmosTopParser.py
+#
+# DESCRIPTION: This class parses a topology file within its parse_topology()
+# method and saves the channels, events, and commands to list-instance-variables.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
 from utils.cosmos.models import CosmosEvent
 
 class CosmosTopParser():
+    """
+    This class takes an XML topology parser that has parsed the topology XML files
+    and instantiates CosmosChannels, CosmosEvents, and CosmosCommands from the data
+    in the topology parser.
+    """
     
     def __init__(self):
+        """
+        Init
+        """
         self.channels = []
         self.events = []
         self.commands = []
         
     def get_bits_from_type(self, type):
+        """
+        @param type: Fprime type
+        @return: Number of bits in given Fprime type
+        """
         if type == 'F32':
             return 32
         elif type == 'F64':
@@ -41,10 +67,18 @@ class CosmosTopParser():
             print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
                 
     def parse_topology(self, topology, overwrite = True):
+        """
+        Takes a topology XML file and puts all channel, event, and command
+        data into CosmosChannel, CosmosEvent, and CosmosCommand class instances
+        for easier matching with cheetah template arguments in writer classes
+        @param topology: XML topology parser
+        @param overwrite: Flag whether to overwrite channels, events, and commands lists
+        """
         if overwrite:
             self.channels = []
             self.events = []
             self.commands = []
+        
         
         for inst in topology.get_instances():
             comp_name = inst.get_name()
@@ -56,7 +90,7 @@ class CosmosTopParser():
                 base_id = int(base_id)
             comp_parser = inst.get_comp_xml()
             #
-            # Write out each row of command data here...
+            # Parse command data here...
             #
             if 'get_commands' in dir(comp_parser):
                 cmds = comp_parser.get_commands()
@@ -76,7 +110,7 @@ class CosmosTopParser():
                     source = comp_parser.get_xml_filename()
                     cosmos_cmd = CosmosCommand.CosmosCommand(comp_name, comp_type, source, n, opcode, c, m, p, s, f)
                     
-                    # Count strings to see if 2 (if so needs block)
+                    # Count strings to see if 2 (if so needs block argument)
                     string_count = 0
                     args = cmd.get_args()
                     for arg in args:
@@ -87,16 +121,16 @@ class CosmosTopParser():
                     use_block = False
                     if string_count >= 2:
                         use_block = True
-#                     #
-#                     # Write out command args csv here....
-#                     #
+                    #
+                    # Parse command arg data here...
+                    #
                     num = 0
                     flip_bits = False
                     for arg in args:
                         n = arg.get_name()
                         t = arg.get_type()
                         c = arg.get_comment()
-                        s = arg.get_size()
+                        # s = arg.get_size() Not currently used in template file
                         enum_name = "None"
                         if type(t) is type(tuple()):
                             enum = t
@@ -105,7 +139,7 @@ class CosmosTopParser():
                         num += 1
                         bits = self.get_bits_from_type(t)
                         #
-                        # Write out command enum csv here...
+                        # Parse command enum here
                         #
                         if t == 'ENUM':
                             num2 = 0
@@ -116,20 +150,22 @@ class CosmosTopParser():
                                     num2 = int(item[1])
                                 num2 += 1
                         
-                        cmd_type = 'NORMAL'        
+                        neg_offset = False       
                         if flip_bits:
-                            cmd_type = 'NEG_OFFSET'
+                            neg_offset = 'NEG_OFFSET'
                             
                         if t == 'string':
                             flip_bits = True
                         
                         if not use_block:        
-                            cosmos_cmd.add_arg(n, t, c, bits, s, enum_name, enum, cmd_type)
+                            cosmos_cmd.add_item(n, t, c, bits, enum_name, enum, neg_offset)
+                        else:
+                            print "ERROR: multi-string commands not supported in COSMOS"
                     if flip_bits:
                         cosmos_cmd.update_neg_offset()
                     self.commands.append(cosmos_cmd)       
             #
-            # Write out each row of event data here...
+            # Parse event data here...
             #
             if "get_events" in dir(comp_parser):
                 evrs = comp_parser.get_events()
@@ -145,7 +181,7 @@ class CosmosTopParser():
                     s = evr.get_severity()
                     f = evr.get_format_string()
                     source = comp_parser.get_xml_filename()
-                    cosmos_evr = CosmosEvent.CosmosEvent(comp_name, comp_type, source, evr_id, n, s, f, comment)
+                    cosmos_evr = CosmosEvent.CosmosEvent(comp_name, comp_type, source, n, evr_id, comment, s, f)
                     
                     # Count strings to see if 2 (if so needs block)
                     string_count = 0
@@ -160,7 +196,7 @@ class CosmosTopParser():
                         use_block = True
                         cosmos_evr.add_block()
                     #
-                    # Write out the evr args records here...
+                    # Parse event enums here...
                     #
                     flip_bits = False
                     bit_count = 0
@@ -176,9 +212,9 @@ class CosmosTopParser():
                             enum_name = t[0][1]
                             t = t[0][0]
 
+                        # Handle argument type
                         bits = self.get_bits_from_type(t)
                         bit_offset = 0
-                        template_string = 0
                         evr_type = 'NORMAL'
                         if use_block:
                             evr_type = 'DERIVED'
@@ -188,14 +224,14 @@ class CosmosTopParser():
                         if t == 'string':
                             flip_bits = True
                             
-                        cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset, template_string)
+                        cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset)
                     if flip_bits:
                         cosmos_evr.update_neg_offset()
                     if use_block:
                         cosmos_evr.update_template_strings()
                     self.events.append(cosmos_evr)
             #
-            # Write out each row of channel tlm data here...
+            # Parse channel data here...
             #
             if "get_channels" in dir(comp_parser):
                 channels = comp_parser.get_channels()

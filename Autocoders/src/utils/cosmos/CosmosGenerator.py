@@ -1,3 +1,19 @@
+#!/bin/env python
+#===============================================================================
+# NAME: CosmosGenerator.py
+#
+# DESCRIPTION: This class takes in a variable amount of CosmosWriterAbs instances
+# and calls each of their write() methods within its generate_cosmos_files()
+# method in order to autocode the Cosmos config text files.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
+
 import logging
 import os
 

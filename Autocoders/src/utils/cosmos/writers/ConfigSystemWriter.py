@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: ConfigSystemWriter.py
+#
+# DESCRIPTION: This writer generates the system.txt in COSMOS/config/
+# system/ folder that defines the existing targets for the entire cosmos
+# system
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -6,25 +21,40 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import ConfigWriterAbs
+from utils.cosmos.writers import AbstractConfigWriter
 
 from utils.cosmos.templates import System
 
-class SystemConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
+class ConfigSystemWriter(AbstractConfigWriter.AbstractConfigWriter):
+    """
+    This class generates the system config file in
+    cosmos_directory/COSMOS/config/system/
+    """
     
-    def __init__(self, parser, deployment_name, build_root, old_definition=None):
-        super(SystemConfigWriter, self).__init__(parser, deployment_name, build_root, old_definition)
+    def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        @param old_definition: COSMOS target name that you want to remove
+        """
+        super(ConfigSystemWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = build_root + "/COSMOS/config/system/"
+        self.destination = cosmos_directory + "/COSMOS/config/system/"
         
                     
     def write(self):
+        """
+        Generates the file
+        """
+        # Add target to list of lines that will always be written
         user_definitions = ["DECLARE_TARGET SYSTEM"]
         if self.deployment_name and not self.deployment_name == "":
             user_definitions.append("DECLARE_TARGET " + self.deployment_name.upper())        
-            
+        
+        # Open file for reading if exists already and parse all old targets    
         names = []
         if os.path.isfile(self.destination + 'system.txt'):
             fl = open(self.destination + "system.txt", "r")
@@ -55,7 +85,8 @@ class SystemConfigWriter(ConfigWriterAbs.ConfigWriterAbs):
         
 #         # Open file
         fl = open(self.destination + "system.txt", "w")
-         
+        
+        # Initialize and fill Cheetah template 
         s = System.System()
          
         s.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")

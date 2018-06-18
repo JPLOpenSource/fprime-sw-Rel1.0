@@ -1,3 +1,18 @@
+#!/bin/env python
+#===============================================================================
+# NAME: EventWriter.py
+#
+# DESCRIPTION: This writer generates the event files in the COSMOS/config/targets
+# /DEPLOYMENT_NAME/cmd_tlm/events/ directory that contains configuration data 
+# for each event.
+#
+# AUTHOR: Jordan Ishii
+# EMAIL:  jordan.ishii@jpl.nasa.gov
+# DATE CREATED: June 6, 2018
+#
+# Copyright 2018, California Institute of Technology.
+# ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
+#===============================================================================
 
 import os
 import sys
@@ -5,23 +20,33 @@ import time
 import datetime
 import logging
 
-from utils.cosmos.writers import CosmosWriterAbs
+from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Event
 
-PRINT = logging.getLogger('output')
-
-class EventWriter(CosmosWriterAbs.CosmosWriterAbs):
+class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
+    """
+    This class generates the event definiton files in
+    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/events/
+    """
     
-    def __init__(self, topology, deployment_name, build_root):
-        super(EventWriter, self).__init__(topology, deployment_name, build_root)
+    def __init__(self, topology, deployment_name, cosmos_directory):
+        """
+        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param deployment_name: name of the COSMOS target
+        @param cosmos_directory: Directory of COSMOS
+        """
+        super(EventWriter, self).__init__(topology, deployment_name, cosmos_directory)
         self.repeated_names = {}
     
         # Initialize writer-unique file destination location
-        self.build_root = build_root
-        self.destination = build_root + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/"
+        self.cosmos_directory = cosmos_directory
+        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/"
     
     def write(self):
+        """
+        Generates the file
+        """
         print "Creating Event Files"
         event_templates = {}
         for evr in self.parser.events:
@@ -36,7 +61,7 @@ class EventWriter(CosmosWriterAbs.CosmosWriterAbs):
                 n = evr.get_comp_name() + "_" + n
             self.repeated_names.update({n: evr})
 
-            # Initialize Cheetah Template
+            # Initialize and fill Cheetah Template
             e = Event.Event()
 
             e.date = evr.get_date()

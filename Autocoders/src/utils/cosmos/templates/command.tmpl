@@ -11,7 +11,7 @@
 # COMPONENT: "${component_string}"
 COMMAND ${target_caps} ${cmd_name} ${endianness} "${cmd_desc}"
 #raw    <%=#end raw render "_${target_lower}_cmds_hdr.txt", locals: {id: ${opcode}} %>
-    #for $name, $desc, $types, $neg_offset, $bit_offset, $bits, $type, $min_val, $max_val, $default in $cmd_args
+    #for $name, $desc, $types, $neg_offset, $bit_offset, $bits, $type, $min_val, $max_val, $default in $cmd_items
     #if $neg_offset
     PARAMETER $name $bit_offset $bits $type $min_val $max_val $default "$desc"
       #for $type in $types
