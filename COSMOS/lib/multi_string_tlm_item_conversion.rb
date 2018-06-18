@@ -8,7 +8,7 @@ module Cosmos
     # the telemetry packet.  Parses the packet's BLOCK item field and sets the
     # last argument defined in the constructor's template parameter as the value
     # for the current item.
-    class MultivariableTlmItemConversion < Conversion
+    class MultiStringTlmItemConversion < Conversion
         BITS_IN_BYTE = 8
         
         # @param template [String] Instructions for parsing the raw data (the number
