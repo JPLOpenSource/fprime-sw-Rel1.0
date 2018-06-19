@@ -14,7 +14,7 @@ TELEMETRY ${target_caps} ${evr_name} ${endianness} "${evr_desc}"
     APPEND_ITEM EVR_ITEMS 0 BLOCK "Contains all other items"
     #else if $derived
       ITEM $name 0 0 DERIVED "$desc"
-        READ_CONVERSION multivariable_tlm_item_conversion.rb "$template_string"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "$template_string"
         #for $type in $types
         # STATE $type[0] $type[1]
         #end for
