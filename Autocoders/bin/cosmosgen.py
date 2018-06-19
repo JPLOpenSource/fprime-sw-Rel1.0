@@ -34,7 +34,6 @@ from parsers import XmlTopologyParser
 # Cosmos file writer class
 from utils.cosmos import CosmosGenerator
 from utils.cosmos import CosmosTopParser
-from utils.cosmos.writers import CosmosWriter
 from utils.cosmos.writers import ChannelWriter
 from utils.cosmos.writers import CommandWriter
 from utils.cosmos.writers import ConfigSystemWriter
