@@ -57,14 +57,11 @@ class ConfigDataViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
         # Open file for reading if exists already and parse all old targets
         names = []
         if os.path.isfile(self.destination + 'data_viewer.txt'):
-            file_exists = True
             fl = open(self.destination + "data_viewer.txt", "r")
             
-            # lines = re.findall(".*TARGET_COMPONENT.*", fl.read())
+            lines = re.findall(".*TARGET_COMPONENT.*", fl.read())
             bad_lines = []
-            # Critical section is the area that we want to append to / delete lines from, post-critical and pre-critical are just appended
-            reached_critical_section = False
-            for line in fl.readlines():
+            for line in lines:
                 line = line.strip()
                 if line[0] == '#' or not line[:16] == 'TARGET_COMPONENT' or " ".join(line.strip().split(" ")[0:2]) in user_definitions:
                     bad_lines.append(line)
