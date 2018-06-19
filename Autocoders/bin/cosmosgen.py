@@ -130,7 +130,7 @@ def main():
         BUILD_ROOT = os.environ['BUILD_ROOT']
         ModelParser.BUILD_ROOT = BUILD_ROOT
         PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
-            
+    print starting_directory, BUILD_ROOT        
     # Remove a target from filesystem
     if opt.target_rm:
         target = opt.target_rm.upper()
