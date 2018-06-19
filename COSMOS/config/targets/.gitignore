@@ -1,5 +1,2 @@
-dart/**
-data/**
-system/**
-targets/**
-tools/**
+*
+!SYSTEM/**
