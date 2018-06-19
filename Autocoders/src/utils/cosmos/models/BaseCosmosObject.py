@@ -19,7 +19,7 @@ import sys
 import time
 import datetime
 
-class AbstractCosmosObject(object):
+class BaseCosmosObject(object):
     """
     This abstract class represents the commonality between COSMOS channels,
     events, and commands.

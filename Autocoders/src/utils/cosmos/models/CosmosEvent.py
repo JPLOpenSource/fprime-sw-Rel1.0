@@ -13,9 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from utils.cosmos.models import AbstractCosmosObject
+from utils.cosmos.models import BaseCosmosObject
 
-class CosmosEvent(AbstractCosmosObject.AbstractCosmosObject):
+class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
     """
     This class represents an event within COSMOS to conveniently store 
     all the values necessary for the cheetah template to generate command.
@@ -173,6 +173,30 @@ class CosmosEvent(AbstractCosmosObject.AbstractCosmosObject):
         self.non_len_names.append(name)
         self.names.append(name)
         self.evr_items.append(item)
+        
+        # Fix format string for enums (in COSMOS %d for enum must be %s)
+        if not enum == None:
+            self.fix_format_str(len(self.evr_items) - 1)
+        
+        
+    def fix_format_str(self, search_index):
+                
+        # Fix enums from %d to %s for COSMOS
+        char_indexes = [i for i, ch in enumerate(self.format_string) if ch == "%"]
+        
+        ignore = False
+        count = 0
+        # Find count = search_index of "%" indexes in the format string and replace the following character (d in %d) with s (s in %s)
+        for index in char_indexes:
+            if ignore:
+                ignore = False
+            elif len(self.format_string) > index + 1 and not self.format_string[index + 1] == "%":
+                if self.format_string[index + 1] == "d" and count == search_index:
+                    self.format_string = self.format_string[:index + 1] + "s" + self.format_string[index + 2:]
+                    break
+            elif len(self.format_string) > index + 1:
+                ignore = True
+            count += 1
         
     def update_neg_offset(self):
         """

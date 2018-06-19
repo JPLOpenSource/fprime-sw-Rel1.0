@@ -19,13 +19,12 @@ import sys
 import time
 import datetime
 import logging
-import re
 
-from utils.cosmos.writers import AbstractConfigWriter
+from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.templates import System
 
-class ConfigSystemWriter(AbstractConfigWriter.AbstractConfigWriter):
+class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the system config file in
     cosmos_directory/COSMOS/config/system/
@@ -40,6 +39,7 @@ class ConfigSystemWriter(AbstractConfigWriter.AbstractConfigWriter):
         """
         super(ConfigSystemWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
+        self.token = "DECLARE_TARGET"
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/COSMOS/config/system/"
@@ -50,41 +50,25 @@ class ConfigSystemWriter(AbstractConfigWriter.AbstractConfigWriter):
         Generates the file
         """
         # Add target to list of lines that will always be written
-        user_definitions = ["DECLARE_TARGET SYSTEM"]
+        ignored_lines = []
+        ignored_lines.append((self.token + " SYSTEM"))
         if self.deployment_name and not self.deployment_name == "":
-            user_definitions.append("DECLARE_TARGET " + self.deployment_name.upper())        
+            ignored_lines.append(self.token + " " + self.deployment_name.upper())        
         
-        # Open file for reading if exists already and parse all old targets    
+        # Open file for reading if exists already and parse all old targets
         names = []
-        if os.path.isfile(self.destination + 'system.txt'):
-            fl = open(self.destination + "system.txt", "r")
-            
-            lines = re.findall(".*DECLARE_TARGET.*", fl.read())
-            
-            bad_lines = []
-            for line in lines:
-                line = line.strip()
-                if line[0] == '#' or not line[:14] == 'DECLARE_TARGET' or " ".join(line.strip().split(" ")[0:2]) in user_definitions:
-                    bad_lines.append(line)
-                    
-            for line in bad_lines:
-                lines.remove(line)
-                    
-            for line in lines:
-                line = line.split(" ")
-                if not self.old_definition or not line[1] == self.old_definition:
-                    names.append(line[1])
-                
-            fl.close()
+        fl_loc = self.destination + 'system.txt'
+        if os.path.isfile(fl_loc):
+            names = self.read_for_token(fl_loc, self.token, ignored_lines)
             print "System.txt Altered"
         else:
             print "System.txt Created"
             
-        for line in user_definitions:
+        for line in ignored_lines:
             names.append(line.split(" ")[1])
         
-#         # Open file
-        fl = open(self.destination + "system.txt", "w")
+        # Open file
+        fl = open(fl_loc, "w")
         
         # Initialize and fill Cheetah template 
         s = System.System()

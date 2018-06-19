@@ -13,9 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from utils.cosmos.models import AbstractCosmosObject
+from utils.cosmos.models import BaseCosmosObject
 
-class CosmosChannel(AbstractCosmosObject.AbstractCosmosObject):
+class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
     """
     This class represents a channel within COSMOS to conveniently store 
     all the values necessary for the cheetah template to generate channels.

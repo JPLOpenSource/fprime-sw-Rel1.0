@@ -13,9 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from utils.cosmos.models import AbstractCosmosObject
+from utils.cosmos.models import BaseCosmosObject
 
-class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
+class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
     """
     This class represents a command within COSMOS to conveniently store 
     all the values necessary for the cheetah template to generate command.

@@ -21,11 +21,11 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import AbstractConfigWriter
+from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.templates import Tlm_Viewer_Config
 
-class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
+class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the tlm viewer config file in
     cosmos_directory/COSMOS/config/tools/tlm_viewer/
@@ -40,6 +40,7 @@ class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
         """
         super(ConfigTlmViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
+        self.token = "AUTO_TARGET"
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/COSMOS/config/tools/tlm_viewer/"
@@ -50,40 +51,24 @@ class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
         Generates the file
         """
         # Add target to list of lines that will always be written
-        user_definitions = []
+        ignored_lines = []
         if self.deployment_name and not self.deployment_name == "":
-            user_definitions.append("AUTO_TARGET " + self.deployment_name.upper())
+            ignored_lines.append(self.token + " " + self.deployment_name.upper())
         
         # Open file for reading if exists already and parse all old targets
         names = []
-        if os.path.isfile(self.destination + 'tlm_viewer.txt'):
-            fl = open(self.destination + "tlm_viewer.txt", "r")
-            
-            lines = re.findall(".*AUTO_TARGET.*", fl.read())
-            bad_lines = []
-            for line in lines:
-                line = line.strip()
-                if line[0] == '#' or not line[:11] == 'AUTO_TARGET' or " ".join(line.strip().split(" ")[0:2]) in user_definitions:
-                    bad_lines.append(line)
-                    
-            for line in bad_lines:
-                lines.remove(line)
-                    
-            for line in lines:
-                line = line.split(" ")
-                if not self.old_definition or not line[1] == self.old_definition:
-                    names.append(line[1])
-                            
-            fl.close()
+        fl_loc = self.destination + 'tlm_viewer.txt'
+        if os.path.isfile(fl_loc):
+            names = self.read_for_token(fl_loc, self.token, ignored_lines)
             print "Tlm Viewer Tool Config Altered"
         else:
             print "Tlm Viewer Tool Config Created"
                 
-        for line in user_definitions:
+        for line in ignored_lines:
             names.append(line.split(" ")[1])
         
         # Open file
-        fl = open(self.destination + "tlm_viewer.txt", "w")
+        fl = open(fl_loc, "w")
         
         # Initialize and fill Cheetah template 
         tv = Tlm_Viewer_Config.Tlm_Viewer_Config()

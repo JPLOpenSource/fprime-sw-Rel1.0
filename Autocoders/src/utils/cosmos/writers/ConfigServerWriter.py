@@ -21,11 +21,11 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import AbstractConfigWriter
+from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.templates import Server_Config
 
-class ConfigServerWriter(AbstractConfigWriter.AbstractConfigWriter):
+class ConfigServerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the data viewer config file in
     cosmos_directory/COSMOS/config/tools/data_viewer/
@@ -40,6 +40,7 @@ class ConfigServerWriter(AbstractConfigWriter.AbstractConfigWriter):
         """
         super(ConfigServerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
+        self.token = "INTERFACE_TARGET"
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/COSMOS/config/tools/cmd_tlm_server/"
@@ -50,42 +51,24 @@ class ConfigServerWriter(AbstractConfigWriter.AbstractConfigWriter):
         Generates the file
         """
         # Add target to list of lines that will always be written
-        user_definitions = []
+        ignored_lines = []
         if self.deployment_name and not self.deployment_name == "":
-            user_definitions.append("INTERFACE_TARGET " + self.deployment_name.upper())
+            ignored_lines.append(self.token + " " + self.deployment_name.upper())
         
         # Open file for reading if exists already and parse all old targets
         names = []
-        if os.path.isfile(self.destination + 'cmd_tlm_server.txt'):
-            fl = open(self.destination + "cmd_tlm_server.txt", "r")
-            
-            lines = re.findall(".*INTERFACE_TARGET.*", fl.read())
-            bad_lines = []
-            for line in lines:
-                print "LINE EXISTS: " + line
-                line = line.strip()
-                if line[0] == '#' or not line[:16] == 'INTERFACE_TARGET' or " ".join(line.strip().split(" ")[0:2]) in user_definitions:
-                    print "LINE IS BAD: " + line + " " + line[:16]
-                    bad_lines.append(line)
-                    
-            for line in bad_lines:
-                lines.remove(line)
-                    
-            for line in lines:
-                line = line.split(" ")
-                if not self.old_definition or not line[1] == self.old_definition:
-                    names.append(line[1])
-                            
-            fl.close()
+        fl_loc = self.destination + 'cmd_tlm_server.txt'
+        if os.path.isfile(fl_loc):
+            names = self.read_for_token(fl_loc, self.token, ignored_lines)
             print "Cmd Tlm Server Config Altered"
         else:
             print "Cmd Tlm Server Config Created"
                 
-        for line in user_definitions:
+        for line in ignored_lines:
             names.append(line.split(" ")[1])
         
         # Open file
-        fl = open(self.destination + "cmd_tlm_server.txt", "w")
+        fl = open(fl_loc, "w")
          
         # Initialize and fill Cheetah template
         sc = Server_Config.Server_Config()
