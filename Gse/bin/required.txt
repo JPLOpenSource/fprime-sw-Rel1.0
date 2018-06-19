@@ -1,4 +1,3 @@
-zmq
 click
 Cheetah
 enum34
