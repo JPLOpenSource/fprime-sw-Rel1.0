@@ -14,7 +14,15 @@ To **delete** a target, run the autocoder with -r TARGET_NAME, and it will remov
 
 ### 2.1 Mac
 
+The COSMOS Autocoder Tool requires FPrime and COSMOS to be installed along with their unique dependencies.
 
+Instructions for installing FPrime can be found in the [User Guide](../docs/UsersGuide/FprimeUserGuide.pdf).
+
+Instructions for installing COSMOS can be found in the [Installation Guide](INSTALL_NOTES.txt) in the COSMOS directory.
+
+Once both of these are fully installed, run "cosmos demo FILE_NAME" inside any directory to generate a working COSMOS environment.  To add your Topology to that environment run the run_cosmosgen.sh script in Autocoders/bin with "-b COSMOS_PATHNAME" and the path to your Topology.xml file as an argument.  In addition, if you would like to have the script generate into the COSMOS directory that comes packaged inside of this repository, simply run the script with only the path to your Topology.xml file.
+
+Tools are accessed in the tools directory on the top of your COSMOS directory.  All files within Autocoders/src/utils/cosmos must be present in order for the script to function properly.
 
 ### 2.2 Linux
 
@@ -26,7 +34,15 @@ To use the tool, run the run\_cosmosgen.sh script from the command line with the
 
 ## 4. Tool Inputs and Outputs
 
-##
+## 4.1 Inputs
+
+The only command line argument that the tool takes is the location of Topology XML files.
+
+As the Topology XML files only contain information regarding command and telemetry packets, all information regarding communication protocol and shared command/telemetry packet items should be manually entered after the config files are generated.  The default for these protocol and shared files are the fields for the Fprime Reference Application.
+
+## 4.2 Outputs
+
+The tool outputs COSMOS config text files to the directory set via command-line (def: fprime-sw/COSMOS).  These text files are generated via Cheetah templates in the Autocoders/src/utils/cosmos/templates directory.  Cosmos config files are documented [here](http://cosmosrb.com/docs/home/).
 
 ## 5. The Classes
 
@@ -74,5 +90,6 @@ Classes within the tool are broken down into lowest-level model and writer class
 ### 5.2 Helper Ruby Scripts
 |Name|Description|Link
 |---|---|---|
+|evr\_dump\_component.rb|Plain text writing protocol that specifies how text should be written in the data_viewer application|[.rb](../COSMOS/lib/evr\_dump\_component.rb)|
 |multi\_string\_item\_conversion.rb|Ruby script that is used in event telemetry to allow COSMOS to handle multiple strings by pre-specifying all packet items in a single BLOCK-type item and then parsing out their values within this script rather than in COSMOS itself|[.rb](../COSMOS/lib/multi\_string\_item\_conversion.rb)|
 |ref\_protocol.rb|Optional helper script for FPrime ref app that bypasses an error message that gets sent out when COSMOS doesn't recognize the first 13 bits the ref app sends|[.rb](../COSMOS/lib/ref\_protocol.rb)|
