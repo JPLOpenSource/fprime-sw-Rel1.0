@@ -21,13 +21,13 @@ class AbstractCosmosWriter(object):
     data.
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels, commands, and events
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        self.parser = parser
+        self.cmd_tlm_data = cmd_tlm_data
         self.deployment_name = deployment_name
         self.cosmos_directory = cosmos_directory
         

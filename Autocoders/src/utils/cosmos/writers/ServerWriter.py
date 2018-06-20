@@ -23,25 +23,24 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
-from utils.cosmos.templates import Cosmos_Server
+from utils.cosmos.templates import Server
 
 class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the server definition file in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/
+    cosmos_directory/config/targets/deployment_name.upper()/
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(ServerWriter, self).__init__(parser, deployment_name, cosmos_directory)
-        self.repeated_names = {}
+        super(ServerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/"
         
                     
     def write(self):
@@ -53,7 +52,7 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         print "Server Interface File Created"
         
         # Initialize and fill cheetah template
-        cs = Cosmos_Server.Cosmos_Server()
+        cs = Server.Server()
         
         cs.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
         cs.user = os.environ['USER']

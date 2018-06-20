@@ -100,6 +100,7 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
         self.evr_items = []
         self.names = []
         self.non_len_names = []
+        self.num_strings = 0
         
     def add_block(self):
         """
@@ -135,6 +136,7 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
         """
         # Add the length item into the packet for the following string
         if type == 'string':
+            self.num_strings += 1
             if evr_type == 'DERIVED':
                 len_item = self.EventItem(name + "_length", "Length of String Arg", 16, "UINT", [])
                 len_item.add_derived_fields()
@@ -176,7 +178,7 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
         
         # Fix format string for enums (in COSMOS %d for enum must be %s)
         if not enum == None:
-            self.fix_format_str(len(self.evr_items) - 1)
+            self.fix_format_str(len(self.evr_items) - 1 - self.num_strings)
         
         
     def fix_format_str(self, search_index):

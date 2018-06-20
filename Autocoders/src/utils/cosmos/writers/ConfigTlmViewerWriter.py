@@ -23,27 +23,26 @@ import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
-from utils.cosmos.templates import Tlm_Viewer_Config
+from utils.cosmos.templates import Config_Tlm_Viewer
 
 class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the tlm viewer config file in
-    cosmos_directory/COSMOS/config/tools/tlm_viewer/
+    cosmos_directory/config/tools/tlm_viewer/
     """
     
     def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels, commands, and events
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         @param old_definition: COSMOS target name that you want to remove
         """
         super(ConfigTlmViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
-        self.repeated_names = {}
         self.token = "AUTO_TARGET"
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/tools/tlm_viewer/"
+        self.destination = cosmos_directory + "/config/tools/tlm_viewer/"
         
                     
     def write(self):
@@ -71,7 +70,7 @@ class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
         fl = open(fl_loc, "w")
         
         # Initialize and fill Cheetah template 
-        tv = Tlm_Viewer_Config.Tlm_Viewer_Config()
+        tv = Config_Tlm_Viewer.Config_Tlm_Viewer()
          
         tv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
         tv.user = os.environ['USER']

@@ -26,6 +26,8 @@ To use the tool, run the run\_cosmosgen.sh script from the command line with the
 
 ## 4. Tool Inputs and Outputs
 
+##
+
 ## 5. The Classes
 
 Classes within the tool are broken down into lowest-level model and writer classes that represent the command and telemetry data and that do the actual file writing, mid-level parser and generator classes that create and utilize the model and writer classes, and one highest-level cosmosgen.py class that instantiates the parser and generator classes.  All cheetah templates are found in the Autocoders/utils/cosmos/templates directory and all Ruby scripts are found in the COSMOS/lib directory.

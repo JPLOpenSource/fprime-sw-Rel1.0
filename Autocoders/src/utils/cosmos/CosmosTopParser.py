@@ -13,6 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+import os
+import logging
+
 from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
 from utils.cosmos.models import CosmosEvent
@@ -31,6 +34,7 @@ class CosmosTopParser():
         self.channels = []
         self.events = []
         self.commands = []
+        self.deployment = None
         
     def get_bits_from_type(self, type):
         """
@@ -68,10 +72,10 @@ class CosmosTopParser():
                 
     def parse_topology(self, topology, overwrite = True):
         """
-        Takes a topology XML file and puts all channel, event, and command
+        Takes a Topology XML Parser and puts all channel, event, and command
         data into CosmosChannel, CosmosEvent, and CosmosCommand class instances
         for easier matching with cheetah template arguments in writer classes
-        @param topology: XML topology parser
+        @param topology: XML Topology Parser containing all command and telemetry info from XML file
         @param overwrite: Flag whether to overwrite channels, events, and commands lists
         """
         if overwrite:
@@ -149,7 +153,7 @@ class CosmosTopParser():
                                 else:
                                     num2 = int(item[1])
                                 num2 += 1
-                        
+                    
                         neg_offset = False       
                         if flip_bits:
                             neg_offset = 'NEG_OFFSET'
@@ -160,7 +164,7 @@ class CosmosTopParser():
                         if not use_block:        
                             cosmos_cmd.add_item(n, t, c, bits, enum_name, enum, neg_offset)
                         else:
-                            print "ERROR: multi-string commands not supported in COSMOS"
+                            print "ERROR: multi-string commands not supported in COSMOS at: " + cmd.get_mnemonic() + " from " + source
                     if flip_bits:
                         cosmos_cmd.update_neg_offset()
                     self.commands.append(cosmos_cmd)       
@@ -220,13 +224,13 @@ class CosmosTopParser():
                             evr_type = 'DERIVED'
                         elif flip_bits:
                             evr_type = 'NEG_OFFSET'
-                            
+                        
                         if t == 'string':
                             flip_bits = True
-                            
+                        
                         cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset)
-                    if flip_bits:
-                        cosmos_evr.update_neg_offset()
+                        if flip_bits:
+                            cosmos_evr.update_neg_offset()
                     if use_block:
                         cosmos_evr.update_template_strings()
                     self.events.append(cosmos_evr)
@@ -242,8 +246,8 @@ class CosmosTopParser():
                     else:
                         ch_id = int(ch_id)
                     ch_id += base_id
-                    n     = ch.get_name()
-                    t     = ch.get_type()
+                    n = ch.get_name()
+                    t = ch.get_type()
                     enum_name = "None"
                     enum = None
                     if type(t) is type(tuple()):
@@ -255,3 +259,27 @@ class CosmosTopParser():
                     cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c)
                     cosmos_ch.set_arg(t, enum_name, enum, ch.get_format_string())
                     self.channels.append(cosmos_ch)
+                    
+    def get_channels(self):
+        """
+        List of all channels
+        """
+        return self.channels
+    
+    def get_events(self):
+        """
+        List of all channels
+        """
+        return self.events
+    
+    def get_commands(self):
+        """
+        List of all channels
+        """
+        return self.commands
+    
+    def get_deployment(self):
+        """
+        Uppercase name of Topology deployment
+        """
+        return self.deployment

@@ -27,21 +27,21 @@ from utils.cosmos.templates import Command
 class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the command definition files in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/commands/
+    cosmos_directory/config/targets/deployment_name.upper()/cmd_tlm/commands/
     """
     
-    def __init__(self, topology, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(CommandWriter, self).__init__(topology, deployment_name, cosmos_directory)
+        super(CommandWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.repeated_names = {}
     
         # Initialize writer-unique file destination location
         self.cosmos_directory = cosmos_directory
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/"
     
     def write(self):
         """
@@ -49,7 +49,7 @@ class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         print "Creating Command Files"
         command_templates = {}
-        for cmd in self.parser.commands:
+        for cmd in self.cmd_tlm_data[1]:
             n = cmd.get_cmd_name()
             if n in self.repeated_names.keys():
                 # Fix other name pair

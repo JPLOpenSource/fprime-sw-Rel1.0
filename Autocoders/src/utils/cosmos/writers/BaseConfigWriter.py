@@ -27,14 +27,14 @@ class BaseConfigWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     the entire file.
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory, old_definition):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory, old_definition):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels, commands, and events
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         @param old_definition: COSMOS target name that you want to remove
         """
-        super(BaseConfigWriter, self).__init__(parser, deployment_name, cosmos_directory)
+        super(BaseConfigWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.old_definition = old_definition
         
     def read_for_token(self, fl_loc, token, ignored_lines):
@@ -53,9 +53,7 @@ class BaseConfigWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         bad_lines = []
         for line in lines:
             line = line.strip()
-            print line
             if line[0] == '#' or not line[:len(token)] == token or " ".join(line.strip().split(" ")[0:2]) in ignored_lines:
-                print "BAD: ", line
                 bad_lines.append(line)
                     
         for line in bad_lines:

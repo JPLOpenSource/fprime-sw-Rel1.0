@@ -23,27 +23,27 @@ import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
-from utils.cosmos.templates import Data_Viewer_Config
+from utils.cosmos.templates import Config_Data_Viewer
 
 class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the data viewer config file in
-    cosmos_directory/COSMOS/config/tools/data_viewer/
+    cosmos_directory/config/tools/data_viewer/
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory, old_definition=None):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         @param old_definition: COSMOS target name that you want to remove
         """
-        super(ConfigDataViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
+        super(ConfigDataViewerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         self.token = "TARGET_COMPONENT"
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/tools/data_viewer/"
+        self.destination = cosmos_directory + "/config/tools/data_viewer/"
         
                     
     def write(self):
@@ -71,7 +71,7 @@ class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
         fl = open(fl_loc, "w")
          
         # Initialize and fill Cheetah template
-        dv = Data_Viewer_Config.Data_Viewer_Config()
+        dv = Config_Data_Viewer.Config_Data_Viewer()
          
         dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
         dv.user = os.environ['USER']

@@ -1,6 +1,6 @@
 #!/bin/env python
 #===============================================================================
-# NAME: ConfigSystemWriter.py
+# NAME: ConfigConfig_SystemWriter.py
 #
 # DESCRIPTION: This writer generates the system.txt in COSMOS/config/
 # system/ folder that defines the existing targets for the entire cosmos
@@ -22,27 +22,26 @@ import logging
 
 from utils.cosmos.writers import BaseConfigWriter
 
-from utils.cosmos.templates import System
+from utils.cosmos.templates import Config_System
 
 class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the system config file in
-    cosmos_directory/COSMOS/config/system/
+    cosmos_directory/config/system/
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory, old_definition=None):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         @param old_definition: COSMOS target name that you want to remove
         """
-        super(ConfigSystemWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
-        self.repeated_names = {}
+        super(ConfigSystemWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory, old_definition)
         self.token = "DECLARE_TARGET"
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/system/"
+        self.destination = cosmos_directory + "/config/system/"
         
                     
     def write(self):
@@ -60,9 +59,9 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
         fl_loc = self.destination + 'system.txt'
         if os.path.isfile(fl_loc):
             names = self.read_for_token(fl_loc, self.token, ignored_lines)
-            print "System.txt Altered"
+            print "Config_System.txt Altered"
         else:
-            print "System.txt Created"
+            print "Config_System.txt Created"
             
         for line in ignored_lines:
             names.append(line.split(" ")[1])
@@ -71,7 +70,7 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
         fl = open(fl_loc, "w")
         
         # Initialize and fill Cheetah template 
-        s = System.System()
+        s = Config_System.Config_System()
          
         s.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
         s.user = os.environ['USER']

@@ -27,20 +27,20 @@ from utils.cosmos.templates import Channel_Screen
 class ChannelScreenWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the channel screen definition file in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/screens/
+    cosmos_directory/config/targets/deployment_name.upper()/screens/
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels, commands, and events
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(ChannelScreenWriter, self).__init__(parser, deployment_name, cosmos_directory)
+        super(ChannelScreenWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/screens/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/screens/"
         
                     
     def write(self):
@@ -48,7 +48,7 @@ class ChannelScreenWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         Generates the file
         """
         channel_list= []
-        for ch in self.parser.channels:
+        for ch in self.cmd_tlm_data[0]:
             n = ch.get_ch_name()
             if n in self.repeated_names.keys():
                 # Fix other name pair
