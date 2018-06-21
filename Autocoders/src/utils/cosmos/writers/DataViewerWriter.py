@@ -22,6 +22,8 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.templates import Data_Viewer
 
 class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
@@ -67,8 +69,8 @@ class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template
         dv = Data_Viewer.Data_Viewer()
         
-        dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        dv.user = os.environ['USER']
+        dv.date = CheetahUtil.DATE
+        dv.user = CheetahUtil.USER
         dv.target_upper = self.deployment_name.upper()
         dv.target_name = self.deployment_name.upper()
         dv.evr_names = event_list

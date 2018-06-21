@@ -22,6 +22,9 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.templates import Event
 
 class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
@@ -64,17 +67,17 @@ class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             # Initialize and fill Cheetah Template
             e = Event.Event()
 
-            e.date = evr.get_date()
-            e.user = evr.get_user()
+            e.date = CheetahUtil.DATE
+            e.user = CheetahUtil.USER
             e.source = evr.get_source()
             e.component_string = evr.get_component_string()
             e.evr_name = n
-            e.endianness = evr.get_endianness()
+            e.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
             e.evr_desc = evr.get_evr_desc()
             e.id = evr.get_id()
             e.target_caps = self.deployment_name.upper()
             e.target_lower = self.deployment_name.lower()
-            e.evr_items = evr.get_evr_items_cosmos()
+            e.evr_items = CheetahUtil.evr_convert_items_to_cheetah_list(evr.get_evr_items())
             e.names = evr.get_names()
             e.nonlen_names = evr.get_nonlen_names()
     

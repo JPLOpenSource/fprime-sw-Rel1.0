@@ -25,6 +25,8 @@ from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.templates import Config_Data_Viewer
 
+from utils.cosmos.util import CheetahUtil
+
 class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the data viewer config file in
@@ -41,6 +43,7 @@ class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
         super(ConfigDataViewerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         self.token = "TARGET_COMPONENT"
+        self.argument = ""
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/config/tools/data_viewer/"
@@ -65,7 +68,7 @@ class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
             print "Data Viewer Tool Config Created"
             
         for line in ignored_lines:
-            names.append(line.split(" ")[1])
+            names.append(line.split(" ")[1] + self.argument)
         
         # Open file
         fl = open(fl_loc, "w")
@@ -73,8 +76,8 @@ class ConfigDataViewerWriter(BaseConfigWriter.BaseConfigWriter):
         # Initialize and fill Cheetah template
         dv = Config_Data_Viewer.Config_Data_Viewer()
          
-        dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        dv.user = os.environ['USER']
+        dv.date = CheetahUtil.DATE
+        dv.user = CheetahUtil.USER
         dv.names = names
                      
         msg = dv.__str__()

@@ -23,6 +23,9 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.templates import Server
 
 class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
@@ -54,33 +57,33 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template
         cs = Server.Server()
         
-        cs.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        cs.user = os.environ['USER']
+        cs.date = CheetahUtil.DATE
+        cs.user = CheetahUtil.USER
         cs.target_name = self.deployment_name.upper()
-        cs.write_port = 5000
-        cs.read_port = 5000
-        cs.read_timeout = 10
-        cs.write_timeout = 10
-        cs.protocol_name_w = "RefProtocol"
-        cs.protocol_name_r = "RefProtocol"
-        cs.len_bit_offset_w = 32
-        cs.len_bit_offset_r = 72
-        cs.len_bit_size_w = 32
-        cs.len_bit_size_r = 32
-        cs.len_val_offset_w = 8
-        cs.len_val_offset_r = 13
-        cs.bytes_per_count_w = 1
-        cs.bytes_per_count_r = 1 
-        cs.endianness_w = "BIG_ENDIAN"
-        cs.endianness_r = "BIG_ENDIAN"
-        cs.discard_leading_w = 0
-        cs.discard_leading_r = 0
-        cs.sync_w = "5A5A5A5A"
-        cs.sync_r = "413541352047554920"
-        cs.has_max_length_w = "nil"
-        cs.has_max_length_r = "nil"
-        cs.fill_ls_w = "true"
-        cs.fill_ls_r = "true"
+        cs.write_port = CosmosUtil.WRITE_PORT
+        cs.read_port = CosmosUtil.READ_PORT
+        cs.read_timeout = CosmosUtil.READ_TIMEOUT
+        cs.write_timeout = CosmosUtil.WRITE_TIMEOUT
+        cs.protocol_name_w = CosmosUtil.PROTOCOL_NAME_W
+        cs.protocol_name_r = CosmosUtil.PROTOCOL_NAME_R
+        cs.len_bit_offset_w = CosmosUtil.LEN_BIT_OFFSET_W
+        cs.len_bit_offset_r = CosmosUtil.LEN_BIT_OFFSET_R
+        cs.len_bit_size_w = CosmosUtil.LEN_BIT_SIZE_W
+        cs.len_bit_size_r = CosmosUtil.LEN_BIT_SIZE_R
+        cs.len_val_offset_w = CosmosUtil.LEN_VAL_OFFSET_W
+        cs.len_val_offset_r = CosmosUtil.LEN_VAL_OFFSET_R
+        cs.bytes_per_count_w = CosmosUtil.BYTES_PER_COUNT_W
+        cs.bytes_per_count_r = CosmosUtil.BYTES_PER_COUNT_R
+        cs.endianness_w = CosmosUtil.ENDIANNESS_W
+        cs.endianness_r = CosmosUtil.ENDIANNESS_R
+        cs.discard_leading_w = CosmosUtil.DISCARD_LEADING_W
+        cs.discard_leading_r = CosmosUtil.DISCARD_LEADING_R
+        cs.sync_w = CosmosUtil.SYNC_W
+        cs.sync_r = CosmosUtil.SYNC_R
+        cs.has_max_length_w = CosmosUtil.HAS_MAX_LENGTH_W
+        cs.has_max_length_r = CosmosUtil.HAS_MAX_LENGTH_R
+        cs.fill_ls_w = CosmosUtil.FILL_LS_W
+        cs.fill_ls_r = CosmosUtil.FILL_LS_R
                     
         msg = cs.__str__()
                     

@@ -19,8 +19,11 @@ import sys
 import time
 import datetime
 import logging
+import re
 
 from utils.cosmos.writers import BaseConfigWriter
+
+from utils.cosmos.util import CheetahUtil
 
 from utils.cosmos.templates import Config_System
 
@@ -39,10 +42,11 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
         """
         super(ConfigSystemWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory, old_definition)
         self.token = "DECLARE_TARGET"
+        self.argument= ""
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/config/system/"
-        
+        self.fl_loc = self.destination + 'system.txt'
                     
     def write(self):
         """
@@ -56,27 +60,47 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
         
         # Open file for reading if exists already and parse all old targets
         names = []
-        fl_loc = self.destination + 'system.txt'
-        if os.path.isfile(fl_loc):
-            names = self.read_for_token(fl_loc, self.token, ignored_lines)
+        if os.path.isfile(self.fl_loc):
+            names = self.read_for_token(self.fl_loc, self.token, ignored_lines)
             print "Config_System.txt Altered"
         else:
             print "Config_System.txt Created"
             
         for line in ignored_lines:
-            names.append(line.split(" ")[1])
+            names.append(line.split(" ")[1] + self.argument)
         
         # Open file
-        fl = open(fl_loc, "w")
+        fl = open(self.fl_loc, "w")
         
         # Initialize and fill Cheetah template 
         s = Config_System.Config_System()
          
-        s.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        s.user = os.environ['USER']
+        s.date = CheetahUtil.DATE
+        s.user = CheetahUtil.USER
         s.names = names
                      
         msg = s.__str__()
                      
         fl.writelines(msg)
         fl.close()
+
+    def find_subtargets(self):
+        """
+        Finds subtarget definitions i.e. DECLARE_TARGET INST INST2 where INST2 is a subtarget
+        @return: List of subtargets
+        """
+        
+        fl = open(self.fl_loc, "r")
+        subtargets = []
+        lines = re.findall(".*" + self.token + " .*", fl.read())
+        for line in lines:
+            line = line.strip()
+            potential_subtarget = ""
+            if len(line.split(" ")) > 2:
+                potential_subtarget = line.split(" ")[2] # First word after DECLARE_TARGET TARGET_NAME
+            if not potential_subtarget == "" and not line[0][0] == '#' and line[:len(self.token)] == self.token and not potential_subtarget[0] == '#':
+                subtargets.append(potential_subtarget)
+                print "SUBTARGET " + potential_subtarget + " FOUND"
+        
+        fl.close()        
+        return subtargets

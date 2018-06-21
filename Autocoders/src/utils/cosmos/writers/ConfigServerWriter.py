@@ -23,6 +23,8 @@ import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.templates import Config_Server
 
 class ConfigServerWriter(BaseConfigWriter.BaseConfigWriter):
@@ -41,6 +43,7 @@ class ConfigServerWriter(BaseConfigWriter.BaseConfigWriter):
         super(ConfigServerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory, old_definition)
         self.repeated_names = {}
         self.token = "INTERFACE_TARGET"
+        self.argument = " cmd_tlm_server.txt"
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/config/tools/cmd_tlm_server/"
@@ -73,8 +76,8 @@ class ConfigServerWriter(BaseConfigWriter.BaseConfigWriter):
         # Initialize and fill Cheetah template
         sc = Config_Server.Config_Server()
          
-        sc.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        sc.user = os.environ['USER']
+        sc.date = CheetahUtil.DATE
+        sc.user = CheetahUtil.USER
         sc.names = names
                      
         msg = sc.__str__()

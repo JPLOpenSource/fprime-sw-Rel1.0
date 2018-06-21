@@ -20,6 +20,8 @@ from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
 from utils.cosmos.models import CosmosEvent
 
+from utils.cosmos.util import CosmosUtil
+
 class CosmosTopParser():
     """
     This class takes an XML topology parser that has parsed the topology XML files
@@ -35,40 +37,6 @@ class CosmosTopParser():
         self.events = []
         self.commands = []
         self.deployment = None
-        
-    def get_bits_from_type(self, type):
-        """
-        @param type: Fprime type
-        @return: Number of bits in given Fprime type
-        """
-        if type == 'F32':
-            return 32
-        elif type == 'F64':
-            return 64
-        elif type == 'U8':
-            return 8
-        elif type == 'U16':
-            return 16
-        elif type == 'U32':
-            return 32
-        elif type == 'U64':
-            return 64
-        elif type == 'I8':
-            return 8
-        elif type == 'I16':
-            return 16
-        elif type == 'I32':
-            return 32
-        elif type == 'I64':
-            return 64
-        elif type == 'bool':
-            return 16
-        elif type == 'string':
-            return 0
-        elif type == 'ENUM':
-            return 32
-        else:
-            print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
                 
     def parse_topology(self, topology, overwrite = True):
         """
@@ -141,7 +109,7 @@ class CosmosTopParser():
                             enum_name = t[0][1]
                             t = t[0][0]
                         num += 1
-                        bits = self.get_bits_from_type(t)
+                        bits = CosmosUtil.get_bits_from_type(t)
                         #
                         # Parse command enum here
                         #
@@ -217,7 +185,7 @@ class CosmosTopParser():
                             t = t[0][0]
 
                         # Handle argument type
-                        bits = self.get_bits_from_type(t)
+                        bits = CosmosUtil.get_bits_from_type(t)
                         bit_offset = 0
                         evr_type = 'NORMAL'
                         if use_block:
@@ -232,7 +200,7 @@ class CosmosTopParser():
                         if flip_bits:
                             cosmos_evr.update_neg_offset()
                     if use_block:
-                        cosmos_evr.update_template_strings()
+                        CosmosUtil.update_template_strings(cosmos_evr.get_evr_items())
                     self.events.append(cosmos_evr)
             #
             # Parse channel data here...

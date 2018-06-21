@@ -24,6 +24,8 @@ import re
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.templates import Target
 
 class TargetWriter(AbstractCosmosWriter.AbstractCosmosWriter):
@@ -55,8 +57,8 @@ class TargetWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template 
         t = Target.Target()
          
-        t.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        t.user = os.environ['USER']
+        t.date = CheetahUtil.DATE
+        t.user = CheetahUtil.USER
                      
         msg = t.__str__()
                      

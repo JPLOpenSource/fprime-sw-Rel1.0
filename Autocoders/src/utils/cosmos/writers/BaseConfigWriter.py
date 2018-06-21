@@ -48,12 +48,12 @@ class BaseConfigWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         @return: List of deployment names (plus possibly inline comments) to be re-coded
         """
         fl = open(fl_loc, "r")
-        names = []    
+        names = []
         lines = re.findall(".*" + token + " .*", fl.read())
         bad_lines = []
         for line in lines:
             line = line.strip()
-            if line[0] == '#' or not line[:len(token)] == token or " ".join(line.strip().split(" ")[0:2]) in ignored_lines:
+            if line[0][0] == '#' or not line[:len(token)] == token or " ".join(line.split(" ")[0:2]) in ignored_lines:
                 bad_lines.append(line)
                     
         for line in bad_lines:

@@ -85,28 +85,55 @@ class CosmosGenerator:
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/commands")
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/events")
         
-    def remove_target(self, cosmos_path, target):
+    def remove_target(self, cosmos_path, target, is_subt=False):
         """
         Deletes a target by removing its /config directory and all other
         instances where it is mentioned in config files
         @param cosmos_path: Path to COSMOS directory
         @param target: Target to remove (name in caps)
+        @param is_subt: Whether to print errors and to check for subtargets
         """
         # SYSTEM is required by COSMOS for it to run properly
         if target == "SYSTEM":
             print "ERROR: DO NOT REMOVE COSMOS SYSTEM FOLDER"  
-        elif not os.path.isdir(cosmos_path + "/config/targets/" + target):
-            print "ERROR: DEPLOYMENT " + target + " DOES NOT EXIST"
         else:
-            shutil.rmtree(cosmos_path + "/config/targets/" + target)
-            print "REMOVED " + cosmos_path + "/config/targets/" + target + "/"
+            if not os.path.isdir(cosmos_path + "/config/targets/" + target):
+                if not is_subt:
+                    print "ERROR: DEPLOYMENT " + target + " DIRECTORY DOES NOT EXIST"
+            else:
+                shutil.rmtree(cosmos_path + "/config/targets/" + target)
+                print "REMOVED " + cosmos_path + "/config/targets/" + target + "/"
+                
+            # Remove sub-targets if their definition is fount in serverwriter (subtarget is like INST2 in cosmos demo)
+            system = ConfigSystemWriter.ConfigSystemWriter(None, "", cosmos_path, target)
+            if not is_subt:
+                ls = system.find_subtargets()
+                for subt in ls:
+                    self.remove_target(cosmos_path, subt, True)
         
             # Remove reference to target from files shared by all other targets
-            ConfigSystemWriter.ConfigSystemWriter(None, "", cosmos_path, target).write()
+            system.write()
             ConfigServerWriter.ConfigServerWriter(None, "", cosmos_path, target).write()
             ConfigDataViewerWriter.ConfigDataViewerWriter(None, "", cosmos_path, target).write()
             ConfigTlmViewerWriter.ConfigTlmViewerWriter(None, "", cosmos_path, target).write()
+            
+            # Two files for the INST target exist inside of the config/targets/SYSTEM directory, remove them if they exist
+            if target == 'INST':
+                self.remove_demo_files(cosmos_path)
+            
             print "REMOVED ALL REFERENCES TO " + target
+            
+    def remove_demo_files(self, cosmos_path):
+        """
+        Removes files from the config/targets/SYSTEM directory that are present in the cosmos demo that
+        have to do with their INST target.  This should only be run when user tries to remove INST over
+        command line
+        @param cosmos_path: Path to COSMOS directory
+        """
+        os.remove(cosmos_path + "/config/targets/SYSTEM/cmd_tlm/limits_groups.txt")
+        os.remove(cosmos_path + "/config/targets/SYSTEM/cmd_tlm/override.txt")
+        
+        # Add more files to remove from demo here if the need arises
     
     def generate_cosmos_files(self, target, cosmos_path):        
         """

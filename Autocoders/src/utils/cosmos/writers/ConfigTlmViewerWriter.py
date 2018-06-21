@@ -23,6 +23,8 @@ import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.templates import Config_Tlm_Viewer
 
 class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
@@ -40,6 +42,7 @@ class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
         """
         super(ConfigTlmViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
         self.token = "AUTO_TARGET"
+        self.argument = ""
         
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/config/tools/tlm_viewer/"
@@ -64,7 +67,7 @@ class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
             print "Tlm Viewer Tool Config Created"
                 
         for line in ignored_lines:
-            names.append(line.split(" ")[1])
+            names.append(line.split(" ")[1] + "")
         
         # Open file
         fl = open(fl_loc, "w")
@@ -72,8 +75,8 @@ class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
         # Initialize and fill Cheetah template 
         tv = Config_Tlm_Viewer.Config_Tlm_Viewer()
          
-        tv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        tv.user = os.environ['USER']
+        tv.date = CheetahUtil.DATE
+        tv.user = CheetahUtil.USER
         tv.names = names
                      
         msg = tv.__str__()

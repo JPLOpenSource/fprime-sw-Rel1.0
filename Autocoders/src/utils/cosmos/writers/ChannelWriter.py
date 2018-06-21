@@ -20,6 +20,9 @@ import time
 import datetime
 import logging
 
+from utils.cosmos.util import CosmosUtil
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Channel
@@ -63,12 +66,12 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             # Initialize and fill Cheetah Template
             c = Channel.Channel()
 
-            c.date = ch.get_date()
-            c.user = ch.get_user()
+            c.date = CheetahUtil.DATE
+            c.user = CheetahUtil.USER
             c.source = ch.get_source()
             c.component_string = ch.get_component_string()
             c.ch_name = n
-            c.endianness = ch.get_endianness()
+            c.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
             c.ch_desc = ch.get_ch_desc()
             c.id = ch.get_id()
             c.target_caps = self.deployment_name.upper()

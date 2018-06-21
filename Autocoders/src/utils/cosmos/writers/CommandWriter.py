@@ -24,6 +24,9 @@ from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Command
 
+from utils.cosmos.util import CosmosUtil
+from utils.cosmos.util import CheetahUtil
+
 class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the command definition files in
@@ -64,17 +67,17 @@ class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             # Initialize and fill Cheetah Template
             c = Command.Command()
 
-            c.date = cmd.get_date()
-            c.user = cmd.get_user()
+            c.date = CheetahUtil.DATE
+            c.user = CheetahUtil.USER
             c.source = cmd.get_source()
             c.component_string = cmd.get_component_string()
             c.cmd_name = n
-            c.endianness = cmd.get_endianness()
+            c.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
             c.cmd_desc = cmd.get_cmd_desc()
             c.opcode = cmd.get_opcode()
             c.target_caps = self.deployment_name.upper()
             c.target_lower = self.deployment_name.lower()
-            c.cmd_items = cmd.get_cmd_items_cosmos()
+            c.cmd_items = CheetahUtil.cmd_convert_items_to_cheetah_list(cmd.get_cmd_items())
             c.mnemonic = cmd.get_mnemonic()
             c.priority = cmd.get_priority()
             c.sync = cmd.get_sync()

@@ -13,6 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+# Contains all Cheetah utility methods and interface / protocol variable data that isnt autocoded
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.models import BaseCosmosObject
 
 class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
@@ -45,14 +48,6 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
             self.derived = False
             self.bit_offset = 0
             self.template_string = ""
-            
-        def convert_to_tuple(self):
-            """
-            Cheetah templates can't iterate over a list of classes, so
-            converts all data into a Cheetah-friendly tuple
-            (IS_BLOCK, IS_DERIVED, NAME, DESCRIPTION, TEMPLATE_STRING, TYPES, HAS_NEG_OFFSET, NEG_OFFSET, BITS, TYPE)
-            """
-            return (self.block, self.derived, self.name, self.desc, self.template_string, self.types, self.neg_offset, self.bit_offset, self.bits, self.type)
     
         def add_neg_offset_fields(self, bit_offset):
             """
@@ -108,19 +103,6 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
         """
         item = self.EventItem("name", "desc", 0, "type", [], True)
         self.evr_items.append(item)
-        
-    def convert_items_to_cheetah_list(self, list):
-        """
-        Cheetah templates can't iterate over a list of classes, so
-        converts all data into a Cheetah-friendly list of tuples
-        (NAME, DESCRIPTION, ENUM, HAS_BIT_OFFSET, BIT_OFFSET, BITS, TYPE, MIN, MAX, DEFAULT)
-        """
-        temp = []
-        
-        for i in list:
-            temp.append(i.convert_to_tuple())
-        
-        return temp
         
     def add_item(self, name, desc, bits, type, enum_name, enum, evr_type, bit_offset):
         """
@@ -182,7 +164,12 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
         
         
     def fix_format_str(self, search_index):
-                
+        """
+        Enums are commonly referred to within formatted print statements in other
+        languages as %d (integer) however, COSMOS saves enums as only their string
+        value, and thus these %d's must be changed to %s's
+        @param search_index: The index within the item list of the enum to change
+        """        
         # Fix enums from %d to %s for COSMOS
         char_indexes = [i for i, ch in enumerate(self.format_string) if ch == "%"]
         
@@ -220,33 +207,11 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
                 count += item.bits
                 item.bit_offset = count * -1
                 
-    def update_template_strings(self):
-        """
-        Calculates the template string for each item in packet with multiple strings
-        
-        Template String Example For Third Argument(caps are real strings,
-        lowercase w/ underscores are variable integer values):
-        "bits_from_start_of_packet START arg1_bits arg1_data_type arg2_bits
-        arg2_data_type arg3_bits arg3_data_type"
-        """
-        # THIS AMOUNT IS HARDCODED, CHANGES WITH DIFFERENT PACKETS
-        total_pre_item_bits = 256
-        aggregate = str(total_pre_item_bits) + " START"
-        for item in self.evr_items:
-            if not item.block:
-                item.template_string = aggregate + " " + str(item.bits) + " " + item.type
-                aggregate = item.template_string
-                
     def get_evr_items(self):
         """
         List of items in packet
         """
         return self.evr_items
-    def get_evr_items_cosmos(self):
-        """
-        List of Cheetah-friendly tuples (see conversion method docs)
-        """
-        return self.convert_items_to_cheetah_list(self.evr_items)
     def get_names(self):
         """
         Event names

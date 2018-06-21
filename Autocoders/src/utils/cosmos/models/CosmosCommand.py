@@ -49,14 +49,6 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
                 self.default = '"' + self.default + '"'
             self.neg_offset = False
             self.bit_offset = 0
-            
-        def convert_to_tuple(self):
-            """
-            Cheetah templates can't iterate over a list of classes, so
-            converts all data into a Cheetah-friendly tuple
-            (NAME, DESCRIPTION, ENUM, HAS_BIT_OFFSET, BIT_OFFSET, BITS, TYPE, MIN, MAX, DEFAULT)
-            """
-            return (self.name, self.desc, self.types, self.neg_offset, self.bit_offset, self.bits, self.type, self.min_val, self.max_val, self.default)
     
         def add_neg_offset_fields(self, bit_offset):
             """
@@ -89,19 +81,6 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
         self.sync = sync
         self.full = full
         self.cmd_items = []
-
-    def convert_items_to_cheetah_list(self, list):
-        """
-        Cheetah templates can't iterate over a list of classes, so
-        converts all data into a Cheetah-friendly list of tuples
-        (NAME, DESCRIPTION, ENUM, HAS_BIT_OFFSET, BIT_OFFSET, BITS, TYPE, MIN, MAX, DEFAULT)
-        """
-        temp = []
-        
-        for i in list:
-            temp.append(i.convert_to_tuple())
-        
-        return temp
         
     def add_item(self, name, type, comment, bits, enum_name, enum, neg_offset):
         """
@@ -174,11 +153,6 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
         List of items in packet
         """
         return self.cmd_items
-    def get_cmd_items_cosmos(self):
-        """
-        List of Cheetah-friendly tuples (see conversion method docs)
-        """
-        return self.convert_items_to_cheetah_list(self.cmd_items)
     def get_opcode(self):
         """
         Opcode

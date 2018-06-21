@@ -173,7 +173,7 @@ def main():
         if opt.path:
             bot_dir = os.getcwd()
             os.chdir(starting_directory)    # Parser needs to be in Autocoders/bin directory to be able to find Topology XML
-        print os.getcwd()
+            
         xml_type = XmlParser.XmlParser(xml_filename)()
 
         if xml_type == "assembly" or xml_type == "deployment":

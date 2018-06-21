@@ -20,6 +20,8 @@ import time
 import datetime
 import logging
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Channel_Screen
@@ -67,8 +69,8 @@ class ChannelScreenWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template
         c = Channel_Screen.Channel_Screen()
         
-        c.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        c.user = os.environ['USER']
+        c.date = CheetahUtil.DATE
+        c.user = CheetahUtil.USER
         c.target_name = self.deployment_name.upper()
         c.channels = channel_list
                     
