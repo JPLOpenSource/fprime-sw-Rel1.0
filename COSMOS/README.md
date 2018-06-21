@@ -4,9 +4,9 @@ This tool found in Autocoders/bin at cosmosgen.py autocodes all of the configura
 
 ## 1. Overview
 
-COSMOS is a "User Interface for Command and Control of Embedded Systems" made in Ruby that lets users send commands / view telemetry within special customizable COSMOS tools configured in text files using COSMOS syntax documented [here](http://cosmosrb.com/docs/home/).  Some of these tools include a cmd\_tlm server application that can handle server, client, serial, UDP, and potentially any other format through Ruby [scripts](http://cosmosrb.com/docs/scripting/), a data\_viewer application that displays a continuous stream of telemetry text data, and a tlm_viewer application that has users create GUI [screens](http://cosmosrb.com/docs/screens/) that display telemetry data statically.
+COSMOS is a "User Interface for Command and Control of Embedded Systems" made in Ruby that lets users send commands / view telemetry within special customizable COSMOS tools configured in text files using COSMOS syntax documented [here](http://cosmosrb.com/docs/home/).  Some of these tools include a cmd\_tlm server application that can handle server, client, serial, UDP, and potentially any other format through Ruby [scripts](http://cosmosrb.com/docs/scripting/), a data\_viewer application that displays a continuous stream of telemetry text data, and a tlm\_viewer application that has users create GUI [screens](http://cosmosrb.com/docs/screens/) that display telemetry data statically.
 
-Our tool uses [Cheetah templates](https://pythonhosted.org/Cheetah/) found [here](../Autocoders/src/utils/cosmos/templates) in order to Autocode the COSMOS configuration files.  The entire COSMOS/config/targets/TARGET_NAME/ directory is created by the autocoder, however there are also a few other files within the COSMOS/config directory/ that the autocoder will append to if it already exists.
+Our tool uses [Cheetah templates](https://pythonhosted.org/Cheetah/) found [here](../Autocoders/src/utils/cosmos/templates) in order to Autocode the COSMOS configuration files.  The entire COSMOS/config/targets/TARGET\_NAME/ directory is created by the autocoder, however there are also a few other files within the COSMOS/config directory/ that the autocoder will append to if it already exists.
 
 To **delete** a target, run the autocoder with -r TARGET_NAME, and it will remove it from all the autocoded files.
 
@@ -18,9 +18,9 @@ The COSMOS Autocoder Tool requires FPrime and COSMOS to be installed along with 
 
 Instructions for installing FPrime can be found in the [User Guide](../docs/UsersGuide/FprimeUserGuide.pdf).
 
-Instructions for installing COSMOS can be found in the [Installation Guide](INSTALL_NOTES.txt) in the COSMOS directory.
+Instructions for installing COSMOS can be found in the [Installation Guide](INSTALL\_NOTES.txt) in the COSMOS directory.
 
-Once both of these are fully installed, run "cosmos demo FILE_NAME" inside any directory to generate a working COSMOS environment.  To add your Topology to that environment run the run_cosmosgen.sh script in Autocoders/bin with "-b COSMOS_PATHNAME" and the path to your Topology.xml file as an argument.  In addition, if you would like to have the script generate into the COSMOS directory that comes packaged inside of this repository, simply run the script with only the path to your Topology.xml file.
+Once both of these are fully installed, run "cosmos demo FILE\_NAME" inside any directory to generate a working COSMOS environment.  To add your Topology to that environment run the run\_cosmosgen.sh script in Autocoders/bin with "-b COSMOS\_PATHNAME" and the path to your Topology.xml file as an argument.  In addition, if you would like to have the script generate into the COSMOS directory that comes packaged inside of this repository, simply run the script with only the path to your Topology.xml file.
 
 Tools are accessed in the tools directory on the top of your COSMOS directory.  All files within Autocoders/src/utils/cosmos must be present in order for the script to function properly.
 
@@ -36,13 +36,37 @@ To use the tool, run the run\_cosmosgen.sh script from the command line with the
 
 ## 4.1 Inputs
 
-The only command line argument that the tool takes is the location of Topology XML files.
+The only command line argument that the tool takes is the location of Topology XML file.  It should start at the directory of the command line and look like "../../Ref/Top/RefTopologyAppAi.xml"
 
-As the Topology XML files only contain information regarding command and telemetry packets, all information regarding communication protocol and shared command/telemetry packet items should be manually entered after the config files are generated.  The default for these protocol and shared files are the fields for the Fprime Reference Application.
+As the Topology XML files only contain information regarding command and telemetry packets, **all changes to communication protocol and shared command/telemetry packet items should be manually into the CosmosUtil module in the util directory and into the command and telemetry header files generated within the deployment's COSMOS cmd_tlm directory respectively**.  The default for these protocols and headers are the fields for the Fprime Reference Application.
+
+In addition to adding targets based on Topology XML files, the tool is able to remove targets via the command-line option "-r TARGET_NAME".  The SYSTEM target should never be deleted, because COSMOS uses it in the background for all other targets.
 
 ## 4.2 Outputs
 
-The tool outputs COSMOS config text files to the directory set via command-line (def: fprime-sw/COSMOS).  These text files are generated via Cheetah templates in the Autocoders/src/utils/cosmos/templates directory.  Cosmos config files are documented [here](http://cosmosrb.com/docs/home/).
+The tool outputs COSMOS config text files to the directory set via command-line (default: fprime-sw/COSMOS).  These text files are generated via Cheetah templates in the Autocoders/src/utils/cosmos/templates directory.  Cosmos config files are documented [here](http://cosmosrb.com/docs/home/).  The tool is also set to generate the 3 Ruby scripts documented in section 5 below into the lib directory of Cosmos if they are not already present.
+
+### Generated text files
+|Name|Description
+|---|---|
+|\_ref\_cmd\_hdr.txt|Contains all shared header fields for commands|
+|\_ref\_tlm\_chn\_hdr.txt|Contains all shared header fields for channels|
+|\_ref\_tlm\_evr\_hdr.txt|Contains all shared header fields for events|
+|\_user\_dataviewers.txt|Contains room for users to input their own data_viewer definition files|
+|channels.txt|Contains COSMOS screen definition for the target's Channel display for the tlm_viewer application|
+|cmd\_tlm\_server.txt|Contains links to the other cmd\_tlm\_server.txt files found within each target's own directory|
+|cmd\_tlm\_server.txt|Contains interface and protocol definitions for each target i.e. what ports for r/w, sync definition|
+|data\_viewer.txt|Contains links to the other data\viewer.txt files found within each target's own directory|
+|data\_viewer.txt|Contains definition for which EVR's to display in the EVR display for the data_viewer application|
+|system.txt|Contains declarations for all targets|
+|system.txt|Contains target declarations for all targets|
+|target.txt|Contains include statements for all the necessary generated ruby scripts|
+|tlm\_viewer.txt|Contains links to the other screen definition files found within each target's own directory|
+|Channel text files|Contains channel telemetry definitions for each channel in the deployment|
+|Command text files|Contains command telemetry definitions for each command in the deployment|
+|Event text files|Contains event telemetry definitions for each event in the deployment|
+
+
 
 ## 5. The Classes
 
@@ -69,6 +93,12 @@ Classes within the tool are broken down into lowest-level model and writer class
 |CosmosCommand.py|Class representing a telemetry command that encapsulates all the data it needs in the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CosmosCommand.py)|
 |CosmosEvent.py|Class representing a telemetry event that encapsulates all the data it needs in the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CosmosEvent.py)|
 
+#### 5.1.3 The Autocoders/src/utils/cosmos/util Directory
+|Name|Description|Link
+|---|---|---|
+|CheetahUtil.py|Contains constants and methods that affect the way data is outputted to the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CheetahUtil.py)|
+|CosmosUtil.py|Contains all the hardcoded data regarding interfaces and protocols i.e. port number, header-bit-length|[.py](../Autocoders/src/utils/cosmos/models/CosmosUtil.py)|
+
 #### 5.1.4 The Autocoders/src/utils/cosmos/writers Directory
 |Name|Description|Link
 |---|---|---|
@@ -84,6 +114,7 @@ Classes within the tool are broken down into lowest-level model and writer class
 |DataViewerWriter.py|Class that writes the data\_viewer config file for the data\_viewer application|[.py](../Autocoders/bin/writers/DataViewerWriter.py) [docs](http://cosmosrb.com/docs/data_viewer/) [.tmpl](../Autocoders/src/utils/cosmos/templates/data\_viewer.tmpl)|
 |EventWriter.py|Class that writes the event config file for the cmd\_tlm\_server application|[.py](../Autocoders/bin/writers/EventWriter.py) [docs](http://cosmosrb.com/docs/telemetry/) [.tmpl](../Autocoders/src/utils/cosmos/templates/event.tmpl)|
 |PartialWriter.py|Class that prints out user-input files for applications|[.py](../Autocoders/bin/writers/PartialWriter.py) [.tmpl](../Autocoders/src/utils/cosmos/templates/channel\_partial.tmpl) [.tmpl](../Autocoders/src/utils/cosmos/templates/command\_partial.tmpl) [.tmpl](../Autocoders/src/utils/cosmos/templates/data\_viewer\_partial.tmpl) [.tmpl](../Autocoders/src/utils/cosmos/templates/event\_partial.tmpl)|
+|RubyWriter.py|Class that prints out user-input files for applications|[.py](../Autocoders/bin/writers/RubyWriter.py) [.tmpl](../Autocoders/src/utils/cosmos/templates/ruby\_evr\_dump\_component.tmpl) [.tpml](../Autocoders/src/utils/cosmos/templates/ruby\_multi\_string\_tlm\_item\_conversion.tmpl) [.tmpl](../Autocoders/src/utils/cosmos/templates/ruby\_ref\_protocol.tmpl)|
 |ServerWriter.py|Class that writes the server config file|[.py](../Autocoders/bin/writers/ServerWriter.py) [docs](http://cosmosrb.com/docs/interfaces/) [.tmpl](../Autocoders/src/utils/cosmos/templates/cosmos\_server.tmpl)|
 |TargetWriter.py|Class that writes the target config file|[.py](../Autocoders/bin/writers/TargetWriter.py) [docs](http://cosmosrb.com/docs/system/) [.tmpl](../Autocoders/src/utils/cosmos/templates/target.tmpl)|
 
