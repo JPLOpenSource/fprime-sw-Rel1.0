@@ -21,28 +21,31 @@ import datetime
 import logging
 import re
 
-from utils.cosmos.writers import AbstractConfigWriter
+from utils.cosmos.writers import BaseConfigWriter
 
-from utils.cosmos.templates import Tlm_Viewer_Config
+from utils.cosmos.util import CheetahUtil
 
-class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
+from utils.cosmos.templates import Config_Tlm_Viewer
+
+class ConfigTlmViewerWriter(BaseConfigWriter.BaseConfigWriter):
     """
     This class generates the tlm viewer config file in
-    cosmos_directory/COSMOS/config/tools/tlm_viewer/
+    cosmos_directory/config/tools/tlm_viewer/
     """
     
     def __init__(self, parser, deployment_name, cosmos_directory, old_definition=None):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels, commands, and events
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         @param old_definition: COSMOS target name that you want to remove
         """
         super(ConfigTlmViewerWriter, self).__init__(parser, deployment_name, cosmos_directory, old_definition)
-        self.repeated_names = {}
+        self.token = "AUTO_TARGET"
+        self.argument = ""
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/tools/tlm_viewer/"
+        self.destination = cosmos_directory + "/config/tools/tlm_viewer/"
         
                     
     def write(self):
@@ -50,46 +53,30 @@ class ConfigTlmViewerWriter(AbstractConfigWriter.AbstractConfigWriter):
         Generates the file
         """
         # Add target to list of lines that will always be written
-        user_definitions = []
+        ignored_lines = []
         if self.deployment_name and not self.deployment_name == "":
-            user_definitions.append("AUTO_TARGET " + self.deployment_name.upper())
+            ignored_lines.append(self.token + " " + self.deployment_name.upper())
         
         # Open file for reading if exists already and parse all old targets
         names = []
-        if os.path.isfile(self.destination + 'tlm_viewer.txt'):
-            fl = open(self.destination + "tlm_viewer.txt", "r")
-            
-            lines = re.findall(".*AUTO_TARGET.*", fl.read())
-            bad_lines = []
-            for line in lines:
-                line = line.strip()
-                if line[0] == '#' or not line[:11] == 'AUTO_TARGET' or " ".join(line.strip().split(" ")[0:2]) in user_definitions:
-                    bad_lines.append(line)
-                    
-            for line in bad_lines:
-                lines.remove(line)
-                    
-            for line in lines:
-                line = line.split(" ")
-                if not self.old_definition or not line[1] == self.old_definition:
-                    names.append(line[1])
-                            
-            fl.close()
+        fl_loc = self.destination + 'tlm_viewer.txt'
+        if os.path.isfile(fl_loc):
+            names = self.read_for_token(fl_loc, self.token, ignored_lines)
             print "Tlm Viewer Tool Config Altered"
         else:
             print "Tlm Viewer Tool Config Created"
                 
-        for line in user_definitions:
-            names.append(line.split(" ")[1])
+        for line in ignored_lines:
+            names.append(line.split(" ")[1] + "")
         
         # Open file
-        fl = open(self.destination + "tlm_viewer.txt", "w")
+        fl = open(fl_loc, "w")
         
         # Initialize and fill Cheetah template 
-        tv = Tlm_Viewer_Config.Tlm_Viewer_Config()
+        tv = Config_Tlm_Viewer.Config_Tlm_Viewer()
          
-        tv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        tv.user = os.environ['USER']
+        tv.date = CheetahUtil.DATE
+        tv.user = CheetahUtil.USER
         tv.names = names
                      
         msg = tv.__str__()

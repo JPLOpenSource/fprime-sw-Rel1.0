@@ -24,10 +24,10 @@ import re
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
-from utils.cosmos.templates import Channel_Partial
-from utils.cosmos.templates import Command_Partial
-from utils.cosmos.templates import Event_Partial
-from utils.cosmos.templates import Data_Viewer_Partial
+from utils.cosmos.templates import Partial_Channel
+from utils.cosmos.templates import Partial_Command
+from utils.cosmos.templates import Partial_Data_Viewer
+from utils.cosmos.templates import Partial_Event
 
 class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
@@ -38,21 +38,20 @@ class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     _user_dataviewers.txt: Contains all user/inputted data viewer fields
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(PartialWriter, self).__init__(parser, deployment_name, cosmos_directory)
-        self.repeated_names = {}
+        super(PartialWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         
         # Initialize writer-unique file destination location
         self.destinations = {
-            cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/_" + deployment_name.lower() + "_tlm_chn_hdr.txt": Channel_Partial.Channel_Partial(),
-            cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/_" + deployment_name.lower() + "_cmds_hdr.txt": Command_Partial.Command_Partial(),
-            cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/_" + deployment_name.lower() + "_tlm_evr_hdr.txt": Event_Partial.Event_Partial(),
-            cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/tools/data_viewer/_user_dataviewers.txt": Data_Viewer_Partial.Data_Viewer_Partial()
+            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/_" + deployment_name.lower() + "_tlm_chn_hdr.txt": Partial_Channel.Partial_Channel(),
+            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/_" + deployment_name.lower() + "_cmds_hdr.txt": Partial_Command.Partial_Command(),
+            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/_" + deployment_name.lower() + "_tlm_evr_hdr.txt": Partial_Event.Partial_Event(),
+            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/tools/data_viewer/_user_dataviewers.txt": Partial_Data_Viewer.Partial_Data_Viewer()
             }
         
                     

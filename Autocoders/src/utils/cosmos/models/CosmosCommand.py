@@ -13,9 +13,12 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from utils.cosmos.models import AbstractCosmosObject
+# Contains all Cosmos utility methods and interface / protocol variable data that isnt autocoded
+from utils.cosmos.util import CosmosUtil
 
-class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
+from utils.cosmos.models import BaseCosmosObject
+
+class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
     """
     This class represents a command within COSMOS to conveniently store 
     all the values necessary for the cheetah template to generate command.
@@ -49,14 +52,6 @@ class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
                 self.default = '"' + self.default + '"'
             self.neg_offset = False
             self.bit_offset = 0
-            
-        def convert_to_tuple(self):
-            """
-            Cheetah templates can't iterate over a list of classes, so
-            converts all data into a Cheetah-friendly tuple
-            (NAME, DESCRIPTION, ENUM, HAS_BIT_OFFSET, BIT_OFFSET, BITS, TYPE, MIN, MAX, DEFAULT)
-            """
-            return (self.name, self.desc, self.types, self.neg_offset, self.bit_offset, self.bits, self.type, self.min_val, self.max_val, self.default)
     
         def add_neg_offset_fields(self, bit_offset):
             """
@@ -89,19 +84,6 @@ class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
         self.sync = sync
         self.full = full
         self.cmd_items = []
-
-    def convert_items_to_cheetah_list(self, list):
-        """
-        Cheetah templates can't iterate over a list of classes, so
-        converts all data into a Cheetah-friendly list of tuples
-        (NAME, DESCRIPTION, ENUM, HAS_BIT_OFFSET, BIT_OFFSET, BITS, TYPE, MIN, MAX, DEFAULT)
-        """
-        temp = []
-        
-        for i in list:
-            temp.append(i.convert_to_tuple())
-        
-        return temp
         
     def add_item(self, name, type, comment, bits, enum_name, enum, neg_offset):
         """
@@ -116,10 +98,10 @@ class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
         """
         # Add an item to the command packet corresponding to the length of the following string item
         if type == 'string':
-            len_item = self.CommandItem(name + "_length", "Length of String Arg", 16, "UINT", [], self.min_dict["U16"], self.max_dict["U16"], self.default_dict["U16"])
+            len_item = self.CommandItem(name + "_length", "Length of String Arg", 16, "UINT", [], CosmosUtil.MIN_DICT["U16"], CosmosUtil.MAX_DICT["U16"], CosmosUtil.DEFAULT_DICT["U16"])
             self.cmd_items.append(len_item)
         
-        cosmos_type = self.type_dict[type]
+        cosmos_type = CosmosUtil.TYPE_DICT[type]
         value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM" or cosmos_type[1] == "BOOLEAN") else cosmos_type[2])
         
         # Handle enum
@@ -135,9 +117,9 @@ class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
                 num += 1
         types = cmd_enum_types
         
-        min_val = self.min_dict[type]
-        max_val = self.max_dict[type]
-        default = self.default_dict[type]
+        min_val = CosmosUtil.MIN_DICT[type]
+        max_val = CosmosUtil.MAX_DICT[type]
+        default = CosmosUtil.DEFAULT_DICT[type]
         
         # Create item instance
         if neg_offset:
@@ -174,11 +156,6 @@ class CosmosCommand(AbstractCosmosObject.AbstractCosmosObject):
         List of items in packet
         """
         return self.cmd_items
-    def get_cmd_items_cosmos(self):
-        """
-        List of Cheetah-friendly tuples (see conversion method docs)
-        """
-        return self.convert_items_to_cheetah_list(self.cmd_items)
     def get_opcode(self):
         """
         Opcode

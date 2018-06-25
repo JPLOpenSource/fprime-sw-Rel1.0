@@ -20,6 +20,9 @@ import time
 import datetime
 import logging
 
+from utils.cosmos.util import CosmosUtil
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Channel
@@ -27,20 +30,20 @@ from utils.cosmos.templates import Channel
 class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the channel definition files in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/channels/
+    cosmos_directory/config/targets/deployment_name.upper()/cmd_tlm/channels/
     """
 
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(ChannelWriter, self).__init__(parser, deployment_name, cosmos_directory)
+        super(ChannelWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/"
     
     def write(self):
         """
@@ -48,7 +51,7 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         print "Creating Channel Files"
         channel_templates = {}
-        for ch in self.parser.channels:
+        for ch in self.cmd_tlm_data[0]:
             n = ch.get_ch_name()
             if n in self.repeated_names.keys():
                 # Fix other name pair
@@ -63,16 +66,17 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             # Initialize and fill Cheetah Template
             c = Channel.Channel()
 
-            c.date = ch.get_date()
-            c.user = ch.get_user()
+            c.date = CheetahUtil.DATE
+            c.user = CheetahUtil.USER
             c.source = ch.get_source()
             c.component_string = ch.get_component_string()
             c.ch_name = n
-            c.endianness = ch.get_endianness()
+            c.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
             c.ch_desc = ch.get_ch_desc()
             c.id = ch.get_id()
             c.target_caps = self.deployment_name.upper()
             c.target_lower = self.deployment_name.lower()
+            c.limits = CheetahUtil.convert_ch_limits(ch.get_limits())
 
             c.value_bits = ch.get_value_bits()
             c.value_type = ch.get_value_type()
@@ -92,4 +96,3 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                     
             fl.writelines(msg)
             fl.close()
-                    

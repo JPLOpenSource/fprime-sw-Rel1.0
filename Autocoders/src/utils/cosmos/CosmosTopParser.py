@@ -13,9 +13,14 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+import os
+import logging
+
 from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
 from utils.cosmos.models import CosmosEvent
+
+from utils.cosmos.util import CosmosUtil
 
 class CosmosTopParser():
     """
@@ -31,47 +36,14 @@ class CosmosTopParser():
         self.channels = []
         self.events = []
         self.commands = []
-        
-    def get_bits_from_type(self, type):
-        """
-        @param type: Fprime type
-        @return: Number of bits in given Fprime type
-        """
-        if type == 'F32':
-            return 32
-        elif type == 'F64':
-            return 64
-        elif type == 'U8':
-            return 8
-        elif type == 'U16':
-            return 16
-        elif type == 'U32':
-            return 32
-        elif type == 'U64':
-            return 64
-        elif type == 'I8':
-            return 8
-        elif type == 'I16':
-            return 16
-        elif type == 'I32':
-            return 32
-        elif type == 'I64':
-            return 64
-        elif type == 'bool':
-            return 16
-        elif type == 'string':
-            return 0
-        elif type == 'ENUM':
-            return 32
-        else:
-            print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
+        self.deployment = None
                 
     def parse_topology(self, topology, overwrite = True):
         """
-        Takes a topology XML file and puts all channel, event, and command
+        Takes a Topology XML Parser and puts all channel, event, and command
         data into CosmosChannel, CosmosEvent, and CosmosCommand class instances
         for easier matching with cheetah template arguments in writer classes
-        @param topology: XML topology parser
+        @param topology: XML Topology Parser containing all command and telemetry info from XML file
         @param overwrite: Flag whether to overwrite channels, events, and commands lists
         """
         if overwrite:
@@ -137,7 +109,7 @@ class CosmosTopParser():
                             enum_name = t[0][1]
                             t = t[0][0]
                         num += 1
-                        bits = self.get_bits_from_type(t)
+                        bits = CosmosUtil.get_bits_from_type(t)
                         #
                         # Parse command enum here
                         #
@@ -149,7 +121,7 @@ class CosmosTopParser():
                                 else:
                                     num2 = int(item[1])
                                 num2 += 1
-                        
+                    
                         neg_offset = False       
                         if flip_bits:
                             neg_offset = 'NEG_OFFSET'
@@ -160,7 +132,7 @@ class CosmosTopParser():
                         if not use_block:        
                             cosmos_cmd.add_item(n, t, c, bits, enum_name, enum, neg_offset)
                         else:
-                            print "ERROR: multi-string commands not supported in COSMOS"
+                            print "ERROR: multi-string commands not supported in COSMOS at: " + cmd.get_mnemonic() + " from " + source
                     if flip_bits:
                         cosmos_cmd.update_neg_offset()
                     self.commands.append(cosmos_cmd)       
@@ -213,22 +185,22 @@ class CosmosTopParser():
                             t = t[0][0]
 
                         # Handle argument type
-                        bits = self.get_bits_from_type(t)
+                        bits = CosmosUtil.get_bits_from_type(t)
                         bit_offset = 0
                         evr_type = 'NORMAL'
                         if use_block:
                             evr_type = 'DERIVED'
                         elif flip_bits:
                             evr_type = 'NEG_OFFSET'
-                            
+                        
                         if t == 'string':
                             flip_bits = True
-                            
+                        
                         cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset)
-                    if flip_bits:
-                        cosmos_evr.update_neg_offset()
+                        if flip_bits:
+                            cosmos_evr.update_neg_offset()
                     if use_block:
-                        cosmos_evr.update_template_strings()
+                        CosmosUtil.update_template_strings(cosmos_evr.get_evr_items())
                     self.events.append(cosmos_evr)
             #
             # Parse channel data here...
@@ -242,8 +214,8 @@ class CosmosTopParser():
                     else:
                         ch_id = int(ch_id)
                     ch_id += base_id
-                    n     = ch.get_name()
-                    t     = ch.get_type()
+                    n = ch.get_name()
+                    t = ch.get_type()
                     enum_name = "None"
                     enum = None
                     if type(t) is type(tuple()):
@@ -251,7 +223,32 @@ class CosmosTopParser():
                         enum_name = t[0][1]
                         t = t[0][0]
                     c = ch.get_comment()
+                    limits = ch.get_limits()
                     source = comp_parser.get_xml_filename()
-                    cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c)
+                    cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c, limits)
                     cosmos_ch.set_arg(t, enum_name, enum, ch.get_format_string())
                     self.channels.append(cosmos_ch)
+                    
+    def get_channels(self):
+        """
+        List of all channels
+        """
+        return self.channels
+    
+    def get_events(self):
+        """
+        List of all channels
+        """
+        return self.events
+    
+    def get_commands(self):
+        """
+        List of all channels
+        """
+        return self.commands
+    
+    def get_deployment(self):
+        """
+        Uppercase name of Topology deployment
+        """
+        return self.deployment

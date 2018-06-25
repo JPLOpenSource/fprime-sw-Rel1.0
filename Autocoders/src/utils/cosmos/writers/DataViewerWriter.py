@@ -22,25 +22,27 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+
 from utils.cosmos.templates import Data_Viewer
 
 class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the data viewer definition file in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/tools/data_viewer/
+    cosmos_directory/config/targets/deployment_name.upper()/tools/data_viewer/
     """
     
-    def __init__(self, parser, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(DataViewerWriter, self).__init__(parser, deployment_name, cosmos_directory)
+        super(DataViewerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.repeated_names = {}
         
         # Initialize writer-unique file destination location
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/tools/data_viewer/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/tools/data_viewer/"
         
                     
     def write(self):
@@ -48,7 +50,7 @@ class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         Generates the file
         """
         event_list= []
-        for evr in self.parser.events:
+        for evr in self.cmd_tlm_data[2]:
             n = evr.get_evr_name()
             if n in self.repeated_names.keys():
                 # Fix other name pair
@@ -67,8 +69,8 @@ class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template
         dv = Data_Viewer.Data_Viewer()
         
-        dv.date = datetime.datetime.now().strftime("%A, %d, %B, %Y")
-        dv.user = os.environ['USER']
+        dv.date = CheetahUtil.DATE
+        dv.user = CheetahUtil.USER
         dv.target_upper = self.deployment_name.upper()
         dv.target_name = self.deployment_name.upper()
         dv.evr_names = event_list

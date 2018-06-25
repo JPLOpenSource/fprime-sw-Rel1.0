@@ -15,11 +15,14 @@
 
 import os
 import sys
-import shutil
 import time
 import glob
 import logging
 import exceptions
+
+# Parsers to read the XML
+from parsers import XmlParser
+from parsers import XmlTopologyParser
 
 from optparse import OptionParser
 from models import ModelParser
@@ -27,27 +30,10 @@ from utils import ConfigManager
 
 from utils import Logger
 
-# Parsers to read the XML
-from parsers import XmlParser
-from parsers import XmlTopologyParser
-
-# Cosmos file writer class
 from utils.cosmos import CosmosGenerator
 from utils.cosmos import CosmosTopParser
-from utils.cosmos.writers import ChannelWriter
-from utils.cosmos.writers import CommandWriter
-from utils.cosmos.writers import ConfigSystemWriter
-from utils.cosmos.writers import ServerWriter
-from utils.cosmos.writers import ChannelScreenWriter
-from utils.cosmos.writers import DataViewerWriter
-from utils.cosmos.writers import EventWriter
-from utils.cosmos.writers import ConfigDataViewerWriter
-from utils.cosmos.writers import ConfigTlmViewerWriter
-from utils.cosmos.writers import ConfigServerWriter
-from utils.cosmos.writers import TargetWriter
-from utils.cosmos.writers import PartialWriter
 
-# Configuration manager object.
+# Needs to be initialized to create the other parsers
 CONFIG = ConfigManager.ConfigManager.getInstance()
 
 # Flag to indicate verbose mode.
@@ -60,11 +46,11 @@ DEBUG = logging.getLogger('debug')
 # Build Root environmental variable if one exists.
 BUILD_ROOT = None
 
+# Directory name for COSMOS files at base of fprime.
+COSMOS_PATH = None
+
 # Deployment name from topology XML only
 DEPLOYMENT = None
-
-# COSMOS config file location
-COSMOS = None
 
 # Version label for now
 class Version:
@@ -91,6 +77,10 @@ These can be used to send commands and receive telemetry within the COSMOS syste
     # Add parser options
     parser.add_option("-l", "--logger", dest="logger", default="QUIET",
         help="Set the logging level <DEBUG | INFO | QUIET> (def: 'QUIET').")
+    
+    parser.add_option("-p", "--path", dest="path", default = None,
+        help="Set the location of the COSMOS directory(def: 'BUILD_ROOT/COSMOS').")
+    
     parser.add_option("-r", "--rm_target", dest="target_rm",
                       help="Target to be removed", action="store", default=None)
     
@@ -99,60 +89,72 @@ These can be used to send commands and receive telemetry within the COSMOS syste
                       action="store_true", default=False)
     
     return parser
-    
+
+        
+def change_to_lowest_dir():
+    """
+    Go down directories until current working directory is "/"
+    """
+    cur_dir = os.getcwd()
+    while not cur_dir == "/":
+        os.chdir("./../")
+        cur_dir = os.getcwd()
     
 def main():
     """
     Main program.
     """
-    global VERBOSE # prevent local creation of variable
-    global BUILD_ROOT # environmental variable if set
-    global DEPLOYMENT # deployment set in topology xml only and used to install new instance dicts
 
-    CONFIG = ConfigManager.ConfigManager.getInstance()
     Parser = pinit()
     (opt, args) = Parser.parse_args()
     VERBOSE = opt.verbose_flag
+    CONFIG = ConfigManager.ConfigManager.getInstance()
     
-        # Get the current working directory so that we can return to it when
-    # the program completes. We always want to return to the place where
-    # we started.
+    # Create Cosmos Generator and Parser
+    cosmos_gen = CosmosGenerator.CosmosGenerator()
+    cosmos_parser = CosmosTopParser.CosmosTopParser()
     
+    #
+    # Handle command line arguments
+    #
+    
+    # Get the current working directory so that we can return to it at end
     starting_directory = os.getcwd()
-    
     
     # Check for BUILD_ROOT env. variable
     if ('BUILD_ROOT' in os.environ.keys()) == False:
         PRINT.info("ERROR: Build root not set to root build path...")
         sys.exit(-1)
     else:
-        BUILD_ROOT = os.environ['BUILD_ROOT']
+        # Handle BUILD_ROOT
+        BUILD_ROOT = os.environ['BUILD_ROOT'] 
         ModelParser.BUILD_ROOT = BUILD_ROOT
         PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
-    print starting_directory, BUILD_ROOT        
+        
+        # Handle custom COSMOS directory location from command line
+        path = "COSMOS"
+        if opt.path:
+            change_to_lowest_dir()
+            path = opt.path
+            # Fix string if too many /'s
+            if path[0] == "/":
+                path = path[1:]
+            if path[len(path) - 1] == "/":
+                path = path[:len(path) - 1]
+            if not os.path.exists(path):
+                print "CWD: " + os.getcwd()
+                print "ERROR: CUSTOM COSMOS PATH " + path + " DOES NOT EXIST"
+                sys.exit(-1)
+            COSMOS_PATH = path
+        else:
+            COSMOS_PATH = BUILD_ROOT + "/" + path
+        print "COSMOS DIRECTORY: " + COSMOS_PATH
+        PRINT.info("COSMOS_PATH set to %s in environment" % COSMOS_PATH)
+          
     # Remove a target from filesystem
     if opt.target_rm:
         target = opt.target_rm.upper()
-        
-        # Required by COSMOS for it to run properly
-        if target == "SYSTEM":
-            print "ERROR: DO NOT REMOVE COSMOS SYSTEM FOLDER"
-            sys.exit(-1)
-            
-        if not os.path.isdir(BUILD_ROOT + "/COSMOS/config/targets/" + target):
-            print "ERROR: DEPLOYMENT " + target + " DOES NOT EXIST"
-            sys.exit(-1)
-        
-        shutil.rmtree(BUILD_ROOT + "/COSMOS/config/targets/" + target)
-        print "REMOVED " + BUILD_ROOT + "/COSMOS/config/targets/" + target + "/"
-        
-        # Write targetless info ("" in params) to each of the files that we don't want to entirely remove
-        # as they may affect other targets we aren't currently removing
-        ConfigSystemWriter.ConfigSystemWriter(None, "", BUILD_ROOT, target).write()
-        ConfigServerWriter.ConfigServerWriter(None, "", BUILD_ROOT, target).write()
-        ConfigDataViewerWriter.ConfigDataViewerWriter(None, "", BUILD_ROOT, target).write()
-        ConfigTlmViewerWriter.ConfigTlmViewerWriter(None, "", BUILD_ROOT, target).write()
-        print "REMOVED ALL REFERENCES TO " + target
+        cosmos_gen.remove_target(COSMOS_PATH, target)
         sys.exit(-1)
 
     #
@@ -168,10 +170,14 @@ def main():
     # Create XML Parser and write COSMOS files for Topology
     #
     for xml_filename in xml_filenames:
-        
+        if opt.path:
+            bot_dir = os.getcwd()
+            os.chdir(starting_directory)    # Parser needs to be in Autocoders/bin directory to be able to find Topology XML
+            
         xml_type = XmlParser.XmlParser(xml_filename)()
 
         if xml_type == "assembly" or xml_type == "deployment":
+            
             DEBUG.info("Detected ISF Topology XML Files...")
             the_parsed_topology_xml = XmlTopologyParser.XmlTopologyParser(xml_filename)
 
@@ -179,40 +185,31 @@ def main():
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
             PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
             
+            # Change back
+            if opt.path:
+                os.chdir(bot_dir)
+            
             #
             # Create COSMOS application file system here by passing XML parser data to cosmos config file generator
             #
-            
-            cosmos_parser = CosmosTopParser.CosmosTopParser()
-            
+
             # Parse the topology file
             cosmos_parser.parse_topology(the_parsed_topology_xml)
-    
-            cosmos_gen = CosmosGenerator.CosmosGenerator()
+            
+            # Pass parsed data from parser to generator
+            cosmos_gen.load_channels(cosmos_parser.get_channels())
+            cosmos_gen.load_events(cosmos_parser.get_events())
+            cosmos_gen.load_commands(cosmos_parser.get_commands())
+            
+            # Name of COSMOS target to be created
+            PRINT.info("Found target named: %s\n" % DEPLOYMENT)
             
             # Create the config/targets directories for the Deployment if they don't already exist
-            cosmos_gen.create_filesystem(DEPLOYMENT, BUILD_ROOT)
-             
-            # Add the writers for the corresponding files that should be written
-            cosmos_gen.append_writer(PartialWriter.PartialWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ConfigSystemWriter.ConfigSystemWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ConfigServerWriter.ConfigServerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ConfigDataViewerWriter.ConfigDataViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ConfigTlmViewerWriter.ConfigTlmViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ServerWriter.ServerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(TargetWriter.TargetWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ChannelWriter.ChannelWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(EventWriter.EventWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(CommandWriter.CommandWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(ChannelScreenWriter.ChannelScreenWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
-            cosmos_gen.append_writer(DataViewerWriter.DataViewerWriter(cosmos_parser, DEPLOYMENT, BUILD_ROOT))
+            cosmos_gen.create_filesystem(DEPLOYMENT, COSMOS_PATH)
              
             # Generate all files here
-            cosmos_gen.generate_cosmos_files()
-            
-        else:
-            PRINT.info("File not a Topology XML file")
-            sys.exit(-1)
+            cosmos_gen.generate_cosmos_files(DEPLOYMENT, COSMOS_PATH)
+
             
     # Always return to directory where we started.
     os.chdir(starting_directory)

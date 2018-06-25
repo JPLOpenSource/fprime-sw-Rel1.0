@@ -22,26 +22,29 @@ import logging
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
+from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.templates import Event
 
 class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
     This class generates the event definiton files in
-    cosmos_directory/COSMOS/config/targets/deployment_name.upper()/cmd_tlm/events/
+    cosmos_directory/config/targets/deployment_name.upper()/cmd_tlm/events/
     """
     
-    def __init__(self, topology, deployment_name, cosmos_directory):
+    def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
-        @param parser: CosmosTopParser instance with channels, events, and commands
+        @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
         @param deployment_name: name of the COSMOS target
         @param cosmos_directory: Directory of COSMOS
         """
-        super(EventWriter, self).__init__(topology, deployment_name, cosmos_directory)
+        super(EventWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         self.repeated_names = {}
     
         # Initialize writer-unique file destination location
         self.cosmos_directory = cosmos_directory
-        self.destination = cosmos_directory + "/COSMOS/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/"
+        self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/"
     
     def write(self):
         """
@@ -49,7 +52,7 @@ class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         print "Creating Event Files"
         event_templates = {}
-        for evr in self.parser.events:
+        for evr in self.cmd_tlm_data[2]:
             n = evr.get_evr_name()
             if n in self.repeated_names.keys():
                 # Fix other name pair
@@ -64,17 +67,17 @@ class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             # Initialize and fill Cheetah Template
             e = Event.Event()
 
-            e.date = evr.get_date()
-            e.user = evr.get_user()
+            e.date = CheetahUtil.DATE
+            e.user = CheetahUtil.USER
             e.source = evr.get_source()
             e.component_string = evr.get_component_string()
             e.evr_name = n
-            e.endianness = evr.get_endianness()
+            e.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
             e.evr_desc = evr.get_evr_desc()
             e.id = evr.get_id()
             e.target_caps = self.deployment_name.upper()
             e.target_lower = self.deployment_name.lower()
-            e.evr_items = evr.get_evr_items_cosmos()
+            e.evr_items = CheetahUtil.evr_convert_items_to_cheetah_list(evr.get_evr_items())
             e.names = evr.get_names()
             e.nonlen_names = evr.get_nonlen_names()
     
