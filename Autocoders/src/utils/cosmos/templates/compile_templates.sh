@@ -20,3 +20,4 @@ cheetah compile Ruby_Multi_String_Tlm_Item_Conversion.tmpl
 cheetah compile Ruby_Ref_Protocol.tmpl
 cheetah compile Server.tmpl
 cheetah compile Target.tmpl
+cheetah compile Tlm_Extractor.tmpl

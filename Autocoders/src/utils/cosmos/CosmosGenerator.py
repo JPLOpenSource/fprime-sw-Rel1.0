@@ -32,6 +32,7 @@ from utils.cosmos.writers import ConfigServerWriter
 from utils.cosmos.writers import TargetWriter
 from utils.cosmos.writers import PartialWriter
 from utils.cosmos.writers import RubyWriter
+from utils.cosmos.writers import TlmExtractorWriter
 
 # Global logger init. below.
 PRINT = logging.getLogger('output')
@@ -109,11 +110,15 @@ class CosmosGenerator:
                 for subt in ls:
                     self.remove_target(cosmos_path, subt, True)
         
-            # Remove reference to target from files shared by all other targets
+            # OVERWRITE TARGET DEFINITIIONS
             system.write()
             ConfigServerWriter.ConfigServerWriter(None, "", cosmos_path, target).write()
             ConfigDataViewerWriter.ConfigDataViewerWriter(None, "", cosmos_path, target).write()
             ConfigTlmViewerWriter.ConfigTlmViewerWriter(None, "", cosmos_path, target).write()
+            
+            # Remove tlm_extractor files for the target
+            TlmExtractorWriter.TlmExtractorWriter(None, target, cosmos_path).remove_files()
+            
             
             # Two files for the INST target exist inside of the config/targets/SYSTEM directory, remove them if they exist
             if target == 'INST':
@@ -159,6 +164,7 @@ class CosmosGenerator:
         writers.append(DataViewerWriter.DataViewerWriter(cmd_tlm_data, target, cosmos_path))
         writers.append(DataViewerWriter.DataViewerWriter(cmd_tlm_data, target, cosmos_path))
         writers.append(RubyWriter.RubyWriter(cmd_tlm_data, target, cosmos_path))
+        writers.append(TlmExtractorWriter.TlmExtractorWriter(cmd_tlm_data, target, cosmos_path))
         
         for writer in writers:
             writer.write()

@@ -65,6 +65,7 @@ The tool outputs COSMOS config text files to the directory set via command-line 
 |Channel text files|Contains channel telemetry definitions for each channel in the deployment|
 |Command text files|Contains command telemetry definitions for each command in the deployment|
 |Event text files|Contains event telemetry definitions for each event in the deployment|
+|Tlm Extractor text files|Contains the configuration of each tlm packet item for tlm extractor application|
 
 
 
@@ -117,6 +118,7 @@ Classes within the tool are broken down into lowest-level model and writer class
 |RubyWriter.py|Class that prints out user-input files for applications|[.py](../Autocoders/bin/writers/RubyWriter.py) [.tmpl](../Autocoders/src/utils/cosmos/templates/ruby\_evr\_dump\_component.tmpl) [.tpml](../Autocoders/src/utils/cosmos/templates/ruby\_multi\_string\_tlm\_item\_conversion.tmpl) [.tmpl](../Autocoders/src/utils/cosmos/templates/ruby\_ref\_protocol.tmpl)|
 |ServerWriter.py|Class that writes the server config file|[.py](../Autocoders/bin/writers/ServerWriter.py) [docs](http://cosmosrb.com/docs/interfaces/) [.tmpl](../Autocoders/src/utils/cosmos/templates/cosmos\_server.tmpl)|
 |TargetWriter.py|Class that writes the target config file|[.py](../Autocoders/bin/writers/TargetWriter.py) [docs](http://cosmosrb.com/docs/system/) [.tmpl](../Autocoders/src/utils/cosmos/templates/target.tmpl)|
+|TlmExtractor.py|Class that writes the tlm extractor config files in the tools/tlm\_extractor directory|[.py](../Autocoders/bin/writers/TlmExtractor.py) [docs](http://cosmosrb.com/docs/tlm\_extractor/) [.tmpl](../Autocoders/src/utils/cosmos/templates/tlm\_extractor.tmpl)|
 
 ### 5.2 Helper Ruby Scripts
 |Name|Description|Link
