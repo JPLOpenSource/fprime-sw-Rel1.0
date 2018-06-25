@@ -13,6 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+# Contains all Cosmos utility methods and interface / protocol variable data that isnt autocoded
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.models import BaseCosmosObject
 
 class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
@@ -95,10 +98,10 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
         """
         # Add an item to the command packet corresponding to the length of the following string item
         if type == 'string':
-            len_item = self.CommandItem(name + "_length", "Length of String Arg", 16, "UINT", [], self.min_dict["U16"], self.max_dict["U16"], self.default_dict["U16"])
+            len_item = self.CommandItem(name + "_length", "Length of String Arg", 16, "UINT", [], CosmosUtil.MIN_DICT["U16"], CosmosUtil.MAX_DICT["U16"], CosmosUtil.DEFAULT_DICT["U16"])
             self.cmd_items.append(len_item)
         
-        cosmos_type = self.type_dict[type]
+        cosmos_type = CosmosUtil.TYPE_DICT[type]
         value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM" or cosmos_type[1] == "BOOLEAN") else cosmos_type[2])
         
         # Handle enum
@@ -114,9 +117,9 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
                 num += 1
         types = cmd_enum_types
         
-        min_val = self.min_dict[type]
-        max_val = self.max_dict[type]
-        default = self.default_dict[type]
+        min_val = CosmosUtil.MIN_DICT[type]
+        max_val = CosmosUtil.MAX_DICT[type]
+        default = CosmosUtil.DEFAULT_DICT[type]
         
         # Create item instance
         if neg_offset:

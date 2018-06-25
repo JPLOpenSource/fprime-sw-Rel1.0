@@ -27,15 +27,15 @@ including header sizes, port numbers, etc.
 EVR_HEADER_SIZE_BITS = 256
     
 # Endianness for commands and telemetry
-CMD_TLM_ENDIANNESS = "BIG_ENDIAN"
+CMD_TLM_ENDIANNESS = 'BIG_ENDIAN'
     
 # SERVER VARIABLES
 WRITE_PORT = 5000
 READ_PORT = 5000
 READ_TIMEOUT = 10
 WRITE_TIMEOUT = 10
-PROTOCOL_NAME_W = "RefProtocol"
-PROTOCOL_NAME_R = "RefProtocol"
+PROTOCOL_NAME_W = 'RefProtocol'
+PROTOCOL_NAME_R = 'RefProtocol'
 LEN_BIT_OFFSET_W = 32
 LEN_BIT_OFFSET_R = 72
 LEN_BIT_SIZE_W = 32
@@ -44,20 +44,30 @@ LEN_VAL_OFFSET_W = 8
 LEN_VAL_OFFSET_R = 13
 BYTES_PER_COUNT_W = 1
 BYTES_PER_COUNT_R = 1
-ENDIANNESS_W = "BIG_ENDIAN"
-ENDIANNESS_R = "BIG_ENDIAN"
+ENDIANNESS_W = 'BIG_ENDIAN'
+ENDIANNESS_R = 'BIG_ENDIAN'
 DISCARD_LEADING_W = 0
 DISCARD_LEADING_R = 0
-SYNC_W = "5A5A5A5A"
-SYNC_R = "413541352047554920"
-HAS_MAX_LENGTH_W = "nil"
-HAS_MAX_LENGTH_R = "nil"
-FILL_LS_W = "true"
-FILL_LS_R = "true"
+SYNC_W = '5A5A5A5A'
+SYNC_R = '413541352047554920'
+HAS_MAX_LENGTH_W = 'nil'
+HAS_MAX_LENGTH_R = 'nil'
+FILL_LS_W = 'true'
+FILL_LS_R = 'true'
+
+#
+# COSMOS LIMITS
+#
+LIMIT_PERSISTENCE = 1
+LIMIT_LIMITS_STATE = 'ENABLED'
     
 #
 # COSMOS-SPECIFIC VALUES
 #
+TYPE_DICT = {}
+MIN_DICT = {}
+MAX_DICT = {}
+DEFAULT_DICT = {}
     
 def get_bits_from_type(type):
     """
@@ -94,71 +104,74 @@ def get_bits_from_type(type):
         print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
     
     
-def fill_cosmos_dicts(type_dict,min_dict, max_dict, default_dict):
+def fill_cosmos_dicts():
     """
-    Initializes the FPrime type -> COSMOS type dict type_dicts,
+    Initializes the FPrime type -> COSMOS type dict TYPE_DICTs,
     and each of the min, max, and default value dicts (STORED IN BaseCosmosObject)
-    @param type_dict: Number of bits and name of COSMOS for Fprime types
-    @param min_dict: Minimum values for each Fprime type
-    @param max_dict: Maximum values for each Fprime type
-    @param default_dict: Default values for each Fprime type
+    TYPE_DICT: Number of bits and name of COSMOS for Fprime types
+    MIN_DICT: Minimum values for each Fprime type
+    MAX_DICT: Maximum values for each Fprime type
+    DEFAULT_DICT: Default values for each Fprime type
+    
+    CHANGE THESE VALUES IF YOU WANT TO ALTER THE MIN/MAX VALUES FOR ALL COSMOS CMD/TLM CONFIG FILES GENERATED
     """
-    type_dict["F32"] = (32, "FLOAT")
-    type_dict["F64"] = (64, "FLOAT")
-    type_dict["U8"] = (8, "UINT")
-    type_dict["U16"] = (16, "UINT")
-    type_dict["U32"] = (32, "UINT")
-    type_dict["U64"] = (64, "UINT")
-    type_dict["I8"] = (8, "INT")
-    type_dict["I16"] = (16, "INT")
-    type_dict["I32"] = (32, "INT")
-    type_dict["I64"] = (64, "INT")
-    type_dict["bool"] = (16, "BOOLEAN", "UINT")
-    type_dict["string"] = (0, "STRING")
-    type_dict["ENUM"] = (32, "ENUM", "UINT")
+    TYPE_DICT['F32'] = (32, 'FLOAT')
+    TYPE_DICT['F64'] = (64, 'FLOAT')
+    TYPE_DICT['U8'] = (8, 'UINT')
+    TYPE_DICT['U16'] = (16, 'UINT')
+    TYPE_DICT['U32'] = (32, 'UINT')
+    TYPE_DICT['U64'] = (64, 'UINT')
+    TYPE_DICT['I8'] = (8, 'INT')
+    TYPE_DICT['I16'] = (16, 'INT')
+    TYPE_DICT['I32'] = (32, 'INT')
+    TYPE_DICT['I64'] = (64, 'INT')
+    TYPE_DICT['bool'] = (16, 'BOOLEAN', 'UINT')
+    TYPE_DICT['string'] = (0, 'STRING')
+    TYPE_DICT['ENUM'] = (32, 'ENUM', 'UINT')
         
-    min_dict["F32"] = -10000.0
-    min_dict["F64"] = -100000.0
-    min_dict["U8"] = 0
-    min_dict["U16"] = 0
-    min_dict["U32"] = 0
-    min_dict["U64"] = 0
-    min_dict["I8"] = -128
-    min_dict["I16"] = -1000 #-32768
-    min_dict["I32"] = -10000 #-2147483648
-    min_dict["I64"] = -10000#-9223372036854775808
-    min_dict["bool"] = 0
-    min_dict["string"] = ""
-    min_dict["ENUM"] = min_dict["U32"]
+    MIN_DICT['F32'] = -3.4e+38
+    MIN_DICT['F64'] = -1.7e+308
+    MIN_DICT['U8'] = 0
+    MIN_DICT['U16'] = 0
+    MIN_DICT['U32'] = 0
+    MIN_DICT['U64'] = 0
+    MIN_DICT['I8'] = -128
+    MIN_DICT['I16'] = -32768
+    MIN_DICT['I32'] = -2147483648
+    MIN_DICT['I64'] = -9223372036854775808
+    MIN_DICT['bool'] = 0
+    MIN_DICT['string'] = ''
+    MIN_DICT['ENUM'] = MIN_DICT['U32']
         
-    max_dict["F32"] = 10000.0
-    max_dict["F64"] = 100000.0
-    max_dict["U8"] = 255
-    max_dict["U16"] = 1000  #65535
-    max_dict["U32"] = 10000 #4294967295
-    max_dict["U64"] = 10000#18446744073709551615
-    max_dict["I8"] = 127
-    max_dict["I16"] = 32767
-    max_dict["I32"] = 10000 #2147483647
-    max_dict["I64"] = 10000 #9223372036854775807
-    max_dict["bool"] = 1
-    max_dict["string"] = "" # Dont use this, should be set elsewhere to value from topology
-    max_dict["ENUM"] = max_dict["U32"]
+    MAX_DICT['F32'] = 3.4e+38
+    MAX_DICT['F64'] = 1.7e+308
+    MAX_DICT['U8'] = 255
+    MAX_DICT['U16'] = 65535
+    MAX_DICT['U32'] = 4294967295
+    MAX_DICT['U64'] = 18446744073709551615
+    MAX_DICT['I8'] = 127
+    MAX_DICT['I16'] = 32767
+    MAX_DICT['I32'] = 2147483647
+    MAX_DICT['I64'] = 9223372036854775807
+    MAX_DICT['bool'] = 1
+    MAX_DICT['string'] = '' # Dont use this, should be set elsewhere to value from topology
+    MAX_DICT['ENUM'] = MAX_DICT['U32']
         
-    default_dict["F32"] = 0.0
-    default_dict["F64"] = 0.0
-    default_dict["U8"] = 0
-    default_dict["U16"] = 0
-    default_dict["U32"] = 0
-    default_dict["U64"] = 0
-    default_dict["I8"] = 0
-    default_dict["I16"] = 0
-    default_dict["I32"] = 0
-    default_dict["I64"] = 0
-    default_dict["bool"] = False
-    default_dict["string"] = "String" # Dont use this, should be set elsewhere to value from topology
-    default_dict["ENUM"] = 0    
+    DEFAULT_DICT['F32'] = 0.0
+    DEFAULT_DICT['F64'] = 0.0
+    DEFAULT_DICT['U8'] = 0
+    DEFAULT_DICT['U16'] = 0
+    DEFAULT_DICT['U32'] = 0
+    DEFAULT_DICT['U64'] = 0
+    DEFAULT_DICT['I8'] = 0
+    DEFAULT_DICT['I16'] = 0
+    DEFAULT_DICT['I32'] = 0
+    DEFAULT_DICT['I64'] = 0
+    DEFAULT_DICT['bool'] = False
+    DEFAULT_DICT['string'] = 'String' # Dont use this, should be set elsewhere to value from topology
+    DEFAULT_DICT['ENUM'] = 0    
 
+fill_cosmos_dicts()
 #
 # EVENTS
 #
@@ -169,13 +182,13 @@ def update_template_strings(evr_items):
     
     Template String Example For Third Argument(caps are real strings,
     lowercase w/ underscores are variable integer values):
-    "bits_from_start_of_packet START arg1_bits arg1_data_type arg2_bits
-    arg2_data_type arg3_bits arg3_data_type"
+    'bits_from_start_of_packet START arg1_bits arg1_data_type arg2_bits
+    arg2_data_type arg3_bits arg3_data_type'
     """
 
     total_pre_item_bits = EVR_HEADER_SIZE_BITS
-    aggregate = str(total_pre_item_bits) + " START"
+    aggregate = str(total_pre_item_bits) + ' START'
     for item in evr_items:
         if not item.block:
-            item.template_string = aggregate + " " + str(item.bits) + " " + item.type
+            item.template_string = aggregate + ' ' + str(item.bits) + ' ' + item.type
             aggregate = item.template_string

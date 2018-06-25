@@ -18,8 +18,6 @@ import logging
 import os
 import shutil
 
-PRINT = logging.getLogger('output')
-
 # Cosmos file writer class
 from utils.cosmos.writers import ChannelWriter
 from utils.cosmos.writers import CommandWriter

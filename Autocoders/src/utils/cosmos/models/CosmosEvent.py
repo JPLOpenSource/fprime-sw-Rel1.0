@@ -13,7 +13,7 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-# Contains all Cheetah utility methods and interface / protocol variable data that isnt autocoded
+# Contains all Cosmos utility methods and interface / protocol variable data that isnt autocoded
 from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.models import BaseCosmosObject
@@ -127,7 +127,7 @@ class CosmosEvent(BaseCosmosObject.BaseCosmosObject):
                 len_item = self.EventItem(name + "_length", "Length of String Arg", 16, "UINT", [])
                 self.evr_items.append(len_item)
         
-        cosmos_type = self.type_dict[type]
+        cosmos_type = CosmosUtil.TYPE_DICT[type]
         value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM" or cosmos_type[1] == "BOOLEAN") else cosmos_type[2])
         
         # Handle enum

@@ -76,6 +76,7 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             c.id = ch.get_id()
             c.target_caps = self.deployment_name.upper()
             c.target_lower = self.deployment_name.lower()
+            c.limits = CheetahUtil.convert_ch_limits(ch.get_limits())
 
             c.value_bits = ch.get_value_bits()
             c.value_type = ch.get_value_type()
@@ -95,4 +96,3 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                     
             fl.writelines(msg)
             fl.close()
-                    

@@ -13,6 +13,9 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+# Contains all Cosmos utility methods and interface / protocol variable data that isnt autocoded
+from utils.cosmos.util import CosmosUtil
+
 from utils.cosmos.models import BaseCosmosObject
 
 class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
@@ -21,7 +24,7 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
     all the values necessary for the cheetah template to generate channels.
     """
     
-    def __init__(self, comp_name, comp_type, source, ch_id, name, comment):
+    def __init__(self, comp_name, comp_type, source, ch_id, name, comment, limits):
         """
         @param param:  comp_name: Component name of channel
         @param comp_type: Component type of channel
@@ -37,6 +40,7 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
         self.value_type = "ERROR: Value item type not set"
         self.format_string = "ERROR: Value item not set"
         self.types = []
+        self.limits = limits
     
     def set_arg(self, type, enum_name, enum, format_string):
         """
@@ -46,10 +50,10 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
         @param enum: tuple containing name of enum as well as all name / value pairs, None if doesn't exist
         @param format_string: Optional formatting attachment for COSMOS "VALUE" argument
         """
-        cosmos_type = self.type_dict[type]
+        cosmos_type = CosmosUtil.TYPE_DICT[type]
         self.value_bits = cosmos_type[0]
         self.value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM") else cosmos_type[2])
-        # print enum_name
+        
         
         # Handle units by setting nonexistant string to blank string for COSMOS template
         if format_string == None:
@@ -104,3 +108,8 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
         Enum's items
         """
         return self.types
+    def get_limits(self):
+        """
+        Channel Limits
+        """
+        return self.limits

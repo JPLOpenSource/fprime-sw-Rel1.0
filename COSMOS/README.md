@@ -38,7 +38,7 @@ To use the tool, run the run\_cosmosgen.sh script from the command line with the
 
 The only command line argument that the tool takes is the location of Topology XML file.  It should start at the directory of the command line and look like "../../Ref/Top/RefTopologyAppAi.xml"
 
-As the Topology XML files only contain information regarding command and telemetry packets, **all changes to communication protocol and shared command/telemetry packet items should be manually into the CosmosUtil module in the util directory and into the command and telemetry header files generated within the deployment's COSMOS cmd_tlm directory respectively**.  The default for these protocols and headers are the fields for the Fprime Reference Application.
+As the Topology XML files only contain information regarding command and telemetry packets, **all changes to communication protocol and shared command/telemetry packet items should be manually entered into the CosmosUtil module in the util directory and into the command and telemetry header files generated within the deployment's COSMOS cmd_tlm directory respectively**.  The default for these protocols and headers are the fields for the Fprime Reference Application.
 
 In addition to adding targets based on Topology XML files, the tool is able to remove targets via the command-line option "-r TARGET_NAME".  The SYSTEM target should never be deleted, because COSMOS uses it in the background for all other targets.
 

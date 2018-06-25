@@ -18,6 +18,8 @@ import sys
 import time
 import datetime
 
+import CosmosUtil
+
 """
 This class contains static data and methods should be altered in order to change the behavior of
 Cheetah templates.
@@ -27,6 +29,38 @@ Cheetah templates.
 #
 DATE = datetime.datetime.now().strftime("%A, %d, %B, %Y")
 USER = os.environ['USER']
+
+#
+# CHANNELS
+#
+def convert_ch_limits(limits):
+    """
+    Converts the Fprime limits tuple into a Cosmos limits tuple, because they have different orderings
+    and different necessary data.  Orange limits are not supported in COSMOS
+    Fprime limits: (low_red, low_orange, low_yellow, high_yellow, high_orange, high_red)
+    Cosmos limits: (persistence, limits_state, red_low, yellow_low, yellow_high, red_high)
+    @param limits: tuple containing Fprime limits
+    @return: A list containing 1 Cosmos limits tuple: list is for easy Cheetah iteration
+    """
+    if not limits[0] and not limits[1] and not limits[2] and not limits[3] and not limits[4] and not limits[5]:
+        return []
+    print limits
+    lr = limits[0]
+    ly = limits[2]
+    hy = limits[3]
+    hr = limits[5]
+    
+    # Cosmos requires all limits to be set, so set to number out of range
+    if not lr:
+        lr = CosmosUtil.MIN_DICT['I64']
+    if not ly:
+        ly = CosmosUtil.MIN_DICT['I64']
+    if not hr:
+        hr = CosmosUtil.MAX_DICT['I64']
+    if not hy:
+        hy = CosmosUtil.MAX_DICT['I64']
+    
+    return [(CosmosUtil.LIMIT_PERSISTENCE, CosmosUtil.LIMIT_LIMITS_STATE, lr, ly, hy, hr)]
     
 #
 # COMMANDS

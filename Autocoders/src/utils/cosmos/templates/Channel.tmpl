@@ -15,3 +15,26 @@ TELEMETRY ${target_caps} ${ch_name} ${endianness} "${ch_desc}"
 #for $type in $types
       STATE $type[0] $type[1]
 #end for
+#for $persistence, $limits_state, $red_low, $yellow_low, $yellow_high, $red_high in $limits
+      LIMITS DEFAULT $persistence $limits_state#slurp
+#if $red_low
+ $red_low#slurp
+#else
+ 0#slurp
+#end if
+#if $yellow_low
+ $yellow_low#slurp
+#else
+ 0#slurp
+#end if
+#if $yellow_high
+ $yellow_high#slurp
+#else
+ 0#slurp
+#end if
+#if $red_high
+ $red_high#slurp
+#else
+ 0#slurp
+#end if
+#end for

@@ -223,8 +223,9 @@ class CosmosTopParser():
                         enum_name = t[0][1]
                         t = t[0][0]
                     c = ch.get_comment()
+                    limits = ch.get_limits()
                     source = comp_parser.get_xml_filename()
-                    cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c)
+                    cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c, limits)
                     cosmos_ch.set_arg(t, enum_name, enum, ch.get_format_string())
                     self.channels.append(cosmos_ch)
                     

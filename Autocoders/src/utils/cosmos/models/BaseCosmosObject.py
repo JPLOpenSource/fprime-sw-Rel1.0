@@ -33,11 +33,6 @@ class BaseCosmosObject(object):
         self.source = source
 
         self.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
-        self.type_dict = {}
-        self.min_dict = {}
-        self.max_dict = {}
-        self.default_dict = {}
-        CosmosUtil.fill_cosmos_dicts(self.type_dict, self.min_dict, self.max_dict, self.default_dict)
         
     def get_source(self):
         """
