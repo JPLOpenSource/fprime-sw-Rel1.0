@@ -1,11 +1,12 @@
 #!/bin/env python
 #===============================================================================
-# NAME: PartialWriter.py
+# NAME: TlmExtractorWriter.py
 #
-# DESCRIPTION: This writer generates the partial files (start with _) in 
-# the COSMOS/config/targets/DEPLOYMENT_NAME/cmd_tlm/* directories that contain 
-# configuration data for each channel, command, and event as well as the partial
-# file in the COSMOS/config/targets/DEPLOYMENT_NAME/tools/data_viewer/ directory.
+# DESCRIPTION: This writer generates each of the files that the user may use within
+#    the tlm extractor application.  They each contain only one tlm
+#    packet item.  Users should pick multiple generated files within the app
+#    if they want to create an extracted tlm text file with multiple
+#    arguments.
 #
 # AUTHOR: Jordan Ishii
 # EMAIL:  jordan.ishii@jpl.nasa.gov
