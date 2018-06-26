@@ -17,7 +17,6 @@ import os
 import sys
 import time
 import glob
-import logging
 import exceptions
 
 # Parsers to read the XML
@@ -28,20 +27,15 @@ from optparse import OptionParser
 from models import ModelParser
 from utils import ConfigManager
 
-from utils import Logger
-
 from utils.cosmos import CosmosGenerator
 from utils.cosmos import CosmosTopParser
+from utils.cosmos.util import CosmosUtil
 
 # Needs to be initialized to create the other parsers
 CONFIG = ConfigManager.ConfigManager.getInstance()
 
 # Flag to indicate verbose mode.
 VERBOSE = False
-
-# Global logger init. below.
-PRINT = logging.getLogger('output')
-DEBUG = logging.getLogger('debug')
 
 # Build Root environmental variable if one exists.
 BUILD_ROOT = None
@@ -74,10 +68,6 @@ These can be used to send commands and receive telemetry within the COSMOS syste
 
     parser = OptionParser(usage, version=vers, epilog=program_longdesc,description=program_license)
     
-    # Add parser options
-    parser.add_option("-l", "--logger", dest="logger", default="QUIET",
-        help="Set the logging level <DEBUG | INFO | QUIET> (def: 'QUIET').")
-    
     parser.add_option("-p", "--path", dest="path", default = None,
         help="Set the location of the COSMOS directory(def: 'BUILD_ROOT/COSMOS').")
     
@@ -107,7 +97,7 @@ def main():
 
     Parser = pinit()
     (opt, args) = Parser.parse_args()
-    VERBOSE = opt.verbose_flag
+    CosmosUtil.VERBOSE = opt.verbose_flag
     CONFIG = ConfigManager.ConfigManager.getInstance()
     
     # Create Cosmos Generator and Parser
@@ -123,13 +113,14 @@ def main():
     
     # Check for BUILD_ROOT env. variable
     if ('BUILD_ROOT' in os.environ.keys()) == False:
-        PRINT.info("ERROR: Build root not set to root build path...")
+        print "ERROR: Build root not set to root build path..."
         sys.exit(-1)
     else:
         # Handle BUILD_ROOT
         BUILD_ROOT = os.environ['BUILD_ROOT'] 
         ModelParser.BUILD_ROOT = BUILD_ROOT
-        PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
+        if CosmosUtil.VERBOSE:
+            print ("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
         
         # Handle custom COSMOS directory location from command line
         path = "COSMOS"
@@ -142,14 +133,12 @@ def main():
             if path[len(path) - 1] == "/":
                 path = path[:len(path) - 1]
             if not os.path.exists(path):
-                print "CWD: " + os.getcwd()
                 print "ERROR: CUSTOM COSMOS PATH " + path + " DOES NOT EXIST"
                 sys.exit(-1)
             COSMOS_PATH = path
         else:
             COSMOS_PATH = BUILD_ROOT + "/" + path
-        print "COSMOS DIRECTORY: " + COSMOS_PATH
-        PRINT.info("COSMOS_PATH set to %s in environment" % COSMOS_PATH)
+        print "COSMOS_PATH: " + COSMOS_PATH
           
     # Remove a target from filesystem
     if opt.target_rm:
@@ -161,7 +150,7 @@ def main():
     #  Parse the input Topology XML filename
     #
     if len(args) == 0:
-        PRINT.info("Usage: %s [options] xml_filename" % sys.argv[0])
+        print ("ERROR: Usage: %s [options] xml_filename" % sys.argv[0])
         return
     else:
         xml_filenames = args[0:]
@@ -178,12 +167,13 @@ def main():
 
         if xml_type == "assembly" or xml_type == "deployment":
             
-            DEBUG.info("Detected ISF Topology XML Files...")
+            if CosmosUtil.VERBOSE:
+                print ("Detected ISF Topology XML Files...")
             the_parsed_topology_xml = XmlTopologyParser.XmlTopologyParser(xml_filename)
 
             # Name of COSMOS target to be created
             DEPLOYMENT = the_parsed_topology_xml.get_deployment()
-            PRINT.info("Found assembly or deployment named: %s\n" % DEPLOYMENT)
+            print "\nFound assembly or deployment named: " + DEPLOYMENT + "\n"
             
             # Change back
             if opt.path:
@@ -200,9 +190,6 @@ def main():
             cosmos_gen.load_channels(cosmos_parser.get_channels())
             cosmos_gen.load_events(cosmos_parser.get_events())
             cosmos_gen.load_commands(cosmos_parser.get_commands())
-            
-            # Name of COSMOS target to be created
-            PRINT.info("Found target named: %s\n" % DEPLOYMENT)
             
             # Create the config/targets directories for the Deployment if they don't already exist
             cosmos_gen.create_filesystem(DEPLOYMENT, COSMOS_PATH)

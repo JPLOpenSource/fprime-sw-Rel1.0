@@ -14,12 +14,6 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.util import CheetahUtil
@@ -50,7 +44,8 @@ class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         Generates the file
         """
-        print "Creating Event Files"
+        if CosmosUtil.VERBOSE:
+            print "Creating Event Files"
         event_templates = {}
         for evr in self.cmd_tlm_data[2]:
             n = evr.get_evr_name()
@@ -90,7 +85,8 @@ class EventWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         for name, e in event_templates.iteritems():
             e.evr_name = name
             fl = open(self.destination + name.lower() + ".txt", "w")
-            print "Event " + name + " Created"
+            if CosmosUtil.VERBOSE:
+                print "Event " + name + " Created"
             e.evr_name = name.upper()
             msg = e.__str__()
                     

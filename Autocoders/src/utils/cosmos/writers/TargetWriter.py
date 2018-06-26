@@ -14,17 +14,10 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-
-import os
-import sys
-import time
-import datetime
-import logging
-import re
-
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.templates import Target
 
@@ -52,7 +45,8 @@ class TargetWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         # Open file
         fl = open(self.destination + "target.txt", "w")
-        print "target.txt Created"
+        if CosmosUtil.VERBOSE:
+            print "target.txt Created"
         
         # Initialize and fill cheetah template 
         t = Target.Target()

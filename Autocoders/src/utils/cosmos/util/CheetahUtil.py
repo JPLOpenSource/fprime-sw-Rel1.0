@@ -44,7 +44,6 @@ def convert_ch_limits(limits):
     """
     if not limits[0] and not limits[1] and not limits[2] and not limits[3] and not limits[4] and not limits[5]:
         return []
-    print limits
     lr = limits[0]
     ly = limits[2]
     hy = limits[3]

@@ -14,12 +14,6 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.util import CosmosUtil
 from utils.cosmos.util import CheetahUtil
 
@@ -49,7 +43,8 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         Generates the file
         """
-        print "Creating Channel Files"
+        if CosmosUtil.VERBOSE:
+            print "Creating Channel Files"
         channel_templates = {}
         for ch in self.cmd_tlm_data[0]:
             n = ch.get_ch_name()
@@ -90,7 +85,8 @@ class ChannelWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         for name, c in channel_templates.iteritems():
             c.ch_name = name
             fl = open(self.destination + name.lower() + ".txt", "w")
-            print "Channel " + name + " Created"
+            if CosmosUtil.VERBOSE:
+                print "Channel " + name + " Created"
             c.ch_name = name.upper()
             msg = c.__str__()
                     

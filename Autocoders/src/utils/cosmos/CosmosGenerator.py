@@ -14,7 +14,6 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import logging
 import os
 import shutil
 
@@ -34,8 +33,7 @@ from utils.cosmos.writers import PartialWriter
 from utils.cosmos.writers import RubyWriter
 from utils.cosmos.writers import TlmExtractorWriter
 
-# Global logger init. below.
-PRINT = logging.getLogger('output')
+from utils.cosmos.util import CosmosUtil
 
 class CosmosGenerator:
     """
@@ -53,14 +51,16 @@ class CosmosGenerator:
         
     def make_directory(self, directory):
         """
-        Creates a directory
+        Helper method that creates a directory
         @param directory: The directory to create
         """
         if not os.path.isdir(directory):
             os.makedirs(directory)
-            print "Created " + directory
+            if CosmosUtil.VERBOSE:
+                print "Created " + directory
         else:
-            print "Directory " + directory + " already exists"
+            if CosmosUtil.VERBOSE:
+                print "Directory " + directory + " already exists"
         
     def create_filesystem(self, target, root_dir):
         """
@@ -84,6 +84,8 @@ class CosmosGenerator:
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/commands")
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/events")
         
+        print "Directory System Created\n"
+        
     def remove_target(self, cosmos_path, target, is_subt=False):
         """
         Deletes a target by removing its /config directory and all other
@@ -96,12 +98,14 @@ class CosmosGenerator:
         if target == "SYSTEM":
             print "ERROR: DO NOT REMOVE COSMOS SYSTEM FOLDER"  
         else:
+            print "Removing all references to  " + target
+            
             if not os.path.isdir(cosmos_path + "/config/targets/" + target):
                 if not is_subt:
                     print "ERROR: DEPLOYMENT " + target + " DIRECTORY DOES NOT EXIST"
             else:
                 shutil.rmtree(cosmos_path + "/config/targets/" + target)
-                print "REMOVED " + cosmos_path + "/config/targets/" + target + "/"
+                print "Removed " + cosmos_path + "/config/targets/" + target + "/"
                 
             # Remove sub-targets if their definition is fount in serverwriter (subtarget is like INST2 in cosmos demo)
             system = ConfigSystemWriter.ConfigSystemWriter(None, "", cosmos_path, target)
@@ -124,7 +128,7 @@ class CosmosGenerator:
             if target == 'INST':
                 self.remove_demo_files(cosmos_path)
             
-            print "REMOVED ALL REFERENCES TO " + target
+            print "Removed all references to " + target + "\n"
             
     def remove_demo_files(self, cosmos_path):
         """
@@ -166,8 +170,12 @@ class CosmosGenerator:
         writers.append(RubyWriter.RubyWriter(cmd_tlm_data, target, cosmos_path))
         writers.append(TlmExtractorWriter.TlmExtractorWriter(cmd_tlm_data, target, cosmos_path))
         
+        print "Writing Config Files"
         for writer in writers:
+            if CosmosUtil.VERBOSE:
+                print "Writing class: " + type(writer).__name__
             writer.write()
+        print "Finished Writing Config Files\n"    
             
     def pack_cmd_tlm_data(self):
         """

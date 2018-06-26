@@ -15,15 +15,11 @@
 #===============================================================================
 
 import os
-import sys
-import time
-import datetime
-import logging
-import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.templates import Config_Server
 
@@ -63,9 +59,11 @@ class ConfigServerWriter(BaseConfigWriter.BaseConfigWriter):
         fl_loc = self.destination + 'cmd_tlm_server.txt'
         if os.path.isfile(fl_loc):
             names = self.read_for_token(fl_loc, self.token, ignored_lines)
-            print "Cmd Tlm Server Config Altered"
+            if CosmosUtil.VERBOSE:
+                print "Cmd Tlm Server Config Altered"
         else:
-            print "Cmd Tlm Server Config Created"
+            if CosmosUtil.VERBOSE:
+                print "Cmd Tlm Server Config Created"
                 
         for line in ignored_lines:
             names.append(line.split(" ")[1])

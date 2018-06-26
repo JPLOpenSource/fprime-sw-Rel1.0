@@ -16,11 +16,6 @@
 #===============================================================================
 
 import os
-import sys
-import time
-import datetime
-import logging
-import re
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
@@ -28,6 +23,8 @@ from utils.cosmos.templates import Partial_Channel
 from utils.cosmos.templates import Partial_Command
 from utils.cosmos.templates import Partial_Data_Viewer
 from utils.cosmos.templates import Partial_Event
+
+from utils.cosmos.util import CosmosUtil
 
 class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
@@ -71,4 +68,5 @@ class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                 fl.writelines(msg)
                 fl.close()
                 
-                print destination + " Created"
+                if CosmosUtil.VERBOSE:
+                    print destination + " Created"

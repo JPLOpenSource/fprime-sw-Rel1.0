@@ -14,13 +14,6 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.util import CheetahUtil
@@ -52,7 +45,8 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         # Open file
         fl = open(self.destination + "cmd_tlm_server.txt", "w")
-        print "Server Interface File Created"
+        if CosmosUtil.VERBOSE:
+            print "Server Interface File Created"
         
         # Initialize and fill cheetah template
         cs = Server.Server()

@@ -16,17 +16,14 @@
 #===============================================================================
 
 import os
-import sys
-import time
-import datetime
-import logging
-import re
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Ruby_Evr_Dump_Component
 from utils.cosmos.templates import Ruby_Multi_String_Tlm_Item_Conversion
 from utils.cosmos.templates import Ruby_Ref_Protocol
+
+from utils.cosmos.util import CosmosUtil
 
 class RubyWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
@@ -69,4 +66,5 @@ class RubyWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                 fl.writelines(msg)
                 fl.close()
                 
-                print "Ruby script " + destination + " Created"
+                if CosmosUtil.VERBOSE:
+                    print "Ruby script " + destination + " Created"

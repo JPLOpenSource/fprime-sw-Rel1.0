@@ -14,12 +14,6 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Command
@@ -50,7 +44,8 @@ class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         """
         Generates the file
         """
-        print "Creating Command Files"
+        if CosmosUtil.VERBOSE:
+            print "Creating Command Files"
         command_templates = {}
         for cmd in self.cmd_tlm_data[1]:
             n = cmd.get_cmd_name()
@@ -89,7 +84,8 @@ class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         for name, c in command_templates.iteritems():
             c.cmd_name = name
             fl = open(self.destination + name.lower() + ".txt", "w")
-            print "Command " + name + " Created"
+            if CosmosUtil.VERBOSE:
+                print "Command " + name + " Created"
             c.cmd_name = name.upper()
             msg = c.__str__()
                     

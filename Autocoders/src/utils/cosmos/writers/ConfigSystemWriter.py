@@ -15,15 +15,12 @@
 #===============================================================================
 
 import os
-import sys
-import time
-import datetime
-import logging
 import re
 
 from utils.cosmos.writers import BaseConfigWriter
 
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.templates import Config_System
 
@@ -62,9 +59,11 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
         names = []
         if os.path.isfile(self.fl_loc):
             names = self.read_for_token(self.fl_loc, self.token, ignored_lines)
-            print "Config_System.txt Altered"
+            if CosmosUtil.VERBOSE:
+                print "Config_System.txt Altered"
         else:
-            print "Config_System.txt Created"
+            if CosmosUtil.VERBOSE:
+                print "Config_System.txt Created"
             
         for line in ignored_lines:
             names.append(line.split(" ")[1] + self.argument)
@@ -86,7 +85,8 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
 
     def find_subtargets(self):
         """
-        Finds subtarget definitions i.e. DECLARE_TARGET INST INST2 where INST2 is a subtarget
+        Finds subtarget definitions of self.old_definition i.e. DECLARE_TARGET INST INST2 where INST2 is a subtarget
+        and INST is the self.old_definition
         @return: List of subtargets
         """
         
@@ -99,8 +99,9 @@ class ConfigSystemWriter(BaseConfigWriter.BaseConfigWriter):
             if len(line.split(" ")) > 2:
                 potential_subtarget = line.split(" ")[2] # First word after DECLARE_TARGET TARGET_NAME
             if not potential_subtarget == "" and not line[0][0] == '#' and line[:len(self.token)] == self.token and not potential_subtarget[0] == '#':
-                subtargets.append(potential_subtarget)
-                print "SUBTARGET " + potential_subtarget + " FOUND"
+                if line.split(" ")[1] == self.old_definition:
+                    subtargets.append(potential_subtarget)
+                    print "Subtarget " + potential_subtarget + " of " + self.old_definition + " Found"
         
         fl.close()        
         return subtargets

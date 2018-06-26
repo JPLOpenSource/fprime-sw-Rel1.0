@@ -17,15 +17,13 @@
 #===============================================================================
 
 import os
-import sys
-import time
-import datetime
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Tlm_Extractor
 
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 class TlmExtractorWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     """
@@ -103,11 +101,12 @@ class TlmExtractorWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                     
                     tmpl.date = CheetahUtil.DATE
                     tmpl.user = CheetahUtil.USER
-                    tmpl.source = cmd.get_source()
+                    tmpl.source = evr.get_source()
                 
                     msg = tmpl.__str__()
                 
                     fl.writelines(msg)
                     fl.close()
         
-        print "Tlm Extractor config files created"
+        if CosmosUtil.VERBOSE:
+            print "Tlm Extractor config files created"

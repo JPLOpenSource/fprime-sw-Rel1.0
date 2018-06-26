@@ -14,13 +14,8 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.writers import AbstractCosmosWriter
 
@@ -64,7 +59,8 @@ class ChannelScreenWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         
         # Open file
         fl = open(self.destination + "channels.txt", "w")
-        print "Channel Screen Created"
+        if CosmosUtil.VERBOSE:
+            print "Channel Screen Created"
         
         # Initialize and fill cheetah template
         c = Channel_Screen.Channel_Screen()

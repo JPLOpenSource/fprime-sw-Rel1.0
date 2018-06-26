@@ -14,15 +14,10 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-import os
-import sys
-import time
-import datetime
-import logging
-
 from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.util import CheetahUtil
+from utils.cosmos.util import CosmosUtil
 
 from utils.cosmos.templates import Data_Viewer
 
@@ -64,7 +59,8 @@ class DataViewerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         
         # Open file
         fl = open(self.destination + "data_viewer.txt", "w")
-        print "Data Viewer Created"
+        if CosmosUtil.VERBOSE:
+            print "Data Viewer Created"
         
         # Initialize and fill cheetah template
         dv = Data_Viewer.Data_Viewer()

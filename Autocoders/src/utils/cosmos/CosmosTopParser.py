@@ -14,7 +14,6 @@
 #===============================================================================
 
 import os
-import logging
 
 from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
@@ -52,6 +51,7 @@ class CosmosTopParser():
             self.commands = []
         
         
+        print "Parsing Topology"
         for inst in topology.get_instances():
             comp_name = inst.get_name()
             comp_type = inst.get_type()
@@ -65,6 +65,8 @@ class CosmosTopParser():
             # Parse command data here...
             #
             if 'get_commands' in dir(comp_parser):
+                if CosmosUtil.VERBOSE:
+                    print "Parsing Commands for instance: " + comp_name
                 cmds = comp_parser.get_commands()
                 for cmd in cmds:
                     opcode = cmd.get_opcodes()[0]
@@ -98,6 +100,11 @@ class CosmosTopParser():
                     #
                     num = 0
                     flip_bits = False
+                    
+                    if CosmosUtil.VERBOSE:
+                        print "Command " + n + " Found"
+                        
+                    is_multi_string_cmd = False
                     for arg in args:
                         n = arg.get_name()
                         t = arg.get_type()
@@ -132,14 +139,26 @@ class CosmosTopParser():
                         if not use_block:        
                             cosmos_cmd.add_item(n, t, c, bits, enum_name, enum, neg_offset)
                         else:
-                            print "ERROR: multi-string commands not supported in COSMOS at: " + cmd.get_mnemonic() + " from " + source
+                            is_multi_string_cmd = True
+                    
+                    if is_multi_string_cmd:        
+                        if CosmosUtil.VERBOSE:
+                            print "Multi-string commands not supported in COSMOS at: " + cmd.get_mnemonic() + " from " + source
+                        else:
+                            print "Multi-string command " + cmd.get_mnemonic() + " not supported"
+                            
                     if flip_bits:
                         cosmos_cmd.update_neg_offset()
-                    self.commands.append(cosmos_cmd)       
+                    self.commands.append(cosmos_cmd)
+                
+                if CosmosUtil.VERBOSE:
+                    print "Finished Parsing Commands for " + comp_name     
             #
             # Parse event data here...
             #
             if "get_events" in dir(comp_parser):
+                if CosmosUtil.VERBOSE:
+                    print "Parsing Events for " + comp_name
                 evrs = comp_parser.get_events()
                 for evr in evrs:
                     evr_id =evr.get_ids()[0]
@@ -167,6 +186,9 @@ class CosmosTopParser():
                     if string_count >= 2:
                         use_block = True
                         cosmos_evr.add_block()
+                        
+                    if CosmosUtil.VERBOSE:
+                        print "Event " + n + " Found"
                     #
                     # Parse event enums here...
                     #
@@ -202,10 +224,14 @@ class CosmosTopParser():
                     if use_block:
                         CosmosUtil.update_template_strings(cosmos_evr.get_evr_items())
                     self.events.append(cosmos_evr)
+                if CosmosUtil.VERBOSE:
+                    print "Finished Parsing Events for " + comp_name
             #
             # Parse channel data here...
             #
             if "get_channels" in dir(comp_parser):
+                if CosmosUtil.VERBOSE:
+                    print "Parsing Channels for " + comp_name
                 channels = comp_parser.get_channels()
                 for ch in channels:
                     ch_id = ch.get_ids()[0]
@@ -227,8 +253,15 @@ class CosmosTopParser():
                     source = comp_parser.get_xml_filename()
                     cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c, limits)
                     cosmos_ch.set_arg(t, enum_name, enum, ch.get_format_string())
-                    self.channels.append(cosmos_ch)
                     
+                    if CosmosUtil.VERBOSE:
+                        print "Found channel " + n + " with argument type: " + t
+                    
+                    self.channels.append(cosmos_ch)
+                if CosmosUtil.VERBOSE:
+                    print "Finished Parsing Channels for " + comp_name
+                    
+        print "Parsed Topology\n"
     def get_channels(self):
         """
         List of all channels

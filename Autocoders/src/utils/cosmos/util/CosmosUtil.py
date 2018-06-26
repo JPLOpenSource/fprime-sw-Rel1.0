@@ -192,3 +192,6 @@ def update_template_strings(evr_items):
         if not item.block:
             item.template_string = aggregate + ' ' + str(item.bits) + ' ' + item.type
             aggregate = item.template_string
+
+# Global variable set in cosmosgen.py, accessed statically from this module in all other locations
+VERBOSE = False
