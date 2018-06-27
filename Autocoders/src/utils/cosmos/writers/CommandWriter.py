@@ -73,7 +73,6 @@ class CommandWriter(AbstractCosmosWriter.AbstractCosmosWriter):
             c.target_caps = self.deployment_name.upper()
             c.target_lower = self.deployment_name.lower()
             c.cmd_items = CheetahUtil.cmd_convert_items_to_cheetah_list(cmd.get_cmd_items())
-            c.mnemonic = cmd.get_mnemonic()
             c.priority = cmd.get_priority()
             c.sync = cmd.get_sync()
             c.full = cmd.get_full()

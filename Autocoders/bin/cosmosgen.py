@@ -15,13 +15,6 @@
 
 import os
 import sys
-import time
-import glob
-import exceptions
-
-# Parsers to read the XML
-from parsers import XmlParser
-from parsers import XmlTopologyParser
 
 from optparse import OptionParser
 from models import ModelParser
@@ -109,7 +102,7 @@ def main():
     #
     
     # Get the current working directory so that we can return to it at end
-    starting_directory = os.getcwd()
+    CosmosUtil.STARTING_DIRECTORY = os.getcwd()
     
     # Check for BUILD_ROOT env. variable
     if ('BUILD_ROOT' in os.environ.keys()) == False:
@@ -159,39 +152,22 @@ def main():
     # Create XML Parser and write COSMOS files for Topology
     #
     for xml_filename in xml_filenames:
-        if opt.path:
-            bot_dir = os.getcwd()
-            os.chdir(starting_directory)    # Parser needs to be in Autocoders/bin directory to be able to find Topology XML
-            
-        xml_type = XmlParser.XmlParser(xml_filename)()
-
-        if xml_type == "assembly" or xml_type == "deployment":
-            
-            if CosmosUtil.VERBOSE:
-                print ("Detected ISF Topology XML Files...")
-            the_parsed_topology_xml = XmlTopologyParser.XmlTopologyParser(xml_filename)
-
-            # Name of COSMOS target to be created
-            DEPLOYMENT = the_parsed_topology_xml.get_deployment()
-            print "\nFound assembly or deployment named: " + DEPLOYMENT + "\n"
-            
-            # Change back
-            if opt.path:
-                os.chdir(bot_dir)
-            
             #
             # Create COSMOS application file system here by passing XML parser data to cosmos config file generator
             #
 
-            # Parse the topology file
-            cosmos_parser.parse_topology(the_parsed_topology_xml)
+            # Parse the topology file into the models
+            # DO NOT ADD MODELS TO CHANNELS, EVENTS, OR COMMANDS OUTSIDE OF THIS METHOD
+            cosmos_parser.parse_topology(xml_filename)
+            
+            DEPLOYMENT = cosmos_parser.get_deployment()
             
             # Pass parsed data from parser to generator
             cosmos_gen.load_channels(cosmos_parser.get_channels())
             cosmos_gen.load_events(cosmos_parser.get_events())
             cosmos_gen.load_commands(cosmos_parser.get_commands())
             
-            # Create the config/targets directories for the Deployment if they don't already exist
+            # Create the config/targets directories for the Deployment and clears out old files
             cosmos_gen.create_filesystem(DEPLOYMENT, COSMOS_PATH)
              
             # Generate all files here
@@ -199,7 +175,7 @@ def main():
 
             
     # Always return to directory where we started.
-    os.chdir(starting_directory)
+    os.chdir(CosmosUtil.STARTING_DIRECTORY)
 
 if __name__ == '__main__':
     main()

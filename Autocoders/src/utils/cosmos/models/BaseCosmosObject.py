@@ -22,8 +22,20 @@ class BaseCosmosObject(object):
     events, and commands.
     """
     
-    def __init__(self, comp_name, comp_type, source):
+    def __init__(self):
         """
+        Init
+        """
+        self.comp_name = 'N/A'
+        self.component_string = 'N/A'
+        self.comp_type = 'N/A'
+        self.source = 'N/A'
+        self.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
+        
+    def set_component_attributes(self, comp_name, comp_type, source):
+        """
+        Sets the name and source from the component that the Object
+        derives from.
         @param comp_name: Component name of channel
         @param comp_type: Component type of channel
         @param source: XML source file of channel
@@ -31,8 +43,6 @@ class BaseCosmosObject(object):
         self.comp_name = comp_name
         self.component_string = comp_name + "::" + comp_type
         self.source = source
-
-        self.endianness = CosmosUtil.CMD_TLM_ENDIANNESS
         
     def get_source(self):
         """

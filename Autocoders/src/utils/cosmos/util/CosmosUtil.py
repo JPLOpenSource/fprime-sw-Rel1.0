@@ -19,9 +19,15 @@ This class contains static data and methods that should be changed for each indi
 including header sizes, port numbers, etc.
 """
 
+# The names of all header files that should not be erased from their cmd and tlm directories
+HEADER_FILENAMES = ["_ref_tlm_chn_hdr.txt", "_ref_cmds_hdr.txt", "_ref_tlm_evr_hdr.txt"]
+
 #
 # DEPLOYMENT VARIABLES
 #
+
+# String-length item size and type
+STRING_LEN_TYPE = 'U16'
     
 # Total number of bits in the Event header items (Alter the file _ref_tlm_evr_hdr.txt in the events directory as well)
 EVR_HEADER_SIZE_BITS = 256
@@ -115,19 +121,19 @@ def fill_cosmos_dicts():
     
     CHANGE THESE VALUES IF YOU WANT TO ALTER THE MIN/MAX VALUES FOR ALL COSMOS CMD/TLM CONFIG FILES GENERATED
     """
-    TYPE_DICT['F32'] = (32, 'FLOAT')
-    TYPE_DICT['F64'] = (64, 'FLOAT')
-    TYPE_DICT['U8'] = (8, 'UINT')
-    TYPE_DICT['U16'] = (16, 'UINT')
-    TYPE_DICT['U32'] = (32, 'UINT')
-    TYPE_DICT['U64'] = (64, 'UINT')
-    TYPE_DICT['I8'] = (8, 'INT')
-    TYPE_DICT['I16'] = (16, 'INT')
-    TYPE_DICT['I32'] = (32, 'INT')
-    TYPE_DICT['I64'] = (64, 'INT')
-    TYPE_DICT['bool'] = (16, 'BOOLEAN', 'UINT')
-    TYPE_DICT['string'] = (0, 'STRING')
-    TYPE_DICT['ENUM'] = (32, 'ENUM', 'UINT')
+    TYPE_DICT['F32'] = (get_bits_from_type('F32'), 'FLOAT')
+    TYPE_DICT['F64'] = (get_bits_from_type('F64'), 'FLOAT')
+    TYPE_DICT['U8'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['U16'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['U32'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['U64'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['I8'] = (get_bits_from_type('I8'), 'INT')
+    TYPE_DICT['I16'] = (get_bits_from_type('I32'), 'INT')
+    TYPE_DICT['I32'] = (get_bits_from_type('I32'), 'INT')
+    TYPE_DICT['I64'] = (get_bits_from_type('I64'), 'INT')
+    TYPE_DICT['bool'] = (get_bits_from_type('bool'), 'BOOLEAN', 'UINT')
+    TYPE_DICT['string'] = (get_bits_from_type('string'), 'STRING')
+    TYPE_DICT['ENUM'] = (get_bits_from_type('ENUM'), 'ENUM', 'UINT')
         
     MIN_DICT['F32'] = -3.4e+38
     MIN_DICT['F64'] = -1.7e+308
@@ -189,9 +195,10 @@ def update_template_strings(evr_items):
     total_pre_item_bits = EVR_HEADER_SIZE_BITS
     aggregate = str(total_pre_item_bits) + ' START'
     for item in evr_items:
-        if not item.block:
+        if not item.type == 'BLOCK':
             item.template_string = aggregate + ' ' + str(item.bits) + ' ' + item.type
             aggregate = item.template_string
 
 # Global variable set in cosmosgen.py, accessed statically from this module in all other locations
 VERBOSE = False
+STARTING_DIRECTORY = ""

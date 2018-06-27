@@ -21,32 +21,29 @@ from utils.cosmos.models import BaseCosmosObject
 class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
     """
     This class represents a channel within COSMOS to conveniently store 
-    all the values necessary for the cheetah template to generate channels.
+    all the values necessary for the Cheetah template to generate channels.
     """
     
-    def __init__(self, comp_name, comp_type, source, ch_id, name, comment, limits):
+    def __init__(self, name, ch_id, comment):
         """
-        @param param:  comp_name: Component name of channel
-        @param comp_type: Component type of channel
-        @param source: XML source file of channel
+        @param name: Channel name
         @param ch_id: ID of channel
         @param comment: Channel description
         """
-        super(CosmosChannel, self).__init__(comp_name, comp_type, source)
+        super(CosmosChannel, self).__init__()
         self.id = ch_id
-        self.ch_name = name
+        self.ch_name = name.upper()
         self.ch_desc = comment
         self.value_bits = 0
         self.value_type = "ERROR: Value item type not set"
         self.format_string = "ERROR: Value item not set"
         self.types = []
-        self.limits = limits
+        self.limits = (None, None, None, None, None, None)
     
-    def set_arg(self, type, enum_name, enum, format_string):
+    def set_item(self, type, enum, format_string=None):
         """
-        Changes the COSMOS argument "VALUE" attached to the channel instance
+        Changes the COSMOS item "VALUE" attached to the channel instance
         @param type: Fprime version of argument data type (U16 as opposed to COSMOS's 16 UINT)
-        @param enum_name: Name of argument's enum (blank if true)
         @param enum: tuple containing name of enum as well as all name / value pairs, None if doesn't exist
         @param format_string: Optional formatting attachment for COSMOS "VALUE" argument
         """
@@ -54,8 +51,6 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
         self.value_bits = cosmos_type[0]
         self.value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM") else cosmos_type[2])
         
-        
-        # Handle units by setting nonexistant string to blank string for COSMOS template
         if format_string == None:
             format_string = ""
         self.format_string = format_string
@@ -72,6 +67,19 @@ class CosmosChannel(BaseCosmosObject.BaseCosmosObject):
                     channel_enum_types.append((item[0], int(item[1])))
                 num += 1
         self.types = channel_enum_types
+
+    def set_limits(self, limits):
+        """
+        Adds limits to the Channel
+        (low_red, low_orange, low_yellow, high_yellow, high_orange, high_red)
+        Orange limits not supported in COSMOS, but kept inside of model for debugging and
+        removed only when added to templates
+        """
+        if not type(limits) == tuple and not len(limits) == 6:
+            print "ERROR: limits formatted incorrectly, should be Tuple length 6"
+            self.limits = (None, None, None, None, None, None)
+        else:
+            self.limits = limits
 
     def get_id(self):
         """

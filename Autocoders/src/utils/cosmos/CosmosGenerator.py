@@ -84,6 +84,20 @@ class CosmosGenerator:
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/commands")
         self.make_directory(base_directory + "targets/" + target.upper() + "/cmd_tlm/events")
         
+        # Clear out old files from command and telemetry locations
+        for fl in os.listdir(base_directory + "targets/" + target.upper() + "/cmd_tlm/channels"):
+            if fl not in CosmosUtil.HEADER_FILENAMES:
+                os.remove(base_directory + "targets/" + target.upper() + "/cmd_tlm/channels/" + fl)
+        for fl in os.listdir(base_directory + "targets/" + target.upper() + "/cmd_tlm/events"):
+            if fl not in CosmosUtil.HEADER_FILENAMES:
+                os.remove(base_directory + "targets/" + target.upper() + "/cmd_tlm/events/" + fl)
+        for fl in os.listdir(base_directory + "targets/" + target.upper() + "/cmd_tlm/commands"):
+            if fl not in CosmosUtil.HEADER_FILENAMES:
+                os.remove(base_directory + "targets/" + target.upper() + "/cmd_tlm/commands/" + fl)
+        for fl in os.listdir(base_directory + "tools/tlm_extractor/"):
+            if fl not in CosmosUtil.HEADER_FILENAMES:
+                os.remove(base_directory + "tools/tlm_extractor/" + fl)
+        
         print "Directory System Created\n"
         
     def remove_target(self, cosmos_path, target, is_subt=False):

@@ -71,9 +71,9 @@ class TlmExtractorWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                 tmpl = Tlm_Extractor.Tlm_Extractor()
             
                 # Set all values
-                tmpl.target_name = self.deployment_name.lower()
-                tmpl.packet_name = ch.get_ch_name().lower()
-                tmpl.item_name = 'value'
+                tmpl.target_name = self.deployment_name.upper()
+                tmpl.packet_name = ch.get_ch_name()
+                tmpl.item_name = 'VALUE'
                 
                 tmpl.date = CheetahUtil.DATE
                 tmpl.user = CheetahUtil.USER
@@ -95,9 +95,9 @@ class TlmExtractorWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                     tmpl = Tlm_Extractor.Tlm_Extractor()
             
                     # Set all values
-                    tmpl.target_name = self.deployment_name.lower()
-                    tmpl.packet_name = evr.get_evr_name().lower()
-                    tmpl.item_name = item.name.lower()
+                    tmpl.target_name = self.deployment_name.upper()
+                    tmpl.packet_name = evr.get_evr_name()
+                    tmpl.item_name = item.name
                     
                     tmpl.date = CheetahUtil.DATE
                     tmpl.user = CheetahUtil.USER

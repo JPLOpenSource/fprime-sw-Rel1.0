@@ -9,16 +9,16 @@
 TELEMETRY ${target_caps} ${evr_name} ${endianness} "${evr_desc}"
     #raw<%=#end raw render "_${target_lower}_tlm_evr_hdr.txt", locals: {id: ${id}} %>
 
-    #for $block, $derived, $name, $desc, $template_string, $types, $neg_offset, $bit_offset, $bits, $type in $evr_items
-    #if $block
+    #for $name, $desc, $template_string, $types, $bit_offset, $bits, $type in $evr_items
+    #if $type == 'BLOCK'
     APPEND_ITEM EVR_ITEMS 0 BLOCK "Contains all other items"
-    #else if $derived
+    #else if not $template_string == ''
       ITEM $name 0 0 DERIVED "$desc"
         READ_CONVERSION multi_string_tlm_item_conversion.rb "$template_string"
         #for $type in $types
         STATE $type[0] $type[1]
         #end for
-    #else if $neg_offset
+    #else if $bit_offset < 0
     ITEM $name $bit_offset $bits $type "$desc"
       #for $type in $types
         STATE $type[0] $type[1]

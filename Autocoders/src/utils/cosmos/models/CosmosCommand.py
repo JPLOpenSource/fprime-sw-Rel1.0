@@ -50,59 +50,44 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
             self.default = default
             if type == 'STRING':
                 self.default = '"' + self.default + '"'
-            self.neg_offset = False
             self.bit_offset = 0
     
-        def add_neg_offset_fields(self, bit_offset):
-            """
-            Sets flag representing whether there is an offset attached to field
-            and adds a negative offset
-            @param bit_offset: Number of bits from end of packet
-            """
-            self.bit_offset = bit_offset
-            self.neg_offset = True
-    
-    def __init__(self, comp_name, comp_type, source, name, opcode, comment, mnemonic, priority, sync, full):
+    def __init__(self, name, opcode, comment):
         """
-        @param comp_name: Name of command's component
-        @param comp_type: Type of command's component
-        @param source: XML source file of command
         @param name: Command name
         @param opcode: Opcode of command
         @param comment: Comment attached to command
-        @param mnemonic: XML attribute "mnemonic" found within XML source file
-        @param priority: XML attribute "priority" found within XML source file
-        @param sync: XML attribute "sync" found within XML source file
-        @param full: XML attribute "full" found within XML source file
         """
-        super(CosmosCommand, self).__init__(comp_name, comp_type, source)
+        super(CosmosCommand, self).__init__()
         self.opcode = opcode
-        self.cmd_name = name
+        self.cmd_name = name.upper()
         self.cmd_desc = comment
-        self.mnemonic = mnemonic
-        self.priority = priority
-        self.sync = sync
-        self.full = full
+        self.priority = 'N/A'
+        self.sync = 'N/A'
+        self.full = 'N/A'
         self.cmd_items = []
         
-    def add_item(self, name, type, comment, bits, enum_name, enum, neg_offset):
+    def add_item(self, name, type, comment, enum, default_val=None):
         """
         Adds an item to the command packet
         @param name: Name of item
         @param type: Fprime version of argument data type (U16 as opposed to COSMOS's 16 UINT)
         @param comment: Description for item
-        @param bits: Number of bits in item
-        @param enum_name: Name of enum
         @param enum: Tuple with enum data
-        @param neg_offset: Contains an offset from back of packet
+        @param default_val: Sets default value to something other than CosmosUtil default for data type
         """
         # Add an item to the command packet corresponding to the length of the following string item
         if type == 'string':
-            len_item = self.CommandItem(name + "_length", "Length of String Arg", 16, "UINT", [], CosmosUtil.MIN_DICT["U16"], CosmosUtil.MAX_DICT["U16"], CosmosUtil.DEFAULT_DICT["U16"])
+            len_size = CosmosUtil.get_bits_from_type(CosmosUtil.STRING_LEN_TYPE)
+            len_item = self.CommandItem(name + "_length", "Length of String Arg", len_size, "UINT", [], \
+                                        CosmosUtil.MIN_DICT[CosmosUtil.STRING_LEN_TYPE], \
+                                        CosmosUtil.MAX_DICT[CosmosUtil.STRING_LEN_TYPE], \
+                                        CosmosUtil.DEFAULT_DICT[CosmosUtil.STRING_LEN_TYPE])
             self.cmd_items.append(len_item)
         
         cosmos_type = CosmosUtil.TYPE_DICT[type]
         value_type = (cosmos_type[1] if not (cosmos_type[1] == "ENUM" or cosmos_type[1] == "BOOLEAN") else cosmos_type[2])
+        bits = cosmos_type[0]
         
         # Handle enum
         cmd_enum_types = []
@@ -119,37 +104,22 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
         
         min_val = CosmosUtil.MIN_DICT[type]
         max_val = CosmosUtil.MAX_DICT[type]
-        default = CosmosUtil.DEFAULT_DICT[type]
+        default = CosmosUtil.DEFAULT_DICT[type] if not default_val else default_val
         
         # Create item instance
-        if neg_offset:
-            item = self.CommandItem(name, comment, bits, value_type, types, min_val, max_val, default)
-            item.add_neg_offset_fields(0)
-        else:
-            item = self.CommandItem(name, comment, bits, value_type, types, min_val, max_val, default)
+        item = self.CommandItem(name, comment, bits, value_type, types, min_val, max_val, default)
         self.cmd_items.append(item)
-        
-    def update_neg_offset(self):
+                
+    def set_xml_attributes(self, priority, sync, full):
         """
-        Called when there are arguments after a string,
-        determines their offset from the back of the packet.
-        Only called when there is a single string 
-        (multi-strings not supported by COSMOS commands)
+        Sets the Severity and Format String attributes from the XML
+        @param priority: XML attribute "priority" found within XML source file
+        @param sync: XML attribute "sync" found within XML source file
+        @param full: XML attribute "full" found within XML source file
         """
-        # Find location of the only string argument
-        reverse = False
-        for arg in self.cmd_items:
-            if arg.type == 'STRING':
-                reverse = True
-                break
-        
-        count = 0
-        if reverse:
-            for item in reversed(self.cmd_items):
-                if item.type == 'STRING':
-                    break
-                count += item.bits
-                item.bit_offset = count * -1
+        self.priority = priority
+        self.sync = sync
+        self.full = full
                 
     def get_cmd_items(self):
         """
@@ -171,11 +141,6 @@ class CosmosCommand(BaseCosmosObject.BaseCosmosObject):
         Command description
         """
         return self.cmd_desc
-    def get_mnemonic(self):
-        """
-        XML attribute "mnemonic" found within XML source file
-        """
-        return self.mnemonic
     def get_priority(self):
         """
         XML attribute "priority" found within XML source file

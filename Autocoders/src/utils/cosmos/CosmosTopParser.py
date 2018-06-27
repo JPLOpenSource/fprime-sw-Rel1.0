@@ -14,12 +14,18 @@
 #===============================================================================
 
 import os
+import sys
+
+# Parsers to read the XML
+from parsers import XmlParser
+from parsers import XmlTopologyParser
 
 from utils.cosmos.models import CosmosCommand
 from utils.cosmos.models import CosmosChannel
 from utils.cosmos.models import CosmosEvent
 
 from utils.cosmos.util import CosmosUtil
+from utils.cosmos.util import CheetahUtil
 
 class CosmosTopParser():
     """
@@ -37,25 +43,52 @@ class CosmosTopParser():
         self.commands = []
         self.deployment = None
                 
-    def parse_topology(self, topology, overwrite = True):
+    def parse_topology(self, xml_filename, overwrite = True):
         """
-        Takes a Topology XML Parser and puts all channel, event, and command
-        data into CosmosChannel, CosmosEvent, and CosmosCommand class instances
-        for easier matching with cheetah template arguments in writer classes
-        @param topology: XML Topology Parser containing all command and telemetry info from XML file
+        Takes an XML File and puts all channel, event, and command
+        data into CosmosChannel, CosmosEvent, and CosmosCommand model class instances
+        to be passed to the Generator that creates the config files
+        @param xml_filename: XML File Name, should be Topology if not quits
         @param overwrite: Flag whether to overwrite channels, events, and commands lists
         """
+        bot_dir = os.getcwd()
+        os.chdir(CosmosUtil.STARTING_DIRECTORY)    # Parser needs to be in Autocoders/bin directory to be able to find Topology XML
+         
+        print "\nUsing XmlParser and XmlTopologyParser instances"
+             
+        xml_type = XmlParser.XmlParser(xml_filename)()
+ 
+        if xml_type == "assembly" or xml_type == "deployment":
+             
+            if CosmosUtil.VERBOSE:
+                print ("Detected ISF Topology XML Files...")
+            topology = XmlTopologyParser.XmlTopologyParser(xml_filename)
+ 
+            # Name of COSMOS target to be created
+            self.deployment = topology.get_deployment()
+             
+            if CosmosUtil.VERBOSE:
+                print "\nFound assembly or deployment named: " + self.deployment + "\n"
+        else:
+            print "ERROR: XML File Not a Topology File"
+            sys.exit(-1)
+             
+        # Change back
+        os.chdir(bot_dir)
+         
+        print "Finished Reusing XmlParser and XmlTopologyParser instances\n"
+         
         if overwrite:
             self.channels = []
             self.events = []
             self.commands = []
-        
-        
+         
+         
         print "Parsing Topology"
         for inst in topology.get_instances():
             comp_name = inst.get_name()
             comp_type = inst.get_type()
-            base_id = inst.get_base_id()
+            base_id = inst.get_base_id()            
             if '0x' in base_id:
                 base_id = int(base_id, 16)
             else:
@@ -77,13 +110,14 @@ class CosmosTopParser():
                     opcode += base_id
                     n = cmd.get_mnemonic()
                     c = cmd.get_comment()
-                    m = cmd.get_mnemonic()
                     p = cmd.get_priority()
                     s = cmd.get_sync()
                     f = cmd.get_full()
                     source = comp_parser.get_xml_filename()
-                    cosmos_cmd = CosmosCommand.CosmosCommand(comp_name, comp_type, source, n, opcode, c, m, p, s, f)
-                    
+                    cosmos_cmd = CosmosCommand.CosmosCommand(n, opcode, c)
+                    cosmos_cmd.set_component_attributes(comp_name, comp_type, source)
+                    cosmos_cmd.set_xml_attributes(p, s, f)
+                     
                     # Count strings to see if 2 (if so needs block argument)
                     string_count = 0
                     args = cmd.get_args()
@@ -91,68 +125,87 @@ class CosmosTopParser():
                         t = arg.get_type()
                         if t == 'string':
                             string_count += 1
-                    
-                    use_block = False
+                     
+                    is_multi_string_command = False
                     if string_count >= 2:
-                        use_block = True
+                        is_multi_string_command = True
                     #
                     # Parse command arg data here...
                     #
                     num = 0
-                    flip_bits = False
-                    
+                     
                     if CosmosUtil.VERBOSE:
                         print "Command " + n + " Found"
-                        
-                    is_multi_string_cmd = False
+                         
                     for arg in args:
                         n = arg.get_name()
                         t = arg.get_type()
                         c = arg.get_comment()
-                        # s = arg.get_size() Not currently used in template file
-                        enum_name = "None"
-                        if type(t) is type(tuple()):
-                            enum = t
-                            enum_name = t[0][1]
-                            t = t[0][0]
-                        num += 1
-                        bits = CosmosUtil.get_bits_from_type(t)
                         #
                         # Parse command enum here
                         #
-                        if t == 'ENUM':
-                            num2 = 0
-                            for item in enum[1]:
-                                if item[1] == None:
-                                    pass
-                                else:
-                                    num2 = int(item[1])
-                                num2 += 1
-                    
-                        neg_offset = False       
-                        if flip_bits:
-                            neg_offset = 'NEG_OFFSET'
-                            
-                        if t == 'string':
-                            flip_bits = True
-                        
-                        if not use_block:        
-                            cosmos_cmd.add_item(n, t, c, bits, enum_name, enum, neg_offset)
-                        else:
-                            is_multi_string_cmd = True
-                    
-                    if is_multi_string_cmd:        
+                        if type(t) is type(tuple()):
+                            enum = t
+                            t = t[0][0]
+                        num += 1
+                         
+                        if not is_multi_string_command:        
+                            cosmos_cmd.add_item(n, t, c, enum)
+                     
+                    if is_multi_string_command:     
                         if CosmosUtil.VERBOSE:
                             print "Multi-string commands not supported in COSMOS at: " + cmd.get_mnemonic() + " from " + source
                         else:
                             print "Multi-string command " + cmd.get_mnemonic() + " not supported"
-                            
-                    if flip_bits:
-                        cosmos_cmd.update_neg_offset()
-                    self.commands.append(cosmos_cmd)
-                
+                    else:
+                        self.commands.append(cosmos_cmd)
+                 
                 if CosmosUtil.VERBOSE:
                     print "Finished Parsing Commands for " + comp_name     
+            #
+            # Parse parameter data here...
+            #        
+            if 'get_parameters' in dir(comp_parser): 
+                for prm in comp_parser.get_parameters():
+                    n = prm.get_name()
+                    s = prm.get_size()
+                    t = prm.get_type()
+                    c = prm.get_comment()
+                    d = prm.get_default()
+                    source = comp_parser.get_xml_filename()
+                     
+                    # Parse param enum
+                    if type(t) is type(tuple()):
+                        enum = t
+                        t = t[0][0]
+                    num += 1
+                     
+                    # Calculate opcodes
+                    set_opcode = prm.get_set_opcodes()[0]
+                    if '0x' in set_opcode:
+                        set_opcode = int(set_opcode, 16)
+                    else:
+                        set_opcode = int(set_opcode)
+                    set_opcode += base_id
+                    save_opcode = prm.get_save_opcodes()[0]
+                    if '0x' in save_opcode:
+                        save_opcode = int(save_opcode, 16)
+                    else:
+                        save_opcode = int(save_opcode)
+                    save_opcode += base_id
+                     
+                    # Create models
+                    cosmos_prm_set = CosmosCommand.CosmosCommand((n + "_prm_set"), set_opcode, c)
+                    cosmos_prm_save = CosmosCommand.CosmosCommand((n + "_prm_save"), save_opcode, c)
+                     
+                    cosmos_prm_set.set_component_attributes(comp_name, comp_type, source)
+                    cosmos_prm_save.set_component_attributes(comp_name, comp_type, source)
+                     
+                    # Add single arguments
+                    cosmos_prm_set.add_item(n, t, c, enum, d)
+                     
+                    self.commands.append(cosmos_prm_set)
+                    self.commands.append(cosmos_prm_save)
             #
             # Parse event data here...
             #
@@ -172,57 +225,28 @@ class CosmosTopParser():
                     s = evr.get_severity()
                     f = evr.get_format_string()
                     source = comp_parser.get_xml_filename()
-                    cosmos_evr = CosmosEvent.CosmosEvent(comp_name, comp_type, source, n, evr_id, comment, s, f)
-                    
-                    # Count strings to see if 2 (if so needs block)
-                    string_count = 0
-                    args = evr.get_args()
-                    for arg in args:
-                        t = arg.get_type()
-                        if t == 'string':
-                            string_count += 1
-                    
-                    use_block = False
-                    if string_count >= 2:
-                        use_block = True
-                        cosmos_evr.add_block()
-                        
+                    cosmos_evr = CosmosEvent.CosmosEvent(n, evr_id, comment)
+                    cosmos_evr.set_component_attributes(comp_name, comp_type, source)
+                    cosmos_evr.set_xml_attributes(s, f)
+                         
                     if CosmosUtil.VERBOSE:
                         print "Event " + n + " Found"
                     #
                     # Parse event enums here...
                     #
-                    flip_bits = False
                     bit_count = 0
+                    args = evr.get_args()
                     for arg in args:
                         n = arg.get_name()
                         t = arg.get_type()
                         s = arg.get_size()
                         c = arg.get_comment()
-                        enum_name = "None"
                         enum = None
                         if type(t) is type(tuple()):
                             enum = t
-                            enum_name = t[0][1]
                             t = t[0][0]
-
-                        # Handle argument type
-                        bits = CosmosUtil.get_bits_from_type(t)
-                        bit_offset = 0
-                        evr_type = 'NORMAL'
-                        if use_block:
-                            evr_type = 'DERIVED'
-                        elif flip_bits:
-                            evr_type = 'NEG_OFFSET'
-                        
-                        if t == 'string':
-                            flip_bits = True
-                        
-                        cosmos_evr.add_item(n, c, bits, t, enum_name, enum, evr_type, bit_offset)
-                        if flip_bits:
-                            cosmos_evr.update_neg_offset()
-                    if use_block:
-                        CosmosUtil.update_template_strings(cosmos_evr.get_evr_items())
+                         
+                        cosmos_evr.add_item(n, t, c, enum)
                     self.events.append(cosmos_evr)
                 if CosmosUtil.VERBOSE:
                     print "Finished Parsing Events for " + comp_name
@@ -242,24 +266,31 @@ class CosmosTopParser():
                     ch_id += base_id
                     n = ch.get_name()
                     t = ch.get_type()
-                    enum_name = "None"
                     enum = None
                     if type(t) is type(tuple()):
                         enum = t
-                        enum_name = t[0][1]
                         t = t[0][0]
                     c = ch.get_comment()
                     limits = ch.get_limits()
                     source = comp_parser.get_xml_filename()
-                    cosmos_ch = CosmosChannel.CosmosChannel(comp_name, comp_type, source, ch_id, n, c, limits)
-                    cosmos_ch.set_arg(t, enum_name, enum, ch.get_format_string())
-                    
+                    cosmos_ch = CosmosChannel.CosmosChannel(n, ch_id, c)
+                    cosmos_ch.set_component_attributes(comp_name, comp_type, source)
+                    cosmos_ch.set_item(t, enum, ch.get_format_string())
+                    cosmos_ch.set_limits(limits)
+                     
                     if CosmosUtil.VERBOSE:
                         print "Found channel " + n + " with argument type: " + t
-                    
+                     
                     self.channels.append(cosmos_ch)
                 if CosmosUtil.VERBOSE:
                     print "Finished Parsing Channels for " + comp_name
+        
+        # Check command and EVR packets to see if they should apply a negative offset
+        # NO CMD OR TLM PACKETS SHOULD BE ADDED ONCE THIS CHECK IS DONE
+        for evr in self.events:
+            CheetahUtil.evr_update_variable_lengths(evr)
+        for cmd in self.commands:
+            CheetahUtil.cmd_update_variable_lengths(cmd)
                     
         print "Parsed Topology\n"
     def get_channels(self):
@@ -282,6 +313,6 @@ class CosmosTopParser():
     
     def get_deployment(self):
         """
-        Uppercase name of Topology deployment
+        Name of Topology deployment
         """
         return self.deployment
