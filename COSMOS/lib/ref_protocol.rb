@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+# AUTO-GENERATED AS-IS TO LIB DIRECTORY BY COSMOSGEN.PY
 # Inherits from LengthProtocol but does not print debug when discarding FPrime's first 13 bytes sent
 
 require 'cosmos/interfaces/protocols/length_protocol'

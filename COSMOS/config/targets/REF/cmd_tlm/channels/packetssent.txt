@@ -8,4 +8,4 @@
 # COMPONENT: "sendBuffComp::SendBuff"
 TELEMETRY REF PACKETSSENT BIG_ENDIAN "Number of packets sent"
 <%=render "_ref_tlm_chn_hdr.txt", locals: {id: 81} %>
-    APPEND_ITEM VALUE 32 UINT "Value"
+    APPEND_ITEM VALUE 64 UINT "Value"

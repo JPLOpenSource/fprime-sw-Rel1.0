@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+# AUTO-GENERATED AS-IS TO LIB DIRECTORY BY COSMOSGEN.PY
 # Prints out EVR Strings within COSMOS Data Viewer application
 # similar to gse.py application within FPrime
 
@@ -10,7 +9,7 @@ module Cosmos
   # This class displays packets as raw hex values
   class EvrDumpComponent < DataViewerComponent
       
-    # Prints the header strings for EVR's, change these values to alter the width of the EVR Display
+    # Prints the header strings for EVR's
     def initialize_gui
         super
         @spaces = {
@@ -32,20 +31,6 @@ module Cosmos
       id_spaces = ("ID".length + @spaces["ID"]) - "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_ID', :RAW)}".length
       severity_spaces = ("SEVERITY".length + @spaces["SEVERITY"]) - "#{tlm_variable(packet.target_name + ' ' + packet.packet_name + ' EVR_SEVERITY', :RAW)}".length
       
-      # Check to make sure negative spaces aren't being printed for stability
-      if time_spaces < 0
-        time_spaces = 0
-      end  
-      if name_spaces < 0
-        name_spaces = 0
-      end
-      if id_spaces < 0
-        id_spaces = 0
-      end
-      if severity_spaces < 0
-        severity_spaces = 0
-      end
-        
       processed_text = ''
       processed_text << "\n"
       processed_text << "#{packet.received_time.formatted}" << " " * time_spaces

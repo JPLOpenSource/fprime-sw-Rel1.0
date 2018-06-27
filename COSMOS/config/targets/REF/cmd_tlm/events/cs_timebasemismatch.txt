@@ -11,8 +11,8 @@ TELEMETRY REF CS_TIMEBASEMISMATCH BIG_ENDIAN "The running time base doesn't matc
 
     APPEND_ITEM FILENAME_LENGTH 16 UINT "Length of String Arg"
     APPEND_ITEM FILENAME 0 STRING "The name of the sequence file"
-    ITEM TIME_BASE -64 32 UINT "The current time"
-    ITEM SEQ_TIME_BASE -32 32 UINT "The sequence time base"
+    ITEM TIME_BASE -32 16 UINT "The current time"
+    ITEM SEQ_TIME_BASE -16 16 UINT "The sequence time base"
 
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0

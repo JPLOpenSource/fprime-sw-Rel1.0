@@ -19,9 +19,6 @@ This class contains static data and methods that should be changed for each indi
 including header sizes, port numbers, etc.
 """
 
-# The names of all header files that should not be erased from their cmd and tlm directories
-HEADER_FILENAMES = ["_ref_tlm_chn_hdr.txt", "_ref_cmds_hdr.txt", "_ref_tlm_evr_hdr.txt"]
-
 #
 # DEPLOYMENT VARIABLES
 #

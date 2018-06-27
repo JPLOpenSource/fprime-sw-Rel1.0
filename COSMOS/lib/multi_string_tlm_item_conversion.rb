@@ -1,4 +1,5 @@
-# encoding: ascii-8bit
+# AUTO-GENERATED AS-IS TO LIB DIRECTORY BY COSMOSGEN.PY
+# Converts BLOCK data type for commands with multiple strings into the proper packet format
 
 # Converts BLOCK data type for commands with multiple strings into the proper packet format
 

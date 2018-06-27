@@ -11,17 +11,17 @@ TELEMETRY REF TESTCMD1STRINGARGS BIG_ENDIAN "This log event message returns the 
 
     APPEND_ITEM EVR_ITEMS 0 BLOCK "Contains all other items"
       ITEM ARG1 0 0 DERIVED "Arg1"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT"
       ITEM ARG2_LENGTH 0 0 DERIVED "Length of String Arg"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT 16 UINT"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT 16 UINT"
       ITEM ARG2 0 0 DERIVED "Arg2"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT 16 UINT 0 STRING"
       ITEM ARG3_LENGTH 0 0 DERIVED "Length of String Arg"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING 16 UINT"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT 16 UINT 0 STRING 16 UINT"
       ITEM ARG3 0 0 DERIVED "Arg3"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING 16 UINT 0 STRING"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT 16 UINT 0 STRING 16 UINT 0 STRING"
       ITEM ARG4 0 0 DERIVED "Arg4"
-        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 32 INT 16 UINT 0 STRING 16 UINT 0 STRING 64 FLOAT"
+        READ_CONVERSION multi_string_tlm_item_conversion.rb "256 START 16 INT 16 UINT 0 STRING 16 UINT 0 STRING 64 FLOAT"
 
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0

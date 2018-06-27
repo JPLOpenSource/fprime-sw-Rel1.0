@@ -55,16 +55,15 @@ class RubyWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         Generates the file
         """
         for destination in self.destinations.keys():
-            if not os.path.exists(destination):
-                fl = open(destination, "w")
+            fl = open(destination, "w")
                 
-                # All partial Cheetah template files do not contain variables, so can just be spit back out
-                tmpl = self.destinations[destination]
+            # All Ruby Cheetah template files do not contain variables, so can just be spit back out
+            tmpl = self.destinations[destination]
                 
-                msg = tmpl.__str__()
+            msg = tmpl.__str__()
                 
-                fl.writelines(msg)
-                fl.close()
+            fl.writelines(msg)
+            fl.close()
                 
-                if CosmosUtil.VERBOSE:
-                    print "Ruby script " + destination + " Created"
+            if CosmosUtil.VERBOSE:
+                print "Ruby script " + destination + " Created"
