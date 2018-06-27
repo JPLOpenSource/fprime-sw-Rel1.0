@@ -107,7 +107,8 @@ def get_bits_from_type(type):
     elif type == 'ENUM':
         return 32
     else:
-        print "UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py"
+        # This gets passed back up to COSMOS if there's ever an error
+        return "\"UNSUPPOPRTED DATA TYPE IN CosmosTopParser.py\""
     
     
 def fill_cosmos_dicts():
@@ -123,12 +124,12 @@ def fill_cosmos_dicts():
     """
     TYPE_DICT['F32'] = (get_bits_from_type('F32'), 'FLOAT')
     TYPE_DICT['F64'] = (get_bits_from_type('F64'), 'FLOAT')
-    TYPE_DICT['U8'] = (get_bits_from_type('U32'), 'UINT')
-    TYPE_DICT['U16'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['U8'] = (get_bits_from_type('U8'), 'UINT')
+    TYPE_DICT['U16'] = (get_bits_from_type('U16'), 'UINT')
     TYPE_DICT['U32'] = (get_bits_from_type('U32'), 'UINT')
-    TYPE_DICT['U64'] = (get_bits_from_type('U32'), 'UINT')
+    TYPE_DICT['U64'] = (get_bits_from_type('U64'), 'UINT')
     TYPE_DICT['I8'] = (get_bits_from_type('I8'), 'INT')
-    TYPE_DICT['I16'] = (get_bits_from_type('I32'), 'INT')
+    TYPE_DICT['I16'] = (get_bits_from_type('I16'), 'INT')
     TYPE_DICT['I32'] = (get_bits_from_type('I32'), 'INT')
     TYPE_DICT['I64'] = (get_bits_from_type('I64'), 'INT')
     TYPE_DICT['bool'] = (get_bits_from_type('bool'), 'BOOLEAN', 'UINT')
