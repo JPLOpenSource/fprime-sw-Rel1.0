@@ -78,8 +78,10 @@
 
     // Configure time system
     openmct.install(openmct.plugins.UTCTimeSystem());
+
     // Latest value table for channels
-    openmct.install(openmct.plugins.LADTable());
+    // openmct.install(openmct.plugins.LADTable());
+
     // Time conductor for bottom row for query of time range data
     openmct.install(openmct.plugins.Conductor({
       menuOptions: [

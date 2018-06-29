@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BSON Telemetry Server</title>
+    <link rel="stylesheet" href="openmct/platform/commonUI/general/res/css/startup-base.css">
+    <link rel="stylesheet" href="openmct/platform/commonUI/general/res/css/openmct.css">
+    <link rel="icon" type="image/png" href="openmct/platform/commonUI/general/res/images/favicons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="openmct/platform/commonUI/general/res/images/favicons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="openmct/platform/commonUI/general/res/images/favicons/favicon-16x16.png" sizes="16x16">
+    <link rel="shortcut icon" href="openmct/platform/commonUI/general/res/images/favicons/favicon.ico">
+    <script src="openmct/openmct.js"></script>
+    <script src="lib/http.js"></script>
+    <script src="dictionary-plugin.js"></script>
+    <script src="historical-telemetry-plugin.js"></script>
+    <script src="realtime-telemetry-plugin.js"></script>
+    <script src="limit-plugin.js"></script>
+</head>
+<body>
+    <div class="l-splash-holder s-splash-holder">
+        <div class="l-splash s-splash"></div>
+    </div>
+    <script>
+
+        http.get('config.json')
+            .then(function (response) {
+                return response.data;
+            })
+            .then(function (config) {
+                openmct.setAssetPath('openmct/');
+
+                if (config.type === 'localstorage') {
+                    openmct.install(openmct.plugins.LocalStorage());
+                } else if (config.type === 'couchdb') {
+                    openmct.install(openmct.plugins.CouchDB(config.url));
+                } else if (config.type === 'elasticsearch') {
+                    openmct.install(openmct.plugins.Elasticsearch(config.url));
+                }
+
+                openmct.install(openmct.plugins.MyItems());
+                openmct.install(openmct.plugins.UTCTimeSystem());
+                openmct.install(openmct.plugins.Espresso());
+
+                var now = new Date();
+                var year = now.getFullYear();
+                var month = now.getMonth();
+                var day = now.getDate();
+                openmct.install(openmct.plugins.Conductor({
+                    menuOptions: [
+                        {
+                            timeSystem: 'utc',
+                            clock: 'local',
+                            clockOffsets: {
+                                start: - 15 * 60 * 1000,
+                                end: 0
+                            }
+                        },
+                        {
+                            timeSystem: 'utc',
+                            bounds: {
+                                start: Date.UTC(year, month, day),
+                                end: Date.UTC(year, month, day + 1, 0, 0, 0, -1)
+                            },
+                            zoomOutLimit: 1000 * 60 * 60 * 24 * 7,
+                            zoomInLimit: 1000 * 30
+                        }
+                    ]
+                }));
+
+                var defaults = {
+                    namespace: 'bson.server'
+                };
+
+                openmct.install(DictionaryPlugin({
+                    namespace: defaults.namespace,
+                    url: '/dictionary',
+                    name: 'Test BSON Server'
+                }));
+                openmct.install(HistoricalTelemetryPlugin({
+                    url: '/history',
+                    namespace: defaults.namespace
+                }));
+                openmct.install(RealtimeTelemetryPlugin({
+                    namespace: defaults.namespace,
+                    url: location.origin.replace('http', 'ws') + '/realtime'
+                }));
+                openmct.install(LimitPlugin());
+                openmct.install(openmct.plugins.AutoflowView({type: 'bson.packet'}));
+
+                openmct.start();
+            });
+    </script>
+</body>
+</html>

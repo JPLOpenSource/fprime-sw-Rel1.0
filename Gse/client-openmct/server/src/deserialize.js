@@ -3,7 +3,7 @@
 // Utils
 var vsprintf = require('sprintf-js').vsprintf;
 
-/* 
+/*
  * This function reads a buffer using the specified parameters
  * @param: {Buffer} buff - Node Buffer to read from
  * @param: {number} bits - Number of bits to read
@@ -110,7 +110,7 @@ function stringFormatter(buff, strBase, argTypes) {
     }
   });
 
-  return vsprintf(strBase, args); 
+  return vsprintf(strBase, args);
 }
 
 function gainOffsetConv(value, gain, offset) {
@@ -139,13 +139,12 @@ function deserialize(data, target) {
 
   let packetArr = [];
   let packetLength = data.length;
-
   let offset = 0;
   // Interact deserialized packets
   while (offset < packetLength) {
     let size = readBuff(data, sizeLen * 8, 'U', offset);
     offset += sizeLen;
-    
+
     let descriptor = readBuff(data, descriptorLen * 8, 'U', offset);
     offset += descriptorLen;
 
@@ -214,8 +213,8 @@ function deserialize(data, target) {
         // None
         break;
     }
-    
-    let timestamp = parseInt((seconds.toString().concat(uSec.toString())).substring(0, 13), 10);
+
+    let timestamp = seconds * 1000 + uSec/1000.;
 
     let toMCT = {
       'timestamp':timestamp,
@@ -223,7 +222,8 @@ function deserialize(data, target) {
       'name': telemData['name'],
       'identifier': id.toString(),
       'id': id.toString(),
-      'type': telemData['telem_type']
+      'type': telemData['telem_type'],
+      'data_type': telemData['type']
     };
 
     // Create datum in openMCT format

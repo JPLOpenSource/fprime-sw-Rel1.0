@@ -1,3 +1,7 @@
+//TODO : these variables and functions are currently placed into the global namespace,
+// making it hard to tell where some of this functionality comes from
+// Should refactor this code with more logical Vue classes and setup AMD module
+// import/export
 var command = {
   props: ['showResults', 'socket', 'command'],
   // Displayed HTML
@@ -55,7 +59,7 @@ var command = {
     getCommands: function () {
       // Returns promise of array of all commands
       return getDictionary().then(function (dict) {
-        let commandDict = dict['ref']['commands'];       
+        let commandDict = dict['ref']['commands'];
         let validCommands = [];
         for (id in commandDict) {
           validCommands.push(commandDict[id]);
@@ -208,7 +212,7 @@ var hist = {
       </ul>
 
       <input
-        class="hist-input" 
+        class="hist-input"
         type="text"
         v-model="historyQuery"
         placeholder="Search history">
@@ -258,7 +262,7 @@ var hist = {
     getCommands: function () {
       // Returns promise of array of all commands
       return getDictionary().then(function (dict) {
-        let commandDict = dict['ref']['commands'];       
+        let commandDict = dict['ref']['commands'];
         let validCommands = [];
         for (id in commandDict) {
           validCommands.push(commandDict[id]);

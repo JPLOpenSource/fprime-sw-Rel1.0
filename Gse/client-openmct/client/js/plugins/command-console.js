@@ -6,6 +6,12 @@ function CommandConsole(target, site, port) {
 
   return function install(openmct) {
 
+    openmct.types.addType('fprime-command-console', {
+      name: 'Command Console',
+      description: 'Send commands to an fprime application',
+      creatable: false
+    });
+
     openmct.objects.addRoot({
       key: 'console',
       namespace: targetKey + '.command'
@@ -20,17 +26,18 @@ function CommandConsole(target, site, port) {
             key: 'console',
             namespace: targetKey + '.command'
           },
-          type: targetKey + '.command'
+          type: 'fprime-command-console'
         });
       }
     });
 
-    openmct.mainViews.addProvider({
+    openmct.objectViews.addProvider({
+      key: 'fprime-command-console',
       // Console name
       name: 'Command Console',
       // What provider you want to add...
       canView: function (d) {
-        return d.type === targetKey + '.command';
+        return d.type === 'fprime-command-console';
       },
       // Instances and destroys the command view widget.
       view: function (domainObject) {
@@ -46,7 +53,6 @@ function CommandConsole(target, site, port) {
           // Make it appear
           show: function (container) {
             container.className += " abs";  // Open MCT bug requires this line
-            
             commandView.$mount(container);
           },
           // Destroys it
@@ -58,4 +64,3 @@ function CommandConsole(target, site, port) {
     });
   }
 }
-

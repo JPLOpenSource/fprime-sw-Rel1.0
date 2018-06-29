@@ -1,0 +1,7 @@
+npm-debug.log
+points.json
+packets.json
+file-data/
+telemdb/
+node_modules/
+package-lock.json

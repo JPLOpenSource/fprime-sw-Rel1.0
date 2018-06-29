@@ -226,16 +226,16 @@ void constructApp(int port_number, char* hostname) {
 
 #if FW_PORT_TRACING
     Fw::PortBase::setTrace(false);
-#endif    
+#endif
 
     // Initialize rate group driver
     rateGroupDriverComp.init();
 
     // Initialize the rate groups
     rateGroup1Comp.init(10,0);
-    
+
     rateGroup2Comp.init(10,1);
-    
+
     rateGroup3Comp.init(10,2);
 
     // Initialize block driver
@@ -363,7 +363,7 @@ void constructApp(int port_number, char* hostname) {
 void run1cycle(void) {
     // call interrupt to emulate a clock
     blockDrv.callIsr();
-    Os::Task::delay(1000); //10Hz
+    Os::Task::delay(10); //10Hz
 }
 
 void runcycles(NATIVE_INT_TYPE cycles) {

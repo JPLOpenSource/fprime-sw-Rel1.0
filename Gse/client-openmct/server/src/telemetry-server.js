@@ -50,7 +50,7 @@ function RealtimeTelemServer(tcpSite, tcpPort, realMctPort, target) {
           console.log(err);
         }
       });
-    
+
     });
   });
 
@@ -77,7 +77,7 @@ function RealtimeTelemServer(tcpSite, tcpPort, realMctPort, target) {
           ws.send(JSON.stringify(packet), function ack(error) {
             // console.log(JSON.stringify(packet));
             if (error) {
-              // If unable to send (ie. client disconnection) 
+              // If unable to send (ie. client disconnection)
               // then subscription is reset
               console.log("Realtime Client disconnected");
               subscribed = {};
@@ -98,7 +98,7 @@ function RealtimeTelemServer(tcpSite, tcpPort, realMctPort, target) {
         } else if (operation === 'unsubscribe') {
           // Unsubscribe to id
           subscribed[idReq] = false;
-        } 
+        }
     });
 
     ws.on('disconnect', function() {

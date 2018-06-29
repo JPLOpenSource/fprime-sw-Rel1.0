@@ -16,11 +16,11 @@ function DictionaryPlugin(target) {
   let value_format = {
     'hints': {
       'range': 2
-    }, 
-    'key': 'value', 
-    'max': 100, 
-    'min': 0, 
-    'name': 'Value', 
+    },
+    'key': 'value',
+    'max': 100,
+    'min': 0,
+    'name': 'Value',
     'units': 'units'
   };
   let time_format = {
@@ -66,12 +66,11 @@ function DictionaryPlugin(target) {
             // Provider if ref root
             identifier: identifier, // Domain object 'identifier' is same as root
             name: targetName,  // Name of toplevel dictionary object ('REF')
-            type: 'folder', 
+            type: 'folder',
             location: 'ROOT'
           };
         } else {
           // Provider if not ref root
-          
 
           // Measurement = measurement object with same key as 'identifier.key'
           let measurement = dictionary[targetKey]['channels'][identifier.key];
@@ -88,12 +87,11 @@ function DictionaryPlugin(target) {
               value_formats.push(value_format_save);
             });
           }
-          // Object provider for each object in measurments. 
+          // Object provider for each object in measurments.
           // Does not populate tree
 
           let typeStr = targetKey + '.telemetry';
           // console.log('type' + typeStr);
-
           let toReturn = {
             identifier: identifier,
             name: measurement.name,
@@ -139,7 +137,6 @@ function DictionaryPlugin(target) {
             key: id
           });
         }
-
         return channels;
       });
     }
@@ -155,9 +152,9 @@ function DictionaryPlugin(target) {
     openmct.objects.addRoot({
       // Create identifier
 
-      // Namespace used to identify which root 
+      // Namespace used to identify which root
       // to provide telemetry objects for
-      namespace: targetKey + '.taxonomy',  
+      namespace: targetKey + '.taxonomy',
       key: targetKey
     });
 
