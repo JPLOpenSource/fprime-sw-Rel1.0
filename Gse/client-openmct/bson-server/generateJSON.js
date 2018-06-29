@@ -63,6 +63,10 @@ let raw_value_format = {
     name: "Raw Value",
     hints: {"range":2}
 };
+let raw_type_format = {
+    key: "raw_type",
+    name: "Raw Type"
+}
 
 Object.entries(ref.channels).forEach(function (channel) {
     let id = channel[0],
@@ -74,7 +78,7 @@ Object.entries(ref.channels).forEach(function (channel) {
         name: name,
         key: name,
         id: name,
-        values: [time_format, name_format, id_format, raw_value_format]
+        values: [time_format, name_format, id_format, raw_value_format, raw_type_format]
     }
 });
 
