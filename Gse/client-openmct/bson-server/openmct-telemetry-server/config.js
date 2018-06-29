@@ -25,7 +25,7 @@ module.exports = {
             /**
              * type - either 'localstorage', 'couchdb', or 'elasticsearch'.
              */
-            type: 'localstorage',
+            type: 'couchdb',
 
             /**
              * url - for elasticsearch or couchdb, url to service.  Relative URLs

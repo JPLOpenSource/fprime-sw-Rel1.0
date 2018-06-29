@@ -363,7 +363,7 @@ void constructApp(int port_number, char* hostname) {
 void run1cycle(void) {
     // call interrupt to emulate a clock
     blockDrv.callIsr();
-    Os::Task::delay(10); //10Hz
+    Os::Task::delay(500); //10Hz
 }
 
 void runcycles(NATIVE_INT_TYPE cycles) {
