@@ -30,21 +30,20 @@ function BsonAdapter(target) {
     //connect to the server at site:port, with the client passed as argument.
     //returns a promise so additional setup can be performed if operation was
     //successful
-    function connectToServer(clientObj) {
+    function connectSocket(clientObj) {
         var port = clientObj.port,
             site = clientObj.site,
             client = clientObj.socket;
 
         return new Promise(function (resolve, reject) {
-            try {
-                client.connect(port, site, function () {
+            client.connect(port, site, function () {
                     console.log(`Established connection from ${clientObj.name} to ${site}:${port}`);
-                    resolve(1)
+                    resolve(true);
                 });
-            }
-            catch (err) {
+
+            client.on('error', function (err) {
                 reject(err.message);
-            }
+            });
         });
     }
 
@@ -64,9 +63,16 @@ function BsonAdapter(target) {
             formattedData.raw_type = getBsonTypeCode('S');
             formattedData.raw_value = data.name + ': ' + data.value;
         }
-        // if (data.name === 'BD_Cycles') {
-        //     console.log(`${(new Date(data.timestamp)).toISOString()} : ${data.value}`)
-        // }
+
+        //TODO: debugging output for packet dropping issue -- remove once packet dropping
+        // issue is resolved
+        if (data.name === 'BD_Cycles') {
+            //console.log(`${(new Date(data.timestamp)).toISOString()} : ${data.value}`);
+            if (this.lastValue && data.value !== this.lastValue + 1) {
+                console.log(`Missing value ${this.lastValue + 1}`)
+            }
+            this.lastValue = data.value;
+        }
         return formattedData;
     }
 
@@ -74,6 +80,11 @@ function BsonAdapter(target) {
         var typeCode = data_type.charAt(0);
         return typeCodes[typeCode];
 
+    }
+
+    function handleConnectionError(err) {
+        console.log(`Connection Error: ${err}`);
+        process.exit()
     }
 
     // connect to fprime server for input data, and socket on OpenMCT server
@@ -91,23 +102,20 @@ function BsonAdapter(target) {
             port: 12345,
             site: '127.0.0.1'
         };
-        connectToServer(self.fprimeClient).then(function (success, reject) {
-              if (success) {
-                  //fprime TCP server will not publish data until this message is sent
-                  self.fprimeClient.socket.write('Register GUI\n');
-              } else {
-                  console.log(reject);
-              }
+        connectSocket(self.fprimeClient).then(function (success) {
+            //fprime TCP server will not publish data until this message is sent
+            self.fprimeClient.socket.write('Register GUI\n');
+          }).catch(function (reject) {
+              handleConnectionError(reject)
           });
-        connectToServer(self.openMCTTelemetryClient).then(function (success, reject) {
-            if (reject) {
-                console.log(reject)
-            }
+        connectSocket(self.openMCTTelemetryClient).catch(function (reject) {
+            handleConnectionError(reject);
         });
     };
 
     setupConnections();
 
+    // event handler for recieving packets
     this.fprimeClient.socket.on('data', function (data) {
         var dataAsJSON = deserialize(data, self.target);
 
