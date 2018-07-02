@@ -1,1 +1,1 @@
-# Hardcoded deployment file, fill in your deployment's common event items in Cheetah Template
+# Data Viewer addition file, please add all additional data viewer Component definitions to this file instead of the auto generated file

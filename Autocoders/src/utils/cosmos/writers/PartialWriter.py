@@ -44,23 +44,24 @@ class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         super(PartialWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
         
         # Initialize writer-unique file destination location
-        self.destinations = {
+        self.overwrite_destinations = {
             cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/channels/_" + deployment_name.lower() + "_tlm_chn_hdr.txt": Partial_Channel.Partial_Channel(),
             cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/commands/_" + deployment_name.lower() + "_cmds_hdr.txt": Partial_Command.Partial_Command(),
-            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/_" + deployment_name.lower() + "_tlm_evr_hdr.txt": Partial_Event.Partial_Event(),
+            cosmos_directory + "/config/targets/" + deployment_name.upper() + "/cmd_tlm/events/_" + deployment_name.lower() + "_tlm_evr_hdr.txt": Partial_Event.Partial_Event()
+            }
+        self.leave_alone_destinations = {
             cosmos_directory + "/config/targets/" + deployment_name.upper() + "/tools/data_viewer/_user_dataviewers.txt": Partial_Data_Viewer.Partial_Data_Viewer()
             }
-        
                     
     def write(self):
         """
         Generates the file
         """
-        for destination in self.destinations.keys():
+        for destination in self.overwrite_destinations.keys():
             fl = open(destination, "w")
                 
             # All partial Cheetah template files do not contain variables, so can just be spit back out
-            tmpl = self.destinations[destination]
+            tmpl = self.overwrite_destinations[destination]
                 
             msg = tmpl.__str__()
                 
@@ -69,3 +70,21 @@ class PartialWriter(AbstractCosmosWriter.AbstractCosmosWriter):
                 
             if CosmosUtil.VERBOSE:
                 print destination + " Created"
+                
+        for destination in self.leave_alone_destinations.keys():
+            if not os.path.exists(destination):
+                fl = open(destination, "w")
+                
+                # All partial Cheetah template files do not contain variables, so can just be spit back out
+                tmpl = self.leave_alone_destinations[destination]
+                
+                msg = tmpl.__str__()
+                
+                fl.writelines(msg)
+                fl.close()
+                
+                if CosmosUtil.VERBOSE:
+                    print destination + " Created"
+            else:
+                if CosmosUtil.VERBOSE:
+                    print destination + " Already exists"
