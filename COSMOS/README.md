@@ -34,7 +34,7 @@ To use the tool, run the run\_cosmosgen.sh script from the command line with the
 
 ## 4. Tool Inputs and Outputs
 
-## 4.1 Inputs
+### 4.1 Inputs
 
 The only command line argument that the tool takes is the location of Topology XML file.  It should start at the directory of the command line and look like "../../Ref/Top/RefTopologyAppAi.xml"
 
@@ -42,7 +42,7 @@ As the Topology XML files only contain information regarding command and telemet
 
 In addition to adding targets based on Topology XML files, the tool is able to remove targets via the command-line option "-r TARGET_NAME".  The SYSTEM target should never be deleted, because COSMOS uses it in the background for all other targets.
 
-## 4.2 Outputs
+### 4.2 Outputs
 
 The tool outputs COSMOS config text files to the directory set via command-line (default: fprime-sw/COSMOS).  These text files are generated via Cheetah templates in the Autocoders/src/utils/cosmos/templates directory.  Cosmos config files are documented [here](http://cosmosrb.com/docs/home/).  The tool is also set to generate the 3 Ruby scripts documented in section 5 below into the lib directory of Cosmos if they are not already present.
 
@@ -67,26 +67,46 @@ The tool outputs COSMOS config text files to the directory set via command-line 
 |Event text files|Contains event telemetry definitions for each event in the deployment|
 |Tlm Extractor text files|Contains the configuration of each tlm packet item for tlm extractor application|
 
+## 5. Adding to the Tool
 
+### 5.1 Adding Commands and Telemetry
 
-## 5. The Classes
+Commands and Telemetry should be added ONLY to the Deployment's Topology, not in the command / channel / event directories themselves as all files in these directories will be wiped and re-made every time the generator is run.
+
+#### 5.1.2 Altering Header Files
+
+All command and telemetry header files should be altered by directly editing the Cheetah templates themselves rather than the text files, as the text files are overwritten with each run of the generator in order to allow Topology XML file changes to be added in.
+
+### 5.2 Adding Channel Screens
+
+To add a channel screen, determine the target you want to make the screen for, and create a new .txt file using the name of the screen you wish to create inside of that target's config/targets/TARGET\_NAME/screens directory.  The channels.txt file is wiped each time the generator tool is run, so any time you want to add channel items to that screen you should simply add them to the Topology XML and they will be generated into it.
+
+### 5.3 Adding Data Viewer Telemetry Views
+
+To add a new view to the Data Viewer application, you should append your view's definition to the user\_dataviewers.txt file inside the targets config/targets/TARGET\_NAME/tools/data\_viewer directory.  The user\_dataviewers.txt file will not be created or overwritten if it already exists, however the data\_viewer.txt file will, so it should not be edited.  No other file in that directory will be used by COSMOS.
+
+### 5.4 Altering Interface and Protocol Config Files
+
+These files should never be altered, there are constants in the CosmosUtil.py file that alter their contents.
+
+## 6. The Classes
 
 Classes within the tool are broken down into lowest-level model and writer classes that represent the command and telemetry data and that do the actual file writing, mid-level parser and generator classes that create and utilize the model and writer classes, and one highest-level cosmosgen.py class that instantiates the parser and generator classes.  All cheetah templates are found in the Autocoders/utils/cosmos/templates directory and all Ruby scripts are found in the COSMOS/lib directory.
 
-### 5.1 The Python Autocoder
+### 6.1 The Python Autocoder
 
-#### 5.1.1 The Autocoders/bin Directory
+#### 6.1.1 The Autocoders/bin Directory
 |Name|Description|Link
 |---|---|---|
 |cosmosgen.py|Class containing main method as well as all command line interaction|[.py](../Autocoders/bin/cosmosgen.py)|
 
-#### 5.1.2 The Autocoders/src/utils/cosmos Directory
+#### 6.1.2 The Autocoders/src/utils/cosmos Directory
 |Name|Description|Link
 |---|---|---|
 |CosmosGenerator.py|Class that takes Writer class instances and calls their write() methods to generate COSMOS config files|[.py](../Autocoders/src/utils/cosmos/CosmosGenerator.py)|
 |CosmosTopParser.py|Class that takes an XML Parser instance and organizes its cmd and tlm data into COSMOS model classes for ease of Cheetah templating|[.py](../Autocoders/src/utils/cosmos/CosmosTopParser.py)|
 
-#### 5.1.3 The Autocoders/src/utils/cosmos/models Directory
+#### 6.1.3 The Autocoders/src/utils/cosmos/models Directory
 |Name|Description|Link
 |---|---|---|
 |BaseCosmosObject.py|Base class containing all shared data between Channels, Commands, and Events|[.py](../Autocoders/src/utils/cosmos/models/BaseCosmosObject.py)|
@@ -94,13 +114,13 @@ Classes within the tool are broken down into lowest-level model and writer class
 |CosmosCommand.py|Class representing a telemetry command that encapsulates all the data it needs in the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CosmosCommand.py)|
 |CosmosEvent.py|Class representing a telemetry event that encapsulates all the data it needs in the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CosmosEvent.py)|
 
-#### 5.1.3 The Autocoders/src/utils/cosmos/util Directory
+#### 6.1.4 The Autocoders/src/utils/cosmos/util Directory
 |Name|Description|Link
 |---|---|---|
 |CheetahUtil.py|Contains constants and methods that affect the way data is outputted to the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CheetahUtil.py)|
 |CosmosUtil.py|Contains all the hardcoded data regarding interfaces and protocols i.e. port number, header-bit-length|[.py](../Autocoders/src/utils/cosmos/models/CosmosUtil.py)|
 
-#### 5.1.4 The Autocoders/src/utils/cosmos/writers Directory
+#### 6.1.5 The Autocoders/src/utils/cosmos/writers Directory
 |Name|Description|Link
 |---|---|---|
 |AbstractCosmosWriter.py|Abstract class containing the definition of the write() method shared by all other writer classes|[.py](../Autocoders/src/utils/cosmos/writers/AbstractCosmosWriter.py)|
@@ -120,7 +140,7 @@ Classes within the tool are broken down into lowest-level model and writer class
 |TargetWriter.py|Class that writes the target config file|[.py](../Autocoders/bin/writers/TargetWriter.py) [docs](http://cosmosrb.com/docs/system/) [.tmpl](../Autocoders/src/utils/cosmos/templates/target.tmpl)|
 |TlmExtractor.py|Class that writes the tlm extractor config files in the tools/tlm\_extractor directory|[.py](../Autocoders/bin/writers/TlmExtractor.py) [docs](http://cosmosrb.com/docs/tlm\_extractor/) [.tmpl](../Autocoders/src/utils/cosmos/templates/tlm\_extractor.tmpl)|
 
-### 5.2 Helper Ruby Scripts
+### 6.2 Helper Ruby Scripts
 |Name|Description|Link
 |---|---|---|
 |evr\_dump\_component.rb|Plain text writing protocol that specifies how text should be written in the data_viewer application|[.rb](../COSMOS/lib/evr\_dump\_component.rb)|
