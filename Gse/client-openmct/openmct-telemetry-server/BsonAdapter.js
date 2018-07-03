@@ -37,7 +37,7 @@ function BsonAdapter(target) {
 
         return new Promise(function (resolve, reject) {
             client.connect(port, site, function () {
-                    console.log(`Established connection to ${clientObj.name} on ${site}:${port}`);
+                    console.log(`BSON Adapter: Established connection to ${clientObj.name} on ${site}:${port}`);
                     resolve(true);
                 });
 
