@@ -4,6 +4,7 @@
   "description": "bson parser server",
   "main": "index.js",
   "scripts": {
+    "prestart": "python ../../bin/json_dict.py && node generateJSON.js",
     "start": "node index.js",
     "prepare": "cd node_modules/openmct && npm install"
   },
@@ -16,7 +17,7 @@
     "express-ws": "3.0.0",
     "level": "1.7.0",
     "msgpack": "1.0.2",
-    "openmct": "https://github.com/nasa/openmct#sprintf-support",
+    "openmct": "https://github.com/nasa/openmct",
     "redis": "2.7.1",
     "ws": "2.2.2"
   }

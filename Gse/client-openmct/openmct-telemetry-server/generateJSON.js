@@ -13,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/server/res/dictionary.json', {encoding: 'UTF-8'}),
-      outFilenamePoints = 'openmct-telemetry-server/points.json',
-      outFilenamePackets = 'openmct-telemetry-server/packets.json',
+      outFilenamePoints = 'points.json',
+      outFilenamePackets = 'packets.json',
       dict = JSON.parse(dictJSON),
       ref = dict.ref,
       pointDict = {}
@@ -78,7 +78,7 @@ Object.entries(ref.channels).forEach(function (channel) {
         name: name,
         key: name,
         id: name,
-        values: [time_format, name_format, id_format, raw_value_format, raw_type_format]
+        values: [time_format, name_format, raw_value_format]
     }
 });
 

@@ -37,7 +37,7 @@ function BsonAdapter(target) {
 
         return new Promise(function (resolve, reject) {
             client.connect(port, site, function () {
-                    console.log(`Established connection from ${clientObj.name} to ${site}:${port}`);
+                    console.log(`Established connection to ${clientObj.name} on ${site}:${port}`);
                     resolve(true);
                 });
 
@@ -64,15 +64,6 @@ function BsonAdapter(target) {
             formattedData.raw_value = data.name + ': ' + data.value;
         }
 
-        //TODO: debugging output for packet dropping issue -- remove once packet dropping
-        // issue is resolved
-        if (data.name === 'BD_Cycles') {
-            //console.log(`${(new Date(data.timestamp)).toISOString()} : ${data.value}`);
-            if (this.lastValue && data.value !== this.lastValue + 1) {
-                console.log(`Missing value ${this.lastValue + 1}`)
-            }
-            this.lastValue = data.value;
-        }
         return formattedData;
     }
 
@@ -92,7 +83,7 @@ function BsonAdapter(target) {
     function setupConnections() {
         self.fprimeClient = {
             socket: new net.Socket(),
-            name: "Fprime Telemetry Client",
+            name: "Fprime Telemetry Socket",
             port: config.tcpPort,
             site: config.tcpSite
         };
@@ -106,7 +97,7 @@ function BsonAdapter(target) {
             //fprime TCP server will not publish data until this message is sent
             self.fprimeClient.socket.write('Register GUI\n');
           }).catch(function (reject) {
-              handleConnectionError(reject)
+              handleConnectionError(reject);
           });
         connectSocket(self.openMCTTelemetryClient).catch(function (reject) {
             handleConnectionError(reject);
@@ -127,4 +118,4 @@ function BsonAdapter(target) {
     });
 }
 
-var adapter = new BsonAdapter('ref')
+module.exports = BsonAdapter;
