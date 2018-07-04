@@ -102,11 +102,7 @@ for inst in parsedTopology.get_instances():
 
             arguments = []
             for arg in event.get_args():
-                arguments.append({
-                    "description": arg.get_comment(),
-                    "name": arg.get_name(),
-                    "type": arg.get_type(),
-                })
+                arguments.append(arg.get_type())
 
             metadata = {
                 "id": ev_id,
@@ -133,6 +129,17 @@ for inst in parsedTopology.get_instances():
             for unit in channel.get_units():
                 units.append(dict(zip(unitLabels, unit)))
 
+            type = channel.get_type()
+            type_name = ''
+            if isinstance(type, str):
+                type_name = type
+            else:
+                type_name = 'Enum'
+                enum_dict = {}
+                for (i, enum) in enumerate(type[1]):
+                    enum_dict[str(i)] = enum[0]
+
+
             metadata = {
                 "id": ch_id,
                 "name": name,
@@ -141,11 +148,26 @@ for inst in parsedTopology.get_instances():
                 "component": component,
                 "format_string": channel.get_format_string(),
                 "limits" : dict(zip(limitLabels, channel.get_limits())),
-                "type": channel.get_type(),
+                "type": type_name,
                 "units": units
             }
 
+            if (type_name == "Enum"):
+                metadata["enum_dict"] = enum_dict
+                metadata["format_string"] = "%s"
+
             channels[ch_id] = metadata
+
+# Add events channel for logging
+channels["-1"] = {
+    "id": "-1",
+    "name": "Events",
+    "telem_type": "channel",
+    "component": None,
+    "description": "Events are shown here",
+    "type": "string",
+    "format_string": None
+}
 
 outFile = open(outFilename, 'w')
 jsonStr = json.dumps(dictionary, indent=4)

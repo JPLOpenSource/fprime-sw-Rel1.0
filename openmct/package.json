@@ -4,7 +4,7 @@
   "description": "bson parser server",
   "main": "index.js",
   "scripts": {
-    "prestart": "python ../../bin/json_dict.py && node generateJSON.js",
+    "prestart": "cd res && ../../Autocoders/bin/run_JSONDict.sh ../../Ref/Top/RefTopologyAppAi.xml && cd .. && node scripts/generateConfigJSON.js",
     "start": "node index.js",
     "prepare": "cd node_modules/openmct && npm install"
   },
@@ -19,6 +19,7 @@
     "msgpack": "1.0.2",
     "openmct": "https://github.com/nasa/openmct",
     "redis": "2.7.1",
+    "sprintf-js": "^1.1.1",
     "ws": "2.2.2"
   }
 }

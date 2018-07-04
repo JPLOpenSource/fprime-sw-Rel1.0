@@ -3,11 +3,11 @@
  */
 
 var TelemetryServer = require('./src/telemetry-server');
-var BsonAdapter = require('./BsonAdapter');
+var BSONAdapter = require('./src/bson-adapter');
 var config = require('./config');
 
 var server = new TelemetryServer(config);
+var adapter = new BSONAdapter('ref');
 
 server.run();
-
-var adapter = new BsonAdapter('ref');
+adapter.run();

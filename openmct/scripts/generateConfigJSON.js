@@ -1,5 +1,5 @@
 /*
-    generateJSON.js
+    generateConfigJSON.js
 
     Given a JSON dictionary for an fprime app, generate JSON configuration
     files for the openmct bson server. Points file is saved in "points.json",
@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/server/res/dictionary.json', {encoding: 'UTF-8'}),
+const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
       outFilenamePoints = 'points.json',
       outFilenamePackets = 'packets.json',
       dict = JSON.parse(dictJSON),
@@ -82,5 +82,5 @@ Object.entries(ref.channels).forEach(function (channel) {
     }
 });
 
-fs.writeFileSync(__dirname + '/' + outFilenamePoints, JSON.stringify(pointDict));
-fs.writeFileSync(__dirname + '/' + outFilenamePackets, JSON.stringify(packetDict));
+fs.writeFileSync(path.dirname(__dirname) + '/res/' + outFilenamePoints, JSON.stringify(pointDict));
+fs.writeFileSync(path.dirname(__dirname) + '/res/' + outFilenamePackets, JSON.stringify(packetDict));

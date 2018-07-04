@@ -49,7 +49,7 @@ module.exports = {
          * POSTing "/dictionary/save" will write the current point definitions
          * to this file.
          */
-        pointsFile: 'points.json',
+        pointsFile: 'res/points.json',
 
         /**
          * packetsFile
@@ -57,7 +57,7 @@ module.exports = {
          * loaded at startup.  POSTing "/dictionary/save" will write the current
          * point definitions to this file.
          */
-        packetsFile: 'packets.json',
+        packetsFile: 'res/packets.json',
 
         /**
          * packetSeparator
