@@ -1,6 +1,7 @@
 npm-debug.log
-points.json
-packets.json
+res/points.json
+res/packets.json
+res/dictionary.json
 file-data/
 telemdb/
 node_modules/
