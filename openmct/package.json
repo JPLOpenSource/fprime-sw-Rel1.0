@@ -17,6 +17,7 @@
     "express": "4.15.2",
     "express-ws": "3.0.0",
     "level": "1.7.0",
+    "long": "^4.0.0",
     "msgpack": "1.0.2",
     "openmct": "https://github.com/nasa/openmct",
     "redis": "2.7.1",

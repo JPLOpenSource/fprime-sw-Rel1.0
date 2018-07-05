@@ -2,6 +2,7 @@
 
 // Utils
 var vsprintf = require('sprintf-js').vsprintf;
+var Long = require('long')
 
 /*
  * This function reads a buffer using the specified parameters
@@ -19,6 +20,12 @@ function readBuff(buff, bits, type, offset) {
     case 'U': {
       // Unsigned Int
       switch(bits) {
+        case 64: {
+            let low = buff.readUInt32BE(offset),
+                high = buff.readUInt32BE(offset + 4),
+                longVal = new Long(high, low);
+            return longVal.toNumber();
+        }
         case 32: {
           return buff.readUInt32BE(offset);
         }
