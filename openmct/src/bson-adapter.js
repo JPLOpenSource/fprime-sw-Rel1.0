@@ -24,18 +24,23 @@ var typeCodes = {
 
 function BSONAdapter(target) {
     this.target = target;
+    this.timeout = 5;
 
     this.fprimeClient = {
         socket: new net.Socket(),
         name: "Fprime Telemetry Socket",
         port: 50000,
-        site: '127.0.0.1'
+        site: '127.0.0.1',
+        successFunction: function (clientObj) {
+            clientObj.socket.write('Register GUI\n');
+        }
     };
     this.openMCTTelemetryClient = {
         socket: new net.Socket(),
         name: "OpenMCT BSON Stream Socket",
         port: 12345,
-        site: '127.0.0.1'
+        site: '127.0.0.1',
+        successFunction: function () {}
     };
 }
 
@@ -58,20 +63,26 @@ BSONAdapter.prototype.run = function () {
 // to push BSON data
 BSONAdapter.prototype.setupConnections = function () {
     var self = this;
-    this.connectSocket(this.fprimeClient).then(function (success) {
-        //fprime TCP server will not publish data until this message is sent
-        self.fprimeClient.socket.write('Register GUI\n');
-    }).catch(function (reject) {
-        self.handleConnectionError(reject);
+    this.connectSocket(this.fprimeClient).catch(function (reject) {
+        console.log(`${self.fprimeClient.name}: Connection Error: ${reject}`);
+        console.log(`${self.fprimeClient.name}: Attempting to reconnect every ${self.timeout} seconds`)
+        self.handleConnectionError(reject, self.fprimeClient);
     });
     this.connectSocket(this.openMCTTelemetryClient).catch(function (reject) {
-        self.handleConnectionError(reject);
+        console.log(`${self.openMCTTelemetryClient.name}: Connection Error: ${reject}`);
+        console.log(`${self.openMCTTelemetryClient.name}: Attempting to reconnect every ${self.timeout} seconds`)
+        self.handleConnectionError(reject, self.openMCTTelemetryClient);
   });
 }
 
-BSONAdapter.prototype.handleConnectionError = function (err) {
-    console.log(`Connection Error: ${err}`);
-    process.exit()
+BSONAdapter.prototype.handleConnectionError = function (err, clientObj) {
+    var self = this;
+
+    setTimeout(function () {
+        self.connectSocket(clientObj).catch(function (reject) {
+            self.handleConnectionError(reject, clientObj)
+        });
+    }, self.timeout * 1000);
 }
 
 //connect to the server at site:port, with the client passed as argument.
@@ -80,16 +91,20 @@ BSONAdapter.prototype.handleConnectionError = function (err) {
 BSONAdapter.prototype.connectSocket = function (clientObj) {
     var port = clientObj.port,
         site = clientObj.site,
-        client = clientObj.socket;
+        client = clientObj.socket,
+        self = this;
 
     return new Promise(function (resolve, reject) {
         client.connect(port, site, function () {
             console.log(`BSON Adapter: Established connection to ${clientObj.name} on ${site}:${port}`);
+            clientObj.successFunction(clientObj)
             resolve(true);
         });
 
         client.on('error', function (err) {
-            reject(err.message);
+            client.removeAllListeners('error');
+            client.removeAllListeners('connect')
+            reject(err.message)
         });
     });
 }
