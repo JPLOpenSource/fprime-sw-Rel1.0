@@ -154,5 +154,14 @@ module.exports = {
          * TCP port to listen on.
          */
         port: 12345
-    }
+    },
+
+      /*
+       * binaryInput
+       * Settings for fprime binary input stream
+       */
+     binaryInput: {
+        bindAddress: '127.0.0.1',
+        port: 50000
+     }
 }

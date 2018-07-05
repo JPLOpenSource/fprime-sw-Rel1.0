@@ -10,6 +10,7 @@
 
 var net = require('net');
 var BSON = require('bson');
+var config = require('../config');
 
 var deserialize = require('./util/deserialize-binary').deserialize;
 
@@ -29,8 +30,8 @@ function BSONAdapter(target) {
     this.fprimeClient = {
         socket: new net.Socket(),
         name: "Fprime Telemetry Socket",
-        port: 50000,
-        site: '127.0.0.1',
+        port: config.binaryInput.port,
+        site: config.binaryInput.bindAddress,
         successFunction: function (clientObj) {
             clientObj.socket.write('Register GUI\n');
         }
@@ -38,8 +39,8 @@ function BSONAdapter(target) {
     this.openMCTTelemetryClient = {
         socket: new net.Socket(),
         name: "OpenMCT BSON Stream Socket",
-        port: 12345,
-        site: '127.0.0.1',
+        port: config.input.port,
+        site: config.input.bindAddress,
         successFunction: function () {}
     };
 }
