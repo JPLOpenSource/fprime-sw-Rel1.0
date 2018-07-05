@@ -23,6 +23,14 @@ var typeCodes = {
     E: 74
 }
 
+var flags = {
+    redHigh: 0x00100000,
+    yellowHigh: 0x00040000,
+    yellowLow: 0x00020000,
+    redLow: 0x00080000,
+    allGood: 0x00010000
+}
+
 function BSONAdapter(target) {
     this.target = target;
     this.timeout = 5;
@@ -115,7 +123,8 @@ BSONAdapter.prototype.connectSocket = function (clientObj) {
 BSONAdapter.prototype.formatForOpenMCT = function(data) {
     formattedData = {
         timestamp: new Date(data.timestamp),
-        identifier: data.id
+        identifier: data.id,
+        flags: this.evaluateLimits(data)
     };
     if (data.type === 'channel') {
         formattedData.name = data.name;
@@ -133,6 +142,22 @@ BSONAdapter.prototype.formatForOpenMCT = function(data) {
 BSONAdapter.prototype.getBsonTypeCode = function (data_type) {
     var typeCode = data_type.charAt(0);
     return typeCodes[typeCode];
+}
+
+BSONAdapter.prototype.evaluateLimits = function (datum) {
+    let flag = flags.allGood
+    if (datum.limits) {
+        if (datum.value > datum.limits.high_red && datum.limits.high_red !== null) {
+            flag = flags.redHigh;
+        } else if (datum.value > datum.limits.high_yellow && datum.limits.high_yellow !== null) {
+            flag = flags.yellowHigh;
+        } else if (datum.value < datum.limits.low_red && datum.limits.low_red !== null) {
+            flag = flags.redLow;
+        } else if (datum.value < datum.limits.low_yellow && datum.limits.low_yellow !== null) {
+            flag = flags.yellowLow;
+        }
+    }
+    return flag
 }
 
 module.exports = BSONAdapter;

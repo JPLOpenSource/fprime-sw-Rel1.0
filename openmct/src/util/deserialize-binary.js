@@ -223,9 +223,9 @@ function deserialize(data, target) {
       'identifier': id.toString(),
       'id': id.toString(),
       'type': telemData['telem_type'],
-      'data_type': telemData['type']
+      'data_type': telemData['type'],
+      'limits': telemData.limits
     };
-
     // Create datum in openMCT format
     if (telemData['telem_type'] === 'event') {
       // Put event in channel id '-1'
