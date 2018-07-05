@@ -4,9 +4,10 @@
   "description": "bson parser server",
   "main": "index.js",
   "scripts": {
-    "prestart": "cd res && ../../Autocoders/bin/run_JSONDict.sh ../../Ref/Top/RefTopologyAppAi.xml && cd .. && node scripts/generateConfigJSON.js",
+    "configure": "../Autocoders/bin/run_JSONDict.sh --path=res ../Ref/Top/RefTopologyAppAi.xml && node scripts/generateConfigJSON.js",
     "start": "node index.js",
-    "prepare": "cd node_modules/openmct && npm install"
+    "prepare": "cd node_modules/openmct && npm install",
+    "clean": "rm -rf ./telemdb/* ./res"
   },
   "author": "peter.l.richards@nasa.gov",
   "license": "ISC",

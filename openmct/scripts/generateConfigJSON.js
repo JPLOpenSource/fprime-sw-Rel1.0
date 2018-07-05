@@ -13,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
-      outFilenamePoints = 'points.json',
-      outFilenamePackets = 'packets.json',
+      outFilenamePoints = 'res/points.json',
+      outFilenamePackets = 'res/packets.json',
       dict = JSON.parse(dictJSON),
       ref = dict.ref,
       pointDict = {}
@@ -25,16 +25,6 @@ const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json
           }
       };
 
-let value_format = {
-  'hints': {
-    'range': 2
-  },
-  'key': 'value',
-  'max': 100,
-  'min': 0,
-  'name': 'Value',
-  'units': 'units'
-};
 let time_format = {
   'key': 'utc',
   'source': 'timestamp',
@@ -51,22 +41,12 @@ let name_format = {
   'key': 'name',
   'name': 'Name'
 };
-let id_format = {
-  'hints': {
-    'domain': 3
-  },
-  'key': 'identifier',
-  'name': 'ID'
-};
 let raw_value_format = {
     key: "raw_value",
     name: "Raw Value",
     hints: {"range":2}
 };
-let raw_type_format = {
-    key: "raw_type",
-    name: "Raw Type"
-}
+
 
 Object.entries(ref.channels).forEach(function (channel) {
     let id = channel[0],
@@ -82,5 +62,10 @@ Object.entries(ref.channels).forEach(function (channel) {
     }
 });
 
-fs.writeFileSync(path.dirname(__dirname) + '/res/' + outFilenamePoints, JSON.stringify(pointDict));
-fs.writeFileSync(path.dirname(__dirname) + '/res/' + outFilenamePackets, JSON.stringify(packetDict));
+let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;
+let outFilepathPackets = path.dirname(__dirname) + '/' + outFilenamePackets;
+
+console.log(`Writing points config file to ${outFilenamePoints}`);
+fs.writeFileSync(outFilepathPoints, JSON.stringify(pointDict));
+console.log(`Writing packets config file to ${outFilenamePackets}`);
+fs.writeFileSync(outFilepathPackets, JSON.stringify(packetDict));
