@@ -162,6 +162,7 @@ module.exports = {
        */
      binaryInput: {
         bindAddress: '127.0.0.1',
-        port: 50000
+        port: 50000,
+        deployment: 'ref'
      }
 }

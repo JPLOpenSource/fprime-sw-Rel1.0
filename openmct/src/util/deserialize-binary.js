@@ -10,7 +10,7 @@
 var vsprintf = require('sprintf-js').vsprintf;
 var Long = require('long')
 
-var typeCodes = {
+const typeCodes = {
     I: 71,
     U: 72,
     F: 73,
@@ -18,7 +18,7 @@ var typeCodes = {
     E: 74
 }
 
-var flags = {
+const flags = {
     redHigh: 0x00100000,
     yellowHigh: 0x00040000,
     yellowLow: 0x00020000,
@@ -34,7 +34,7 @@ var flags = {
  * @param: {number} offset - Byte to start reading from
  * @returns: {number} - Number read
 */
-function readBuff(buff, bits, type, offset) {
+function readBuff (buff, bits, type, offset) {
     if (typeof offset == "undefined") {
         offset = 0;
     }
@@ -107,7 +107,7 @@ function readBuff(buff, bits, type, offset) {
     }
 }
 
-function stringFormatter(buff, strBase, argTypes) {
+function stringFormatter (buff, strBase, argTypes) {
     let offset = 0;
     let args = argTypes.map(function (type) {
         if (typeof type === 'string') {
@@ -139,7 +139,7 @@ function stringFormatter(buff, strBase, argTypes) {
     return vsprintf(strBase, args);
 }
 
-function gainOffsetConv(value, gain, offset) {
+function gainOffsetConv (value, gain, offset) {
     return gain * value + offset;
 }
 
@@ -160,7 +160,7 @@ const packetDescriptionLen = 19;
  * @target {string} - Target name (or deployment)
  * @return: Array of OpenMCT formatted dataum
  */
-function deserialize(data, target) {
+function deserialize (data, target) {
     var telem = require('./../../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
 
     let packetArr = [];
@@ -273,7 +273,7 @@ function deserialize(data, target) {
 }
 
 // Returns an array of channel ids
-function getIds(target) {
+function getIds (target) {
     var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
     let ids = [];
     let channels = telem['channels'];
@@ -303,7 +303,7 @@ function getBSONTypeCode (data_type) {
     var typeCode = data_type.charAt(0);
     return typeCodes[typeCode];
 }
-// Export
+
 module.exports = {
     deserialize: deserialize,
     getIds: getIds

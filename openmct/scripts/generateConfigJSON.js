@@ -16,7 +16,7 @@ const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json
       outFilenamePoints = 'res/points.json',
       outFilenamePackets = 'res/packets.json',
       dict = JSON.parse(dictJSON),
-      ref = dict.ref,
+      deployment = Object.values(dict)[0],
       pointDict = {}
       packetDict = {
           "Channels": {
@@ -48,7 +48,7 @@ let raw_value_format = {
 };
 
 
-Object.entries(ref.channels).forEach(function (channel) {
+Object.entries(deployment.channels).forEach(function (channel) {
     let id = channel[0],
         props = channel[1],
         name = props.name;

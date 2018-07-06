@@ -10,7 +10,6 @@
 
 var net = require('net');
 var BSON = require('bson');
-var config = require('../config');
 
 var deserialize = require('./util/deserialize-binary').deserialize;
 
@@ -31,9 +30,11 @@ var flags = {
     allGood: 0x00010000
 }
 
-function BSONAdapter(target) {
-    this.target = target;
+function BSONAdapter(config) {
+    this.target = config.binaryInput.deployment;
     this.timeout = 5;
+
+    console.log(`Using deployment key '${this.target}' \n`)
 
     this.fprimeClient = {
         socket: new net.Socket(),
@@ -54,7 +55,8 @@ function BSONAdapter(target) {
 }
 
 BSONAdapter.prototype.run = function () {
-    var self = this
+    var self = this;
+
     this.setupConnections()
     // event handler for recieving packets
     this.fprimeClient.socket.on('data', function (data) {
