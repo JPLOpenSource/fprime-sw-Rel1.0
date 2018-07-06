@@ -61,9 +61,8 @@ BSONAdapter.prototype.run = function () {
         var dataAsJSON = deserialize(data, self.target);
 
         dataAsJSON.forEach(function(datum) {
-            var formattedDatum = self.formatForOpenMCT(datum);
-            var dataAsBSON = bson.serialize(formattedDatum);
-            self.openMCTTelemetryClient.socket.write(dataAsBSON);
+            var datumAsBSON = bson.serialize(datum);
+            self.openMCTTelemetryClient.socket.write(datumAsBSON);
         });
     });
 }
@@ -116,48 +115,6 @@ BSONAdapter.prototype.connectSocket = function (clientObj) {
             reject(err.message)
         });
     });
-}
-
-// Take in the data as formatted for the openmct client, and convert it to
-// the format expected by the OpenMCT telemetry server
-BSONAdapter.prototype.formatForOpenMCT = function(data) {
-    formattedData = {
-        timestamp: new Date(data.timestamp),
-        identifier: data.id,
-        flags: this.evaluateLimits(data)
-    };
-    if (data.type === 'channel') {
-        formattedData.name = data.name;
-        formattedData.raw_type = this.getBsonTypeCode(data.data_type);
-        formattedData.raw_value = data.value;
-    } else if (data.type === 'event') {
-        formattedData.name = 'Events';
-        formattedData.raw_type = this.getBsonTypeCode('S');
-        formattedData.raw_value = data.name + ': ' + data.value;
-    }
-
-    return formattedData;
-}
-
-BSONAdapter.prototype.getBsonTypeCode = function (data_type) {
-    var typeCode = data_type.charAt(0);
-    return typeCodes[typeCode];
-}
-
-BSONAdapter.prototype.evaluateLimits = function (datum) {
-    let flag = flags.allGood
-    if (datum.limits) {
-        if (datum.value > datum.limits.high_red && datum.limits.high_red !== null) {
-            flag = flags.redHigh;
-        } else if (datum.value > datum.limits.high_yellow && datum.limits.high_yellow !== null) {
-            flag = flags.yellowHigh;
-        } else if (datum.value < datum.limits.low_red && datum.limits.low_red !== null) {
-            flag = flags.redLow;
-        } else if (datum.value < datum.limits.low_yellow && datum.limits.low_yellow !== null) {
-            flag = flags.yellowLow;
-        }
-    }
-    return flag
 }
 
 module.exports = BSONAdapter;
