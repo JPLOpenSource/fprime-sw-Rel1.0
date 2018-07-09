@@ -43,7 +43,7 @@ all generated resources and start from scratch.
 
 ## Default Configuration
 
-Configuration options for the BSON server are specified in the file 'config.js'. By default, the server is configured as follows (other configuration options are available, and documented in 'config.js'):
+Configuration options for the BSON server are specified in the file 'config.js'. By default, the server is configured as follows (other configuration options are available, and documented in config.js):
 
 | Option | Description| Default Value |
 | --- | --- | --- |
