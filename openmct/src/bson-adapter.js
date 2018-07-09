@@ -18,6 +18,9 @@ var bson = new BSON();
 function BSONAdapter(config) {
 
     this.target = config.binaryInput.deployment;
+
+    // Frequency, in seconds, with which the adapter polls a socket when
+    // attempting to connect.
     this.timeout = 5;
 
     console.log(`Using deployment key '${this.target}' \n`)
@@ -27,8 +30,9 @@ function BSONAdapter(config) {
         name: "Fprime Telemetry Socket",
         port: config.binaryInput.port,
         site: config.binaryInput.bindAddress,
-        successFunction: function (clientObj) {
-            clientObj.socket.write('Register GUI\n');
+        successFunction: function () {
+            // ThreadedTCPServer will not send packets until it recieves this command
+            this.socket.write('Register GUI\n');
         }
     };
 
@@ -108,7 +112,7 @@ BSONAdapter.prototype.connectSocket = function (clientObj) {
             reject(err.message)
         });
     });
-    
+
 }
 
 module.exports = BSONAdapter;
