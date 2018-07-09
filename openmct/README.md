@@ -22,11 +22,11 @@ to run the server, but running 'npm install' will update packages if more recent
 versions are available.
 
 ```
-npm run configure
+npm run configure <XML Topology Filename>
 ```
 Runs autocoders and scripts to generate a JSON dictionary and configuration
-files, which are needed by the OpenMCT server and adapter to interpret binary
-packets. Configuration options described below.
+files from the XML Topology file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
+the Ref application, run "npm run configure ../Ref/Top/RefTopologyAppAi.xml"
 
 ```
 npm start
