@@ -4,7 +4,8 @@
   "description": "bson parser server",
   "main": "index.js",
   "scripts": {
-    "configure": "../Autocoders/bin/run_JSONDict.sh --path=res ../Ref/Top/RefTopologyAppAi.xml && node scripts/generateConfigJSON.js",
+    "configure": "../Autocoders/bin/run_JSONDict.sh --path=res ",
+    "postconfigure": "node scripts/generateConfigJSON.js",
     "start": "node index.js",
     "prepare": "cd node_modules/openmct && npm install",
     "clean": "rm -rf ./telemdb/* ./res"

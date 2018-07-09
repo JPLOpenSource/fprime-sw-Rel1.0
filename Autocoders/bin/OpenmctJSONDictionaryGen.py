@@ -230,7 +230,7 @@ def main():
     # Write JSON to file
     outFile = open(outFilename, 'w')
     outFile.write(jsonStr)
-    PRINT.info("JSON output written to %s" % outFilename)
+    PRINT.info("\nJSON output written to %s" % outFilename)
     outFile.close()
 
 if __name__ == '__main__':
