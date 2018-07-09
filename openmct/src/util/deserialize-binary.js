@@ -296,7 +296,7 @@ function evaluateLimits (value, limits) {
             flag = flags.yellowLow;
         }
     }
-    return flag
+    return flag;
 }
 
 function getBSONTypeCode (data_type) {
