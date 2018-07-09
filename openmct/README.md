@@ -25,7 +25,7 @@ versions are available.
 npm run configure <XML Topology Filename>
 ```
 Runs autocoders and scripts to generate a JSON dictionary and configuration
-files from the XML Topology file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
+files from the provided fprime XML Topology file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
 the Ref application, run "npm run configure ../Ref/Top/RefTopologyAppAi.xml"
 
 ```
@@ -58,7 +58,7 @@ Configuration options for the BSON server are specified in the file 'config.js'.
 | input.port | Port where BSON server listens for packets | 12345 |
 | binaryInput.deployment  | Deployment name to use for packet deserialization | ref |
 | binaryInput.bindAddress | Hostname where BSON Adapter will connect and receive binary packets | 127.0.0.1 |
-| binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 12345 |
+| binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 
 ## Persistence with CouchDB
 A CouchDB server must be run as a standalone service in order to enable layout persistence.
@@ -67,7 +67,7 @@ then do the following:
   1. Start the Apache CouchDB application
   2. In a browser, navigate to http://127.0.0.1:5984/_utils/ to open the GUI tools
   3. Go to setup and choose "Setup Single Node"
-  4. Configure a username and password, use "127.0.0.1" as the host, and the default port of 5984
+  4. Configure a username and password, using "127.0.0.1" as the host, and the default port of 5984
   5. From the Databases panel, create a new database called "openmct"
   6. Go to Configuration->CORS, choose "Enable CORS", and add http://localhost:8000
       to the allowed domains. This will allow OpenMCT read and write access to the

@@ -11,6 +11,7 @@ AUTHOR: Aaron Doubek-Kraft aarondou@jpl.nasa.gov
 import os
 import logging
 import json
+import sys
 
 from optparse import OptionParser
 
@@ -59,7 +60,6 @@ def main():
 
     parser = pinit()
     (opts, args) = parser.parse_args()
-    xmlFilename = args[0]
     outFilename = "/".join([opts.work_path, "dictionary.json"])
 
     # Log to stdout
@@ -73,7 +73,9 @@ def main():
     #  Parse the input Component XML file and create internal meta-model
     #
     if len(args) == 0:
-        PRINT.info("Usage: %s [options] xml_filename" % sys.argv[0])
+        PRINT.info("\nUsage: %s [options] xml_filename" % sys.argv[0])
+        PRINT.info("ERROR: Cannot create dictionary\n")
+        sys.exit(-1)
         return
     else:
         xmlFilename = args[0]
