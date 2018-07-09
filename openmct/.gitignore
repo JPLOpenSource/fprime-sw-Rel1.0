@@ -4,5 +4,5 @@ res/packets.json
 res/dictionary.json
 file-data/
 telemdb/
-node_modules/
+openmct-old/node_modules
 package-lock.json
