@@ -117,7 +117,7 @@ has_max_length_w = 'nil'
 has_max_length_r = 'nil'
 fill_ls_w = 'true'
 fill_ls_r = 'true'
-```.
+```
 
 ## 6. The Classess
 
