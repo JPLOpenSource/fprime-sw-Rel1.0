@@ -28,7 +28,7 @@ versions are available. These packages are located in the "node_modules" directo
 npm run configure <Topology XML Filepath>
 ```
 Runs autocoders and scripts to generate a JSON dictionary and configuration
-files from the provided prime Topology XML file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
+files from the provided fprime Topology XML file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
 the Ref application, run "npm run configure ../Ref/Top/RefTopologyAppAi.xml"
 
 ```
