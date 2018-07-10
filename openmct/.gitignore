@@ -6,3 +6,4 @@ file-data/
 telemdb/
 openmct-old/node_modules
 package-lock.json
+!core

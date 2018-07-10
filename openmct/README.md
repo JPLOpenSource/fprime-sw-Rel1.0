@@ -82,6 +82,9 @@ is persisted.
 
 Author: Pete Richards
 
+This section describes the OpenMCT BSON server. This information is not necessary
+to run the fprime server, but it is used internally in the implementation.
+
 Basic Open MCT server with a built in telemetry server.  Consumes a stream of
 BSON data, publishes it to clients in real time, and also stores it in a
 database for historical access later.
@@ -105,17 +108,6 @@ LevelDB: History will be pruned every 1 hour(s).
 BSONStreamInput: Listening on: 127.0.0.1:12345
 Web server running at 127.0.0.1:8000
 ```
-
-Connect to `http://127.0.0.1:8000` to view Open MCT.
-
-For testing purposes, there is a replay script which allows you to replay
-bson data from a file:
-
-```
-node scripts/replay.js test-bson-file.bson
-```
-
-For a complete list of replay options, run `node scripts/replay --help`.
 
 ## Point and Packet Dictionary
 In order to provide Open MCT with the necessary information about available
