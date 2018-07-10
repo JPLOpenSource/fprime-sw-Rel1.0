@@ -17,5 +17,4 @@ echo "PYTHON_BASE: ${PYTHON_BASE}"
 setenv LD_LIBRARY_PATH ${PYTHON_BASE}/lib
 setenv PYTHONPATH ${BUILD_ROOT}/Autocoders/src
 echo "PYTHONPATH: ${PYTHONPATH}"
-${PYTHON_BASE}/bin/python ${BUILD_ROOT}/Autocoders/bin/OpenmctJSONDictionaryGen.py  $*
-
+${PYTHON_BASE}/bin/python ${BUILD_ROOT}/Autocoders/bin/JSONDictionaryGen.py  $*

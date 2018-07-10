@@ -1,9 +1,8 @@
 '''
-NAME: OpenmctJSONDictonaryGen.py
+NAME: JSONDictonaryGen.py
 
 DESCRIPTION: Reads topology XML to produce command, EVR, and channel JSON
-             dictionaries to be read in by the openmct-telemetry-server as
-             configuration files
+             dictionaries
 
 AUTHOR: Aaron Doubek-Kraft aarondou@jpl.nasa.gov
 '''
@@ -36,10 +35,11 @@ def pinit():
     usage = "usage: %prog [options] [xml_filename]"
     vers = "%prog " + VERSION.id + " " + VERSION.comment
     program_longdesc = '''
-        This script reads F' topology XML and produces summary JSON documents.
-        These documents contain all command, evr, and channel telemetry descriptions.
+        This script reads F' topology XML and produces dictionaries represented as
+        JSON. These documents contain all command, evr, and channel telemetry
+        descriptions.
         '''
-    program_license = "Copyright 2018 user_name (California Institute of Technology)                                            \
+    program_license = "Copyright 2018 aarondou (California Institute of Technology)                                            \
                 ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged."
 
     parser = OptionParser(usage, version=vers, epilog=program_longdesc,description=program_license)
@@ -48,11 +48,8 @@ def pinit():
         help="Switch to new working directory (def: %s)." % current_dir,
         action="store", default=current_dir)
 
-    parser.add_option("-l", "--logger", dest="logger", default="QUIET",
-        help="Set the logging level <DEBUG | INFO | QUIET> (def: 'QUIET').")
-
     parser.add_option("-L", "--logger-output-file", dest="logger_output",
-        default=None, help="Set the logger output file. (def: isfgen.log).")
+        default=None, help="Set the logger output file. (def: stdout).")
 
     return parser
 
@@ -62,7 +59,6 @@ def main():
     (opts, args) = parser.parse_args()
     outFilename = "/".join([opts.work_path, "dictionary.json"])
 
-    # Log to stdout
     Logger.connectOutputLogger(opts.logger_output)
 
     # Global logger init. below.
