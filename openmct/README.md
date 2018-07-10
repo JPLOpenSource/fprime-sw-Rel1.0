@@ -11,10 +11,9 @@ resources such as layouts. Telemetry visualization will work without running a C
 server, but any user-created resources cannot be saved.
 
 ## Usage
-This package requires node.js and npm (https://nodejs.org/en/) to build and run.
+This package requires node.js and npm to be installed on your system (https://nodejs.org/en/) to build and run.
 Additionally, the build scripts depend on Python autocoders, so make sure your
-system has Python 2, and use your favorite package manager to install the "lxml"
-module.
+system has Python 2, and install the "lxml" module.
 
 To configure and start the OpenMCT server, run the following:
 ```
@@ -59,7 +58,7 @@ Configuration options for the BSON server are specified in the file 'config.js'.
 | input.type | Input type for openmct | bson |
 | input.bindAddress | Hostname where BSON server listens for packets | 127.0.0.1 |
 | input.port | Port where BSON server listens for packets | 12345 |
-| binaryInput.deployment  | Deployment name to use for packet deserialization | ref |
+| binaryInput.deployment  | Deployment name to use for packet deserialization (this will be set to the appropriate key by the autocoder) | ref |
 | binaryInput.bindAddress | Hostname where BSON Adapter will connect and receive binary packets | 127.0.0.1 |
 | binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 

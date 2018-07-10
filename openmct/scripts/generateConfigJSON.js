@@ -15,6 +15,8 @@ const path = require('path');
 const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
       outFilenamePoints = 'res/points.json',
       outFilenamePackets = 'res/packets.json',
+      filepathConfig = path.dirname(__dirname) + '/config.js',
+      configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
       dict = JSON.parse(dictJSON),
       deployment = Object.keys(dict)[0],
       deploymentDict = dict[deployment],
@@ -66,10 +68,14 @@ Object.entries(deploymentDict.channels).forEach(function (channel) {
     }
 });
 
+newConfigJS = configJS.replace(/deployment: '(\w+)'/, `deployment: '${deployment}'`)
+
 let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;
 let outFilepathPackets = path.dirname(__dirname) + '/' + outFilenamePackets;
 
-console.log(`Writing points config file to ${outFilenamePoints}`);
+console.log(`Writing points config file to ${outFilepathPoints}`);
 fs.writeFileSync(outFilepathPoints, JSON.stringify(pointDict));
-console.log(`Writing packets config file to ${outFilenamePackets}`);
+console.log(`Writing packets config file to ${outFilepathPackets}`);
 fs.writeFileSync(outFilepathPackets, JSON.stringify(packetDict));
+console.log(`Setting deployment key to '${deployment}' in ${filepathConfig}`);
+fs.writeFileSync(filepathConfig, newConfigJS)
