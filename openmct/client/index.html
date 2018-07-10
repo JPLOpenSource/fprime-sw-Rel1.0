@@ -86,6 +86,9 @@
                 openmct.install(LimitPlugin());
                 openmct.install(openmct.plugins.AutoflowView({type: 'bson.packet'}));
 
+                // Use light visual theme
+                openmct.install(openmct.plugins.Snow());
+
                 openmct.start();
             });
     </script>
