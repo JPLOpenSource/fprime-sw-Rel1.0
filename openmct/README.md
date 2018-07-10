@@ -11,14 +11,17 @@ resources such as layouts. Telemetry visualization will work without running a C
 server, but any user-created resources cannot be saved.
 
 ## Usage
-Make sure node.js and npm (https://nodejs.org/en/) are installed on your system,
-then from fprime/openmct, run:
+This package requires node.js and npm (https://nodejs.org/en/) to build and run.
+Additionally, the build scripts depend on Python autocoders, so make sure your
+system has Python 2, and use your favorite package manager to install the "lxml"
+module.
 
+To configure and start the OpenMCT server, run the following:
 ```
 npm install
 ```
-(Optional): This package ships with a frozen set of the javascript packages needed
-to run the server, but running 'npm install' will update packages if more recent
+(Optional): This package ships with a frozen set of the JavaScript packages needed
+to run the server, but running npm install will update packages if more recent
 versions are available. These packages are located in the "node_modules" directory.
 
 ```
