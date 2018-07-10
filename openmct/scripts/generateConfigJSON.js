@@ -16,14 +16,18 @@ const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json
       outFilenamePoints = 'res/points.json',
       outFilenamePackets = 'res/packets.json',
       dict = JSON.parse(dictJSON),
-      deployment = Object.values(dict)[0],
-      pointDict = {}
-      packetDict = {
-          "Channels": {
-              name: "Channels",
-              points: []
-          }
-      };
+      deployment = Object.keys(dict)[0],
+      deploymentDict = dict[deployment],
+      pointDict = {},
+      packetDict = {};
+
+let deploymentName = deployment.charAt(0).toUpperCase() + deployment.slice(1),
+    packetName = deploymentName + " Telemetry"
+
+packetDict[packetName] = {
+    name: packetName,
+    points: []
+}
 
 let time_format = {
   'key': 'utc',
@@ -48,12 +52,12 @@ let raw_value_format = {
 };
 
 
-Object.entries(deployment.channels).forEach(function (channel) {
+Object.entries(deploymentDict.channels).forEach(function (channel) {
     let id = channel[0],
         props = channel[1],
         name = props.name;
 
-    packetDict['Channels'].points.push(name);
+    packetDict[packetName].points.push(name);
     pointDict[name] = {
         name: name,
         key: name,

@@ -102,6 +102,12 @@ def main():
     limitLabels = ["low_red", "low_orange", "low_yellow", "high_yellow", "high_orange", "high_red"]
     unitLabels = ["label", "gain", "offset"]
 
+    instanceIDs = {
+        "events": {},
+        "channels": {},
+        "commands": {}
+    }
+
     for inst in parsedTopology.get_instances():
         comp_name = inst.get_name()
         comp_type = inst.get_type()
@@ -121,7 +127,11 @@ def main():
                 opcode = int(opcode, 16) if ('0x' in opcode) else int(opcode)
                 opcode += base_id
 
-                name = "_".join([comp_name, command.get_mnemonic()])
+                name = command.get_mnemonic()
+                if name in instanceIDs["commands"]:
+                    instanceIDs["commands"][name].append(opcode)
+                else:
+                    instanceIDs["commands"][name] = [opcode]
 
                 arguments = []
                 for arg in command.get_args():
@@ -134,6 +144,7 @@ def main():
                 metadata = {
                     "id": opcode,
                     "name": name,
+                    "instance": comp_name,
                     "description": command.get_comment(),
                     "component": component,
                     "arguments" : arguments
@@ -147,6 +158,12 @@ def main():
                 ev_id = int(ev_id, 16) if ('0x' in ev_id) else int(ev_id)
                 ev_id += base_id
 
+                name = event.get_name()
+                if name in instanceIDs["events"]:
+                    instanceIDs["events"][name].append(ev_id)
+                else:
+                    instanceIDs["events"][name] = [ev_id]
+
                 arguments = []
                 for arg in event.get_args():
                     arguments.append(arg.get_type())
@@ -154,7 +171,8 @@ def main():
                 metadata = {
                     "id": ev_id,
                     "description":  event.get_comment(),
-                    "name": event.get_name(),
+                    "name": name,
+                    "instance": comp_name,
                     "component": component,
                     "format_string": event.get_format_string(),
                     "severity": event.get_severity(),
@@ -170,7 +188,11 @@ def main():
                 ch_id = int(ch_id, 16) if ('0x' in ch_id) else int(ch_id)
                 ch_id += base_id
 
-                name = "_".join([comp_name, channel.get_name()])
+                name = channel.get_name()
+                if name in instanceIDs["channels"]:
+                    instanceIDs["channels"][name].append(ch_id)
+                else:
+                    instanceIDs["channels"][name] = [ch_id]
 
                 units = []
                 for unit in channel.get_units():
@@ -190,6 +212,7 @@ def main():
                 metadata = {
                     "id": ch_id,
                     "name": name,
+                    "instance": comp_name,
                     "description": channel.get_comment(),
                     "telem_type": "channel",
                     "component": component,
@@ -215,6 +238,18 @@ def main():
         "type": "string",
         "format_string": None
     }
+
+    #Prepend instance name to commands, events, and channels with duplicate component types
+    # PRINT.info(json.dumps(instanceIDs, indent=4))
+    for telemetryType, idDict in instanceIDs.items():
+        for name, ids in idDict.items():
+            if len(ids) > 1:
+                for id in ids:
+                    telem = dictionary[deployment][telemetryType][id]
+                    name = telem["name"]
+                    instanceName = telem["instance"]
+                    name = "_".join([instanceName, name])
+                    telem["name"] = name
 
     # Stringify JSON -- indent option makes it readable, can be removed if file
     # size is an issue

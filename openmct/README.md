@@ -1,6 +1,6 @@
 # Fprime OpenMCT Server
 
-Author: Aaron Doubek-Kraft, aarondou@jpl.nasa.gov
+Author: Aaron Doubek-Kraft, aaron.doubek-kraft@jpl.nasa.gov
 
 Expands on the openmct-telemetry-server, described in the "BSON Telemetry Server" section, to provide visualizations for binary
 data streams. The OpenMCT server consumes a stream of BSON data, publishes it to
