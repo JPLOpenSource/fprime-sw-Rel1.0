@@ -17,9 +17,9 @@ then from fprime/openmct, run:
 ```
 npm install
 ```
-(Optional): This package ships with a frozen set of the node modules needed
+(Optional): This package ships with a frozen set of the javascript packages needed
 to run the server, but running 'npm install' will update packages if more recent
-versions are available.
+versions are available. These packages are located in the "node_modules" directory.
 
 ```
 npm run configure <Topology XML Filepath>
@@ -61,20 +61,22 @@ Configuration options for the BSON server are specified in the file 'config.js'.
 | binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 
 ## Persistence with CouchDB
-A CouchDB server must be run as a standalone service in order to enable layout persistence.
+A CouchDB server must be run as a standalone service in order to enable object persistence.
 Download the appropriate version for your system from http://couchdb.apache.org/,
 then do the following:
   1. Start the Apache CouchDB application
   2. In a browser, navigate to http://127.0.0.1:5984/_utils/ to open the GUI tools
-  3. Go to setup and choose "Setup Single Node"
-  4. Configure a username and password, using "127.0.0.1" as the host, and the default port of 5984
+      (this may happen automatically when you start CouchDB)
+  3. Go to the Setup panel and choose "Configure a Single Node"
+  4. Choose a username and password when prompted, using "127.0.0.1" as the host, and the default port of 5984
   5. From the Databases panel, create a new database called "openmct"
   6. Go to Configuration->CORS, choose "Enable CORS", and add http://localhost:8000
       to the allowed domains. This will allow OpenMCT read and write access to the
       database.
 
-To test that this functionality is working, create a new item, and save it to
-"My Items". Then, refresh the browser and observe that the item is persisted.
+To test that this functionality is working, create a new item in the web client,
+and save it to "My Items". Then, refresh the browser and observe that the item
+is persisted.
 
 # BSON Telemetry Server
 
