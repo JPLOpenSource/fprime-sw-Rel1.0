@@ -18,6 +18,7 @@ from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.util import CheetahUtil
 from utils.cosmos.util import CosmosUtil
+from utils.cosmos.util import CosmosConfigManager
 
 from utils.cosmos.templates import Server
 
@@ -51,33 +52,35 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         # Initialize and fill cheetah template
         cs = Server.Server()
         
+        conf = CosmosConfigManager.CosmosConfigManager.getInstance(self.deployment_name)
+        
         cs.date = CheetahUtil.DATE
         cs.user = CheetahUtil.USER
         cs.target_name = self.deployment_name.upper()
-        cs.write_port = CosmosUtil.WRITE_PORT
-        cs.read_port = CosmosUtil.READ_PORT
-        cs.read_timeout = CosmosUtil.READ_TIMEOUT
-        cs.write_timeout = CosmosUtil.WRITE_TIMEOUT
-        cs.protocol_name_w = CosmosUtil.PROTOCOL_NAME_W
-        cs.protocol_name_r = CosmosUtil.PROTOCOL_NAME_R
-        cs.len_bit_offset_w = CosmosUtil.LEN_BIT_OFFSET_W
-        cs.len_bit_offset_r = CosmosUtil.LEN_BIT_OFFSET_R
-        cs.len_bit_size_w = CosmosUtil.LEN_BIT_SIZE_W
-        cs.len_bit_size_r = CosmosUtil.LEN_BIT_SIZE_R
-        cs.len_val_offset_w = CosmosUtil.LEN_VAL_OFFSET_W
-        cs.len_val_offset_r = CosmosUtil.LEN_VAL_OFFSET_R
-        cs.bytes_per_count_w = CosmosUtil.BYTES_PER_COUNT_W
-        cs.bytes_per_count_r = CosmosUtil.BYTES_PER_COUNT_R
-        cs.endianness_w = CosmosUtil.ENDIANNESS_W
-        cs.endianness_r = CosmosUtil.ENDIANNESS_R
-        cs.discard_leading_w = CosmosUtil.DISCARD_LEADING_W
-        cs.discard_leading_r = CosmosUtil.DISCARD_LEADING_R
-        cs.sync_w = CosmosUtil.SYNC_W
-        cs.sync_r = CosmosUtil.SYNC_R
-        cs.has_max_length_w = CosmosUtil.HAS_MAX_LENGTH_W
-        cs.has_max_length_r = CosmosUtil.HAS_MAX_LENGTH_R
-        cs.fill_ls_w = CosmosUtil.FILL_LS_W
-        cs.fill_ls_r = CosmosUtil.FILL_LS_R
+        cs.write_port = conf.get('deployment' , 'write_port', 'r')
+        cs.read_port = conf.get('deployment' , 'read_port', 'r')
+        cs.read_timeout = conf.get('deployment' , 'read_timeout', 'r')
+        cs.write_timeout = conf.get('deployment' , 'write_timeout', 'r')
+        cs.protocol_name_w = conf.get('deployment' , 'protocol_name_w', 'r')
+        cs.protocol_name_r = conf.get('deployment' , 'protocol_name_r', 'r')
+        cs.len_bit_offset_w = conf.get('deployment' , 'len_bit_offset_w', 'r')
+        cs.len_bit_offset_r = conf.get('deployment' , 'len_bit_offset_r', 'r')
+        cs.len_bit_size_w = conf.get('deployment' , 'len_bit_size_w', 'r')
+        cs.len_bit_size_r = conf.get('deployment' , 'len_bit_size_r', 'r')
+        cs.len_val_offset_w = conf.get('deployment' , 'len_val_offset_w', 'r')
+        cs.len_val_offset_r = conf.get('deployment' , 'len_val_offset_r', 'r')
+        cs.bytes_per_count_w = conf.get('deployment' , 'bytes_per_count_w', 'r')
+        cs.bytes_per_count_r = conf.get('deployment' , 'bytes_per_count_r', 'r')
+        cs.endianness_w = conf.get('deployment' , 'endianness_w', 'r')
+        cs.endianness_r = conf.get('deployment' , 'endianness_r', 'r')
+        cs.discard_leading_w = conf.get('deployment' , 'discard_leading_w', 'r')
+        cs.discard_leading_r = conf.get('deployment' , 'discard_leading_r', 'r')
+        cs.sync_w = conf.get('deployment' , 'sync_w', 'r')
+        cs.sync_r = conf.get('deployment' , 'sync_r', 'r')
+        cs.has_max_length_w = conf.get('deployment' , 'has_max_length_w', 'r')
+        cs.has_max_length_r = conf.get('deployment' , 'has_max_length_r', 'r')
+        cs.fill_ls_w = conf.get('deployment' , 'fill_ls_w', 'r')
+        cs.fill_ls_r = conf.get('deployment' , 'fill_ls_r', 'r')
                     
         msg = cs.__str__()
                     

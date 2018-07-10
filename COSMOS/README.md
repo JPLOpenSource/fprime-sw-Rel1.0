@@ -49,9 +49,9 @@ The tool outputs COSMOS config text files to the directory set via command-line 
 ### Generated text files
 |Name|Description
 |---|---|
-|\_ref\_cmd\_hdr.txt|Contains all shared header fields for commands|
-|\_ref\_tlm\_chn\_hdr.txt|Contains all shared header fields for channels|
-|\_ref\_tlm\_evr\_hdr.txt|Contains all shared header fields for events|
+|\_TARGET\_NAME\_cmd\_hdr.txt|Contains all shared header fields for commands|
+|\_TARGET\_NAME\_tlm\_chn\_hdr.txt|Contains all shared header fields for channels|
+|\_TARGET\_NAME\_tlm\_evr\_hdr.txt|Contains all shared header fields for events|
 |\_user\_dataviewers.txt|Contains room for users to input their own data_viewer definition files|
 |channels.txt|Contains COSMOS screen definition for the target's Channel display for the tlm_viewer application|
 |cmd\_tlm\_server.txt|Contains links to the other cmd\_tlm\_server.txt files found within each target's own directory|
@@ -71,25 +71,55 @@ The tool outputs COSMOS config text files to the directory set via command-line 
 
 ### 5.1 Adding Commands and Telemetry
 
-Commands and Telemetry should be added ONLY to the Deployment's Topology, not in the command / channel / event directories themselves as all files in these directories will be wiped and re-made every time the generator is run.
+Commands and Telemetry should be added ONLY to the Deployment's Topology XML, not in the command / channel / event directories themselves as all files in these directories will be wiped and re-generated based on the XML every time the generator is run.
 
 #### 5.1.2 Altering Header Files
 
-All command and telemetry header files should be altered by directly editing the Cheetah templates themselves rather than the text files, as the text files are overwritten with each run of the generator in order to allow Topology XML file changes to be added in.
+All command and telemetry header files should be altered by directly editing the Cheetah templates themselves rather than the text files, as the text files are overwritten with each run of the generator in order to allow Topology XML file changes to be added in.  In addition, it is necessary to specify the total number of bits in the Event header file by altering the constant 'EVR\_HEADER\_SIZE\_BITS' inside of CosmosUtil.py. 
 
 ### 5.2 Adding Channel Screens
 
-To add a channel screen, determine the target you want to make the screen for, and create a new .txt file using the name of the screen you wish to create inside of that target's config/targets/TARGET\_NAME/screens directory.  The channels.txt file is wiped each time the generator tool is run, so any time you want to add channel items to that screen you should simply add them to the Topology XML and they will be generated into it.
+To add a channel screen, create a new .txt file using the name for the screen you wish to create and put it inside of that target's config/targets/TARGET\_NAME/screens directory.  The channels.txt file is wiped each time the generator tool is run, so any time you want to add channels to that screen you should simply add them to the Topology XML as all channels are generated into it.
 
 ### 5.3 Adding Data Viewer Telemetry Views
 
-To add a new view to the Data Viewer application, you should append your view's definition to the user\_dataviewers.txt file inside the targets config/targets/TARGET\_NAME/tools/data\_viewer directory.  The user\_dataviewers.txt file will not be created or overwritten if it already exists, however the data\_viewer.txt file will, so it should not be edited.  No other file in that directory will be used by COSMOS.
+To add a new view to the Data Viewer application, you should append your view's config definition to the user\_dataviewers.txt file inside the targets config/targets/TARGET\_NAME/tools/data\_viewer directory.  The user\_dataviewers.txt file will not be created or overwritten if it already exists, however the data\_viewer.txt file will, so it should not be edited.  No other file in that directory will be used by COSMOS.
 
 ### 5.4 Altering Interface and Protocol Config Files
 
-These files should never be altered, there are constants in the CosmosUtil.py file that alter their contents.
+In order to change the cmd\_tlm\_server.txt file for your deployment, add a .ini file to the Autocoders/src/utils/cosmos/util directory with the name of your deployment.  Example below:
 
-## 6. The Classes
+**ref.ini**
+```
+; Ref deployment variables
+[deployment]
+write_port = 5000
+read_port = 5000
+read_timeout = 10
+write_timeout = 10
+protocol_name_w = 'FPrimeProtocol'
+protocol_name_r = 'FPrimeProtocol'
+len_bit_offset_w = 32
+len_bit_offset_r = 72
+len_bit_size_w = 32
+len_bit_size_r = 32
+len_val_offset_w = 8
+len_val_offset_r = 13
+bytes_per_count_w = 1
+bytes_per_count_r = 1
+endianness_w = 'BIG_ENDIAN'
+endianness_r = 'BIG_ENDIAN'
+discard_leading_w = 0
+discard_leading_r = 0
+sync_w = '5A5A5A5A'
+sync_r = '413541352047554920'
+has_max_length_w = 'nil'
+has_max_length_r = 'nil'
+fill_ls_w = 'true'
+fill_ls_r = 'true'
+```.
+
+## 6. The Classess
 
 Classes within the tool are broken down into lowest-level model and writer classes that represent the command and telemetry data and that do the actual file writing, mid-level parser and generator classes that create and utilize the model and writer classes, and one highest-level cosmosgen.py class that instantiates the parser and generator classes.  All cheetah templates are found in the Autocoders/utils/cosmos/templates directory and all Ruby scripts are found in the COSMOS/lib directory.
 
@@ -117,8 +147,10 @@ Classes within the tool are broken down into lowest-level model and writer class
 #### 6.1.4 The Autocoders/src/utils/cosmos/util Directory
 |Name|Description|Link
 |---|---|---|
-|CheetahUtil.py|Contains constants and methods that affect the way data is outputted to the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/models/CheetahUtil.py)|
-|CosmosUtil.py|Contains all the hardcoded data regarding interfaces and protocols i.e. port number, header-bit-length|[.py](../Autocoders/src/utils/cosmos/models/CosmosUtil.py)|
+|CheetahUtil.py|Contains constants and methods that affect the way data is outputted to the Cheetah templates|[.py](../Autocoders/src/utils/cosmos/util/CheetahUtil.py)
+
+|CosmosConfigManager.py|Sets the default deployment server interface variables, can be altered via .ini files with deployment name in same directory|[.py](../Autocoders/src/utils/cosmos/util/CosmosConfigManager.py)|
+|CosmosUtil.py|Contains all the hardcoded data regarding interfaces and protocols i.e. port number, header-bit-length|[.py](../Autocoders/src/utils/cosmos/util/CosmosUtil.py)|
 
 #### 6.1.5 The Autocoders/src/utils/cosmos/writers Directory
 |Name|Description|Link
@@ -143,6 +175,6 @@ Classes within the tool are broken down into lowest-level model and writer class
 ### 6.2 Helper Ruby Scripts
 |Name|Description|Link
 |---|---|---|
-|evr\_dump\_component.rb|Plain text writing protocol that specifies how text should be written in the data_viewer application|[.rb](../COSMOS/lib/evr\_dump\_component.rb)|
+|evr\_dump\_component.rb|Plain text writing protocol that specifies how text should be written in the data\_viewer application|[.rb](../COSMOS/lib/evr\_dump\_component.rb)|
 |multi\_string\_item\_conversion.rb|Ruby script that is used in event telemetry to allow COSMOS to handle multiple strings by pre-specifying all packet items in a single BLOCK-type item and then parsing out their values within this script rather than in COSMOS itself|[.rb](../COSMOS/lib/multi\_string\_item\_conversion.rb)|
-|ref\_protocol.rb|Optional helper script for FPrime ref app that bypasses an error message that gets sent out when COSMOS doesn't recognize the first 13 bits the ref app sends|[.rb](../COSMOS/lib/ref\_protocol.rb)|
+|fprime\_protocol.rb|Optional helper script for FPrime ref app that bypasses an error message that gets sent out when COSMOS doesn't recognize the first 13 bits the ref app sends|[.rb](../COSMOS/lib/fprime\_protocol.rb)|

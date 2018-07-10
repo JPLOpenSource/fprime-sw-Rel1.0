@@ -21,7 +21,7 @@ from utils.cosmos.writers import AbstractCosmosWriter
 
 from utils.cosmos.templates import Ruby_Evr_Dump_Component
 from utils.cosmos.templates import Ruby_Multi_String_Tlm_Item_Conversion
-from utils.cosmos.templates import Ruby_Ref_Protocol
+from utils.cosmos.templates import Ruby_FPrime_Protocol
 
 from utils.cosmos.util import CosmosUtil
 
@@ -46,7 +46,7 @@ class RubyWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         self.destinations = {
             cosmos_directory + "/lib/evr_dump_component.rb": Ruby_Evr_Dump_Component.Ruby_Evr_Dump_Component(),
             cosmos_directory + "/lib/multi_string_tlm_item_conversion.rb": Ruby_Multi_String_Tlm_Item_Conversion.Ruby_Multi_String_Tlm_Item_Conversion(),
-            cosmos_directory + "/lib/ref_protocol.rb": Ruby_Ref_Protocol.Ruby_Ref_Protocol()
+            cosmos_directory + "/lib/fprime_protocol.rb": Ruby_FPrime_Protocol.Ruby_FPrime_Protocol()
             }
         
                     

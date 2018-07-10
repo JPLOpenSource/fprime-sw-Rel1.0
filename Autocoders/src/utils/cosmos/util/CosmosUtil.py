@@ -26,37 +26,11 @@ including header sizes, port numbers, etc.
 # String-length item size and type
 STRING_LEN_TYPE = 'U16'
     
-# Total number of bits in the Event header items (Alter the file _ref_tlm_evr_hdr.txt in the events directory as well)
+# Total number of bits in the Event header items (Alter the file _TARGETNAME_tlm_evr_hdr.txt in the events directory as well)
 EVR_HEADER_SIZE_BITS = 256
     
 # Endianness for commands and telemetry
 CMD_TLM_ENDIANNESS = 'BIG_ENDIAN'
-    
-# SERVER VARIABLES
-WRITE_PORT = 5000
-READ_PORT = 5000
-READ_TIMEOUT = 10
-WRITE_TIMEOUT = 10
-PROTOCOL_NAME_W = 'RefProtocol'
-PROTOCOL_NAME_R = 'RefProtocol'
-LEN_BIT_OFFSET_W = 32
-LEN_BIT_OFFSET_R = 72
-LEN_BIT_SIZE_W = 32
-LEN_BIT_SIZE_R = 32
-LEN_VAL_OFFSET_W = 8
-LEN_VAL_OFFSET_R = 13
-BYTES_PER_COUNT_W = 1
-BYTES_PER_COUNT_R = 1
-ENDIANNESS_W = 'BIG_ENDIAN'
-ENDIANNESS_R = 'BIG_ENDIAN'
-DISCARD_LEADING_W = 0
-DISCARD_LEADING_R = 0
-SYNC_W = '5A5A5A5A'
-SYNC_R = '413541352047554920'
-HAS_MAX_LENGTH_W = 'nil'
-HAS_MAX_LENGTH_R = 'nil'
-FILL_LS_W = 'true'
-FILL_LS_R = 'true'
 
 #
 # COSMOS LIMITS

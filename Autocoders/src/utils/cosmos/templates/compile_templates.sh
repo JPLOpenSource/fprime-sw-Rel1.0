@@ -17,7 +17,7 @@ cheetah compile Partial_Data_Viewer.tmpl
 cheetah compile Partial_Event.tmpl
 cheetah compile Ruby_Evr_Dump_Component.tmpl
 cheetah compile Ruby_Multi_String_Tlm_Item_Conversion.tmpl
-cheetah compile Ruby_Ref_Protocol.tmpl
+cheetah compile Ruby_FPrime_Protocol.tmpl
 cheetah compile Server.tmpl
 cheetah compile Target.tmpl
 cheetah compile Tlm_Extractor.tmpl
