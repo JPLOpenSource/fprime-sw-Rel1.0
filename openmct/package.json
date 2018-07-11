@@ -8,8 +8,7 @@
     "postconfigure": "node scripts/generateConfigJSON.js",
     "start": "node index.js",
     "prepare": "cd node_modules/openmct && npm install",
-    "clean": "rm -rf ./res",
-    "archive": "node scripts/archive.js"
+    "clean": "rm -rf ./res"
   },
   "author": "peter.l.richards@nasa.gov",
   "license": "ISC",
