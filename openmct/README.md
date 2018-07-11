@@ -20,7 +20,7 @@ To configure and start the OpenMCT server, run the following from fprime/openmct
 npm run configure <Topology XML Filepath>
 npm start
 ```
-where <Topology XML Filepath> is the Topology XML file for the fprime deployment which OpenMCT will be recieving data for. Point a browser to http://localhost:8000 to view the OpenMCT web client (chrome works best).
+where "Topology XML Filepath" is the Topology XML file for the fprime deployment which OpenMCT will be recieving data for. Point a browser to http://localhost:8000 to view the OpenMCT web client (chrome works best).
 If configuration was successful, a Packet object called "<Deployment Name> Telemetry"
 containing Telemetry objects for each channel should appear under the "BSON Server" folder.
 To set up persistence for custom objects, see the "Persistence with CouchDB" section
