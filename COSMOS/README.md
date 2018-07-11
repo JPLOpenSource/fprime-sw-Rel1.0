@@ -87,7 +87,7 @@ To add a new view to the Data Viewer application, you should append your view's 
 
 ### 5.4 Altering Interface and Protocol Config Files
 
-In order to change the cmd\_tlm\_server.txt file for your deployment, add a .ini file to the Autocoders/src/utils/cosmos/util directory with the name of your deployment.  Example below:
+In order to change the cmd\_tlm\_server.txt file for your deployment, add a .ini file to the Autocoders/src/utils/cosmos/util directory with the name of your deployment.  If there is no such .ini file with the same name as the current deployment found within the util directory, the ConfigManager will default to using the values seen below:
 
 **ref.ini**
 ```
