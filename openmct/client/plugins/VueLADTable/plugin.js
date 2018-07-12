@@ -47,7 +47,7 @@ var LADPlugin = function () {
                         table.$mount(container);
                     },
                     destroy: function (container) {
-                        table.destroy();
+                        table.$destroy();
                         controller.destroy();
                     }
                 };
