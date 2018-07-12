@@ -35,6 +35,14 @@ var DictionaryPlugin = function (options) {
 
     var objectProvider = {
         get: function (identifier) {
+            if (identifier.key === 'lad-table') {
+                return Promise.resolve({
+                    identifier: identifier,
+                    name: 'Latest Value Table',
+                    type: 'lad-table',
+                    location: options.namespace + ':root'
+                });
+            }
             if (identifier.key === 'root') {
                 return Promise.resolve({
                     identifier: identifier,
@@ -151,7 +159,7 @@ var DictionaryPlugin = function (options) {
     var compositionProvider = {
         appliesTo: function (domainObject) {
             return domainObject.identifier.namespace === options.namespace &&
-                   (domainObject.type === 'folder' || domainObject.type === 'bson.packet');
+                   (domainObject.type === 'folder' || domainObject.type === 'bson.packet' || domainObject.type === 'lad-table');
         },
         load: function (domainObject) {
             if (domainObject.type === 'folder') {
@@ -160,6 +168,9 @@ var DictionaryPlugin = function (options) {
                         return [{
                             namespace: options.namespace,
                             key: 'LIMIT_LOG'
+                        },{
+                            namespace: options.namespace,
+                            key: 'lad-table'
                         }].concat(data.packets.map(function (k) {
                             return {
                                 namespace: options.namespace,
@@ -177,6 +188,25 @@ var DictionaryPlugin = function (options) {
                             };
                         });
                     });
+            } else if (domainObject.type === 'lad-table') {
+                var tableComp = []
+                return serverGet('/packets').then(function (packetObj) {
+                    var packetPromises = []
+                    packetObj.packets.forEach(function (packetKey) {
+                        packetPromises.push(serverGet('/packets/' + packetKey))
+                    });
+                    return Promise.all(packetPromises).then(function (pointsObjs) {
+                        pointsObjs.forEach( function (pointsObj) {
+                            pointsObj.pointIds.forEach(function (pointKey) {
+                                tableComp.push({
+                                    namespace: options.namespace,
+                                    key: pointKey
+                                });
+                            });
+                        });
+                        return tableComp;
+                    });
+                });
             }
         }
     };
