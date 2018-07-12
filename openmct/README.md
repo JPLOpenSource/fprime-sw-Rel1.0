@@ -20,9 +20,12 @@ To configure and start the OpenMCT server, run the following from fprime/openmct
 npm run configure <Topology XML Filepath>
 npm start
 ```
-where "Topology XML Filepath" is the Topology XML file for the fprime deployment for which OpenMCT will be recieving data. Point a browser to http://localhost:8000 to view the OpenMCT web client (chrome works best).
-If configuration was successful, a Packet object called "<Deployment Name> Telemetry"
+where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be recieving data. Point a browser to http://localhost:8000 to view the OpenMCT web client (chrome works best).
+If configuration was successful, a Packet object called "[Deployment Name] Telemetry"
 containing Telemetry objects for each channel should appear under the "BSON Server" folder.
+
+The BSON server folder also contains a "LIMIT_LOG" object, which records all limit violations in all channels, as well as a "Latest Values Table" object which shows the
+most recent value and timestamp for all telemetry items.
 To set up persistence for custom objects, see the "Persistence with CouchDB" section
 below.
 
@@ -31,7 +34,7 @@ below.
 npm install
 ```
 This package ships with a frozen set of the JavaScript packages needed
-to run the server, but running 'npm install' will update packages if more recent
+to run the server, but running `npm install` will update packages if more recent
 versions are available. These packages are located in the "node_modules" directory.
 
 ```
@@ -39,7 +42,7 @@ npm run configure <Topology XML Filepath>
 ```
 Runs autocoders and scripts to generate a JSON dictionary and configuration
 files from the provided fprime Topology XML file, which are needed by the OpenMCT server and adapter to interpret binary packets. For example, to configure the server for
-the Ref application, run "npm run configure ../Ref/Top/RefTopologyAppAi.xml"
+the Ref application, run `npm run configure ../Ref/Top/RefTopologyAppAi.xml`.
 
 ```
 npm start
