@@ -8,7 +8,9 @@
     "postconfigure": "node scripts/generateConfigJSON.js",
     "start": "node index.js",
     "prepare": "cd client && npm install && cd ../node_modules/openmct && npm install",
-    "clean": "rm -rf ./res"
+    "clean": "rm -rf ./res",
+    "couchdb-get": "node scripts/getCouchDBDocs.js",
+    "couchdb-set": "node scripts/setCouchDBDocs.js"
   },
   "author": "peter.l.richards@nasa.gov",
   "license": "ISC",

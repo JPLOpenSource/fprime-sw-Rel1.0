@@ -68,6 +68,7 @@ Object.entries(deploymentDict.channels).forEach(function (channel) {
     }
 });
 
+// Replace deployment key in config.js
 newConfigJS = configJS.replace(/deployment: '(\w+)'/, `deployment: '${deployment}'`)
 
 let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;

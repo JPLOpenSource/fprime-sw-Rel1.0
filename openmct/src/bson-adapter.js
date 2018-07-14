@@ -44,6 +44,21 @@ function BSONAdapter(config) {
         successFunction: function () {}
     };
 
+    this.COSMOSClient = {
+        socket: new net.Socket(),
+        name: "COSMOS JSON API Socket",
+        port: 7777,
+        site: '127.0.0.1',
+        successFunction: function () {
+            this.socket.write(JSON.stringify({
+                  jsonrpc: '2.0',
+                  method: 'tlm',
+                  params: 'REF BD_CYCLES VALUE',
+                  id: 1
+            }));
+        }
+    }
+
 }
 
 BSONAdapter.prototype.run = function () {
@@ -60,6 +75,10 @@ BSONAdapter.prototype.run = function () {
         });
     });
 
+    this.COSMOSClient.socket.on('data', (data) => {
+        console.log(data.toString());
+    });
+
 }
 
 // connect to fprime server for input data, and socket on OpenMCT server
@@ -67,17 +86,25 @@ BSONAdapter.prototype.run = function () {
 BSONAdapter.prototype.setupConnections = function () {
 
     this.connectSocket(this.fprimeClient).catch( (reject) => {
-        console.log(`${this.fprimeClient.name}: Connection Error: ${reject}`);
-        console.log(`${this.fprimeClient.name}: Attempting to reconnect every ${this.timeout} seconds`)
+        this.printRejectNotice(reject, this.fprimeClient);
         this.handleConnectionError(reject, this.fprimeClient);
     });
 
     this.connectSocket(this.openMCTTelemetryClient).catch( (reject) => {
-        console.log(`${this.openMCTTelemetryClient.name}: Connection Error: ${reject}`);
-        console.log(`${this.openMCTTelemetryClient.name}: Attempting to reconnect every ${this.timeout} seconds`)
+        this.printRejectNotice(reject, this.openMCTTelemetryClient);
         this.handleConnectionError(reject, this.openMCTTelemetryClient);
     });
 
+    //this.connectSocket(this.COSMOSClient).catch( (reject) => {
+    //    this.printRejectNotice(reject, this.COSMOSClient);
+    //    this.handleConnectionError(reject, this.COSMOSClient);
+    //});
+
+}
+
+BSONAdapter.prototype.printRejectNotice = function (reject, clientObj) {
+    console.log(`${clientObj.name}: Connection Error: ${reject}`);
+    console.log(`${clientObj.name}: Attempting to reconnect every ${this.timeout} seconds`);
 }
 
 BSONAdapter.prototype.handleConnectionError = function (err, clientObj) {

@@ -1,0 +1,60 @@
+{
+    "docs": [
+        {
+            "_id": "5e9718a1-ae70-47b1-b67f-5723226eee30",
+            "metadata": {
+                "category": "domain object",
+                "type": "example.page",
+                "owner": "admin",
+                "name": "Unnamed Web Page",
+                "created": 1531525380195
+            },
+            "model": {
+                "name": "Unnamed Web Page",
+                "type": "example.page",
+                "location": "mine",
+                "modified": 1531525380121,
+                "url": "https://nasa.github.io/openmct/about-open-mct/",
+                "persisted": 1531525380121
+            }
+        },
+        {
+            "_id": "9fc1cb38-4cce-46d6-8067-a95489c25ec6",
+            "metadata": {
+                "category": "domain object",
+                "type": "example.page",
+                "owner": "admin",
+                "name": "About OpenMCT",
+                "created": 1531525404098
+            },
+            "model": {
+                "name": "About OpenMCT",
+                "type": "example.page",
+                "url": "https://nasa.github.io/openmct/about-open-mct/",
+                "modified": 1531525404071,
+                "location": "mine",
+                "persisted": 1531525404071
+            }
+        },
+        {
+            "_id": "mine",
+            "metadata": {
+                "category": "domain object",
+                "type": "folder",
+                "owner": "admin",
+                "name": "My Items",
+                "created": 1531525380196
+            },
+            "model": {
+                "name": "My Items",
+                "type": "folder",
+                "composition": [
+                    "9fc1cb38-4cce-46d6-8067-a95489c25ec6"
+                ],
+                "location": "ROOT",
+                "modified": 1531525380145,
+                "persisted": 1531525380145
+            }
+        }
+    ]
+}
