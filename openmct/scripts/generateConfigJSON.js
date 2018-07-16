@@ -12,9 +12,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const config = require('../config');
+
 const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
-      outFilenamePoints = 'res/points.json',
-      outFilenamePackets = 'res/packets.json',
+      outFilenamePoints = config.dictionary.pointsFile,
+      outFilenamePackets = config.dictionary.packetsFile,
       filepathConfig = path.dirname(__dirname) + '/config.js',
       configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
       dict = JSON.parse(dictJSON),

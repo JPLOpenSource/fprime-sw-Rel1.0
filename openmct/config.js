@@ -161,8 +161,25 @@ module.exports = {
        * Settings for fprime binary input stream
        */
      binaryInput: {
+       
+       /**
+        * bindAddress
+        * Network address (interface) to bind to.
+        */
         bindAddress: '127.0.0.1',
+
+        /**
+         * port
+         * TCP port to listen on.
+         */
         port: 50000,
+
+        /**
+         * deployment
+         * Deployment key OpenMCT will use to load dictionaries and decode packets
+         * DO NOT CHANGE MANUALLY: The build scripts will set this to the correct value
+         * for the deployment provided to the autocoder Topology XML
+         */
         deployment: 'ref'
      }
 }

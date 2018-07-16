@@ -60,8 +60,8 @@ all generated resources and start from scratch.
 ```
 npm run couchdb-get
 ```
-Queries the CouchDB HTTP API and constructs a JSON document representing all
-user-created objects which have been saved to CouchDB in 'res/couchDBData.json'.
+Queries the CouchDB HTTP API and constructs a JSON document ('res/couchDBData.json' by defualt)
+representing all user-created objects saved to the CouchDB server.
 This document will be used to upload these objects when running `couchdb-set`.
 This command will not work if the CouchDB server is not running at the domain
 specified in 'config.js'.
@@ -70,9 +70,10 @@ specified in 'config.js'.
 npm run couchdb-set
 ```
 Uses the CouchDB HTTP API to send local objects stored in 'res/couchDBData.json'
-to the server. This command will not work if the CouchDB server is not running
-at the domain specified in 'config.js'. The repository contains a sample JSON file
+to the server. The repository contains a sample JSON file
 which will upload an "About OpenMCT" Webpage object to the database.
+This command will not work if the CouchDB server is not running
+at the domain specified in 'config.js'.
 
 ## Default Configuration
 
@@ -93,19 +94,19 @@ Configuration options for the BSON server are specified in the file 'config.js'.
 | binaryInput.bindAddress | Hostname where BSON Adapter will connect and receive binary packets | 127.0.0.1 |
 | binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 
-## Persistence with CouchDB
+## Object Persistence with CouchDB
 A CouchDB server must be run as a standalone service in order to enable object persistence.
 Download the appropriate version for your system from http://couchdb.apache.org/,
 then do the following:
   1. Start the Apache CouchDB application
   2. In a browser, navigate to http://127.0.0.1:5984/_utils/ to open the GUI tools
       (this may happen automatically when you start CouchDB)
-  3. Go to the Setup panel and choose "Configure a Single Node"
-  4. Choose a username and password when prompted, using "127.0.0.1" as the host, and the default port of 5984
+  3. Go to the Setup panel and choose "Configure a Single Node". You should be prompted to create an admin       account.
+  4. Choose a username and password, using "127.0.0.1" as the host, and the default port of 5984
   5. From the Databases panel, create a new database called "openmct"
   6. Go to Configuration->CORS, choose "Enable CORS", and add http://localhost:8000
-      to the allowed domains. This will allow OpenMCT read and write access to the
-      database.
+      to the allowed domains. CORS (Cross-Origin Resource Sharing) allows OpenMCT
+      read and write access to the database.
 
 To test that this functionality is working, create a new item in the web client,
 and save it to "My Items". Then, refresh the browser and observe that the item

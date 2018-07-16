@@ -9,18 +9,25 @@
   **/
 
 const http = require('http');
-const config = require('../config');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
+
+const config = require('../config');
 
 const dbURL = config.client.persistence.url,
       database = {docs: []},
-      outFilename = 'res/couchDBDocs.json';
+      outFilename = 'res/couchDBDocs.json',
+      dbURLObj = new url.URL(dbURL);
 
 function makeGetRequest(url) {
     return new Promise(function(resolve, reject) {
-        http.get(url, (response) => {
-            console.log(`GET ${url} : Status ${response.statusCode}`)
+        var request = http.get(url, (response) => {
+            console.log(`GET ${url} : Status ${response.statusCode}`);
+
+            if (response.statusCode === 404) {
+                reject(new Error(`Resource not found. Make sure database ${dbURLObj.pathname} exists`));
+            }
 
             let data = '';
 
@@ -35,6 +42,10 @@ function makeGetRequest(url) {
             response.on('error', (err) => {
                 reject(err);
             });
+        });
+
+        request.on('error', (err) => {
+            reject(err);
         });
     });
 };
@@ -61,6 +72,12 @@ makeGetRequest(dbURL + '/_all_docs')
         fs.writeFileSync(outFilepath, JSON.stringify(database, '', 4));
         process.exit();
     }).catch( (err) => {
-        console.log(`ERROR: ${err.message}`);
+        let errMessage = `ERROR: ${err.message}.`;
+
+        if (err.code === 'ECONNREFUSED') {
+            errMessage += ` Make sure the CouchDB server is running at ${dbURLObj.host}.`
+        }
+
+        console.log(errMessage);
         process.exit();
     });
