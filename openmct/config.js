@@ -181,5 +181,10 @@ module.exports = {
          * for the deployment provided to the autocoder Topology XML
          */
         deployment: 'ref'
+     },
+
+     COSMOSInput: {
+        bindAddress: '127.0.0.1',
+        port: 5001
      }
 }

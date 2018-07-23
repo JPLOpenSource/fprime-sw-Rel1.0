@@ -46,8 +46,8 @@ function BSONAdapter(config) {
     this.COSMOSClient = {
         socket: new net.Socket(),
         name: "COSMOS Router Socket",
-        port: 5001,
-        site: '127.0.0.1',
+        port: config.COSMOSInput.port,
+        site: config.COSMOSInput.bindAddress,
         successFunction: function () {}
     }
 
