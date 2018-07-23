@@ -3,7 +3,7 @@
  * Util library for converting fprime binary packets to json
  *
  * Authors : Sanchit Sinha sinhasaeng@gmail.com
- *           Aaron Doubek-Kraft aarondou@jpl.nasa.gov
+ *           Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
  */
 
 // Utils
@@ -99,6 +99,11 @@ function readBuff (buff, bits, type, offset) {
             }
         }
 
+        case 'S' : {
+            stringBuff = buff.slice(offset, offset + bits/8);
+            return stringBuff.toString('utf-8');
+        }
+
         default: {
             // Invalid type
             console.log("[ERROR] Invalid type! " + type);
@@ -168,6 +173,13 @@ function deserialize (data, target) {
     let offset = 0;
     // Interact deserialized packets
     while (offset < packetLength) {
+
+        // handle case where 9-byte A5A5 header is included. Header is simply ignored if present
+        let header = readBuff(data, 9 * 8, 'S', offset);
+        if (header.startsWith('A5A5')) {
+            offset += 9;
+        };
+
         let size = readBuff(data, sizeLen * 8, 'U', offset);
         offset += sizeLen;
 
@@ -306,5 +318,6 @@ function getBSONTypeCode (data_type) {
 
 module.exports = {
     deserialize: deserialize,
-    getIds: getIds
+    getIds: getIds,
+    readBuff: readBuff
 };

@@ -161,7 +161,7 @@ module.exports = {
        * Settings for fprime binary input stream
        */
      binaryInput: {
-       
+
        /**
         * bindAddress
         * Network address (interface) to bind to.

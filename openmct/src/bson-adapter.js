@@ -1,10 +1,9 @@
 /*
     BsonAdapter.js
 
-    Connect to the fprime tcp server on port 50000, deserialize binary and convert to JSON,
-    then JSON to BSON, and then send them on to the openmct-telemetry-server on
-    port 12345
-
+    Connect to the fprime tcp server port specified in config.js, deserialize
+    binary and convert to JSON, then JSON to BSON, and then send them on to the
+    openmct-telemetry-server.
     Author: Aaron Doubek-Kraft; aaron.doubek-kraft@jpl.nasa.gov
 */
 
@@ -46,17 +45,10 @@ function BSONAdapter(config) {
 
     this.COSMOSClient = {
         socket: new net.Socket(),
-        name: "COSMOS JSON API Socket",
-        port: 7777,
+        name: "COSMOS Router Socket",
+        port: 5001,
         site: '127.0.0.1',
-        successFunction: function () {
-            this.socket.write(JSON.stringify({
-                  jsonrpc: '2.0',
-                  method: 'tlm',
-                  params: 'REF BD_CYCLES VALUE',
-                  id: 1
-            }));
-        }
+        successFunction: function () {}
     }
 
 }
@@ -76,7 +68,12 @@ BSONAdapter.prototype.run = function () {
     });
 
     this.COSMOSClient.socket.on('data', (data) => {
-        console.log(data.toString());
+        var dataAsJSON = deserialize(data, this.target);
+
+        dataAsJSON.forEach( (datum) => {
+            var datumAsBSON = bson.serialize(datum);
+            this.openMCTTelemetryClient.socket.write(datumAsBSON);
+        });
     });
 
 }
@@ -95,10 +92,10 @@ BSONAdapter.prototype.setupConnections = function () {
         this.handleConnectionError(reject, this.openMCTTelemetryClient);
     });
 
-    //this.connectSocket(this.COSMOSClient).catch( (reject) => {
-    //    this.printRejectNotice(reject, this.COSMOSClient);
-    //    this.handleConnectionError(reject, this.COSMOSClient);
-    //});
+    this.connectSocket(this.COSMOSClient).catch( (reject) => {
+       this.printRejectNotice(reject, this.COSMOSClient);
+       this.handleConnectionError(reject, this.COSMOSClient);
+    });
 
 }
 
