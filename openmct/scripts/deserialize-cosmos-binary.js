@@ -8,16 +8,23 @@
 
 const fs = require('fs');
 const path = require('path');
+const net = require('net');
+const BSON = require('bson');
 
-const deserialize = require('./deserialize-binary');
-const config = require('../../config.js');
+const deserialize = require('../src/util/deserialize-binary');
+const config = require('../config.js');
+const BSONAdapter = require('../src/bson-adapter');
 
 const filename = process.argv[2];
 const filepath = path.normalize(__dirname + '/' + filename);
+const outFilepath = path.normalize(__dirname + '/../res/COSMOSLog.json');
+const bson = new BSON();
 
 if (!filename) {
     console.log('Usage: node deserialize-cosmos-binary.js <COSMOS Binary log file>');
     process.exit();
+} else {
+    console.log(`Reading COSMOS binary log from ${filepath}`)
 }
 
 // Format of binary header. Lengths specified in bytes.
@@ -132,6 +139,9 @@ function readPacket(data, format, offset) {
         if (item.type === 'B') {
             let packetData = data.slice(offset, offset + byteLen);
             value = deserialize.deserialize(packetData, config.binaryInput.deployment);
+            if (value && value[0]) {
+                value = value[0]
+            }
         } else {
             value = deserialize.readBuff(data, bitLen, item.type, offset);
         }
@@ -147,15 +157,49 @@ function readPacket(data, format, offset) {
     }
 }
 
-let data = fs.readFileSync(filepath);
-let totalOffset = 0;
+let data = fs.readFileSync(filepath),
+    totalOffset = 0,
+    len = data.length,
+    packets = []
 
 let header = readPacket(data, headerFormat, totalOffset);
 totalOffset += header.offset;
-console.log(header.packet);
 
-for (let i = 0; i < 3; i++) {
-    let packet = readPacket(data, packetFormat, totalOffset);
-    totalOffset += packet.offset;
-    console.log(packet.packet);
+//read the metadata packet and ignore, not sure how to deserialize it correctly
+let metapacket = readPacket(data, packetFormat, totalOffset);
+totalOffset += metapacket.offset;
+
+while (totalOffset < len) {
+    let packetData = readPacket(data, packetFormat, totalOffset);
+    totalOffset += packetData.offset;
+    packets.push(packetData.packet.packet);
 }
+
+console.log(`Writing JSON log to ${outFilepath}`);
+fs.writeFileSync(outFilepath, JSON.stringify(packets));
+
+// abuse the BSONAdapter to send packets over a websocket with nice error handling
+let adapter = new BSONAdapter(config);
+
+let openMCTTelemetryClient = {
+    socket: new net.Socket(),
+    name: "OpenMCT BSON Stream Socket",
+    port: config.input.port,
+    site: config.input.bindAddress,
+    successFunction: function () {
+        console.log('Sending packets to BSON server...')
+        packets.forEach( (packet) => {
+            if (packet) {
+                let packetAsBSON = bson.serialize(packet);
+                this.socket.write(packetAsBSON);
+            }
+        });
+        console.log('All packets sent, exiting')
+        this.socket.end();
+    }
+};
+
+adapter.connectSocket(openMCTTelemetryClient).catch( (reject) => {
+    adapter.printRejectNotice(reject, openMCTTelemetryClient);
+    adapter.handleConnectionError(reject, openMCTTelemetryClient);
+});

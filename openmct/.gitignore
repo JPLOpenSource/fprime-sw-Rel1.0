@@ -2,6 +2,7 @@ npm-debug.log
 res/points.json
 res/packets.json
 res/dictionary.json
+res/COSMOSLog.json
 file-data/
 telemdb/
 archive/
