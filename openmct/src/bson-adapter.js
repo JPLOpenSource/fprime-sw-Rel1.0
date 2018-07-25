@@ -62,6 +62,7 @@ BSONAdapter.prototype.run = function () {
         var dataAsJSON = deserialize(data, this.target);
 
         dataAsJSON.forEach( (datum) => {
+            //TODO : this should handle case when telemetry client hasn't connected
             var datumAsBSON = bson.serialize(datum);
             this.openMCTTelemetryClient.socket.write(datumAsBSON);
         });
