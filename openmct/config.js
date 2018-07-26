@@ -12,7 +12,7 @@ module.exports = {
         host: 'localhost',
 
         /**
-         * webPort
+         * port
          * Port to serve Client on.
          */
         port: 8000,

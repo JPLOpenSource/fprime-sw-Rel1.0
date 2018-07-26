@@ -12,7 +12,7 @@
     "couchdb-get": "node scripts/getCouchDBDocs.js",
     "couchdb-set": "node scripts/setCouchDBDocs.js"
   },
-  "author": "peter.l.richards@nasa.gov",
+  "author": "aaron.doubek-kraft@jpl.nasa.gov",
   "license": "ISC",
   "dependencies": {
     "bson": "1.0.4",

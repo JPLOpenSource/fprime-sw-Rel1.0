@@ -4,8 +4,7 @@
   * Use the CouchDB HTTP API to retrieve all openmct documents and write them
   * to a JSON file
   *
-  * Author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
-  *
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const http = require('http');
@@ -20,6 +19,12 @@ const dbURL = config.client.persistence.url,
       outFilename = 'res/couchDBDocs.json',
       dbURLObj = new url.URL(dbURL);
 
+/**
+  * Make a GET request to the given url and handle the result
+  * @param {string} url The URL to make a get request to
+  * @return {Promise} Promise which resolves with the data from the GET request
+  *                   if it was successful
+  */
 function makeGetRequest(url) {
     return new Promise(function(resolve, reject) {
         var request = http.get(url, (response) => {
@@ -50,8 +55,11 @@ function makeGetRequest(url) {
     });
 };
 
+//Make a get request to the '_all_docs' route of the CouchDB database specified
+//in config.js, which returns the IDs of every document in the database
 makeGetRequest(dbURL + '/_all_docs')
     .then( (allDocs) => {
+        //Use the document IDs to query the database for the actual documents
         allDocsObj = JSON.parse(allDocs);
         rowPromises = [];
         allDocsObj.rows.forEach( (rowObj) => {
@@ -63,7 +71,7 @@ makeGetRequest(dbURL + '/_all_docs')
         console.log('All Objects Retrieved')
         rowData.forEach( (data) => {
             let dataObj = JSON.parse(data);
-            delete dataObj._rev;
+            delete dataObj._rev; //remove revision tag so CouchDB will let us push these back to DB later
             database.docs.push(dataObj);
         });
 

@@ -1,11 +1,12 @@
-/*
-    BsonAdapter.js
-
-    Connect to the fprime tcp server port specified in config.js, deserialize
-    binary and convert to JSON, then JSON to BSON, and then send them on to the
-    openmct-telemetry-server.
-    Author: Aaron Doubek-Kraft; aaron.doubek-kraft@jpl.nasa.gov
-*/
+/**
+  * BsonAdapter.js
+  *
+  * Connect to the fprime tcp server port specified in config.js, deserialize
+  * binary and convert to JSON, then JSON to BSON, and then send them on to the
+  * openmct-telemetry-server.
+  *
+  * @author Aaron Doubek-Kraft; aaron.doubek-kraft@jpl.nasa.gov
+  */
 
 var net = require('net');
 var BSON = require('bson');
@@ -14,6 +15,14 @@ var deserialize = require('./util/deserialize-binary').deserialize;
 
 var bson = new BSON();
 
+/**
+  * Network node which converts incoming binary data into BSON data and funnels
+  * it into the input socket on the OpenMCT BSON server.
+  * @constructor
+  * @param {Object} config The configuration object for the system containing
+  *                        information about hostnames and ports for network
+  *                        resources and deployment information
+  */
 function BSONAdapter(config) {
 
     this.target = config.binaryInput.deployment;
@@ -24,6 +33,7 @@ function BSONAdapter(config) {
 
     console.log(`Using deployment key '${this.target}' \n`)
 
+    //configuration objects that BSON adapter will attempt to connect
     this.fprimeClient = {
         socket: new net.Socket(),
         name: "Fprime Telemetry Socket",
@@ -53,6 +63,10 @@ function BSONAdapter(config) {
 
 }
 
+/**
+  * Using configuration in constructor, attempt to connect to each socket and
+  * setup listeners for incoming data
+  */
 BSONAdapter.prototype.run = function () {
 
     this.setupConnections()
@@ -79,8 +93,9 @@ BSONAdapter.prototype.run = function () {
 
 }
 
-// connect to fprime server for input data, and socket on OpenMCT server
-// to push BSON data
+/**
+  * Connect each socket, and handle connection failures
+  */
 BSONAdapter.prototype.setupConnections = function () {
 
     this.connectSocket(this.fprimeClient).catch( (reject) => {
@@ -100,24 +115,40 @@ BSONAdapter.prototype.setupConnections = function () {
 
 }
 
+/**
+  * Given the reject message and the client object which failed to connect,
+  * print an error message
+  * @param {string} reject The error message
+  * @param {Object} clientObj The object representing the client which generated
+  *                           the error on connection
+  */
 BSONAdapter.prototype.printRejectNotice = function (reject, clientObj) {
     console.log(`${clientObj.name}: Connection Error: ${reject}`);
     console.log(`${clientObj.name}: Attempting to reconnect every ${this.timeout} seconds`);
 }
 
+/**
+  * Function invoked when a socket fails to connect. This will continously
+  * poll the socket until it succeeds.
+  * @param {string} err The error object thrown when the connection failed
+  * @param {Object} clientObj The client object which failed to connect
+  */
 BSONAdapter.prototype.handleConnectionError = function (err, clientObj) {
-
     setTimeout( () => {
         this.connectSocket(clientObj).catch( (reject) => {
-            this.handleConnectionError(reject, clientObj)
+            this.handleConnectionError(reject, clientObj);
         });
     }, this.timeout * 1000);
 
 }
 
-//connect to the server at site:port, with the client passed as argument.
-//returns a promise so additional setup can be performed if operation was
-//successful
+/**
+  * Given the configuration for a client object, connect it and return a Promise
+  * that resolves if the connection was successful, or rejects with the error message
+  * if it failed
+  * @param {Object} clientObj The socket configuration object
+  * @return {Promise} A promise that resolves if the socket connection succeeds
+  */
 BSONAdapter.prototype.connectSocket = function (clientObj) {
 
     var port = clientObj.port,
@@ -132,6 +163,7 @@ BSONAdapter.prototype.connectSocket = function (clientObj) {
         });
 
         client.on('error', (err) => {
+            //clean up event listeners to prevent multiple success or failure messages
             client.removeAllListeners('error');
             client.removeAllListeners('connect')
             reject(err.message)

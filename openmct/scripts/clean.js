@@ -3,7 +3,7 @@
   *
   * Cleanup generated resources associated with autocoder and builds scripts
   *
-  * Author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const fs = require('fs');

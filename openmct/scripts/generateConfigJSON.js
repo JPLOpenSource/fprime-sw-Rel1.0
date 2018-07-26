@@ -1,13 +1,13 @@
-/*
-    generateConfigJSON.js
-
-    Given a JSON dictionary for an fprime app, generate JSON configuration
-    files for the openmct bson server. Points file is saved in "points.json",
-    packets file is saved in "packets.json"
-
-    Author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
-
-*/
+/**
+  * generateConfigJSON.js
+  *
+  * Given a JSON dictionary for an fprime app, generate JSON configuration
+  * files for the openmct bson server. Points and packets files are saved
+  * to locations specified in config.js
+  *
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  *
+  */
 
 const fs = require('fs');
 const path = require('path');
@@ -33,6 +33,7 @@ packetDict[packetName] = {
     points: []
 }
 
+//OpenMCT format objects for given fields
 let time_format = {
   'key': 'utc',
   'source': 'timestamp',
@@ -55,7 +56,7 @@ let raw_value_format = {
     hints: {"range":2}
 };
 
-
+// Generate JS objects representing OpenMCT configuration files
 Object.entries(deploymentDict.channels).forEach(function (channel) {
     let id = channel[0],
         props = channel[1],
@@ -73,6 +74,7 @@ Object.entries(deploymentDict.channels).forEach(function (channel) {
 // Replace deployment key in config.js
 newConfigJS = configJS.replace(/deployment: '(\w+)'/, `deployment: '${deployment}'`)
 
+//Write configuration files
 let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;
 let outFilepathPackets = path.dirname(__dirname) + '/' + outFilenamePackets;
 

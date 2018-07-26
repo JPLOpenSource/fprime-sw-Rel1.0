@@ -1,9 +1,10 @@
 /**
   * deserialize-cosmos-binary.js
   *
-  * Reads binary packets formatted for COSMOS logs
+  * Reads COSMOS binary logs and pushes them through as BSON packets to the
+  * OpenMCT server
   *
-  * author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  * @author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const fs = require('fs');
@@ -115,11 +116,22 @@ const packetFormat = [
     }
 ];
 
-//Read a packet of the given format
+/**
+  * Given a binary packet and a JSON object representing the format of the binary,
+  * deserialize the packet and return it
+  * @param {Buffer} data The binary buffer to be deserialized
+  * @param {Object} format A JSON format object, as described above
+  * @param {number} offset The point in the buffer to begin reading from
+  * @return {Object} A JS object with the following format:
+  *                   {
+  *                     packet: The deserialized packet in JSON format
+  *                     offset: The length of the packet
+  *                   }
+  */
 function readPacket(data, format, offset) {
     let packetOffset = 0,
         packet = {},
-        length = format.length;
+        length = format.length; //number of fields in packet
 
     for (let i = 0; i < length; i += 1) {
         let item = format[i],
@@ -137,6 +149,7 @@ function readPacket(data, format, offset) {
         bitLen = byteLen * 8;
 
         if (item.type === 'B') {
+            //Handle case where value is itself a binary packet which must be deserialized
             let packetData = data.slice(offset, offset + byteLen);
             value = deserialize.deserialize(packetData, config.binaryInput.deployment);
             if (value && value[0]) {
@@ -152,23 +165,25 @@ function readPacket(data, format, offset) {
     }
 
     return {
-        packet: packet,
-        offset: packetOffset
+        packet: packet, //deserialized data
+        offset: packetOffset //total length of packet
     }
 }
 
 let data = fs.readFileSync(filepath),
     totalOffset = 0,
     len = data.length,
-    packets = []
+    packets = [];
 
+//Read COSMOS binary header
 let header = readPacket(data, headerFormat, totalOffset);
 totalOffset += header.offset;
 
-//read the metadata packet and ignore, not sure how to deserialize it correctly
+//read the metadata packet and ignore, couldn't find the format for its payload
 let metapacket = readPacket(data, packetFormat, totalOffset);
 totalOffset += metapacket.offset;
 
+//read the remaining packets, whose payloads are all fprime binary packets
 while (totalOffset < len) {
     let packetData = readPacket(data, packetFormat, totalOffset);
     totalOffset += packetData.offset;
