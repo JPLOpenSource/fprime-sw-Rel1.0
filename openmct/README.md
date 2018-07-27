@@ -3,7 +3,7 @@
 Author: Aaron Doubek-Kraft, aaron.doubek-kraft@jpl.nasa.gov
 
 ## Architecture
-![Architecture Diagram](https://github.com/reder/fprime-sw/tree/openmct/openmct/docs/OpenMCT_Architecure.png)
+![Architecture Diagram](https://github.jpl.nasa.gov/reder/fprime-sw/blob/openmct/openmct/docs/OpenMCT_Architecture.png)
 
 Expands on the openmct-telemetry-server, described in the "BSON Telemetry Server" section, to provide visualizations for binary
 data streams. The OpenMCT server consumes a stream of BSON data, publishes it to
