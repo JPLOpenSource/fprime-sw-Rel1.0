@@ -4,7 +4,7 @@
   * Reads COSMOS binary logs and pushes them through as BSON packets to the
   * OpenMCT server
   *
-  * @author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const fs = require('fs');
@@ -125,7 +125,7 @@ const packetFormat = [
   * @return {Object} A JS object with the following format:
   *                   {
   *                     packet: The deserialized packet in JSON format
-  *                     offset: The length of the packet
+  *                     offset: The length of the packet in bytes
   *                   }
   */
 function readPacket(data, format, offset) {
