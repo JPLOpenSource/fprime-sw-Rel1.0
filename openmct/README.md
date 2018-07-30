@@ -120,7 +120,7 @@ Configuration options for the BSON server are specified in the file 'config.js'.
 | binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 
 ## Fprime Binary
-![fprime binary documentation](openmct-old/docs/sdd.md#32-protocols)
+Specification used to deserialize fprime binary packets is located [here](openmct-old/docs/sdd.md#32-protocols).
 
 ## Object Persistence with CouchDB
 A CouchDB server must be run as a standalone service in order to enable object persistence.
