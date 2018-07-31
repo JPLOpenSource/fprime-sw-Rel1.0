@@ -1,7 +1,7 @@
 # Fprime OpenMCT Server
 
 Author: Aaron Doubek-Kraft, aaron.doubek-kraft@jpl.nasa.gov
-(or aarond.k.13@gmail.com)
+(or aarond.k.13@gmail.com after Summer 2018)
 
 ## Overview
 
@@ -28,7 +28,7 @@ To configure and start the OpenMCT server, run the following from fprime/openmct
 npm run configure <Topology XML Filepath>
 npm start <Deployment Key>
 ```
-where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Key` is the name of this deployment in all lower case. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
+where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Key>` is the name of this deployment in all lower case. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
 If configuration was successful, a Packet object called "[Deployment Name] Telemetry"
 containing Telemetry objects for each channel should appear under the "BSON Server" folder.
 
@@ -50,7 +50,7 @@ npm run configure <Topology XML Filepath>
 ```
 First runs the autocoder at `Autocoders/bin/JSONDictonaryGen.py`, which generates
 a dictionary in JSON format for the given deployment XML, then runs the Node.js script at
-`generateConfigJSON.js` to generate the configuration that defines dictionaries for
+`openmct/scripts/generateConfigJSON.js` to generate the configuration that defines dictionaries for
 the OpenMCT server. For example, to configure the server for
 the Ref application, run `npm run configure ../Ref/Top/RefTopologyAppAi.xml`.
 
@@ -73,7 +73,7 @@ all generated resources and start from scratch.
 ```
 npm run couchdb-get
 ```
-Queries the CouchDB HTTP API and constructs a JSON document ('res/couchDBData.json' by defualt)
+Queries the CouchDB HTTP API and constructs a JSON document (`res/couchDBData.json` by defualt)
 representing all user-created objects saved to the CouchDB server.
 This document will be used to upload these objects when running `couchdb-set`.
 This command will not work if the CouchDB server is not running at the domain
@@ -82,11 +82,19 @@ specified in 'config.js'.
 ```
 npm run couchdb-set
 ```
-Uses the CouchDB HTTP API to send local objects stored in 'res/couchDBData.json'
+Uses the CouchDB HTTP API to send local objects stored in `res/couchDBData.json`
 to the server. The repository contains a sample JSON file
 which will upload an "About OpenMCT" Webpage object to the database.
 This command will not work if the CouchDB server is not running
 at the domain specified in 'config.js'.
+
+```
+npm run read-cosmos-log <COSMOS Log File>
+```
+Reads the binary COSMOS log file specified as an argument, opens a socket to the
+OpenMCT telemetry server's BSON input port, and sends the data as a stream
+of BSON packets. COSMOS is a command and telemetry utility described [here](https://cosmosrb.com/),
+and the binary logs it produces are documented [here](https://cosmosrb.com/docs/logging/).
 
 ## Directory Structure
 The directories under `/openmct` have the following structure:

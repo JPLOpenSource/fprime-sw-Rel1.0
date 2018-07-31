@@ -11,7 +11,8 @@
     "prepare": "cd client && npm install && cd ../node_modules/openmct && npm install",
     "clean": "node scripts/clean.js",
     "couchdb-get": "node scripts/getCouchDBDocs.js",
-    "couchdb-set": "node scripts/setCouchDBDocs.js"
+    "couchdb-set": "node scripts/setCouchDBDocs.js",
+    "read-cosmos-log": "node scripts/deserialize-cosmos-binary.js "
   },
   "author": "aaron.doubek-kraft@jpl.nasa.gov",
   "license": "ISC",

@@ -18,7 +18,7 @@ const dictionary = require('../' + config.binaryInput.dictionaryFile)
 const BSONAdapter = require('../src/bson-adapter');
 
 const filename = process.argv[2];
-const filepath = path.normalize(__dirname + '/' + filename);
+const filepath = path.normalize(path.dirname(__dirname) + '/' + filename);
 const outFilepath = path.normalize(__dirname + '/../res/COSMOSLog.json');
 const bson = new BSON();
 
@@ -217,5 +217,5 @@ let openMCTTelemetryClient = {
 
 adapter.connectSocket(openMCTTelemetryClient).catch( (reject) => {
     adapter.printRejectNotice(reject, openMCTTelemetryClient);
-    adapter.handleConnectionError(reject, openMCTTelemetryClient);
+    console.log('OpenMCT Server must be running for this script to work.')
 });
