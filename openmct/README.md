@@ -20,7 +20,7 @@ server, but any user-created resources cannot be saved. Scripts are provided to
 save and load persisted objects as JSON documents.
 
 ## Usage
-This package requires node.js (> 8.x) and npm (> 5.x) to be installed on your system to build and run (https://nodejs.org/en/).
+This package requires node.js (8.x only: 10.x is known to cause build problems) and npm (> 5.x) to be installed on your system to build and run (https://nodejs.org/en/).
 Additionally, the build scripts depend on Python autocoders, make sure your Python environment is set up as required by fprime (Python 2.7, modules from `/requirements.txt` installed).
 
 To configure and start the OpenMCT server, run the following from fprime/openmct:
