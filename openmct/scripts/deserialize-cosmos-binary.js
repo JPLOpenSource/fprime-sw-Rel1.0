@@ -14,6 +14,7 @@ const BSON = require('bson');
 
 const deserialize = require('../src/util/deserialize-binary');
 const config = require('../config.js');
+const dictionary = require('../' + config.binaryInput.dictionaryFile)
 const BSONAdapter = require('../src/bson-adapter');
 
 const filename = process.argv[2];
@@ -151,7 +152,7 @@ function readPacket(data, format, offset) {
         if (item.type === 'B') {
             //Handle case where value is itself a binary packet which must be deserialized
             let packetData = data.slice(offset, offset + byteLen);
-            value = deserialize.deserialize(packetData, config.binaryInput.deployment);
+            value = deserialize.deserialize(packetData, config.deployment, dictionary);
             if (value && value[0]) {
                 value = value[0]
             }
