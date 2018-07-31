@@ -171,8 +171,8 @@ function gainOffsetConv (value, gain, offset) {
   * @param {string} target - Target name (or deployment)
   * @return: Array of OpenMCT formatted dataum
  */
-function deserialize (data, target) {
-    var telem = require('./../../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
+function deserialize (data, target, dictionary) {
+    var telem = dictionary[target.toLowerCase()];  // Get format dictionary
 
     let packetArr = [];
     let packetLength = data.length;
@@ -295,8 +295,8 @@ function deserialize (data, target) {
   * @param {string} target The deployment key of the target
   * @return {Array} A list of the channel ids in the deployment
   */
-function getIds (target) {
-    var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
+function getIds (target, dictionary) {
+    var telem = dictionary[target.toLowerCase()];  // Get format dictionary
     let ids = [];
     let channels = telem['channels'];
     for (let id in channels) {

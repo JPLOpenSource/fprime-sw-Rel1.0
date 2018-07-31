@@ -14,19 +14,23 @@ const path = require('path');
 
 const config = require('../config');
 
-const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
-      outFilenamePoints = config.dictionary.pointsFile,
-      outFilenamePackets = config.dictionary.packetsFile,
-      filepathConfig = path.dirname(__dirname) + '/config.js',
-      configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
-      dict = JSON.parse(dictJSON),
-      deployment = Object.keys(dict)[0],
-      deploymentDict = dict[deployment],
-      pointDict = {},
-      packetDict = {};
+const outFilenamePointsTemplate = config.pointsFileTemplate,
+      outFilenamePacketsTemplate = config.packetsFileTemplate;
+
+let dictName = fs.readFileSync(path.dirname(__dirname) + '/res/dictPath.txt'),
+    dictJSON = fs.readFileSync(path.dirname(__dirname) + '/' + dictName, {encoding: 'UTF-8'}),
+    filepathConfig = path.dirname(__dirname) + '/config.js',
+    configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
+    dict = JSON.parse(dictJSON),
+    deployment = Object.keys(dict)[0],
+    deploymentDict = dict[deployment],
+    pointDict = {},
+    packetDict = {};
 
 let deploymentName = deployment.charAt(0).toUpperCase() + deployment.slice(1),
-    packetName = deploymentName + " Telemetry"
+    packetName = deploymentName + " Telemetry",
+    outFilenamePoints = outFilenamePointsTemplate.replace('${deployment}', deployment),
+    outFilenamePackets = outFilenamePacketsTemplate.replace('${deployment}', deployment);
 
 packetDict[packetName] = {
     name: packetName,
@@ -53,7 +57,7 @@ let name_format = {
 let raw_value_format = {
     key: "raw_value",
     name: "Raw Value",
-    hints: {"range":2}
+    hints: {"range": 2}
 };
 
 // Generate JS objects representing OpenMCT configuration files
@@ -71,9 +75,6 @@ Object.entries(deploymentDict.channels).forEach(function (channel) {
     }
 });
 
-// Replace deployment key in config.js
-newConfigJS = configJS.replace(/deployment: '(\w+)'/, `deployment: '${deployment}'`)
-
 //Write configuration files
 let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;
 let outFilepathPackets = path.dirname(__dirname) + '/' + outFilenamePackets;
@@ -82,5 +83,5 @@ console.log(`Writing points config file to ${outFilepathPoints}`);
 fs.writeFileSync(outFilepathPoints, JSON.stringify(pointDict));
 console.log(`Writing packets config file to ${outFilepathPackets}`);
 fs.writeFileSync(outFilepathPackets, JSON.stringify(packetDict));
-console.log(`Setting deployment key to '${deployment}' in ${filepathConfig}`);
-fs.writeFileSync(filepathConfig, newConfigJS)
+
+console.log(`\nTo start the OpenMCT server configured for this deployment, use deployment key '${deployment}'\n`)

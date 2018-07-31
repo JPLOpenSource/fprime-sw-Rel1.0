@@ -57,7 +57,6 @@ def main():
 
     parser = pinit()
     (opts, args) = parser.parse_args()
-    outFilename = "/".join([opts.work_path, "dictionary.json"])
 
     Logger.connectOutputLogger(opts.logger_output)
 
@@ -87,6 +86,9 @@ def main():
 
     parsedTopology = XmlTopologyParser.XmlTopologyParser(xmlFilename)
     deployment = parsedTopology.get_deployment().lower()
+    outFilename = deployment + "Dictionary.json"
+    outFilepath = "/".join([opts.work_path, outFilename])
+    descriptionFilename = "/".join([opts.work_path, "/dictPath.txt"])
 
     dictionary = {}
     dictionary[deployment] = {
@@ -256,14 +258,16 @@ def main():
     jsonStr = json.dumps(dictionary, indent=4)
 
     # Create output directory if it doesn't exist
-    directory = os.path.dirname(outFilename)
+    directory = os.path.dirname(outFilepath)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     # Write JSON to file
-    outFile = open(outFilename, 'w')
+    outFile = open(outFilepath, 'w')
     outFile.write(jsonStr)
-    PRINT.info("\nJSON output written to %s" % outFilename)
+    descriptionFile = open(descriptionFilename, 'w')
+    descriptionFile.write(outFilepath)
+    PRINT.info("\nJSON output written to %s" % outFilepath)
     outFile.close()
 
 if __name__ == '__main__':

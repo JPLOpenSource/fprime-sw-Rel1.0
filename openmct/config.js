@@ -1,5 +1,8 @@
 module.exports = {
-
+    deployment: 'ref',
+    pointsFileTemplate: 'res/${deployment}Points.json',
+    packetsFileTemplate: 'res/${deployment}Packets.json',
+    dictionaryTemplate: 'res/${deployment}Dictionary.json',
     /**
      * client
      * Configuration for web client and related http telemetry endpoints.
@@ -49,7 +52,7 @@ module.exports = {
          * POSTing "/dictionary/save" will write the current point definitions
          * to this file.
          */
-        pointsFile: 'res/points.json',
+        pointsFile: 'res/refPoints.json',
 
         /**
          * packetsFile
@@ -57,7 +60,7 @@ module.exports = {
          * loaded at startup.  POSTing "/dictionary/save" will write the current
          * point definitions to this file.
          */
-        packetsFile: 'res/packets.json',
+        packetsFile: 'res/refPackets.json',
 
         /**
          * packetSeparator
@@ -175,12 +178,9 @@ module.exports = {
         port: 50000,
 
         /**
-         * deployment
-         * Deployment key OpenMCT will use to load dictionaries and decode packets
-         * DO NOT CHANGE MANUALLY: The build scripts will set this to the correct value
-         * for the deployment provided to the autocoder Topology XML
+         * dictionaryFile: where the BSON deserializer will look for the dictionary
          */
-        deployment: 'ref'
+        dictionaryFile: 'res/refDictionary.json'
      },
 
      COSMOSInput: {

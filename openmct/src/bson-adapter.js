@@ -25,7 +25,8 @@ var bson = new BSON();
   */
 function BSONAdapter(config) {
 
-    this.target = config.binaryInput.deployment;
+    this.target = config.deployment;
+    this.dictionary = require("../" + config.binaryInput.dictionaryFile);
 
     // Frequency, in seconds, with which the adapter polls a socket when
     // attempting to connect.
@@ -73,7 +74,7 @@ BSONAdapter.prototype.run = function () {
 
     // event handler for recieving packets
     this.fprimeClient.socket.on('data', (data) => {
-        var dataAsJSON = deserialize(data, this.target);
+        var dataAsJSON = deserialize(data, this.target, this.dictionary);
 
         dataAsJSON.forEach( (datum) => {
             //TODO : this should handle case when telemetry client hasn't connected
@@ -83,7 +84,7 @@ BSONAdapter.prototype.run = function () {
     });
 
     this.COSMOSClient.socket.on('data', (data) => {
-        var dataAsJSON = deserialize(data, this.target);
+        var dataAsJSON = deserialize(data, this.target, this.dictionary);
 
         dataAsJSON.forEach( (datum) => {
             var datumAsBSON = bson.serialize(datum);
