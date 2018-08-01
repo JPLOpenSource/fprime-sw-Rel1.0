@@ -9,7 +9,7 @@ module.exports = {
          * host
          * Hostname (interface) to serve Client on.
          */
-        host: 'localhost',
+        host: '137.78.230.191',
 
         /**
          * webPort
