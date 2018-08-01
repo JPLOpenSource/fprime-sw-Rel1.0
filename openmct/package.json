@@ -6,13 +6,15 @@
   "scripts": {
     "configure": "../Autocoders/bin/run_JSONDict.sh --path=res ",
     "postconfigure": "node scripts/generateConfigJSON.js",
-    "start": "node index.js",
+    "start": "node scripts/prestart.js",
+    "poststart": "node index.js",
     "prepare": "cd client && npm install && cd ../node_modules/openmct && npm install",
     "clean": "node scripts/clean.js",
     "couchdb-get": "node scripts/getCouchDBDocs.js",
-    "couchdb-set": "node scripts/setCouchDBDocs.js"
+    "couchdb-set": "node scripts/setCouchDBDocs.js",
+    "read-cosmos-log": "node scripts/deserialize-cosmos-binary.js "
   },
-  "author": "peter.l.richards@nasa.gov",
+  "author": "aaron.doubek-kraft@jpl.nasa.gov",
   "license": "ISC",
   "dependencies": {
     "bson": "1.0.4",

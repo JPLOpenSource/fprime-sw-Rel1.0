@@ -1,9 +1,9 @@
-/* deserialize-binary.js
+/** deserialize-binary.js
  *
  * Util library for converting fprime binary packets to json
  *
- * Authors : Sanchit Sinha sinhasaeng@gmail.com
- *           Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+ * @author Sanchit Sinha sinhasaeng@gmail.com
+ * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
  */
 
 // Utils
@@ -26,13 +26,24 @@ const flags = {
     allGood: 0x00010000
 }
 
-/*
- * This function reads a buffer using the specified parameters
- * @param: {Buffer} buff - Node Buffer to read from
- * @param: {number} bits - Number of bits to read
- * @param: {string} type - 'U'nsigned, 'I'nteger, or 'F'loat
- * @param: {number} offset - Byte to start reading from
- * @returns: {number} - Number read
+// Packet sizes in bytes
+const sizeLen = 4;
+const descriptorLen = 4;
+const idLen = 4;
+const timeBaseLen = 2;
+const timeContextLen = 1;
+const secondsLen = 4;
+const uSecLen = 4;
+// Size of all packet descriptions except size. Used to calculate size of value
+const packetDescriptionLen = 19;
+
+/**
+  * This function reads a buffer using the specified parameters
+  * @param {Buffer} buff - Node Buffer to read from
+  * @param {number} bits - Number of bits to read
+  * @param {string} type - 'U'nsigned, 'I'nteger, or 'F'loat
+  * @param {number} offset - Byte to start reading from
+  * @return Value read, number or string
 */
 function readBuff (buff, bits, type, offset) {
     if (typeof offset == "undefined") {
@@ -98,7 +109,7 @@ function readBuff (buff, bits, type, offset) {
                 }
             }
         }
-
+        //string
         case 'S' : {
             stringBuff = buff.slice(offset, offset + bits/8);
             return stringBuff.toString('utf-8');
@@ -112,6 +123,12 @@ function readBuff (buff, bits, type, offset) {
     }
 }
 
+/**
+  *
+  * @param buff
+  * @param strBase
+  * @param argTypes
+  */
 function stringFormatter (buff, strBase, argTypes) {
     let offset = 0;
     let args = argTypes.map(function (type) {
@@ -148,25 +165,14 @@ function gainOffsetConv (value, gain, offset) {
     return gain * value + offset;
 }
 
-// Packet sizes in bytes
-const sizeLen = 4;
-const descriptorLen = 4;
-const idLen = 4;
-const timeBaseLen = 2;
-const timeContextLen = 1;
-const secondsLen = 4;
-const uSecLen = 4;
-// Size of all packet descriptions except size. Used to calculate size of value
-const packetDescriptionLen = 19;
-
-/*
- * Deserialize a Fprime packet
- * @param {Buffer} - Input buffer array of raw packet
- * @target {string} - Target name (or deployment)
- * @return: Array of OpenMCT formatted dataum
+/**
+  * Deserialize a Fprime packet
+  * @param {Buffer} data - Input buffer array of raw packet
+  * @param {string} target - Target name (or deployment)
+  * @return: Array of OpenMCT formatted dataum
  */
-function deserialize (data, target) {
-    var telem = require('./../../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
+function deserialize (data, target, dictionary) {
+    var telem = dictionary[target];  // Get format dictionary
 
     let packetArr = [];
     let packetLength = data.length;
@@ -284,9 +290,13 @@ function deserialize (data, target) {
     return packetArr;
 }
 
-// Returns an array of channel ids
-function getIds (target) {
-    var telem = require('./../res/dictionary.json')[target.toLowerCase()];  // Get format dictionary
+/**
+  * Given a deployment target, get an array of the channel ids
+  * @param {string} target The deployment key of the target
+  * @return {Array} A list of the channel ids in the deployment
+  */
+function getIds (target, dictionary) {
+    var telem = dictionary[target];  // Get format dictionary
     let ids = [];
     let channels = telem['channels'];
     for (let id in channels) {
@@ -295,6 +305,13 @@ function getIds (target) {
     return ids;
 }
 
+/**
+  * Given a value and a JSON object representing a set of limit values for a particular channel,
+  * return the binary flag for the limit state of that channel
+  * @param {number} value The channel value to evaluate
+  * @param {Object} limits Limits represented in JSON format, eg. {high_red: 3 ...}
+  * @return {number} The binary flag for the appropriate limit state
+  */
 function evaluateLimits (value, limits) {
     let flag = flags.allGood;
     if (limits) {
@@ -311,6 +328,11 @@ function evaluateLimits (value, limits) {
     return flag;
 }
 
+/**
+  * Given the key for a particular data type, return it's type code in BSON
+  * @param {string} data_type The character representing the data type (I, U, F, S, or E)
+  * @return {number} The BSON type code
+  */
 function getBSONTypeCode (data_type) {
     var typeCode = data_type.charAt(0);
     return typeCodes[typeCode];

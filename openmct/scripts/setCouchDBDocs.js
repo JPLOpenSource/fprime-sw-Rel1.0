@@ -1,7 +1,9 @@
 /**
   * setCouchDBDocs.js
   *
+  * Use the CouchDB HTTP API to populate a database with OpenMCT object configuration
   *
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const http = require('http');
@@ -20,6 +22,8 @@ try {
     process.exit();
 }
 
+//HTTP request configuration -- POST to database URL in config.js, to the '_bulk_docs'
+//route which attempts to add an array of JSON documents to the database
 const options = {
     hostname: dbURL.hostname,
     port: dbURL.port,
@@ -31,6 +35,7 @@ const options = {
     }
 }
 
+//Make http request
 const req = http.request(options, (response) => {
 
     console.log(`POST ${dbURL.toString()} : Status ${response.statusCode}`);
@@ -42,16 +47,20 @@ const req = http.request(options, (response) => {
 
     let data = '';
 
+    //Assemble data from packets
     response.on('data', (chunk) => {
         data += chunk;
     });
 
+    //When response has completed, print status of each attempted POST
     response.on('end', () => {
-        dataObj = JSON.parse(data)
+        dataObj = JSON.parse(data);
         dataObj.forEach( (docUpdate) => {
             if (docUpdate.ok) {
                 console.log(`Successfully added ${docUpdate.id} to database ${dbURL.pathname}`);
             } else if (docUpdate.error) {
+                //Handle error case. "Conflict" error arises when document already
+                //exists, and CouchDB refuses to update.
                 let err = `ERROR: Encountered issue '${docUpdate.reason}' while attempting to update ${docUpdate.id} in ${dbURL.pathname}`
                 if (docUpdate.error === 'conflict') {
                     err += ' -- Document may already exist'
@@ -77,5 +86,6 @@ req.on('error', (err) => {
     req.end();
 });
 
+//Write JSON data to database
 req.write(dbJSON);
 req.end();

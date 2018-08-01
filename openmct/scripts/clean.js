@@ -3,7 +3,7 @@
   *
   * Cleanup generated resources associated with autocoder and builds scripts
   *
-  * Author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
   **/
 
 const fs = require('fs');
@@ -11,13 +11,25 @@ const path = require('path');
 
 const config = require('../config');
 
-const filesToRemove = [path.dirname(__dirname) + '/' + config.dictionary.pointsFile,
-                       path.dirname(__dirname) + '/' + config.dictionary.packetsFile,
-                       path.dirname(__dirname) + '/res/dictionary.json'];
+const filenames = fs.readdirSync(path.dirname(__dirname) + '/res'),
+      pointsFileTemplate = config.pointsFileTemplate,
+      packetsFileTemplate = config.packetsFileTemplate,
+      dictionaryTemplate = config.dictionaryTemplate,
+      pointsRegExp = RegExp(pointsFileTemplate.replace('${deployment}', '(\\w+)')),
+      packetsRegExp = RegExp(packetsFileTemplate.replace('${deployment}', '(\\w+)')),
+      dictionaryRegExp = RegExp(dictionaryTemplate.replace('${deployment}', '(\\w+)'));
+
+let filesToRemove = [];
+
+filesToRemove = filenames.filter( (filename) => {
+      return pointsRegExp.test('/res/' + filename) ||
+            packetsRegExp.test('/res/' + filename) ||
+            dictionaryRegExp.test('/res/' + filename);
+});
 
 filesToRemove.forEach( (filename) => {
 
-    fs.unlink(filename, (err) => {
+    fs.unlink(path.dirname(__dirname) + '/res/' + filename, (err) => {
         if (err) {
             console.log(`Remove failed: ${err.message}`)
         } else {

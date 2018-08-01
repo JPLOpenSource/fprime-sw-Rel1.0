@@ -1,38 +1,46 @@
-/*
-    generateConfigJSON.js
-
-    Given a JSON dictionary for an fprime app, generate JSON configuration
-    files for the openmct bson server. Points file is saved in "points.json",
-    packets file is saved in "packets.json"
-
-    Author: Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
-
-*/
+/**
+  * generateConfigJSON.js
+  *
+  * Given a JSON dictionary for an fprime app, generate JSON configuration
+  * files for the openmct bson server. Points and packets files are saved
+  * to locations specified in config.js
+  *
+  * @author Aaron Doubek-Kraft aaron.doubek-kraft@jpl.nasa.gov
+  *
+  */
 
 const fs = require('fs');
 const path = require('path');
 
 const config = require('../config');
 
-const dictJSON = fs.readFileSync(path.dirname(__dirname) + '/res/dictionary.json', {encoding: 'UTF-8'}),
-      outFilenamePoints = config.dictionary.pointsFile,
-      outFilenamePackets = config.dictionary.packetsFile,
-      filepathConfig = path.dirname(__dirname) + '/config.js',
-      configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
-      dict = JSON.parse(dictJSON),
-      deployment = Object.keys(dict)[0],
-      deploymentDict = dict[deployment],
-      pointDict = {},
-      packetDict = {};
+const outFilenamePointsTemplate = config.pointsFileTemplate,
+      outFilenamePacketsTemplate = config.packetsFileTemplate;
 
-let deploymentName = deployment.charAt(0).toUpperCase() + deployment.slice(1),
-    packetName = deploymentName + " Telemetry"
+// This file is written by autcoder so that this script knows what dictionary
+// it should use to build configuration
+let dictName = fs.readFileSync(path.dirname(__dirname) + '/res/dictPath.txt');
+
+let dictJSON = fs.readFileSync(path.dirname(__dirname) + '/' + dictName, {encoding: 'UTF-8'}),
+    filepathConfig = path.dirname(__dirname) + '/config.js',
+    configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
+    dict = JSON.parse(dictJSON),
+    deployment = Object.keys(dict)[0],
+    deploymentDict = dict[deployment],
+    pointDict = {},
+    packetDict = {};
+
+let deploymentName = deployment,
+    packetName = deploymentName + " Telemetry",
+    outFilenamePoints = outFilenamePointsTemplate.replace('${deployment}', deployment),
+    outFilenamePackets = outFilenamePacketsTemplate.replace('${deployment}', deployment);
 
 packetDict[packetName] = {
     name: packetName,
     points: []
 }
 
+//OpenMCT format objects for given fields
 let time_format = {
   'key': 'utc',
   'source': 'timestamp',
@@ -52,10 +60,10 @@ let name_format = {
 let raw_value_format = {
     key: "raw_value",
     name: "Raw Value",
-    hints: {"range":2}
+    hints: {"range": 2}
 };
 
-
+// Generate JS objects representing OpenMCT configuration files
 Object.entries(deploymentDict.channels).forEach(function (channel) {
     let id = channel[0],
         props = channel[1],
@@ -70,9 +78,7 @@ Object.entries(deploymentDict.channels).forEach(function (channel) {
     }
 });
 
-// Replace deployment key in config.js
-newConfigJS = configJS.replace(/deployment: '(\w+)'/, `deployment: '${deployment}'`)
-
+//Write configuration files
 let outFilepathPoints = path.dirname(__dirname) + '/' + outFilenamePoints;
 let outFilepathPackets = path.dirname(__dirname) + '/' + outFilenamePackets;
 
@@ -80,5 +86,5 @@ console.log(`Writing points config file to ${outFilepathPoints}`);
 fs.writeFileSync(outFilepathPoints, JSON.stringify(pointDict));
 console.log(`Writing packets config file to ${outFilepathPackets}`);
 fs.writeFileSync(outFilepathPackets, JSON.stringify(packetDict));
-console.log(`Setting deployment key to '${deployment}' in ${filepathConfig}`);
-fs.writeFileSync(filepathConfig, newConfigJS)
+
+console.log(`\nTo start the OpenMCT server configured for this deployment, use deployment key '${deployment}'\n`)
