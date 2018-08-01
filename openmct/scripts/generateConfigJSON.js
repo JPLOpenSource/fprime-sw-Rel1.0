@@ -17,8 +17,11 @@ const config = require('../config');
 const outFilenamePointsTemplate = config.pointsFileTemplate,
       outFilenamePacketsTemplate = config.packetsFileTemplate;
 
-let dictName = fs.readFileSync(path.dirname(__dirname) + '/res/dictPath.txt'),
-    dictJSON = fs.readFileSync(path.dirname(__dirname) + '/' + dictName, {encoding: 'UTF-8'}),
+// This file is written by autcoder so that this script knows what dictionary
+// it should use to build configuration
+let dictName = fs.readFileSync(path.dirname(__dirname) + '/res/dictPath.txt');
+
+let dictJSON = fs.readFileSync(path.dirname(__dirname) + '/' + dictName, {encoding: 'UTF-8'}),
     filepathConfig = path.dirname(__dirname) + '/config.js',
     configJS = fs.readFileSync(filepathConfig, {encoding: 'UTF-8'}),
     dict = JSON.parse(dictJSON),
@@ -27,7 +30,7 @@ let dictName = fs.readFileSync(path.dirname(__dirname) + '/res/dictPath.txt'),
     pointDict = {},
     packetDict = {};
 
-let deploymentName = deployment.charAt(0).toUpperCase() + deployment.slice(1),
+let deploymentName = deployment,
     packetName = deploymentName + " Telemetry",
     outFilenamePoints = outFilenamePointsTemplate.replace('${deployment}', deployment),
     outFilenamePackets = outFilenamePacketsTemplate.replace('${deployment}', deployment);

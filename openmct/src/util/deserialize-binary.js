@@ -172,7 +172,7 @@ function gainOffsetConv (value, gain, offset) {
   * @return: Array of OpenMCT formatted dataum
  */
 function deserialize (data, target, dictionary) {
-    var telem = dictionary[target.toLowerCase()];  // Get format dictionary
+    var telem = dictionary[target];  // Get format dictionary
 
     let packetArr = [];
     let packetLength = data.length;
@@ -296,7 +296,7 @@ function deserialize (data, target, dictionary) {
   * @return {Array} A list of the channel ids in the deployment
   */
 function getIds (target, dictionary) {
-    var telem = dictionary[target.toLowerCase()];  // Get format dictionary
+    var telem = dictionary[target];  // Get format dictionary
     let ids = [];
     let channels = telem['channels'];
     for (let id in channels) {

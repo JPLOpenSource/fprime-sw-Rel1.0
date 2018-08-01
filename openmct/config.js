@@ -1,5 +1,5 @@
 module.exports = {
-    deployment: 'ref',
+    deployment: 'Ref',
     pointsFileTemplate: 'res/${deployment}Points.json',
     packetsFileTemplate: 'res/${deployment}Packets.json',
     dictionaryTemplate: 'res/${deployment}Dictionary.json',
@@ -52,7 +52,7 @@ module.exports = {
          * POSTing "/dictionary/save" will write the current point definitions
          * to this file.
          */
-        pointsFile: 'res/refPoints.json',
+        pointsFile: 'res/RefPoints.json',
 
         /**
          * packetsFile
@@ -60,7 +60,7 @@ module.exports = {
          * loaded at startup.  POSTing "/dictionary/save" will write the current
          * point definitions to this file.
          */
-        packetsFile: 'res/refPackets.json',
+        packetsFile: 'res/RefPackets.json',
 
         /**
          * packetSeparator
@@ -180,7 +180,7 @@ module.exports = {
         /**
          * dictionaryFile: where the BSON deserializer will look for the dictionary
          */
-        dictionaryFile: 'res/refDictionary.json'
+        dictionaryFile: 'res/RefDictionary.json'
      },
 
      COSMOSInput: {

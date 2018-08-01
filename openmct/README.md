@@ -28,7 +28,7 @@ To configure and start the OpenMCT server, run the following from fprime/openmct
 npm run configure <Topology XML Filepath>
 npm start <Deployment Key>
 ```
-where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Key>` is the name of this deployment in all lower case. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
+where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Key>` is the name of this deployment. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
 If configuration was successful, a Packet object called "[Deployment Name] Telemetry"
 containing Telemetry objects for each channel should appear under the "BSON Server" folder.
 
@@ -63,6 +63,7 @@ hasn't been generated, the this script will print a list of the available deploy
 and exit. By default the web client is served on http://localhost:8000. The
 BSON Adapter will continuously attempt to connect to the fprime telemetry server
 until it is running. By default,  it attempts to connect on http://localhost:50000.
+To start the server configured for the Ref app, run `npm start Ref`
 
 ```
 npm run clean
@@ -114,20 +115,23 @@ The directories under `/openmct` have the following structure:
 
 ## Default Configuration
 
-Configuration options for the BSON server are specified in the file 'config.js'. By default, the server is configured as follows (other configuration options are available, and documented in config.js):
+Configuration options for the BSON server are specified in the file 'config.js'. Options with a default value marked as \*autocoded\* should not be changed manually, or the server may stop working correctly. By default, the server is configured as follows (other configuration options are available, and documented in config.js):
 
 | Option | Description| Default Value |
 | --- | --- | --- |
+| deployment | Name of deployment to use for dictionary and packet deserialization. | \*autocoded\* |
+| pointsFileTemplate | Name of points configuration file, where ${deployment} will be replaced by the deployment name by the autocoder | res/${deployment}Points.json |
+| packetsFileTemplate| Name of packets configuration file, where ${deployment} will be replaced by the deployment name by the autocoder | res/${deployment}Packets.json |
+| dictionaryTemplate | Name of JSON dictionary file, where ${deployment} will be replaced by the deployment name by the autocoder| res/${deployment}Dictionary.json |
 | client.host | Hostname where web client will be served | localhost |
 | client.port | Port where web client will be served | 8000 |
 | client.persistence.type | Service to use for object persistence | couchdb |
 | client.persistence.url | URL of object persistence database | http://localhost:5984/openmct |
-| dictionary.pointsFile | Dictionary configuration for OpenMCT client, autocoded configuration file is saved here | res/points.json |
-| dictionary.packetsFile | Dictionary configuration for OpenMCT client, autocoded configuration file is saved here | res/packets.json |
+| dictionary.pointsFile | Dictionary configuration for OpenMCT client, autocoded configuration file is saved here | \*autocoded\* |
+| dictionary.packetsFile | Dictionary configuration for OpenMCT client, autocoded configuration file is saved here | \*autocoded\* |
 | input.type | Input type for openmct | bson |
 | input.bindAddress | Hostname where BSON server listens for packets | 127.0.0.1 |
 | input.port | Port where BSON server listens for packets | 12345 |
-| binaryInput.deployment  | Deployment name to use for packet deserialization (this will be set to the appropriate key by the autocoder) | ref |
 | binaryInput.bindAddress | Hostname where BSON Adapter will connect and receive binary packets | 127.0.0.1 |
 | binaryInput.port | Port where BSON Adapter will connect and receive binary packets | 50000 |
 

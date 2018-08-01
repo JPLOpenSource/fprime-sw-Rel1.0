@@ -85,7 +85,7 @@ def main():
         PRINT.info("BUILD_ROOT set to %s in environment" % BUILD_ROOT)
 
     parsedTopology = XmlTopologyParser.XmlTopologyParser(xmlFilename)
-    deployment = parsedTopology.get_deployment().lower()
+    deployment = parsedTopology.get_deployment()
     outFilename = deployment + "Dictionary.json"
     outFilepath = "/".join([opts.work_path, outFilename])
     descriptionFilename = "/".join([opts.work_path, "/dictPath.txt"])
