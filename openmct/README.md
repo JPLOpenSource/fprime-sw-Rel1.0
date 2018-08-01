@@ -20,15 +20,15 @@ server, but any user-created resources cannot be saved. Scripts are provided to
 save and load persisted objects as JSON documents.
 
 ## Usage
-This package requires node.js (8.x only: 10.x is known to cause build problems) and npm (> 5.x) to be installed on your system to build and run (https://nodejs.org/en/).
+This package requires node.js (8.11.3 is known to work: 10.x causes build issues) and npm (5.6 is known to work) to be installed on your system to build and run (https://nodejs.org/en/).
 Additionally, the build scripts depend on Python autocoders, make sure your Python environment is set up as required by fprime (Python 2.7, modules from `/requirements.txt` installed).
 
 To configure and start the OpenMCT server, run the following from fprime/openmct:
 ```
 npm run configure <Topology XML Filepath>
-npm start <Deployment Key>
+npm start <Deployment Name>
 ```
-where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Key>` is the name of this deployment. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
+where `<Topology XML Filepath>` is the Topology XML file for the fprime deployment for which OpenMCT will be receiving data, and `<Deployment Name>` is the name of this deployment as defined in the XML. Point a browser to http://localhost:8000 to view the OpenMCT web client (Chrome works best).
 If configuration was successful, a Packet object called "[Deployment Name] Telemetry"
 containing Telemetry objects for each channel should appear under the "BSON Server" folder.
 
