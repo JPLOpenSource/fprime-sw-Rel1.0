@@ -1,13 +1,14 @@
 #!/bin/env python
 #===============================================================================
-# NAME: GseApi.py
+# NAME: gse_api_cosmos.py
 #
-# DESCRIPTION: A basic API of command and telemetry monitoring capabilities.
-# AUTHOR: 
-# EMAIL:  
-# DATE CREATED:
+# DESCRIPTION: A basic API of command and telemetry monitoring capabilities,
+#              implmented for the COSMOS http api
+# AUTHOR: Aaron Doubek-Kraft
+# EMAIL: aaron.doubek-kraft@jpl.nasa.gov
+# DATE CREATED: 8/13/2018
 #
-# Copyright 2015, California Institute of Technology.
+# Copyright 2018, California Institute of Technology.
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 #
@@ -24,25 +25,17 @@ from subprocess import PIPE, STDOUT
 
 from utils import Logger
 from utils import command_args
-from checksum import *
+from utils.checksum import *
 from models.serialize.u32_type import *
 
-from controllers import command_loader
-from controllers import commander
-from controllers import event_loader
-from controllers import event_listener
-from controllers import channel_loader
-from controllers import channel_listener
-from controllers import client_sock
-from controllers import socket_listener
-from controllers import file_uplink_client
-from controllers import file_downlink_client
-from controllers.file_downlink_client import DownlinkStatus
-from controllers.file_uplink_client import UplinkStatus
+from utils.ConfigManager import ConfigManager
 
-from ConfigManager import ConfigManager
+from cosmos import cosmos_telem_loader
+from cosmos import cosmos_command_loader
+from cosmos import cosmos_telem_queue
+from cosmos import cosmos_command_queue
 
-class GseApi(object):
+class GseApiCosmos(object):
     """
     This class is a general API into the gse.py graphical functionality
     but is indepent of any GUI package.  It is used to build test applicaitons
@@ -58,7 +51,7 @@ class GseApi(object):
     poll and if message then return it and update console and log file.
     """
 
-    def __init__(self, server_addr='127.0.0.1', port=50000, generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False):
+    def __init__(self, server_addr='127.0.0.1', port=7777, generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False):
         """
         Constructor.
         @param server_addr: Socket server addr
@@ -99,20 +92,13 @@ class GseApi(object):
         else:
           print "WARNING: BUILD_ROOT not set. Specify on the command line, the environment, or gse.ini."
 
-
-        self.generated_path = config.get("filepaths", "generated_path")
-        if generated_path != '':
-            self.generated_path = generated_path
-        else:
-            print "WARNING: GENERATED_PATH not set. Specify on command line or gse.ini"
-
-
         # display configuration before starting GUI here...
         sep_line = 80*"="
         if verbose:
             logger = Logger.connectOutputLogger(f,'stdout', logging.INFO)
         else:
             logger = Logger.connectOutputLogger(f,'stdout', logging.WARNING)
+
         logger.info("Created log: %s" % f)
         logger.info("User: %s" % os.environ['USER'])
         (sysname, nodename, release, version, machine) = os.uname()
@@ -123,48 +109,26 @@ class GseApi(object):
         logger.info("Machine: %s" % machine)
         logger.info(sep_line)
 
-        # load commands, events, channelized telemetry, and event listener
-        sys.path.append(generated_path)
-        # add path for serializables
-        sys.path.append(generated_path + os.sep + "serializable")
+        #self._cmds = cosmos_command_loader.CommandLoader.getInstance()
+        self._telem = cosmos_telem_loader.COSMOSTelemLoader("REF", server_addr, port)
 
-        self._cmds = command_loader.CommandLoader.getInstance()
-        self._cmds.create(generated_path + os.sep + "commands")
-        self._events = event_loader.EventLoader.getInstance()
-        self._events.create(generated_path + os.sep + "events")
-        self._channels = channel_loader.ChannelLoader.getInstance()
-        self._channels.create(generated_path + os.sep + "channels")
-        self._ev_listener = event_listener.EventListener.getInstance()
-        self._ev_listener.setupLogging()
-        self._ch_listener = channel_listener.ChannelListener.getInstance()
-        self.__sock_listener = socket_listener.SocketListener.getInstance()
-        self.__logger = logger
+        self._telem_subscriber = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("chans"), server_addr, port)
+        self._evr_subscriber = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("evrs"), server_addr, port)
+        #self._command_sender = cosmos_command_queue.COSMOSCommandQueue("REF", commandNames, server_addr, port)
 
         self.__server_addr = server_addr
         self.__port        = port
+        self.__logger = logger
 
-
-        # Uplink and downlink clients will log to null handler if none is specified
-        file_uplink_client.set_logger(log_folder=log_file_updown)
-        file_downlink_client.set_logger(log_folder=log_file_updown)
-
-
-
-        # connect to TCP server
-        try:
-          self.__sock = client_sock.ClientSocket(server_addr, port)
-          self.__sock.send("Register GUI\n")
-          self.__sock_listener.connect(self.__sock)
-        except IOError:
-          self.__sock = None
-
-        super(GseApi, self).__init__()
+        super(GseApiCosmos, self).__init__()
 
     def disconnect(self):
       '''
-      Disconnect form the socket
+      Unregister the listener queues with the COSMOS HTTP API
       '''
-      self.__sock.disconnect()
+      self._telem_subscriber.destroy_subscription()
+      self._evr_subscriber.destroy_subscription()
+      #self._command_sender.destroy_subscription()
 
     class TimeoutException(Exception):
       pass
@@ -218,8 +182,8 @@ class GseApi(object):
       """
       Grabs one event/telemetry from queue
       """
-      evr = self._ev_listener.get_event()
-      tlm = self._ch_listener.get_channel()
+      evr = self._evr_subscriber.get_next_value()
+      tlm = self._telem_subscriber.get_next_value()
 
       return tlm, evr
 
@@ -261,7 +225,7 @@ class GseApi(object):
         """
         Return a list of available commands, EVRs, or Channels.
         @param kind: kind of list desired: cmds, evrs, channels
-        @param ids: if True return id numbers, else nnmonics
+        @param ids: if True return id numbers, else mnemonics
         @return: list of items
         """
         queryList = []
@@ -269,11 +233,11 @@ class GseApi(object):
         if kind is "cmds":
             #NOTE: the dict values are ints, but they represent opcode hex values
             #TODO: see if another dict has a similar pattern to evrs and channels
-            queryList = self._cmds.getOpCodeDict().values() if ids else self._cmds.getOpCodeDict().keys()
+            queryList = self._cmds.get_name_dict.keys() if ids else self._cmds.get_name_dict.values()
         elif kind is "evrs":
-            queryList = self._events.getNameDict().keys() if ids else self._events.getNameDict().values()
+            queryList = self._telem.get_event_name_dict().values() if ids else self._telem.get_event_name_dict().keys()
         elif kind is "chans":
-            queryList = self._channels.getNameDict().keys() if ids else self._channels.getNameDict().values()
+            queryList = self._telem.get_channel_name_dict().values() if ids else self._telem.get_channel_name_dict().keys()
         else:
             print "Requested type is invalid."
         return queryList
@@ -309,11 +273,8 @@ class GseApi(object):
         data_len = U32Type( len(data) + desc_type.getSize() )
         cmd = "A5A5 " + "FSW " + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
         #type_base.showBytes(cmd)
-        if self.__sock == None:
-            print "Command %s not sent: No socket connection" % cmd_name
-            return -1
 
-        self.__sock.send(cmd)
+        # TODO : actually send command here, with COSMOS
         if args is None:
             print 'Sent command', cmd_name
         else:
@@ -334,16 +295,7 @@ class GseApi(object):
       @param subprocess: Spawn new process
       @return: The subprocess if subprocess is True. UplinkStatus if subprocess is False.
       """
-
-      ## Sends file  through current socket
-      status, bytes_sent = file_uplink_client.send_file(src_path=src_path, dest_path=dest_path, sock=self.__sock, offset=offset, data_size=data_size, subprocess=False)
-
-      print "File bytes sent: {}".format(bytes_sent)
-      if UplinkStatus(status) == UplinkStatus.SUCCESS:
-        print "File Uplink complete"
-      else:
-        print "File Uplink error: {}".format(status)
-        raise Exception
+      pass
 
 
 
@@ -355,33 +307,14 @@ class GseApi(object):
       @param subprocess: Spawn new process
       @return: DownlinkStatus
       """
-      # Get new socket
-      sock = file_downlink_client.get_downlink_server_socket(self.__server_addr, self.__port)
-      #Send downlink command
-      self.send(cmd_name="FileDownlink_SendFile", args=[src,dest])
-      # Catch incoming file packets
-      status = file_downlink_client.startListen(sock=sock)
-
-      if DownlinkStatus(status) == DownlinkStatus.SUCCESS:
-        print "File downlink successful"
-      else:
-        print "File downlink error: {}".format(status)
-        raise Exception
-
+      pass
 
     def create_downlink_subprocess(self):
       """
       Start new process to listen for incoming files.
       @return: Downlink Process
       """
-
-      # Handle up/downlink
-      self.__downlink_shell = file_downlink_client.DownlinkShell.getInstance()
-
-      self.__downlink_shell.config(self.build_root)
-      self.__downlink_shell.spawn(host=self.__server_addr, port=self.__port)
-      DNLK = self.__downlink_shell.start()
-      return DNLK
+      pass
 
     def create_uplink_suprocess(self, src_path, dest_path):
       """
@@ -390,12 +323,7 @@ class GseApi(object):
       @param dest_path: Destination path of file to be recieved by target application
       @return: Uplink Process
       """
-      self.__uplink_shell = file_uplink_client.UplinkShell.getInstance()
-
-      self.__uplink_shell.config(self.build_root)
-      self.__uplink_shell.spawn(host=self.__server_addr, port=self.__port, src_path=src_path, dest_path=dest_path)
-      UPLK = self.__uplink_shell.startNext()
-      return UPLK
+      pass
 
     def send_wait_evr(self, cmd_name, evr_name, args=None, timeout=5):
       """
@@ -458,8 +386,7 @@ class GseApi(object):
 
     def monitor_evr(self, id=None, blocking=True):
         """
-        Monitors for log event messages from a listener thread
-        connected to the Threaded TCP Socket Server.  The routine
+        Monitors for log event messages with the COSMOS HTTP API.  The routine
         uses the python logging module to display to stdout and
         to a log file.
         @param id: This is ether a None for displaying any event log message,
@@ -486,8 +413,7 @@ class GseApi(object):
 
     def monitor_tlm(self, id=None, blocking=True):
         """
-        Monitors for channel telemetry from a listener thread
-        connected to the Threaded TCP Socket Server.  The routine
+        Monitors for channel telemetry with the COSMOS HTTP API.  The routine
         uses the python logging module to display to stdout and
         to a log file.
         @param id: This is ether a None for displaying any channel telemetry,
@@ -517,7 +443,7 @@ class GseApi(object):
       @param evr_name: the name of a specific evr
       @return: the id of evr_name
       """
-      return self._events.getEventsDictByName()[evr_name].getId()
+      return self._telem.get_event_id_dict()[evr_name]
 
     def get_tlm_id(self, tlm_name):
       """
@@ -525,7 +451,7 @@ class GseApi(object):
       @param tlm_name: the name of a specific tlm
       @return: the id of tlm_name
       """
-      return self._channels.getChDictByName()[tlm_name].getId()
+      return self._telem.get_channel_id_dict()[evr_name]
 
     def get_cmd_id(self, command_name):
       """
@@ -541,7 +467,7 @@ class GseApi(object):
       @param evr_id: the id of a specific id
       @return: the name of evr_id
       """
-      return self._events.getEventsDict()[evr_id].getName()
+      return self._telem.get_event_name_dict()[evr_id]
 
     def get_tlm_name(self, tlm_id):
       """
@@ -549,7 +475,7 @@ class GseApi(object):
       @param tlm_id: the id of a specific tlm
       @return: the name of tlm_id
       """
-      return self._channels.getChDict()[tlm_id].getName()
+      return self._channels.get_channel_name_dict()[tlm_id]
 
     def get_cmd_name(self, command_id):
       """

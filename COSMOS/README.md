@@ -75,7 +75,7 @@ Commands and Telemetry should be added ONLY to the Deployment's Topology XML, no
 
 #### 5.1.2 Altering Header Files
 
-All command and telemetry header files should be altered by directly editing the Cheetah templates themselves rather than the text files, as the text files are overwritten with each run of the generator in order to allow Topology XML file changes to be added in.  In addition, it is necessary to specify the total number of bits in the Event header file by altering the constant 'EVR\_HEADER\_SIZE\_BITS' inside of CosmosUtil.py. 
+All command and telemetry header files should be altered by directly editing the Cheetah templates themselves rather than the text files, as the text files are overwritten with each run of the generator in order to allow Topology XML file changes to be added in.  In addition, it is necessary to specify the total number of bits in the Event header file by altering the constant 'EVR\_HEADER\_SIZE\_BITS' inside of CosmosUtil.py.
 
 ### 5.2 Adding Channel Screens
 
@@ -178,3 +178,7 @@ Classes within the tool are broken down into lowest-level model and writer class
 |evr\_dump\_component.rb|Plain text writing protocol that specifies how text should be written in the data\_viewer application|[.rb](../COSMOS/lib/evr\_dump\_component.rb)|
 |multi\_string\_item\_conversion.rb|Ruby script that is used in event telemetry to allow COSMOS to handle multiple strings by pre-specifying all packet items in a single BLOCK-type item and then parsing out their values within this script rather than in COSMOS itself|[.rb](../COSMOS/lib/multi\_string\_item\_conversion.rb)|
 |fprime\_protocol.rb|Optional helper script for FPrime ref app that bypasses an error message that gets sent out when COSMOS doesn't recognize the first 13 bits the ref app sends|[.rb](../COSMOS/lib/fprime\_protocol.rb)|
+
+## 7 COSMOS HTTP API
+Notes on COSMOS' HTTP API and how to use it to subscribe to streaming telemetry
+and send commands are here. Overview of COSMOS JSON API is [here](https://cosmosrb.com/docs/json_api/)
