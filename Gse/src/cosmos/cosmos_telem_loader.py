@@ -11,7 +11,7 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from cosmos_http_request import COSMOSHTTPRequest
+from cosmos import cosmos_http_request
 
 class COSMOSTelemLoader:
 
@@ -32,7 +32,7 @@ class COSMOSTelemLoader:
         dictionaries in the format {mnemonic: code}
         '''
 
-        request = COSMOSHTTPRequest(self._host_url, "get_tlm_list", [self._target])
+        request = cosmos_http_request.COSMOSHTTPRequest(self._host_url, "get_tlm_list", [self._target])
         reply = request.send()
 
         try:
@@ -51,13 +51,13 @@ class COSMOSTelemLoader:
             elif descriptor == self._descriptors["channel"]:
                 channel_list.append(telem_name)
 
-        #create map of id indexed by name
+        #create map of id's indexed by name
         self._event_id_dict = self.get_attribute_dict(event_list, "EVR_ID", "id_value")
         self._channel_id_dict = self.get_attribute_dict(channel_list, "CHANNEL_ID", "id_value")
 
         #invert map to name indexed by id
-        self._event_name_dict = {id: name for name: id in self._event_id_dict.iteritems()}
-        self._channel_name_dict = {id: name for name: id in self._channel_id_dict.iteritems()}
+        self._event_name_dict = {id: name for (name, id) in self._event_id_dict.iteritems()}
+        self._channel_name_dict = {id: name for (name, id) in self._channel_id_dict.iteritems()}
 
     def get_attribute_dict(self, telem_list, field, attribute):
         '''
@@ -65,7 +65,7 @@ class COSMOSTelemLoader:
         as a dictionary of {item_name: value ...} pairs
         '''
         params = map(lambda telem_name: [self._target, telem_name, field], telem_list)
-        request = COSMOSHTTPRequest(self._host_url, "get_tlm_details", [params])
+        request = cosmos_http_request.COSMOSHTTPRequest(self._host_url, "get_tlm_details", [params])
         reply = request.send()
         resultDict = {}
 

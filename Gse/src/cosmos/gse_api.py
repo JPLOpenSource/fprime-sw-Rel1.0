@@ -1,6 +1,6 @@
 #!/bin/env python
 #===============================================================================
-# NAME: gse_api_cosmos.py
+# NAME: gse_api.py
 #
 # DESCRIPTION: A basic API of command and telemetry monitoring capabilities,
 #              implmented for the COSMOS http api
@@ -35,7 +35,7 @@ from cosmos import cosmos_command_loader
 from cosmos import cosmos_telem_queue
 from cosmos import cosmos_command_queue
 
-class GseApiCosmos(object):
+class GseApi(object):
     """
     This class is a general API into the gse.py graphical functionality
     but is indepent of any GUI package.  It is used to build test applicaitons
@@ -86,11 +86,11 @@ class GseApiCosmos(object):
 
         self.build_root = config.get("filepaths", "build_root")
         if 'BUILD_ROOT' in os.environ:
-          self.build_root = os.environ['BUILD_ROOT']
+            self.build_root = os.environ['BUILD_ROOT']
         elif build_root != '':
-          self.build_root = build_root
+            self.build_root = build_root
         else:
-          print "WARNING: BUILD_ROOT not set. Specify on the command line, the environment, or gse.ini."
+            print "WARNING: BUILD_ROOT not set. Specify on the command line, the environment, or gse.ini."
 
         # display configuration before starting GUI here...
         sep_line = 80*"="
@@ -109,29 +109,29 @@ class GseApiCosmos(object):
         logger.info("Machine: %s" % machine)
         logger.info(sep_line)
 
-        #self._cmds = cosmos_command_loader.CommandLoader.getInstance()
         self._telem = cosmos_telem_loader.COSMOSTelemLoader("REF", server_addr, port)
+        #self._cmds = cosmos_command_loader.COSMOSCommandLoader("REF", server_addr, port)
 
-        self._telem_subscriber = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("chans"), server_addr, port)
-        self._evr_subscriber = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("evrs"), server_addr, port)
+        self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("chans"), server_addr, port)
+        self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("evrs"), server_addr, port)
         #self._command_sender = cosmos_command_queue.COSMOSCommandQueue("REF", commandNames, server_addr, port)
 
         self.__server_addr = server_addr
-        self.__port        = port
+        self.__port = port
         self.__logger = logger
 
-        super(GseApiCosmos, self).__init__()
+        super(GseApi, self).__init__()
 
     def disconnect(self):
-      '''
-      Unregister the listener queues with the COSMOS HTTP API
-      '''
-      self._telem_subscriber.destroy_subscription()
-      self._evr_subscriber.destroy_subscription()
-      #self._command_sender.destroy_subscription()
+        '''
+        Unregister the listener queues with the COSMOS HTTP API
+        '''
+        self._telem_queue.destroy_subscription()
+        self._evr_queue.destroy_subscription()
+        #self._command_sender.destroy_subscription()
 
     class TimeoutException(Exception):
-      pass
+        pass
 
     def _timeout_sig_handler(self, signum, frame):
         raise self.TimeoutException()
@@ -140,50 +140,57 @@ class GseApiCosmos(object):
         raise Exception('Ctrl-C Received, Exiting.')
 
     def __loop_queue(self, id, type, timeout=None):
-      """
-      Grabs all telemetry and data in event listener's queue until the queried event / tlm id is found.
-      Returns a tuple with two lists (tlm_list,evr_list)
-      """
+        """
+        Grabs all telemetry and data in event listener's queue until the queried event / tlm id is found.
+        Returns a tuple with two lists (tlm_list,evr_list)
+        """
 
-      tlm_list = []
-      evr_list = []
-      recv_id= ''
+        tlm_list = []
+        evr_list = []
+        recv_id= ''
 
-      if timeout:
-        signal.signal(signal.SIGALRM, self._timeout_sig_handler)
-        signal.alarm(timeout)
-        print 'Waiting for', type, 'ID', id
+        if timeout:
+            signal.signal(signal.SIGALRM, self._timeout_sig_handler)
+            signal.alarm(timeout)
+            print 'Waiting for', type, 'ID', id
 
-      try:
-        notFound = True
-        while notFound:
-          tlm, evr = self._pop_queue()
-          if tlm is None and evr is None:
-            time.sleep(0.1)
-          else:
-            if tlm:
-              tlm_list.append(tlm)
-              (recv_id, _) = tlm
-              if type == "ch" and id == recv_id:
-                notFound = False
-            if evr:
-              evr_list.append(evr)
-              (recv_id, _) = evr
-              if type == "evr" and id == recv_id:
-                notFound = False
-      except self.TimeoutException:
-        print 'Timeout reached, unable to find', type, 'ID', id
+        try:
+            notFound = True
+            while notFound:
+                tlm, evr = self._pop_queue()
+                if tlm is None and evr is None:
+                    time.sleep(0.1)
+                else:
+                    if tlm:
+                        tlm_name = tlm[0]
+                        tlm_value = tlm[1]
+                        tlm_id = self.get_tlm_id(tlm_name)
+                        tlm_item = (tlm_id, tlm_value, tlm_name)
+                        tlm_list.append(tlm_item)
+                        if type == "ch" and id == tlm_id:
+                            notFound = False
+                    if evr:
+                        evr_name = evr[0]
+                        evr_value = evr[1]
+                        evr_id = self.get_evr_id(evr_name)
+                        evr_item = (evr_id, evr_value, evr_name)
+                        evr_list.append(evr_item)
+                        if type == "evr" and id == evr_id:
+                            notFound = False
 
-      if timeout:
-        signal.alarm(0)
-      return tlm_list, evr_list
+        except self.TimeoutException:
+            print 'Timeout reached, unable to find', type, 'ID', id
+
+        if timeout:
+            signal.alarm(0)
+        return tlm_list, evr_list
 
     def _pop_queue(self):
       """
       Grabs one event/telemetry from queue
       """
-      evr = self._evr_subscriber.get_next_value()
-      tlm = self._telem_subscriber.get_next_value()
+      evr = self._evr_queue.get_next_value()
+      tlm = self._telem_queue.get_next_value()
 
       return tlm, evr
 
@@ -197,22 +204,25 @@ class GseApiCosmos(object):
       evr_list = []
       recv_id= ''
 
-      notFound = True
-      while notFound:
+      empty = False
+      while not empty:
         tlm, evr = self._pop_queue()
         if tlm is None and evr is None:
-          break
+            empty = True
         else:
-          if tlm:
-            tlm_list.append(tlm)
-            (recv_id, _) = tlm
-            if id == recv_id and type == "ch":
-              notFound = False
-          if evr:
-            evr_list.append(evr)
-            (recv_id, _) = evr
-            if id == recv_id and type == "evr":
-              notFound = False
+            if tlm:
+                tlm_name = tlm[0]
+                tlm_value = tlm[1]
+                tlm_id = self.get_tlm_id(tlm_name)
+                tlm_item = (tlm_id, tlm_value, tlm_name)
+                tlm_list.append(tlm_item)
+            if evr:
+                evr_name = evr[0]
+                evr_value = evr[1]
+                evr_id = self.get_evr_id(evr_name)
+                evr_item = (evr_id, evr_value, evr_name)
+                evr_list.append(evr_item)
+
       return tlm_list, evr_list
 
     def flush(self):
@@ -231,13 +241,12 @@ class GseApiCosmos(object):
         queryList = []
 
         if kind is "cmds":
-            #NOTE: the dict values are ints, but they represent opcode hex values
-            #TODO: see if another dict has a similar pattern to evrs and channels
-            queryList = self._cmds.get_name_dict.keys() if ids else self._cmds.get_name_dict.values()
+            pass
+            #queryList = self._cmds.get_name_dict.keys() if ids else self._cmds.get_name_dict.values()
         elif kind is "evrs":
-            queryList = self._telem.get_event_name_dict().values() if ids else self._telem.get_event_name_dict().keys()
+            queryList = self._telem.get_event_id_dict().values() if ids else self._telem.get_event_name_dict().values()
         elif kind is "chans":
-            queryList = self._telem.get_channel_name_dict().values() if ids else self._telem.get_channel_name_dict().keys()
+            queryList = self._telem.get_channel_id_dict().values() if ids else self._telem.get_channel_name_dict().values()
         else:
             print "Requested type is invalid."
         return queryList
@@ -297,8 +306,6 @@ class GseApiCosmos(object):
       """
       pass
 
-
-
     def recieve_file(self, src, dest):
       """
       Request a file from target application.
@@ -351,8 +358,7 @@ class GseApiCosmos(object):
       @param timeout: Optional timeout in seconds (default is 5 seconds).
       @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
       """
-      evrNameDict = self._events.getEventsDictByName()
-      evr_id = evrNameDict[evr_name].getId()
+      evr_id = self._telem.get_event_id_dict()[evr_name]
       return self.__loop_queue(evr_id, 'evr', timeout)
 
     def send_wait_tlm(self, cmd_name, tlm_name, args=None, timeout=5):
@@ -380,8 +386,7 @@ class GseApiCosmos(object):
         @param timeout: Optional timeout in seconds (default is 5 seconds).
         @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
         """
-        channelNameDict = self._channels.getChDictByName()
-        channel_id = channelNameDict[tlm_name].getId()
+        channel_id = self._telem.get_channel_id_dict()[tlm_name]
         return self.__loop_queue(channel_id, 'ch', timeout)
 
     def monitor_evr(self, id=None, blocking=True):
@@ -397,18 +402,20 @@ class GseApiCosmos(object):
         return.
         """
         signal.signal(signal.SIGINT, self.__ctrl_c_sig_handler)
-        evr_dict = self._events.getNameDict()
         try:
-            while(blocking):
-                desc, tlm_id, args = self._ev_listener.update_task_api()
-                # only interested in events
-                if desc is 0x1 or desc is None:
-                    continue
-                if id is None or tlm_id in id:
-                    output = '(' + str(tlm_id) + ':' + evr_dict[tlm_id] + ')'
-                    self.__logger.info(output)
-        except Exception, exc:
-            print exc
+            while(True):
+                evr = self._evr_queue.get_next_value(blocking)
+                if evr is not None:
+                    evr_id = self.get_evr_id(evr[0])
+                    if id is None or evr_id in id:
+                        output = ' '.join(map(lambda item : str(item), evr))
+                        self.__logger.info(output)
+
+                if not blocking:
+                    break
+
+        except Exception:
+            raise Exception
 
 
     def monitor_tlm(self, id=None, blocking=True):
@@ -424,18 +431,19 @@ class GseApiCosmos(object):
         return.
         """
         signal.signal(signal.SIGINT, self.__ctrl_c_sig_handler)
-        ch_dict = self._channels.getNameDict()
         try:
-            while(blocking):
-                desc, tlm_id, args = self._ev_listener.update_task_api()
-                # only interested in channelzed telemetry
-                if desc is 0x2 or desc is None:
-                    continue
-                if id is None or tlm_id in id:
-                    output = '(' + str(tlm_id) + ':' + ch_dict[tlm_id] + ')'
-                    self.__logger.info(output)
-        except Exception, exc:
-            print exc
+            while(True):
+                tlm = self._telem_queue.get_next_value(blocking)
+                if tlm is not None:
+                    tlm_id = self.get_tlm_id(tlm[0])
+                    if id is None or tlm_id in id:
+                        output = ' '.join(map(lambda item : str(item), tlm))
+                        self.__logger.info(output)
+
+                if not blocking:
+                    break
+        except Exception:
+            raise Exception
 
     def get_evr_id(self, evr_name):
       """
@@ -451,7 +459,7 @@ class GseApiCosmos(object):
       @param tlm_name: the name of a specific tlm
       @return: the id of tlm_name
       """
-      return self._telem.get_channel_id_dict()[evr_name]
+      return self._telem.get_channel_id_dict()[tlm_name]
 
     def get_cmd_id(self, command_name):
       """
@@ -459,7 +467,7 @@ class GseApiCosmos(object):
       @param command_name: the name of a specific command (mnemonic)
       @return: the id (op code) of command_name
       """
-      return self._cmds.getCommandObj(command_name).getOpCode()
+      return self._cmds.get_id_dict()[command_name]
 
     def get_evr_name(self, evr_id):
       """
@@ -475,7 +483,7 @@ class GseApiCosmos(object):
       @param tlm_id: the id of a specific tlm
       @return: the name of tlm_id
       """
-      return self._channels.get_channel_name_dict()[tlm_id]
+      return self._telem.get_channel_name_dict()[tlm_id]
 
     def get_cmd_name(self, command_id):
       """
@@ -483,4 +491,78 @@ class GseApiCosmos(object):
       @param command_id: the id of a specific command (opcode)
       @return: the name (mnemonic) of command_id
       """
-      return self._cmds.getCommandObjById(command_id).getMnemonic()
+      return self._cmds.get_name_dict()[command_id]
+
+
+def main():
+
+    # Example usage of api methods
+    api = GseApi(verbose=True)
+    print "\nStarting main() example script:\n"
+
+    # Getters, setters, and listers
+    cmd_list = api.list("cmds")
+    evr_list = api.list("evrs")
+    chan_list = api.list("chans")
+    cmd_id_list = api.list("cmds", ids=True)
+    evr_id_list = api.list("evrs", ids=True)
+    chan_id_list = api.list("chans", ids=True)
+    print "Channel " + chan_list[0] + " has id " + str(api.get_tlm_id(chan_list[0]))
+    print "Channel with id " + str(chan_id_list[0]) + " is named " + api.get_tlm_name(chan_id_list[0])
+    print "Event " + evr_list[0] + " has id " +  str(api.get_evr_id(evr_list[0]))
+    print "Event with id " + str(evr_id_list[0]) + " is named " + api.get_evr_name(evr_id_list[0])
+    #print "Command " + cmd_list[0] + " has opcode " +  str(api.get_cmd_id(cmd_list[0]))
+    #print "Command with opcode " + cmd_id_list[0] + " is named " + api.get_cmd_name(evr_list[0])
+
+    # List all channel and event values received
+    print "\nTesting receive()"
+    time.sleep(1) #Allow time for queue to populate
+    chan_values, evr_values = api.receive()
+    print "Received channel values: " + str(chan_values)
+    print "Received event values: " + str(evr_values)
+
+    # Empty event and channel queues
+    print "\nTesting flush()"
+    time.sleep(1)
+    api.flush()
+    chan_values, evr_values = api.receive()
+    print "Channel values after flush: " + str(chan_values)
+    print "Event values after flush: " + str(chan_values)
+
+    #send a command
+    #api.send()
+
+    #send a command and wait for the response
+    #api.send_wait_evr()
+    #wait for a particular evr
+    print "\nTesting wait_evr()"
+    print api.wait_evr("OPCODECOMPLETED", timeout=1)
+
+    #send a command and wait for channel telemetry
+    #api.send_wait_tlm()
+    #wait for particular channel telemetry
+    print "\nTesting wait_tlm()"
+    print api.wait_tlm("BD_CYCLES")
+
+    # Log next event or channel packet to file, or none if no packets are queued
+    print "\nTesting non-blocking monitor_evr() and monitor_tlm()"
+    time.sleep(1)
+    api.monitor_evr(blocking=False)
+    api.monitor_tlm(blocking=False)
+
+    print "\nTesting blocking monitor_tlm() (channel telemetry will be logged until Ctrl-C exit)"
+    try:
+        api.monitor_tlm()
+    except Exception:
+        print "\nTesting blocking evr_tlm() (events will be logged until Ctrl-C exit)"
+
+    try:
+        api.monitor_evr()
+    except Exception:
+        print "\nDisconnecting and exiting"
+
+    #cleanup remote queues
+    api.disconnect()
+
+if __name__ == "__main__":
+    main()

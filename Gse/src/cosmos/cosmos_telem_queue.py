@@ -14,7 +14,7 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
-from cosmos_http_request import COSMOSHTTPRequest
+from cosmos import cosmos_http_request
 
 class COSMOSTelemQueue:
 
@@ -33,10 +33,10 @@ class COSMOSTelemQueue:
         '''
 
         if (self.__queue_id is not None):
-            raise Exception('Queue already registered: call destroySubscription() to reset')
+            raise Exception('Queue already registered: call destroy_subscription() to reset')
 
         req_params = [map(lambda channel : [self.__target, channel], self.__channels)]
-        request = COSMOSHTTPRequest(self.__host_url, "subscribe_packet_data", req_params)
+        request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "subscribe_packet_data", req_params)
         reply = request.send()
 
         try:
@@ -52,7 +52,7 @@ class COSMOSTelemQueue:
         if (self.__queue_id is None):
             raise Exception('No queue registered, call setup_subscription()')
 
-        request = COSMOSHTTPRequest(self.__host_url, "unsubscribe_packet_data", [self.__queue_id])
+        request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "unsubscribe_packet_data", [self.__queue_id])
         reply = request.send()
 
         try:
@@ -61,17 +61,17 @@ class COSMOSTelemQueue:
         except KeyError:
             raise Exception("Couldn't setup subscription, encountered error: " + reply["error"]["message"])
 
-    def get_next_value(self, non_blocking=True):
+    def get_next_value(self, blocking=False):
         '''
-        Query the COSMOS api for the next data point in the queue. Default is 'non_blocking = True',
+        Query the COSMOS api for the next data point in the queue. Default is 'blocking = False',
         which will return None if there are no additional items in the queue. Setting
-        'non_blocking' to False will make this function block the process until
+        'blocking' to True will make this function block the process until
         data is available.
         '''
         if (self.__queue_id is None):
             raise Exception('No queue registered, call setup_subscription()')
 
-        request = COSMOSHTTPRequest(self.__host_url, "get_packet_data", [self.__queue_id, non_blocking])
+        request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "get_packet_data", [self.__queue_id, not blocking])
         reply = request.send()
 
         try:
@@ -82,5 +82,5 @@ class COSMOSTelemQueue:
                 return None
             raise Exception("Couldn't get next value, encountered error: " + reply["error"]["message"])
 
-    def format_telem(self, telem_json):
-        
+    def format_telem(self, telem_arr):
+        return (str(telem_arr[2]), telem_arr[5])
