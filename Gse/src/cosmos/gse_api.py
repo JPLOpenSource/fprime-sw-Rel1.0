@@ -33,7 +33,7 @@ from utils.ConfigManager import ConfigManager
 from cosmos import cosmos_telem_loader
 from cosmos import cosmos_command_loader
 from cosmos import cosmos_telem_queue
-from cosmos import cosmos_command_queue
+from cosmos import cosmos_command_sender
 
 class GseApi(object):
     """
@@ -109,12 +109,11 @@ class GseApi(object):
         logger.info("Machine: %s" % machine)
         logger.info(sep_line)
 
+        self.__url = 'http://' + str(server_addr) + ":" + str(port)
         self._telem = cosmos_telem_loader.COSMOSTelemLoader("REF", server_addr, port)
-        #self._cmds = cosmos_command_loader.COSMOSCommandLoader("REF", server_addr, port)
-
         self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("chans"), server_addr, port)
         self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("evrs"), server_addr, port)
-        #self._command_sender = cosmos_command_queue.COSMOSCommandQueue("REF", commandNames, server_addr, port)
+        self._command_sender = cosmos_command_sender.COSMOSCommandSender("REF", self.__url)
 
         self.__server_addr = server_addr
         self.__port = port
@@ -241,8 +240,7 @@ class GseApi(object):
         queryList = []
 
         if kind is "cmds":
-            pass
-            #queryList = self._cmds.get_name_dict.keys() if ids else self._cmds.get_name_dict.values()
+            queryList = self._command_sender.get_opcode_dict().values() if ids else self._command_sender.get_name_dict().values()
         elif kind is "evrs":
             queryList = self._telem.get_event_id_dict().values() if ids else self._telem.get_event_name_dict().values()
         elif kind is "chans":
@@ -259,31 +257,10 @@ class GseApi(object):
         """
 
         try:
-           cmd_obj = self._cmds.getCommandObj(cmd_name)
-        except KeyError:
-           print "%s is not a valid command mnemonic. Unable to send command." % cmd_name
-           return -1
+            self._command_sender.send_command(cmd_name, args)
+        except Exception:
+            return -1
 
-        if args is not None:
-           for i in range(len(args)):
-               arg_name, arg_desc, arg_type = cmd_obj.getArgs()[i]
-               arg_obj = command_args.create_arg_type(arg_name, arg_type, args[i])
-               cmd_obj.setArg(arg_name, arg_obj)
-        #print "Command serialized: %s (0x%x)" % (cmd_obj.getMnemonic(), cmd_obj.getOpCode())
-        data = cmd_obj.serialize()
-        #type_base.showBytes(data)
-
-        # Package and send immediate command here...
-        desc = U32Type( 0x5A5A5A5A )
-
-        # Added desc. type for to know it is a command (0).
-        desc_type = U32Type(0)
-
-        data_len = U32Type( len(data) + desc_type.getSize() )
-        cmd = "A5A5 " + "FSW " + desc.serialize() + data_len.serialize() + desc_type.serialize() + data
-        #type_base.showBytes(cmd)
-
-        # TODO : actually send command here, with COSMOS
         if args is None:
             print 'Sent command', cmd_name
         else:
@@ -346,7 +323,7 @@ class GseApi(object):
       # socket directly.  Reimplement the event_listern.update_task method
       # in this class.
       #TODO:what should return be if timeout
-      status = self.send(cmd_name,args)
+      status = self.send(cmd_name, args)
       if status == -1:
          return [], []
       return self.wait_evr(evr_name, timeout)
@@ -467,7 +444,7 @@ class GseApi(object):
       @param command_name: the name of a specific command (mnemonic)
       @return: the id (op code) of command_name
       """
-      return self._cmds.get_id_dict()[command_name]
+      return self._command_sender.get_opcode_dict()[command_name]
 
     def get_evr_name(self, evr_id):
       """
@@ -491,13 +468,13 @@ class GseApi(object):
       @param command_id: the id of a specific command (opcode)
       @return: the name (mnemonic) of command_id
       """
-      return self._cmds.get_name_dict()[command_id]
+      return self._command_sender.get_name_dict()[command_id]
 
 
 def main():
 
     # Example usage of api methods
-    api = GseApi(verbose=True)
+    api = GseApi(verbose=True) #telemetry isn't logged with monitor_*() unless output is verbose
     print "\nStarting main() example script:\n"
 
     # Getters, setters, and listers
@@ -511,12 +488,12 @@ def main():
     print "Channel with id " + str(chan_id_list[0]) + " is named " + api.get_tlm_name(chan_id_list[0])
     print "Event " + evr_list[0] + " has id " +  str(api.get_evr_id(evr_list[0]))
     print "Event with id " + str(evr_id_list[0]) + " is named " + api.get_evr_name(evr_id_list[0])
-    #print "Command " + cmd_list[0] + " has opcode " +  str(api.get_cmd_id(cmd_list[0]))
-    #print "Command with opcode " + cmd_id_list[0] + " is named " + api.get_cmd_name(evr_list[0])
+    print "Command " + cmd_list[0] + " has opcode " +  str(api.get_cmd_id(cmd_list[0]))
+    print "Command with opcode " + str(cmd_id_list[0]) + " is named " + api.get_cmd_name(cmd_id_list[0])
 
     # List all channel and event values received
     print "\nTesting receive()"
-    time.sleep(1) #Allow time for queue to populate
+    time.sleep(1) #Allow time for queue to populate with telemetry
     chan_values, evr_values = api.receive()
     print "Received channel values: " + str(chan_values)
     print "Received event values: " + str(evr_values)
@@ -530,19 +507,26 @@ def main():
     print "Event values after flush: " + str(chan_values)
 
     #send a command
-    #api.send()
+    print "\nTesting send()"
+    cmdSucceeded = api.send("CMD_NO_OP")
+    print "Command succeeded" if cmdSucceeded == 0 else "Failed to send command"
 
-    #send a command and wait for the response
-    #api.send_wait_evr()
-    #wait for a particular evr
-    print "\nTesting wait_evr()"
-    print api.wait_evr("OPCODECOMPLETED", timeout=1)
-
-    #send a command and wait for channel telemetry
-    #api.send_wait_tlm()
     #wait for particular channel telemetry
     print "\nTesting wait_tlm()"
-    print api.wait_tlm("BD_CYCLES")
+    print "Found " + str(api.wait_tlm("BD_CYCLES")[0][-1])
+
+    #wait for a particular evr
+    print "\nTesting wait_evr()"
+    api.send("CMD_NO_OP")
+    print "Found " + str(api.wait_evr("NOOPRECEIVED")[1][-1])
+
+    #send a command and wait for a related EVR
+    print "\nTesting send_wait_evr()"
+    print "Found " + str(api.send_wait_evr("CMD_NO_OP_STRING", "NOOPSTRINGRECEIVED", [10, "Testing123"])[1][-1])
+
+    #send a command and wait for related channel telemetry
+    print "\nTesting send_wait_tlm()"
+    print "Found " + str(api.send_wait_tlm("CMD_NO_OP", "COMMANDSDISPATCHED")[0][-1])
 
     # Log next event or channel packet to file, or none if no packets are queued
     print "\nTesting non-blocking monitor_evr() and monitor_tlm()"
@@ -550,6 +534,7 @@ def main():
     api.monitor_evr(blocking=False)
     api.monitor_tlm(blocking=False)
 
+    # Log all channel or EVR telemetry to file until ctrl-c exit
     print "\nTesting blocking monitor_tlm() (channel telemetry will be logged until Ctrl-C exit)"
     try:
         api.monitor_tlm()
