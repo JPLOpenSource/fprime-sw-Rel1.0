@@ -16,7 +16,18 @@ import json
 import requests
 
 class COSMOSHTTPRequest:
+    '''
+    Simple abstraction class for making HTTP requests to the COSMOS API. Instantiated
+    with the COSMOS API method and associated parameters, sets up the request
+    in the proper format.
+    '''
     def __init__(self, url, method, params):
+        '''
+        Constructor.
+        @param url: The URL of the COSMOS HTTP server.
+        @param method: The method name from the COSMOS API.
+        @param params: The list of parameters for this method.
+        '''
         self._url = url
         self._data = {
             "jsonrpc": "2.0",
@@ -27,8 +38,8 @@ class COSMOSHTTPRequest:
 
     def send(self):
         '''
-        Send the HTTP request in this configuration, and returns the JSON reply
-        as a Python dictionary
+        Send the HTTP request in this configuration as configured during instantiation.
+        @return: the JSON reply from the request as a Python dictionary
         '''
         request = requests.post(self._url, json=self._data)
         return json.loads(request.text)

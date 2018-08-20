@@ -3,9 +3,7 @@
 # NAME: cosmos_telem_queue.py
 #
 # DESCRIPTION: Util class to interact with a COSMOS subscription queue using the
-#              http api. Provides methods to subscribe to a telemetry channel and
-#              request the next method in the telemetry queue. COSMOS does not
-#              distinguish between events and telemetry, so this interface works for both.
+#              http api.
 # AUTHOR: Aaron Doubek-Kraft
 # EMAIL: aaron.doubek-kraft@jpl.nasa.gov
 # DATE CREATED: 8/14/2018
@@ -17,8 +15,22 @@
 from cosmos import cosmos_http_request
 
 class COSMOSTelemQueue:
+    '''
+    Class to interact with realtime telemetry via a COSMOS telemetry queue, while
+    abstracting out the HTTP queries required.
+    Provides methods to subscribe to a telemetry channel and
+    request the next item in the telemetry queue. COSMOS does not
+    distinguish between events and telemetry, so this interface works for both.
+    '''
 
     def __init__(self, target, channels, host, port):
+        '''
+        Constructor.
+        @param target: Name of this target on the COSMOS telemetry server
+        @param channels: A list of the channels to include in the telemetry queue.
+        @param host: Hostname for COSMOS telemetry server
+        @param port: Port where COSMOS listens for HTTP requests
+        '''
         self.__target = target
         self.__channels = channels
         self.__host_url = 'http://' + str(host) + ':' + str(port)
@@ -27,9 +39,10 @@ class COSMOSTelemQueue:
 
     def setup_subscription(self):
         '''
-        Register this queue's subscription with the COSMOS HTTP API for the given channels. This sets
-        up a queue on the COSMOS server, which can then be queried for the next
-        telemetry item with get_next_value()
+        Register a subscription with the COSMOS HTTP API for the channels
+        with wich this queue was instantiated. This sets up a queue on the COSMOS server,
+        which can then be queried for the next telemetry item with get_next_value().
+        If the HTTP request returns with an error status, this will raise an exception.
         '''
 
         if (self.__queue_id is not None):
@@ -46,7 +59,8 @@ class COSMOSTelemQueue:
 
     def destroy_subscription(self):
         '''
-        Unregister this queue's subscription with the COSMOS HTTP API.
+        Unregister this queue's subscription with the COSMOS HTTP API. If HTTP request
+        returns with an error status, this will raise an exception.
         '''
 
         if (self.__queue_id is None):
@@ -66,7 +80,8 @@ class COSMOSTelemQueue:
         Query the COSMOS api for the next data point in the queue. Default is 'blocking = False',
         which will return None if there are no additional items in the queue. Setting
         'blocking' to True will make this function block the process until
-        data is available.
+        data is available. If HTTP request returns with an error status other
+        than 'queue empty', this will raise an exception.
         '''
         if (self.__queue_id is None):
             raise Exception('No queue registered, call setup_subscription()')
@@ -75,12 +90,20 @@ class COSMOSTelemQueue:
         reply = request.send()
 
         try:
-            return self.format_telem(reply["result"])
+            return self._format_telem(reply["result"])
         except KeyError:
             message = reply["error"]["message"]
             if (message == 'queue empty'):
                 return None
-            raise Exception("Couldn't get next value, encountered error: " + reply["error"]["message"])
+            else:
+                raise Exception("Couldn't get next value, encountered error: " + message)
 
-    def format_telem(self, telem_arr):
+    def _format_telem(self, telem_arr):
+        '''
+        Format an array representing a telemetry item returned from the COSMOS API as a
+        tuple consisting of (name, value).
+        @param telem_arr: Telemetry item returned in the COSMOS format of
+                         [RAW_PACKET, DEPLOYMENT, TELEMTRY_NAME, SECONDS, USECONDS, VALUE]
+        @return A tuple with (TELEMETRY_NAME, VALUE)
+        '''
         return (str(telem_arr[2]), telem_arr[5])

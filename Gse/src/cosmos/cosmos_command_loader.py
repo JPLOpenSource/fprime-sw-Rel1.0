@@ -14,8 +14,16 @@
 from cosmos import cosmos_http_request
 
 class COSMOSCommandLoader:
+    '''
+    Class to load available commands and their arguments from COSMOS telem server.
+    '''
 
     def __init__(self, target, url):
+        '''
+        Constructor.
+        @param target: The name of the desired target on the COSMOS telem server.
+        @param url: The url where the COSMOS server listens for HTTP requests.
+        '''
         self._target = target
         self._url = url
         self._name_dict = {}
@@ -47,6 +55,7 @@ class COSMOSCommandLoader:
                 args = params[4:]
                 opcode = params[3]
                 for arg in args:
+                    # argument description has form [NAME, DEFAULT_VALUE, STATES, DESCRIPTION, UNITS_FULL, UNITS, REQUIRED, TYPE]
                     arg_arr.append({
                         "name": str(arg[0]),
                         "description": str(arg[3]),
@@ -62,13 +71,15 @@ class COSMOSCommandLoader:
 
     def get_name_dict(self):
         '''
-        Get the name of a command with the given opcode
+        Get the name of a command with the given opcode.
+        @return A dictionary of form {opcode: command_name ...}
         '''
         return self._name_dict
 
     def get_opcode_dict(self):
         '''
         Get the opcode of a command with the given name
+        @return A dictionary of form {command_name: opcode ...}
         '''
         return self._opcode_dict
 
@@ -76,6 +87,8 @@ class COSMOSCommandLoader:
         '''
         Get an array of arguments for a command in this dictionary. Returns None
         if the command has no arguments.
+        @return Array of dictionaries representing command arguments, each with
+                form {name: "", description: "", type: ""}
         '''
         if command_name in self._arg_dict.keys():
             return self._arg_dict[command_name]

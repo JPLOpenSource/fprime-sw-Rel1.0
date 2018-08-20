@@ -18,20 +18,12 @@ import sys
 import os
 import logging
 import time
-import glob
 import signal
-import subprocess
-from subprocess import PIPE, STDOUT
 
 from utils import Logger
-from utils import command_args
-from utils.checksum import *
-from models.serialize.u32_type import *
-
 from utils.ConfigManager import ConfigManager
 
 from cosmos import cosmos_telem_loader
-from cosmos import cosmos_command_loader
 from cosmos import cosmos_telem_queue
 from cosmos import cosmos_command_sender
 

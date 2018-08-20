@@ -14,8 +14,17 @@
 from cosmos import cosmos_http_request
 
 class COSMOSTelemLoader:
+    '''
+    Class to load event and channel metadata from COSMOS server.
+    '''
 
     def __init__(self, target, host, port):
+        '''
+        Constructor.
+        @param target: Name of this target on COSMOS server.
+        @param host: Hostname of COSMOS telemetry server
+        @param port: Port where COSMOS telem server listens for HTTP requests
+        '''
         self._target = target
         self._host_url = 'http://' + str(host) + ':' + str(port)
         self._event_id_dict = {}
@@ -46,6 +55,7 @@ class COSMOSTelemLoader:
         channel_list = []
 
         for (telem_name, descriptor) in telem_decriptors.iteritems():
+            # Separate telemtry into events and channels based on descriptor
             if descriptor == self._descriptors["event"]:
                 event_list.append(telem_name)
             elif descriptor == self._descriptors["channel"]:
@@ -62,7 +72,11 @@ class COSMOSTelemLoader:
     def get_attribute_dict(self, telem_list, field, attribute):
         '''
         For each telemetry item in telem_list, get the value of an attribute of a given field
-        as a dictionary of {item_name: value ...} pairs
+        as a dictionary of {item_name: value ...} pairs.
+        @param telem_list: List of telemetry names for which to query this attribute
+        @param field: Field of this telemerty item to query (i.e. "VALUE", "EVR_ID", etc.)
+        @param attribute: Attribute of this field to query.
+        @return A dictionary of the form {telem_name: attribute_value ... }
         '''
         params = map(lambda telem_name: [self._target, telem_name, field], telem_list)
         request = cosmos_http_request.COSMOSHTTPRequest(self._host_url, "get_tlm_details", [params])
@@ -80,24 +94,28 @@ class COSMOSTelemLoader:
 
     def get_event_id_dict(self):
         '''
-        Get dictionary of event ids indexed by name for this target
+        Get dictionary of event ids indexed by name for this target.
+        @return A dictionary of {event_name: event_id ...}
         '''
         return self._event_id_dict
 
     def get_channel_id_dict(self):
         '''
-        Get dictionary of channel ids indexed by name for this target
+        Get dictionary of channel ids indexed by name for this target.
+        @return A dictionary of {channel_name: channel_id ...}
         '''
         return self._channel_id_dict
 
     def get_event_name_dict(self):
         '''
-        Get dictionary of event names indexed by id for this target
+        Get dictionary of event names indexed by id for this target.
+        @return A dictionary of {event_id: event_name ...}
         '''
         return self._event_name_dict
 
     def get_channel_name_dict(self):
         '''
         Get dictionary of channel names indexed by id for this target
+        @return A dictionary of {channel_id: channel_name ...}
         '''
         return self._channel_name_dict
