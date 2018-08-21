@@ -26,6 +26,7 @@ from utils.ConfigManager import ConfigManager
 from cosmos import cosmos_telem_loader
 from cosmos import cosmos_telem_queue
 from cosmos import cosmos_command_sender
+from cosmos import cosmos_http_request
 
 class GseApi(object):
     """
@@ -33,7 +34,7 @@ class GseApi(object):
     but is indepent of any GUI package.  It is used to build test applicaitons
     for commanding and listening to event and channel telemetry.
 
-    This class will be used to build three command line applicaitons which
+    This class will be used to build three command line applications which
     are:
 
     gse_send(...) to send a command.
@@ -43,21 +44,22 @@ class GseApi(object):
     poll and if message then return it and update console and log file.
     """
 
-    def __init__(self, server_addr='127.0.0.1', port=7777, generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False):
+    def __init__(self, server_addr='127.0.0.1', port=7777, generated_path='', build_root='', log_file_cmds=None, log_file_events=None, log_file_channel=None, log_file_path=None, log_file_updown=None, listener_enabled=False, verbose=False, deployment=None):
         """
         Constructor.
         @param server_addr: Socket server addr
         @param port: Socket server port number
+        @param generated_path: Path to generated dictionaries (not applicable to COSMOS, but will try to parse deployment from here if provided)
         @param log_file_cmds: Name of command log file
         @param log_file_events: Name of log event log file
         @param log_file_channel: Name of channel telemetry log file
         @param log_file_path: Name of common directory path to save log files into
-        @param listener_enabled: If True then event/channel telemetry listener thread enabled, else dissabled
+        @param listener_enabled: If True then event/channel telemetry listener thread enabled, else disabled
         @param verbose: Enable diagonistic display of information
+        @param deployment: Name of target on COSMOS server
         """
-        # 1. Connect to socket server using controllers.client_sock.py
-        # 2. Create log files and loggers
-        # 3. Load configuration for commands, events, channels, using controllers.XXXXX_loader.py
+        # 1. Create log files and loggers
+        # 2. Load configuration for commands, events, channels, using cosmos API
         # 3. Start listener thread controllers.event_listern.py
 
         # For every console output log to a default file and stdout.
@@ -102,14 +104,42 @@ class GseApi(object):
         logger.info(sep_line)
 
         self.__url = 'http://' + str(server_addr) + ":" + str(port)
-        self._telem = cosmos_telem_loader.COSMOSTelemLoader("REF", server_addr, port)
-        self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("chans"), server_addr, port)
-        self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue("REF", self.list("evrs"), server_addr, port)
-        self._command_sender = cosmos_command_sender.COSMOSCommandSender("REF", self.__url)
-
         self.__server_addr = server_addr
         self.__port = port
         self.__logger = logger
+
+        deployment_key = ''
+        gen_path_config = config.get("filepaths", "generated_path")
+        if deployment is not None:
+            #Use deployment if provided
+            deployment_key = deployment.upper()
+        elif generated_path is not '':
+            #Parse from generated_path for backward compatibility
+            deployment_key = os.path.basename(generated_path).upper()
+        elif gen_path_config is not '':
+            #Parse from generated_path retreived from config manager
+            deployment_key = os.path.basename(gen_path_config).upper()
+        else:
+            #Try to load from COSMOS API, using first target besides 'SYSTEM'
+            request = cosmos_http_request.COSMOSHTTPRequest(self.__url, "get_target_list", [])
+            reply = request.send()
+            try:
+                deployments = reply["result"]
+                for deployment in deployments:
+                    if str(deployment) != 'SYSTEM':
+                        deployment_key = deployment
+                        break
+                print "WARNING: No deployment specified, falling back on loading from COSMOS API"
+            except KeyError:
+                raise Exception("Couldn't get deployments, encountered error: '%s'" % (reply["error"]["message"]))
+
+        print "Using deployment name %s" % deployment_key
+
+
+        self._telem = cosmos_telem_loader.COSMOSTelemLoader(deployment_key, server_addr, port)
+        self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("chans"), server_addr, port)
+        self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("evrs"), server_addr, port)
+        self._command_sender = cosmos_command_sender.COSMOSCommandSender(deployment_key, self.__url)
 
         super(GseApi, self).__init__()
 
@@ -327,7 +357,7 @@ class GseApi(object):
       @param timeout: Optional timeout in seconds (default is 5 seconds).
       @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
       """
-      evr_id = self._telem.get_event_id_dict()[evr_name]
+      evr_id = self.get_evr_id(evr_name)
       return self.__loop_queue(evr_id, 'evr', timeout)
 
     def send_wait_tlm(self, cmd_name, tlm_name, args=None, timeout=5):
@@ -355,7 +385,7 @@ class GseApi(object):
         @param timeout: Optional timeout in seconds (default is 5 seconds).
         @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
         """
-        channel_id = self._telem.get_channel_id_dict()[tlm_name]
+        channel_id = self.get_tlm_id(tlm_name)
         return self.__loop_queue(channel_id, 'ch', timeout)
 
     def monitor_evr(self, id=None, blocking=True):
@@ -375,8 +405,9 @@ class GseApi(object):
             while(True):
                 evr = self._evr_queue.get_next_value(blocking)
                 if evr is not None:
-                    evr_id = self.get_evr_id(evr[0])
-                    if id is None or evr_id in id:
+                    evr_name = evr[0]
+                    evr_id = self.get_evr_id(evr_name)
+                    if (id is None) or (evr_id in id) or (evr_name in id):
                         output = ' '.join(map(lambda item : str(item), evr))
                         self.__logger.info(output)
 
@@ -399,13 +430,15 @@ class GseApi(object):
         False it will poll for a channel value and display if one is present otherwise
         return.
         """
+
         signal.signal(signal.SIGINT, self.__ctrl_c_sig_handler)
         try:
             while(True):
                 tlm = self._telem_queue.get_next_value(blocking)
                 if tlm is not None:
-                    tlm_id = self.get_tlm_id(tlm[0])
-                    if id is None or tlm_id in id:
+                    tlm_name = tlm[0]
+                    tlm_id = self.get_tlm_id(tlm_name)
+                    if (id is None) or (tlm_id in id) or (tlm_name in id):
                         output = ' '.join(map(lambda item : str(item), tlm))
                         self.__logger.info(output)
 
@@ -420,7 +453,7 @@ class GseApi(object):
       @param evr_name: the name of a specific evr
       @return: the id of evr_name
       """
-      return self._telem.get_event_id_dict()[evr_name]
+      return self._telem.get_event_id_dict()[evr_name.upper()]
 
     def get_tlm_id(self, tlm_name):
       """
@@ -428,7 +461,7 @@ class GseApi(object):
       @param tlm_name: the name of a specific tlm
       @return: the id of tlm_name
       """
-      return self._telem.get_channel_id_dict()[tlm_name]
+      return self._telem.get_channel_id_dict()[tlm_name.upper()]
 
     def get_cmd_id(self, command_name):
       """
@@ -466,7 +499,7 @@ class GseApi(object):
 def main():
 
     # Example usage of api methods
-    api = GseApi(verbose=True) #telemetry isn't logged with monitor_*() unless output is verbose
+    api = GseApi(verbose=True, deployment="REF") #telemetry isn't logged with monitor_*() unless output is verbose
     print "\nStarting main() example script:\n"
 
     # Getters, setters, and listers
@@ -535,6 +568,16 @@ def main():
 
     try:
         api.monitor_evr()
+    except Exception:
+        print "\nTesting blocking monitor_tlm() with list of ids"
+
+    try:
+        api.monitor_tlm(id=['BD_CYCLES', 'SENDSTATE'])
+    except Exception:
+        print "\nTesting blocking monitor_evr() with list of ids"
+
+    try:
+        api.monitor_evr(id=['NOOPRECEIVED'])
     except Exception:
         print "\nDisconnecting and exiting"
 

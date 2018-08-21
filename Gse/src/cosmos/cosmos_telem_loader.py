@@ -48,7 +48,7 @@ class COSMOSTelemLoader:
             # If request was successful, telem_list will be an array of all telemetry names
             telem_list = map(lambda telem_packet : str(telem_packet[0]) , reply["result"])
         except KeyError:
-            raise Exception()
+            raise Exception("Couldn't load dictionaries, encountered error: '%s'" % (reply["error"]["message"]))
 
         telem_decriptors = self.get_attribute_dict(telem_list, "DESC", "id_value")
         event_list = []
