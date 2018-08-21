@@ -20,10 +20,10 @@ class CosmosConfigManager(ConfigParser.SafeConfigParser):
     """
     This class provides a single entrypoint for all configurable deployment servers / protocols.
     """
-    
+
     __instance = None
     __prop     = None
-    
+
     def __init__(self, deployment):
         """
         Constructor.
@@ -33,18 +33,18 @@ class CosmosConfigManager(ConfigParser.SafeConfigParser):
         ConfigParser.RawConfigParser.__init__(self)
         self.__prop   = dict()
         self._setProps()
-       
+
         # Check for ini file in current working directory with name as deployment
         util_dir = os.environ['BUILD_ROOT'] + "/Autocoders/src/utils/cosmos/util/"
-        
+
         ls = os.listdir(util_dir)
-        
+
         for fl in ls:
             if fl[0:len(deployment)].lower() == deployment.lower() and fl[len(deployment):len(fl)].lower() == '.ini':
                 file = fl
-        
+
         self.read(util_dir + file)
-    
+
     def getInstance(deployment):
         """
         Return instance of singleton.
@@ -52,11 +52,11 @@ class CosmosConfigManager(ConfigParser.SafeConfigParser):
         if(CosmosConfigManager.__instance is None):
             CosmosConfigManager.__instance = CosmosConfigManager(deployment)
         return CosmosConfigManager.__instance
-    
+
     #define static method
     getInstance = staticmethod(getInstance)
-    
-    
+
+
     def _setProps(self):
         """
         Used only by constructor to set all ConfigParser defaults. Establishes
@@ -68,12 +68,12 @@ class CosmosConfigManager(ConfigParser.SafeConfigParser):
         # General parameters here. This is the DEFAULT section.
         ################################################################
         # self.__prop['DEFAULT'] = dict()
-        
+
         #
         # 'DEFAULT' section is baked in for Python 2.6x
         # the call below will raise ValueError
         #
-        
+
         # This sets the defaults within a section.
         # self._setSectionDefaults('DEFAULT')
         ################################################################
@@ -105,9 +105,12 @@ class CosmosConfigManager(ConfigParser.SafeConfigParser):
         self.__prop['deployment']["has_max_length_r"]              = 'nil'
         self.__prop['deployment']["fill_ls_w"]              = 'true'
         self.__prop['deployment']["fill_ls_r"]              = 'true'
+        self.__prop['deployment']["use_router"]             = 'true'
+        self.__prop['deployment']["router_read_port"]       = 5001
+        self.__prop['deployment']["router_write_port"]      = 5001
         self._setSectionDefaults('deployment')
-    
-    
+
+
     def _setSectionDefaults(self, section):
         """
         For a section set up the default values.

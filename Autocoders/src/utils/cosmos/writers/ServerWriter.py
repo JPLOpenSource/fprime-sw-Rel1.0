@@ -27,7 +27,7 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
     This class generates the server definition file in
     cosmos_directory/config/targets/deployment_name.upper()/
     """
-    
+
     def __init__(self, cmd_tlm_data, deployment_name, cosmos_directory):
         """
         @param cmd_tlm_data: Tuple containing lists channels [0], commands [1], and events [2]
@@ -35,11 +35,11 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         @param cosmos_directory: Directory of COSMOS
         """
         super(ServerWriter, self).__init__(cmd_tlm_data, deployment_name, cosmos_directory)
-        
+
         # Initialize writer-unique file destination location
         self.destination = cosmos_directory + "/config/targets/" + deployment_name.upper() + "/"
-        
-                    
+
+
     def write(self):
         """
         Generates the file
@@ -48,12 +48,12 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         fl = open(self.destination + "cmd_tlm_server.txt", "w")
         if CosmosUtil.VERBOSE:
             print "Server Interface File Created"
-        
+
         # Initialize and fill cheetah template
         cs = Server.Server()
-        
+
         conf = CosmosConfigManager.CosmosConfigManager.getInstance(self.deployment_name)
-        
+
         cs.date = CheetahUtil.DATE
         cs.user = CheetahUtil.USER
         cs.target_name = self.deployment_name.upper()
@@ -81,8 +81,11 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         cs.has_max_length_r = conf.get('deployment' , 'has_max_length_r', 'r')
         cs.fill_ls_w = conf.get('deployment' , 'fill_ls_w', 'r')
         cs.fill_ls_r = conf.get('deployment' , 'fill_ls_r', 'r')
-                    
+        cs.use_router = conf.get('deployment', 'use_router', 'r')
+        cs.router_read_port = conf.get('deployment', 'router_read_port', 'r')
+        cs.router_write_port = conf.get('deployment', 'router_write_port', 'r')
+
         msg = cs.__str__()
-                    
+
         fl.writelines(msg)
         fl.close()
