@@ -149,7 +149,6 @@ class GseApi(object):
         '''
         self._telem_queue.destroy_subscription()
         self._evr_queue.destroy_subscription()
-        #self._command_sender.destroy_subscription()
 
     class TimeoutException(Exception):
         pass

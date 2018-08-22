@@ -90,7 +90,7 @@ class COSMOSTelemQueue:
         reply = request.send()
 
         try:
-            return self._format_telem(reply["result"])
+            telem = reply["result"]
         except KeyError:
             message = reply["error"]["message"]
             if (message == 'queue empty'):
@@ -98,12 +98,21 @@ class COSMOSTelemQueue:
             else:
                 raise Exception("Couldn't get next value, encountered error: " + message)
 
+
+        telem_name = str(telem[2])
+        request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "get_tlm_packet", [self.__target, telem_name])
+        reply = request.send()
+        value_item = filter(lambda item : item[0] == 'VALUE' or item[0] == 'MESSAGE', reply["result"])[0]
+
+        return (telem_name, str(value_item[1]))
+
     def _format_telem(self, telem_arr):
         '''
         Format an array representing a telemetry item returned from the COSMOS API as a
         tuple consisting of (name, value).
         @param telem_arr: Telemetry item returned in the COSMOS format of
-                         [RAW_PACKET, DEPLOYMENT, TELEMTRY_NAME, SECONDS, USECONDS, VALUE]
+                         [RAW_PACKET, DEPLOYMENT, TELEMTRY_NAME, SECONDS, USECONDS, RECEIVED_COUNT]
         @return A tuple with (TELEMETRY_NAME, VALUE)
         '''
+        print telem_arr
         return (str(telem_arr[2]), telem_arr[5])
