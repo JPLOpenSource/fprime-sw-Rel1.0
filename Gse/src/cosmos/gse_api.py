@@ -564,7 +564,7 @@ def main():
     try:
         api.monitor_tlm()
     except Exception:
-        print "\nTesting blocking evr_tlm() (events will be logged until Ctrl-C exit)"
+        print "\nTesting blocking monitor_evr() (events will be logged until Ctrl-C exit)"
 
     try:
         api.monitor_evr()
