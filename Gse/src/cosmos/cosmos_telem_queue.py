@@ -12,7 +12,10 @@
 # ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.
 #===============================================================================
 
+import struct
+
 from cosmos import cosmos_http_request
+from cosmos import cosmos_telem_loader
 
 class COSMOSTelemQueue:
     '''
@@ -35,6 +38,19 @@ class COSMOSTelemQueue:
         self.__channels = channels
         self.__host_url = 'http://' + str(host) + ':' + str(port)
         self.__queue_id = None # The ID of this queue on the COSMOS server
+        self.__loader_instance = cosmos_telem_loader.COSMOSTelemLoader.get_instance()
+        self.__format_strings = {
+            'UINT8': ">B",
+            'UINT16': ">H",
+            'UINT32': ">I",
+            'UINT64': ">Q",
+            'INT8': ">b",
+            'INT16': ">h",
+            'INT32': ">i",
+            'INT64': ">q",
+            'FLOAT32': ">f",
+            'FLOAT64': ">d"
+        }
         self.setup_subscription()
 
     def setup_subscription(self):
@@ -98,21 +114,70 @@ class COSMOSTelemQueue:
             else:
                 raise Exception("Couldn't get next value, encountered error: " + message)
 
-
+        telem_buffer = telem[0]["raw"]
         telem_name = str(telem[2])
-        request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "get_tlm_packet", [self.__target, telem_name])
-        reply = request.send()
-        value_item = filter(lambda item : item[0] == 'VALUE' or item[0] == 'MESSAGE', reply["result"])[0]
+        if self.__loader_instance.is_event(telem_name):
+            args = self._read_buffer(telem_buffer, telem_name)
+            format_string = self.__loader_instance.get_format_string(telem_name)
+            telem_value = format_string % tuple(args)
+        else:
+            telem_value = self._read_buffer(telem_buffer, telem_name)[0]
+        return (telem_name, telem_value)
 
-        return (telem_name, str(value_item[1]))
+    def _read_buffer(self, telem_buffer, telem_name):
+        '''
+        Read the values from a binary buffer
+        @param telem_buffer: Buffer to read
+        @param telem_name: Name of telemetry item that this packet came from
+        @return A list of the values extracted from this buffer
+        '''
+        buffer_descriptions = self.__loader_instance.get_buffer_description(telem_name)
+        formatted_values = []
+        for value_buffer_desc in buffer_descriptions:
+            type = str(value_buffer_desc["type"])
+            if (type == "STRING"):
+                # "size" field will be description of string length in binary packet
+                value_buffer_desc_copy = dict(value_buffer_desc)
+                str_length_bytes = self._read_buffer_item(telem_buffer, value_buffer_desc["size"])
+                value_buffer_desc_copy["size"] = str_length_bytes * 8
+                buffer_description = value_buffer_desc_copy
+            else:
+                buffer_description = value_buffer_desc
 
-    def _format_telem(self, telem_arr):
+            formatted_values.append(self._read_buffer_item(telem_buffer, buffer_description))
+
+        return formatted_values
+
+    def _read_buffer_item(self, telem_buffer, buffer_description):
         '''
-        Format an array representing a telemetry item returned from the COSMOS API as a
-        tuple consisting of (name, value).
-        @param telem_arr: Telemetry item returned in the COSMOS format of
-                         [RAW_PACKET, DEPLOYMENT, TELEMTRY_NAME, SECONDS, USECONDS, RECEIVED_COUNT]
-        @return A tuple with (TELEMETRY_NAME, VALUE)
+        Read a single item out of the buffer.
+        @param telem_buffer: The buffer to read from
+        @param buffer_description: The description of this buffer.
+        @return The value of this buffer
         '''
-        print telem_arr
-        return (str(telem_arr[2]), telem_arr[5])
+        offset = buffer_description["offset"]
+        states = buffer_description["states"]
+        type = str(buffer_description["type"])
+        size = buffer_description["size"]
+        offset_bytes = offset/8
+        size_bytes = size/8
+        telem_value_buffer = telem_buffer[offset_bytes:offset_bytes+size_bytes]
+        telem_value_bytes = bytearray(telem_value_buffer)
+        telem_value = struct.unpack(self._get_format_string(type, size), telem_value_bytes)[0]
+        if states is not None:
+            formatted_value = states[telem_value]
+        else:
+            formatted_value = telem_value
+        return formatted_value
+
+    def _get_format_string(self, type, size):
+        '''
+        Get the type format string for Python's struct.unpack()
+        @param type: Type name. One of INT, UINT, FLOAT, or STRING.
+        @param size: The length of the type in bits
+        '''
+        if type == "STRING":
+            return ">" + str(size / 8) + "s"
+        else:
+            type_code = type + str(size)
+            return self.__format_strings[type_code]

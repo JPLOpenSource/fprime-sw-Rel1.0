@@ -15,27 +15,58 @@ from cosmos import cosmos_http_request
 
 class COSMOSTelemLoader:
     '''
-    Class to load event and channel metadata from COSMOS server.
+    Singleton class to load event and channel metadata from COSMOS server.
     '''
+    __instance = None
 
-    def __init__(self, target, host, port):
+    def __init__(self):
         '''
         Constructor.
-        @param target: Name of this target on COSMOS server.
-        @param host: Hostname of COSMOS telemetry server
-        @param port: Port where COSMOS telem server listens for HTTP requests
         '''
-        self._target = target
-        self._host_url = 'http://' + str(host) + ':' + str(port)
+        self._target = None
+        self._host_url = None
         self._event_id_dict = {}
         self._channel_id_dict = {}
+        self._format_strings = {}
+        self._buffer_value_desc = {}
         self._descriptors = {
             "channel": 1,
             "event": 2
         }
-        self.load_dictionaries()
 
-    def load_dictionaries(self):
+    def get_instance():
+        """
+        Return instance of singleton.
+        """
+        if(COSMOSTelemLoader.__instance is None):
+            COSMOSTelemLoader.__instance = COSMOSTelemLoader()
+        return COSMOSTelemLoader.__instance
+
+    #define static method
+    get_instance = staticmethod(get_instance)
+
+    def set_target(self, target, host, port):
+        '''
+        Set the target of the singleton telemetry loader instance.
+        @param target: Name of this target on COSMOS server.
+        @param host: Hostname of COSMOS telemetry server
+        @param port: Port where COSMOS telem server listens for HTTP requests
+        '''
+        if (self._target is None):
+            self._target = target
+            self._host_url = 'http://' + str(host) + ':' + str(port)
+            self._load_dictionaries()
+        else:
+            raise Exception("Target already set, call unset_target() to release")
+
+    def unset_target(self):
+        '''
+        Release this loader isntance to be used with a different target.
+        '''
+        self._target = None
+        self._host_url = None
+
+    def _load_dictionaries(self):
         '''
         Query COSMOS API to load channel and event names, and load them into
         dictionaries in the format {mnemonic: code}
@@ -68,6 +99,63 @@ class COSMOSTelemLoader:
         #invert map to name indexed by id
         self._event_name_dict = {id: name for (name, id) in self._event_id_dict.iteritems()}
         self._channel_name_dict = {id: name for (name, id) in self._channel_id_dict.iteritems()}
+
+        #get size and offset of value in buffer for each channel
+        channel_bit_offset_dict = self.get_attribute_dict(channel_list, "VALUE", "bit_offset")
+        channel_bit_size_dict = self.get_attribute_dict(channel_list, "VALUE", "bit_size")
+        channel_data_type_dict = self.get_attribute_dict(channel_list, "VALUE", "data_type")
+        channel_state_dict = self.get_attribute_dict(channel_list, "VALUE", "states")
+        self._buffer_value_desc = {}
+        for channel in channel_list:
+            if channel_state_dict[channel] is not None:
+                channel_states = channel_state_dict[channel]
+                inverted_channel_states = {id: str(name) for (name, id) in channel_states.iteritems()}
+                states = inverted_channel_states
+            else:
+                states = None
+
+            self._buffer_value_desc[channel] = [{
+                "offset": channel_bit_offset_dict[channel],
+                "size": channel_bit_size_dict[channel],
+                "type": channel_data_type_dict[channel],
+                "states": states
+            }]
+
+        event_metadata_dict = self.get_attribute_dict(event_list, "MESSAGE", "meta")
+        for event in event_list:
+            self._buffer_value_desc[event] = []
+            for arg in event_metadata_dict[event]["ARGS"]:
+                arg_name = arg.upper()
+                arg_bit_offset = self.get_attribute_dict([event], arg_name, "bit_offset")[event]
+                arg_bit_size = self.get_attribute_dict([event], arg_name, "bit_size")[event]
+                arg_data_type = self.get_attribute_dict([event], arg_name, "data_type")[event]
+                arg_states = self.get_attribute_dict([event], arg_name, "states")[event]
+
+                if arg_states is not None:
+                    arg_states = {id: str(name) for (name, id) in arg_states.iteritems()}
+
+                # handle "String" type, which has an additional "Length" item which needed to be decoded
+                if arg_data_type == "STRING":
+                    arg_length_name = arg_name + "_LENGTH"
+                    arg_length_bit_offset = self.get_attribute_dict([event], arg_length_name, "bit_offset")[event]
+                    arg_length_bit_size = self.get_attribute_dict([event], arg_length_name, "bit_size")[event]
+                    arg_length_data_type = self.get_attribute_dict([event], arg_length_name, "data_type")[event]
+                    arg_bit_size = {
+                        "name": arg_length_name,
+                        "offset": arg_length_bit_offset,
+                        "size": arg_length_bit_size,
+                        "type": arg_length_data_type,
+                        "states": None
+                    }
+
+                self._buffer_value_desc[event].append({
+                    "name": arg_name,
+                    "offset": arg_bit_offset,
+                    "size": arg_bit_size,
+                    "type": arg_data_type,
+                    "states": arg_states
+                })
+            self._format_strings[event] = str(event_metadata_dict[event]["FORMAT_STRING"][0])
 
     def get_attribute_dict(self, telem_list, field, attribute):
         '''
@@ -119,3 +207,40 @@ class COSMOSTelemLoader:
         @return A dictionary of {channel_id: channel_name ...}
         '''
         return self._channel_name_dict
+
+    def get_buffer_description(self, telem_name):
+        '''
+        Get the size, offset, and type of the value field of a binary buffer for channels
+        or for an array of arguments for events
+        '''
+        return self._buffer_value_desc[telem_name]
+
+    def get_format_string(self, telem_name):
+        '''
+        Get sprintf style format string for event
+        @param telem_name
+        '''
+        return self._format_strings[telem_name]
+
+    def is_event(self, telem_name):
+        '''
+        Returns True if the provided telemetry is an event, otherwise False
+        @param telem_name: name of this telemetry in COSMOS dictionaries
+        @return: Boolean
+        '''
+        return (telem_name in self._event_id_dict)
+
+    def is_channel(self, telem_name):
+        '''
+        Returns True if the provided telemetry is an event, otherwise False
+        @param telem_name: name of this telemetry in COSMOS dictionaries
+        @return: Boolean
+        '''
+        return (telem_name in self._channel_id_dict)
+
+def main():
+    loader = COSMOSTelemLoader.get_instance()
+    loader.set_target("REF", "localhost", 7777)
+
+if __name__ == "__main__":
+    main()

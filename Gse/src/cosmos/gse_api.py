@@ -136,7 +136,8 @@ class GseApi(object):
         print "Using deployment name %s" % deployment_key
 
 
-        self._telem = cosmos_telem_loader.COSMOSTelemLoader(deployment_key, server_addr, port)
+        self._telem = cosmos_telem_loader.COSMOSTelemLoader.get_instance()
+        self._telem.set_target(deployment_key, server_addr, port)
         self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("chans"), server_addr, port)
         self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("evrs"), server_addr, port)
         self._command_sender = cosmos_command_sender.COSMOSCommandSender(deployment_key, self.__url)
@@ -185,7 +186,7 @@ class GseApi(object):
                         tlm_name = tlm[0]
                         tlm_value = tlm[1]
                         tlm_id = self.get_tlm_id(tlm_name)
-                        tlm_item = (tlm_id, tlm_value, tlm_name)
+                        tlm_item = (tlm_id, tlm_value)
                         tlm_list.append(tlm_item)
                         if type == "ch" and id == tlm_id:
                             notFound = False
@@ -193,7 +194,7 @@ class GseApi(object):
                         evr_name = evr[0]
                         evr_value = evr[1]
                         evr_id = self.get_evr_id(evr_name)
-                        evr_item = (evr_id, evr_value, evr_name)
+                        evr_item = (evr_id, evr_value)
                         evr_list.append(evr_item)
                         if type == "evr" and id == evr_id:
                             notFound = False
@@ -234,13 +235,13 @@ class GseApi(object):
                 tlm_name = tlm[0]
                 tlm_value = tlm[1]
                 tlm_id = self.get_tlm_id(tlm_name)
-                tlm_item = (tlm_id, tlm_value, tlm_name)
+                tlm_item = (tlm_id, tlm_value)
                 tlm_list.append(tlm_item)
             if evr:
                 evr_name = evr[0]
                 evr_value = evr[1]
                 evr_id = self.get_evr_id(evr_name)
-                evr_item = (evr_id, evr_value, evr_name)
+                evr_item = (evr_id, evr_value)
                 evr_list.append(evr_item)
 
       return tlm_list, evr_list
@@ -413,9 +414,8 @@ class GseApi(object):
                 if not blocking:
                     break
 
-        except Exception:
-            raise Exception
-
+        except Exception, ex:
+            raise ex
 
     def monitor_tlm(self, id=None, blocking=True):
         """
@@ -443,8 +443,8 @@ class GseApi(object):
 
                 if not blocking:
                     break
-        except Exception:
-            raise Exception
+        except Exception, ex:
+            raise ex
 
     def get_evr_id(self, evr_name):
       """
@@ -517,7 +517,7 @@ def main():
 
     # List all channel and event values received
     print "\nTesting receive()"
-    time.sleep(1) #Allow time for queue to populate with telemetry
+    time.sleep(2) #Allow time for queue to populate with telemetry
     chan_values, evr_values = api.receive()
     print "Received channel values: " + str(chan_values)
     print "Received event values: " + str(evr_values)
@@ -562,22 +562,26 @@ def main():
     print "\nTesting blocking monitor_tlm() (channel telemetry will be logged until Ctrl-C exit)"
     try:
         api.monitor_tlm()
-    except Exception:
+    except Exception, ex:
+        print ex
         print "\nTesting blocking monitor_evr() (events will be logged until Ctrl-C exit)"
 
     try:
         api.monitor_evr()
-    except Exception:
+    except Exception, ex:
+        print ex
         print "\nTesting blocking monitor_tlm() with list of ids"
 
     try:
         api.monitor_tlm(id=['BD_CYCLES', 'SENDSTATE'])
-    except Exception:
+    except Exception, ex:
+        print ex
         print "\nTesting blocking monitor_evr() with list of ids"
 
     try:
         api.monitor_evr(id=['NOOPRECEIVED'])
-    except Exception:
+    except Exception, ex:
+        print ex
         print "\nDisconnecting and exiting"
 
     #cleanup remote queues

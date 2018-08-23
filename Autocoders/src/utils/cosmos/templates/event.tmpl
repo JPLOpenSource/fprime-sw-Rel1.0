@@ -34,11 +34,17 @@ TELEMETRY ${target_caps} ${evr_name} ${endianness} "${evr_desc}"
     ITEM MESSAGE 0 0 DERIVED "Formatted String for Argument"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf("${format_string}" #slurp
-#for $name in $nonlen_names 
+#for $name in $nonlen_names
 , packet.read('$name') #slurp
 #end for
 )
       GENERIC_READ_CONVERSION_END
+      META FORMAT_STRING "${format_string}"
+      META ARGS #slurp
+#for $name in $nonlen_names
+$name #slurp
+#end for
+
     ITEM EVR_SEVERITY 0 0 DERIVED "Severity"
       GENERIC_READ_CONVERSION_START STRING 0
         sprintf('${severity}')
