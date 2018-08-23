@@ -119,7 +119,7 @@ class COSMOSTelemQueue:
         if self.__loader_instance.is_event(telem_name):
             args = self._read_buffer(telem_buffer, telem_name)
             format_string = self.__loader_instance.get_format_string(telem_name)
-            telem_value = format_string % tuple(args)
+            telem_value = args
         else:
             telem_value = self._read_buffer(telem_buffer, telem_name)[0]
         return (telem_name, telem_value)
