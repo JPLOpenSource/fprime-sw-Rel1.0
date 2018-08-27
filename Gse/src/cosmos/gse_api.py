@@ -340,11 +340,6 @@ class GseApi(object):
       @param timeout: Optional timeout in seconds (default is 5 seconds).
       @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
       """
-      # Use code in controllers.commander.Commander.cmd_send(...)
-      # Wait by blocking on queue if listener enabled.  Or you block on
-      # socket directly.  Reimplement the event_listern.update_task method
-      # in this class.
-      #TODO:what should return be if timeout
       status = self.send(cmd_name, args)
       if status == -1:
          return [], []
@@ -369,10 +364,6 @@ class GseApi(object):
         @param timeout: Optional timeout in seconds (default is 5 seconds).
         @return: A tuple with two lists (tlm_list, evr_list) of data collected while waiting
         """
-        # Use code in controllers.commander.Commander.cmd_send(...)
-        # Wait by blocking on same queue if listener enabled.  This
-        # reimplement the channel_listener.update() not to have the
-        # gui notify(..) call.
         status = self.send(cmd_name,args)
         if status == -1:
            return [], []
@@ -570,13 +561,13 @@ def main():
         api.monitor_evr()
     except Exception, ex:
         print ex
-        print "\nTesting blocking monitor_tlm() with list of ids"
+        print "\nTesting blocking monitor_tlm() with list of ids (BD_CYCLES and SENDSTATE only)"
 
     try:
         api.monitor_tlm(id=['BD_CYCLES', 'SENDSTATE'])
     except Exception, ex:
         print ex
-        print "\nTesting blocking monitor_evr() with list of ids"
+        print "\nTesting blocking monitor_evr() with list of ids (NOOPRECEIVED only)"
 
     try:
         api.monitor_evr(id=['NOOPRECEIVED'])

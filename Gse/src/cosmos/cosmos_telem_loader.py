@@ -69,7 +69,8 @@ class COSMOSTelemLoader:
     def _load_dictionaries(self):
         '''
         Query COSMOS API to load channel and event names, and load them into
-        dictionaries in the format {mnemonic: code}
+        dictionaries in the format {mnemonic: code}. Also calls internal methods
+        to load information about binary packet descriptions.
         '''
 
         request = cosmos_http_request.COSMOSHTTPRequest(self._host_url, "get_tlm_list", [self._target])
@@ -81,7 +82,7 @@ class COSMOSTelemLoader:
         except KeyError:
             raise Exception("Couldn't load dictionaries, encountered error: '%s'" % (reply["error"]["message"]))
 
-        telem_decriptors = self.get_attribute_dict(telem_list, "DESC", "id_value")
+        telem_decriptors = self._get_attribute_dict(telem_list, "DESC", "id_value")
         event_list = []
         channel_list = []
 
@@ -93,18 +94,25 @@ class COSMOSTelemLoader:
                 channel_list.append(telem_name)
 
         #create map of id's indexed by name
-        self._event_id_dict = self.get_attribute_dict(event_list, "EVR_ID", "id_value")
-        self._channel_id_dict = self.get_attribute_dict(channel_list, "CHANNEL_ID", "id_value")
+        self._event_id_dict = self._get_attribute_dict(event_list, "EVR_ID", "id_value")
+        self._channel_id_dict = self._get_attribute_dict(channel_list, "CHANNEL_ID", "id_value")
 
         #invert map to name indexed by id
         self._event_name_dict = {id: name for (name, id) in self._event_id_dict.iteritems()}
         self._channel_name_dict = {id: name for (name, id) in self._channel_id_dict.iteritems()}
 
-        #get size and offset of value in buffer for each channel
-        channel_bit_offset_dict = self.get_attribute_dict(channel_list, "VALUE", "bit_offset")
-        channel_bit_size_dict = self.get_attribute_dict(channel_list, "VALUE", "bit_size")
-        channel_data_type_dict = self.get_attribute_dict(channel_list, "VALUE", "data_type")
-        channel_state_dict = self.get_attribute_dict(channel_list, "VALUE", "states")
+        self._load_channel_buffer_descriptions()
+        self._load_event_buffer_descriptions()
+
+    def _load_channel_buffer_descriptions(self):
+        '''
+        Load location, type and size of value field in binary packets.
+        '''
+        channel_list = self._channel_name_dict.values()
+        channel_bit_offset_dict = self._get_attribute_dict(channel_list, "VALUE", "bit_offset")
+        channel_bit_size_dict = self._get_attribute_dict(channel_list, "VALUE", "bit_size")
+        channel_data_type_dict = self._get_attribute_dict(channel_list, "VALUE", "data_type")
+        channel_state_dict = self._get_attribute_dict(channel_list, "VALUE", "states")
         self._buffer_value_desc = {}
         for channel in channel_list:
             if channel_state_dict[channel] is not None:
@@ -121,43 +129,52 @@ class COSMOSTelemLoader:
                 "states": states
             }]
 
-        event_metadata_dict = self.get_attribute_dict(event_list, "MESSAGE", "meta")
+    def _load_event_buffer_descriptions(self):
+        '''
+        Load location, type and size of arguments to all evrs, and their format strings.
+        NOTE: Startup performance could be improved by lazy-loading these. This
+              is the only place where HTTP calls are made inside a loop.
+        '''
+        event_list = self._event_name_dict.values()
+        event_metadata_dict = self._get_attribute_dict(event_list, "MESSAGE", "meta")
         for event in event_list:
             self._buffer_value_desc[event] = []
             for arg in event_metadata_dict[event]["ARGS"]:
                 arg_name = arg.upper()
-                arg_bit_offset = self.get_attribute_dict([event], arg_name, "bit_offset")[event]
-                arg_bit_size = self.get_attribute_dict([event], arg_name, "bit_size")[event]
-                arg_data_type = self.get_attribute_dict([event], arg_name, "data_type")[event]
-                arg_states = self.get_attribute_dict([event], arg_name, "states")[event]
+                arg_attrs = self._get_attributes(event, arg_name)
 
-                if arg_states is not None:
-                    arg_states = {id: str(name) for (name, id) in arg_states.iteritems()}
+                if arg_attrs["states"] is not None:
+                    # COSMOS returns enums as dicts of code indexed by name. Need to invert this
+                    arg_states = {id: str(name) for (name, id) in arg_attrs["states"].iteritems()}
+                else:
+                    arg_states = None
 
-                # handle "String" type, which has an additional "Length" item which needed to be decoded
-                if arg_data_type == "STRING":
+                if arg_attrs["data_type"] == "STRING":
+                    # handle "String" type, which has an additional "Length" item which needs to be decoded
+                    # to deserialze string correctly
                     arg_length_name = arg_name + "_LENGTH"
-                    arg_length_bit_offset = self.get_attribute_dict([event], arg_length_name, "bit_offset")[event]
-                    arg_length_bit_size = self.get_attribute_dict([event], arg_length_name, "bit_size")[event]
-                    arg_length_data_type = self.get_attribute_dict([event], arg_length_name, "data_type")[event]
+                    arg_length_attrs = self._get_attributes(event, arg_length_name)
                     arg_bit_size = {
                         "name": arg_length_name,
-                        "offset": arg_length_bit_offset,
-                        "size": arg_length_bit_size,
-                        "type": arg_length_data_type,
+                        "offset": arg_length_attrs["bit_offset"],
+                        "size": arg_length_attrs["bit_size"],
+                        "type": arg_length_attrs["data_type"],
                         "states": None
                     }
 
+                else:
+                    arg_bit_size = arg_attrs["bit_size"]
+
                 self._buffer_value_desc[event].append({
                     "name": arg_name,
-                    "offset": arg_bit_offset,
+                    "offset": arg_attrs["bit_offset"],
                     "size": arg_bit_size,
-                    "type": arg_data_type,
+                    "type": arg_attrs["data_type"],
                     "states": arg_states
                 })
             self._format_strings[event] = str(event_metadata_dict[event]["FORMAT_STRING"][0])
 
-    def get_attribute_dict(self, telem_list, field, attribute):
+    def _get_attribute_dict(self, telem_list, field, attribute):
         '''
         For each telemetry item in telem_list, get the value of an attribute of a given field
         as a dictionary of {item_name: value ...} pairs.
@@ -178,6 +195,19 @@ class COSMOSTelemLoader:
             return resultDict
         except KeyError:
             raise Exception("Failed to get attribute: " + reply["error"]["message"])
+
+    def _get_attributes(self, telem_name, field):
+        '''
+        Get the full descriptions of all attributes for a particular field within a
+        telemetry packet.
+        '''
+        params = [[self._target, telem_name, field]]
+        request = cosmos_http_request.COSMOSHTTPRequest(self._host_url, "get_tlm_details", [params])
+        reply = request.send()
+        try:
+            return reply["result"][0]
+        except KeyError:
+            raise Exception("Couldn't get attributes of %s's %s: encountered error %s" % (telem_name, field, reply["error"]["message"]))
 
 
     def get_event_id_dict(self):
