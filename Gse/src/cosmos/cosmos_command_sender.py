@@ -72,6 +72,8 @@ class COSMOSCommandSender:
         try:
             if ("result" in reply.keys()):
                 return 0
+            else:
+                return -1
         except KeyError:
             return -1
 
@@ -106,6 +108,10 @@ def main():
         cmd.send_command("CMD_NO_OP_STRING", [7, "TESTING", "BADARG"])
     except Exception, ex:
         print "Sending CMD_NO_OP_STRING with wrong number of arguments raises exception '%s'" % ex.args[0]
+    try:
+        cmd.send_command("NOT_A_COMMAND", [])
+    except Exception, ex:
+        print "Sending invalid command raises exception '%s'" % ex.args[0]
 
 if __name__ == '__main__':
     main()

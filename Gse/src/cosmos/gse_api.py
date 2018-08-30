@@ -183,20 +183,12 @@ class GseApi(object):
                     time.sleep(0.1)
                 else:
                     if tlm:
-                        tlm_name = tlm[0]
-                        tlm_value = tlm[1]
-                        tlm_id = self.get_tlm_id(tlm_name)
-                        tlm_item = (tlm_id, tlm_value)
-                        tlm_list.append(tlm_item)
-                        if type == "ch" and id == tlm_id:
+                        tlm_list.append(tlm)
+                        if type == "ch" and id == tlm[0]:
                             notFound = False
                     if evr:
-                        evr_name = evr[0]
-                        evr_value = evr[1]
-                        evr_id = self.get_evr_id(evr_name)
-                        evr_item = (evr_id, evr_value)
-                        evr_list.append(evr_item)
-                        if type == "evr" and id == evr_id:
+                        evr_list.append(evr)
+                        if type == "evr" and id == evr[0]:
                             notFound = False
 
         except self.TimeoutException:
@@ -207,13 +199,28 @@ class GseApi(object):
         return tlm_list, evr_list
 
     def _pop_queue(self):
-      """
-      Grabs one event/telemetry from queue
-      """
-      evr = self._evr_queue.get_next_value()
-      tlm = self._telem_queue.get_next_value()
+        """
+        Grabs one event/telemetry from queue
+        """
+        tlm = self._telem_queue.get_next_value()
+        if tlm is not None:
+            tlm_name = tlm[0]
+            tlm_value = tlm[1]
+            tlm_id = self.get_tlm_id(tlm_name)
+            tlm_item = (tlm_id, tlm_value)
+        else:
+            tlm_item = None
 
-      return tlm, evr
+        evr = self._evr_queue.get_next_value()
+        if evr is not None:
+            evr_name = evr[0]
+            evr_value = evr[1]
+            evr_id = self.get_evr_id(evr_name)
+            evr_item = (evr_id, evr_value)
+        else:
+            evr_item = None
+
+        return tlm_item, evr_item
 
     def receive(self):
       """
@@ -232,17 +239,9 @@ class GseApi(object):
             empty = True
         else:
             if tlm:
-                tlm_name = tlm[0]
-                tlm_value = tlm[1]
-                tlm_id = self.get_tlm_id(tlm_name)
-                tlm_item = (tlm_id, tlm_value)
-                tlm_list.append(tlm_item)
+                tlm_list.append(tlm)
             if evr:
-                evr_name = evr[0]
-                evr_value = evr[1]
-                evr_id = self.get_evr_id(evr_name)
-                evr_item = (evr_id, evr_value)
-                evr_list.append(evr_item)
+                evr_list.append(evr)
 
       return tlm_list, evr_list
 
