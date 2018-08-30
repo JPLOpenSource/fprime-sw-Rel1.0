@@ -13,10 +13,10 @@
 #
 from cosmos import history
 
-__author__ = "Kevin Dinkel"
-__copyright__ = "Copyright 2015, California Institute of Technology."
+__author__ = "Aaron Doubek-Kraft"
+__copyright__ = "Copyright 2018, California Institute of Technology."
 __version__ = "1.0"
-__email__ = "kevin.dinkel@jpl.nasa.gov"
+__email__ = "aarond.doubek-kraft@jpl.nasa.gov"
 
 class TestHistory(object):
   '''

@@ -69,7 +69,8 @@ History.assert_eq(History.near(3.1415, epsilon=0.01))
 '''
 class __close_to(object):
     '''
-    An object that always returns True when compared.
+    An object that returns true if comparision value is within some epsilon of
+    its value
     '''
     def __init__(self, value, epsilon = 10e-4):
         self.val = value
