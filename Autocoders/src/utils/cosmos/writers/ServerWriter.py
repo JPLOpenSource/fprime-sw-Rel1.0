@@ -81,7 +81,11 @@ class ServerWriter(AbstractCosmosWriter.AbstractCosmosWriter):
         cs.has_max_length_r = conf.get('deployment' , 'has_max_length_r', 'r')
         cs.fill_ls_w = conf.get('deployment' , 'fill_ls_w', 'r')
         cs.fill_ls_r = conf.get('deployment' , 'fill_ls_r', 'r')
-        cs.use_router = conf.get('deployment', 'use_router', 'r')
+        use_router = conf.get('deployment', 'use_router', 'r')
+        if use_router == "True":
+            cs.use_router = True
+        else:
+            cs.use_router = False 
         cs.router_read_port = conf.get('deployment', 'router_read_port', 'r')
         cs.router_write_port = conf.get('deployment', 'router_write_port', 'r')
 
