@@ -762,7 +762,6 @@ class TestApi(GseApi, TestHistory):
     tlms = [(self._telem.get_channel_name_dict()[p[0]], p[1]) for p in tlms]
     super(TestApi, self).add(evrs, tlms)
 
-
 def main():
     # This is a simple test against the Reference application: send a noop command and make sure it succeeds.
     api = TestApi(deployment="REF")

@@ -136,11 +136,11 @@ class GseApi(object):
         print "Using deployment name %s" % deployment_key
 
 
-        self._telem = cosmos_telem_loader.COSMOSTelemLoader.get_instance()
-        self._telem.set_target(deployment_key, server_addr, port)
-        self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("chans"), server_addr, port)
-        self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("evrs"), server_addr, port)
+        self._telem = cosmos_telem_loader.COSMOSTelemLoader()
         self._command_sender = cosmos_command_sender.COSMOSCommandSender(deployment_key, self.__url)
+        self._telem.set_target(deployment_key, server_addr, port)
+        self._telem_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("chans"), server_addr, port, self._telem)
+        self._evr_queue = cosmos_telem_queue.COSMOSTelemQueue(deployment_key, self.list("evrs"), server_addr, port, self._telem)
 
         super(GseApi, self).__init__()
 
@@ -489,6 +489,7 @@ def main():
 
     # Example usage of api methods
     api = GseApi(verbose=True, deployment="REF") #telemetry isn't logged with monitor_*() unless output is verbose
+    api2 = GseApi(verbose=True, deployment="REF")
     print "\nStarting main() example script:\n"
 
     # Getters, setters, and listers
@@ -506,41 +507,63 @@ def main():
     print "Command with opcode " + str(cmd_id_list[0]) + " is named " + api.get_cmd_name(cmd_id_list[0])
 
     # List all channel and event values received
-    print "\nTesting receive()"
-    time.sleep(2) #Allow time for queue to populate with telemetry
-    chan_values, evr_values = api.receive()
-    print "Received channel values: " + str(chan_values)
-    print "Received event values: " + str(evr_values)
+    # print "\nTesting receive()"
+    # time.sleep(2) #Allow time for queue to populate with telemetry
+    # chan_values, evr_values = api.receive()
+    # print "Received channel values: " + str(chan_values)
+    # print "Received event values: " + str(evr_values)
 
     # Empty event and channel queues
-    print "\nTesting flush()"
-    time.sleep(1)
-    api.flush()
-    chan_values, evr_values = api.receive()
-    print "Channel values after flush: " + str(chan_values)
-    print "Event values after flush: " + str(chan_values)
+    # print "\nTesting flush()"
+    # time.sleep(1)
+    # api.flush()
+    # chan_values, evr_values = api.receive()
+    # print "Channel values after flush: " + str(chan_values)
+    # print "Event values after flush: " + str(chan_values)
 
     #send a command
     print "\nTesting send()"
     cmdSucceeded = api.send("CMD_NO_OP")
     print "Command succeeded" if cmdSucceeded == 0 else "Failed to send command"
 
+    #send a command
+    print "\nTesting send2()"
+    cmdSucceeded = api2.send("CMD_NO_OP")
+    print "Command succeeded" if cmdSucceeded == 0 else "Failed to send command"
+
     #wait for particular channel telemetry
     print "\nTesting wait_tlm()"
     print "Found " + str(api.wait_tlm("BD_CYCLES")[0][-1])
+
+    #wait for particular channel telemetry
+    print "\nTesting wait_tlm2()"
+    print "Found " + str(api2.wait_tlm("BD_CYCLES")[0][-1])
 
     #wait for a particular evr
     print "\nTesting wait_evr()"
     api.send("CMD_NO_OP")
     print "Found " + str(api.wait_evr("NOOPRECEIVED")[1][-1])
 
+    #wait for a particular evr
+    print "\nTesting wait_evr2()"
+    api.send("CMD_NO_OP")
+    print "Found " + str(api2.wait_evr("NOOPRECEIVED")[1][-1])
+
     #send a command and wait for a related EVR
     print "\nTesting send_wait_evr()"
     print "Found " + str(api.send_wait_evr("CMD_NO_OP_STRING", "NOOPSTRINGRECEIVED", [10, "Testing123"])[1][-1])
 
+    #send a command and wait for a related EVR
+    print "\nTesting send_wait_evr2()"
+    print "Found " + str(api2.send_wait_evr("CMD_NO_OP_STRING", "NOOPSTRINGRECEIVED", [10, "Testing123"])[1][-1])
+
     #send a command and wait for related channel telemetry
     print "\nTesting send_wait_tlm()"
     print "Found " + str(api.send_wait_tlm("CMD_NO_OP", "COMMANDSDISPATCHED")[0][-1])
+
+    #send a command and wait for related channel telemetry
+    print "\nTesting send_wait_tlm2()"
+    print "Found " + str(api2.send_wait_tlm("CMD_NO_OP", "COMMANDSDISPATCHED")[0][-1])
 
     # Log next event or channel packet to file, or none if no packets are queued
     print "\nTesting non-blocking monitor_evr() and monitor_tlm()"

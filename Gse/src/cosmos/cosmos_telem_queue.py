@@ -13,6 +13,7 @@
 #===============================================================================
 
 import struct
+import re
 
 from cosmos import cosmos_http_request
 from cosmos import cosmos_telem_loader
@@ -26,7 +27,7 @@ class COSMOSTelemQueue:
     distinguish between events and telemetry, so this interface works for both.
     '''
 
-    def __init__(self, target, channels, host, port):
+    def __init__(self, target, channels, host, port, cosmos_telem_loader):
         '''
         Constructor.
         @param target: Name of this target on the COSMOS telemetry server
@@ -38,7 +39,7 @@ class COSMOSTelemQueue:
         self.__channels = channels
         self.__host_url = 'http://' + str(host) + ':' + str(port)
         self.__queue_id = None # The ID of this queue on the COSMOS server
-        self.__loader_instance = cosmos_telem_loader.COSMOSTelemLoader.get_instance()
+        self.__loader_instance = cosmos_telem_loader
         self.__format_strings = {
             'UINT8': ">B",
             'UINT16': ">H",
@@ -64,7 +65,7 @@ class COSMOSTelemQueue:
         if (self.__queue_id is not None):
             raise Exception('Queue already registered: call destroy_subscription() to reset')
 
-        req_params = [map(lambda channel : [self.__target, channel], self.__channels)]
+        req_params = [map(lambda channel : [self.__target, channel], self.__channels), 1000]
         request = cosmos_http_request.COSMOSHTTPRequest(self.__host_url, "subscribe_packet_data", req_params)
         reply = request.send()
 
@@ -109,8 +110,16 @@ class COSMOSTelemQueue:
             telem = reply["result"]
         except KeyError:
             message = reply["error"]["message"]
+            message_re = re.match("Packet data queue with id (.+) not found", message)
             if (message == 'queue empty'):
                 return None
+            elif (message_re is not None):
+                # The remote queue has been destroyed, most likely due to filling up with data.
+                # Try to establish a new queue
+                self.__queue_id = None
+                self.setup_subscription()
+                return None
+
             else:
                 raise Exception("Couldn't get next value, encountered error: " + message)
 

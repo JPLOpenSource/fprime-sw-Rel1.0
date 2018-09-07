@@ -64,7 +64,7 @@ with the COSMOS API while abstracting out the handling of HTTP requests and resp
 | cosmos_command_sender.py | Sends commands using the COSMOS commanding API. |
 | cosmos_http_request.py | Simple abstraction of COSMOS HTTP requests. |
 | cosmos_telem_loader.py | Loads event and telemetry names and id's, and exposes them as Python dictionaries. |
-| cosmos_telem_queue.py | Creates a telemetry queue on the COSMOS server and retreives data from it. |
+| cosmos_telem_queue.py | Creates a telemetry queue on the COSMOS server and retrieves data from it. |
 | gse_api.py | COSMOS version of the generic GSE API used to build integration tests. Contains a main() method with example usage of each API method.|
 | bin/ | Example test scripts duplicated from `utils/`, included to test backward compatibility |
 

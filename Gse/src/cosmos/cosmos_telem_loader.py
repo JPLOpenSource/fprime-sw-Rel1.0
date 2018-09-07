@@ -34,16 +34,16 @@ class COSMOSTelemLoader:
             "event": 2
         }
 
-    def get_instance():
-        """
-        Return instance of singleton.
-        """
-        if(COSMOSTelemLoader.__instance is None):
-            COSMOSTelemLoader.__instance = COSMOSTelemLoader()
-        return COSMOSTelemLoader.__instance
-
-    #define static method
-    get_instance = staticmethod(get_instance)
+    # def get_instance():
+    #     """
+    #     Return instance of singleton.
+    #     """
+    #     if(COSMOSTelemLoader.__instance is None):
+    #         COSMOSTelemLoader.__instance = COSMOSTelemLoader()
+    #     return COSMOSTelemLoader.__instance
+    #
+    # #define static method
+    # get_instance = staticmethod(get_instance)
 
     def set_target(self, target, host, port):
         '''
