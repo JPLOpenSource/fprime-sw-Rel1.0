@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>Painterro demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      html,body,#wrapper {
+        height:100%;
+        margin:0;
+        padding:0;
+        background-color: lightgray;
+      }
+
+      #conatiner {
+        position: absolute;
+        top: 50px;
+        bottom: 50px;
+        left: 20px;
+        right: 20px;
+      }
+
+    </style>
+  </head>
+<body>
+
+<div id="wrapper">
+  <div id="conatiner">
+
+  </div>
+  <button onclick="p.show()">Show</button>
+  fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>fads<br>
+</div>
+
+<!--<script src="https://github.com/ivictbor/painterro/releases/download/0.1.7/painterro-0.1.7.min.js"></script>-->
+<script src="/painterro.min.js"></script>
+
+<script>
+
+//  Painterro({
+//    id: 'conatiner',
+//    backgroundFillColor: '#eee',
+//    colorScheme: {
+//      main: '#faf',
+//      control: '#d5d',
+//      activeControl: '#572257',
+//      inputBackground: '#cf99ca',
+//    }
+//  });
+
+  window.p = Painterro({
+    id: 'conatiner',
+    initText: 'Press <strong>Prn Scr</strong>, Ctrl+V to paste a screenshot',
+    changeHandler: function (state) {
+      console.log('Something drawed: ', state);
+     // localStorage.setItem('painterroImage', this.imageSaver.asDataURL())
+    },
+   availableLineWidths: [1,2,4,8,16,64],
+   availableEraserWidths: [1,2,4,8,16,64],
+   availableFontSizes: [1,2,4,8,16,64],
+   // toolbarPosition: 'top',
+    // fixMobilePageReloader: false,
+    // defaultTool: 'line',
+    //hiddenTools: ['line']
+  }).show() //;
+</script>
+</body>
+</html>
