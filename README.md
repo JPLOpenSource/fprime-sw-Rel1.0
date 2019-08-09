@@ -17,7 +17,7 @@ Rel1.0 - This branch with the experimental ZeroMQ stuff.
 
 cosmos - In Autocoders/bin a cosmos configuration generator.  This produces configuration for the COSMOS GSE tool located at https://cosmosrb.com.  It configures the cosmos server to connect up to the Ref app which uses TCP socket connection.  The Ref app is the client.
 
-openmct - This branch has an experimental OpenMCT configuration and Node.js server for it.  The Node.js app connects to the old Gse TCP socket server and provies a web socket interface to OpenMCT.  There is a ReadMe.md file in the openmct directory.
+openmct - This branch has an experimental OpenMCT configuration and Node.js server for it.  The Node.js app connects to the old Gse TCP socket server and provies a web socket interface to OpenMCT.  There is a ReadMe.md file in the openmct directory. Information on OpenMCT is located at https://nasa.github.io/openmct/.
 
 Questions about this repo can be sent to reder@jpl.nasa.gov 
 
